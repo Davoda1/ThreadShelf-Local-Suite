@@ -1,0 +1,35 @@
+{
+  "name": "Noto Sans JP",
+  "version": "2.004",
+  "license": "OFL-1.1",
+  "licenseFile": "NotoSansJP-OFL.txt",
+  "upstream": {
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+    "retrievedUTC": "2026-09-29T06:52:25.434558+00:00",
+    "bytes": 9589900,
+    "sha256": "c2f3b4d463500a2ddcd3849cded1fceeb9fd6d1c32e6cbecd568453ba50fc68f"
+  },
+  "shipped": {
+    "file": "src/ui/fonts/NotoSansJP-variable.woff2",
+    "bytes": 4350080,
+    "sha256": "6fd94964d1990baa2a392cea7a036683d2b80b9dfd590cb3918e8dab98d8e188",
+    "format": "WOFF2"
+  },
+  "conversion": {
+    "tool": "fontTools 4.61.1 with Brotli 1.2.0",
+    "method": "TTFont(source, recalcTimestamp=False); font.flavor=\"woff2\"; font.save(destination)",
+    "subset": false,
+    "glyphOutlineEdits": false,
+    "characterMapAndGlyphOrderVerifiedUnchanged": true
+  },
+  "coverage": {
+    "glyphs": 17936,
+    "mappedUnicodeCodepoints": 16732,
+    "weightAxis": {
+      "minimum": 100,
+      "maximum": 900
+    },
+    "japaneseUiSample": "日本語会話設定読書検索履歴活動コレクショングラフひらがなカタカナＡＢＣ１２３。、！「」",
+    "japaneseUiSampleAllMapped": true
+  }
+}

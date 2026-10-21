@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs/promises';import path from 'node:path';import os from 'node:os';
+import {AnalyticsService} from '../src/core/application-service.mjs';
+test('missing owned captures cannot keep a previously captured source ready; uncaptured registrations remain registered',async()=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-missing-capture-'));let service;
+ try{service=await new AnalyticsService(path.join(root,'owned')).init();service.state.sources=[{id:'a'.repeat(64),kind:'files',paths:[path.join(root,'disconnected.json')],status:'ready',conversationCount:2},{id:'b'.repeat(64),kind:'files',paths:[path.join(root,'never-captured.json')],status:'registered',conversationCount:0}];await service.persistState();await service.close();service=await new AnalyticsService(path.join(root,'owned')).init();assert.equal(service.payload().conversations.length,0);assert.equal(service.state.sources[0].status,'cache-unavailable');assert.equal(service.state.sources[0].conversationCount,0);assert.match(service.state.sources[0].cacheError,/No retained Analytics capture/);assert.equal(service.state.sources[1].status,'registered');assert.equal(service.state.sources[1].cacheError,undefined);await assert.rejects(fs.stat(path.join(root,'disconnected.json')),{code:'ENOENT'});
+ }finally{await service?.close();await fs.rm(root,{recursive:true,force:true});}
+});

@@ -1,0 +1,32 @@
+# Packaging policy
+
+Public release 1.0.0 produces these native packages:
+
+- `ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable.zip`
+- `ThreadShelf-Local-Analytics-1.0.0-Linux-amd64.tar.gz`
+- `threadshelf-local-analytics_1.0.0_amd64.deb`
+
+The Windows EXE is at the archive root. The Linux archive contains `bin/threadshelf-local-analytics` and a root link, each pointing directly to `app/threadshelf-local-analytics`. The DEB installs a native executable under `/opt/threadshelf-local-analytics` and a direct `/usr/bin` link. Runtime packages contain no GUI launcher scripts.
+
+## Toolchain
+
+Release builds use Node 24.19.0, npm 11.9.0 and Electron 44.9.1. The isolated runtime helper resolves the exact Node release from the release's official `SHASUMS256.txt` and verifies the downloaded archive. `--system` on GNU/Linux or the corresponding Windows switch allows an existing Node installation; use the exact release versions for reproducibility. Electron archive checksums are verified against the release checksum file. Dependency versions are locked in `package-lock.json`.
+
+Linux build tools include curl, tar, xz, sha256sum, Python 3 and dpkg-deb. The target desktop needs the GTK/graphics libraries required by Electron. A DEB is created on Linux; Windows packaging can also run on Linux. Cross-platform packaging is not native Windows execution testing.
+
+## Build and package
+
+From this application directory:
+
+```sh
+./scripts/run.sh --build
+./scripts/run.sh --test
+node scripts/package.mjs --linux --win32 --out release
+python3 scripts/validate-packages.py --binaries --out release --runtime-cache .packaging/runtime-cache
+```
+
+On Windows use `scripts/run.ps1 -Build`, `scripts/run.ps1 -Test`, and `node scripts/package.mjs --win32 --out release`. The `run.cmd` wrapper forwards the same actions. `--runtime-cache /path/to/cache` can reuse verified Electron ZIPs and their checksum file. Build commands require access to the official Node/Electron downloads and npm registry unless those inputs are already cached.
+
+The package script uses the renderer already produced by the build step, stages only production dependencies, bundles the original 7-Zip executable and required license/source offer, and creates native archives. The Linux package verifies expected native symlinks and rejects launcher scripts. The validator checks package structure, runtime contents, native executable identities, required resources, notices, and checksums.
+
+The suite release uses one combined source archive and a release checksum manifest. Component `--source` packaging and the synthetic browser preview are optional development conveniences, not additional required releases. Exclude `node_modules`, runtime/build caches, personal profiles, environment files and private captures from the source archive.

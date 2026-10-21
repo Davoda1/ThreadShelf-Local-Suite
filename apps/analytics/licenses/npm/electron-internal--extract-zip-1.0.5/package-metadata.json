@@ -1,0 +1,9 @@
+{
+  "name": "@electron-internal/extract-zip",
+  "version": "1.0.5",
+  "license": "BSD-2-Clause",
+  "repository": {
+    "url": "https://github.com/electron/extract-zip"
+  },
+  "retainedNotices": []
+}

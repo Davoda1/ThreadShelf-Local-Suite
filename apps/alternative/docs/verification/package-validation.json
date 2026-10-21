@@ -1,0 +1,31 @@
+{
+  "evidenceScope": "Initial packaging and capture baseline before the final publication audit. Archive hashes and test totals here describe that baseline, not the rebuilt final release. Consult the final successful Build desktop packages workflow and release verification receipt for final artifacts.",
+  "checks": [
+    {
+      "package": "ThreadShelf-Local-Alternative-1.0.0-Windows-x64-Portable.zip",
+      "native_root_exe": true,
+      "no_launcher_scripts": true,
+      "source_parity": true
+    },
+    {
+      "package": "ThreadShelf-Local-Alternative-1.0.0-Linux-amd64.tar.gz",
+      "bin_symlink_to_native_elf": true,
+      "no_launcher_scripts": true,
+      "source_parity": true
+    },
+    {
+      "package": "threadshelf-local-alternative_1.0.0_amd64.deb",
+      "usr_bin_symlink_to_native_elf": true,
+      "root_ownership": true,
+      "sandbox_mode_4755": true,
+      "desktop_entry": true,
+      "no_launcher_scripts": true,
+      "source_parity": true
+    }
+  ],
+  "application_files_compared_per_package": 32,
+  "official_runtime_files_and_hashes_verified": true,
+  "limitations": [
+    "Static packaging validation does not demonstrate native Windows launch or installation on every Linux distribution."
+  ]
+}

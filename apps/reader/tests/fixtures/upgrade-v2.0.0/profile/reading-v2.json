@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "positions": {
+      "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}": {
+        "turnIndex": 91,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "updatedAt": 1790649571665
+      }
+    },
+    "bookmarks": [
+      {
+        "turnIndex": 7,
+        "role": "user",
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "key": "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}",
+        "updatedAt": 1790649571665
+      }
+    ],
+    "recent": [
+      {
+        "turnIndex": 91,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "updatedAt": 1790649571665,
+        "key": "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}"
+      }
+    ]
+  }
+}

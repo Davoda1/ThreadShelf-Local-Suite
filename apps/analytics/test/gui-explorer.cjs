@@ -1,0 +1,28 @@
+/* Actual shipped offline UI under Linux Electron; entirely synthetic data.
+ * --no-sandbox is a test-only accommodation for a root/socket-limited host.
+ * Production executable and sandbox options are unchanged. */
+const fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict'),net=require('node:net');
+const {spawn}=require('node:child_process'),{_electron}=require('playwright');
+const project=path.resolve(__dirname,'..');let app,xserver,temp,page;
+const facts={version:'1.0.0',runtime:'Actual offline UI in Linux Electron',syntheticOnly:true,productionSourcesUnmodified:true,testOnlyRootSandboxFlag:true,errors:[],requests:[],families:[],layouts:[],workflows:[]};
+const waitPort=port=>new Promise((resolve,reject)=>{const end=Date.now()+12000;function check(){const socket=net.createConnection({host:'127.0.0.1',port});socket.once('connect',()=>{socket.destroy();resolve()});socket.once('error',()=>Date.now()>end?reject(Error('Display unavailable')):setTimeout(check,100))}check()});
+async function layout(name){const m=await page.evaluate(()=>({width:innerWidth,height:innerHeight,bodyWidth:document.body.scrollWidth,bodyHeight:document.body.scrollHeight}));assert(m.bodyWidth<=m.width+1&&m.bodyHeight<=m.height+1,name+' global overflow');facts.layouts.push({name,...m});}
+(async()=>{try{
+ temp=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-explorer-gui-'));const env={...process.env};
+ if(env.ANALYTICS_XVFB_PATH){env.DISPLAY='localhost:107';xserver=spawn(env.ANALYTICS_XVFB_PATH,[':107','-screen','0','2000x1400x24','-ac','-nolisten','unix','-nolisten','local','-listen','tcp','-pn',...(env.ANALYTICS_XKB_DIR?['-xkbdir',env.ANALYTICS_XKB_DIR]:[])],{env,stdio:'ignore'});await waitPort(6107)}
+ const main=path.join(temp,'main.cjs');await fs.writeFile(main,"const{app,BrowserWindow}=require('electron');app.whenReady().then(()=>{const w=new BrowserWindow({width:1180,height:800,minWidth:680,minHeight:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile("+JSON.stringify(path.join(project,'release','ThreadShelf-Local-Analytics-1.0.0-Preview.html'))+");});app.on('window-all-closed',()=>app.quit());");
+ app=await _electron.launch({executablePath:path.join(project,'node_modules/electron/dist/electron'),args:['--no-sandbox',main],env});page=await app.firstWindow();page.on('pageerror',e=>facts.errors.push(String(e.message)));page.on('request',r=>{if(!/^(file:|data:|blob:)/.test(r.url()))facts.requests.push(r.url().split('?')[0])});await page.waitForFunction(()=>!document.querySelector('#analytics-boot')&&!!document.querySelector('[data-workspace="explorer"]'));
+ await page.locator('[data-workspace="explorer"]').click();const families=new Set();let views=0;
+ for(const subview of ['distributions','relationships','sequences','compare','observability']){
+  await page.locator('[data-action="explorer-subview"][data-subview="'+subview+'"]').click();const choices=await page.locator('[data-explorer-chart-select] option').evaluateAll(ns=>ns.map(n=>({id:n.value,family:Number(n.textContent.slice(0,2))})));
+  for(const choice of choices){await page.locator('[data-explorer-chart-select]').selectOption(choice.id);families.add(choice.family);views++;assert.equal(await page.locator('.explorer-exact-table table').count(),1);const invalid=await page.locator('.explorer-plot').evaluateAll(ns=>ns.some(n=>/NaN|Infinity/.test(n.innerHTML)));assert.equal(invalid,false,'Invalid SVG geometry '+choice.id);}
+ }
+ facts.families=[...families].sort((a,b)=>a-b);assert.deepEqual(facts.families,Array.from({length:32},(_,i)=>i+1));facts.views=views;facts.workflows.push('All 32 chart families render exact accessible tables and finite chart geometry across five subviews');
+ await page.locator('[data-action="explorer-subview"][data-subview="distributions"]').click();await page.locator('[data-explorer-chart-select]').selectOption('01-length-histogram');
+ const row=page.locator('.explorer-exact-table tbody tr').first();await row.focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>!!document.querySelector('.evidence-panel'));await page.locator('[data-action="close-evidence"]').click();facts.workflows.push('Keyboard chart table drilldown opens exact scoped evidence');
+ for(const size of [[680,540],[680,980],[1500,540],[1900,1200]]){await app.evaluate(({BrowserWindow},s)=>BrowserWindow.getAllWindows()[0].setContentSize(s[0],s[1]),size);await page.waitForTimeout(50);await layout(size.join('x'));}
+ await page.locator('[data-action="explorer-subview"][data-subview="compare"]').click();assert(await page.locator('[data-action="apply-explorer-comparison"]').count()||await page.locator('[data-action="explorer-apply-comparison"]').count()||await page.locator('.explorer-comparison').count());
+ const directory=path.join(project,'docs/evidence/v2/screenshots');await fs.mkdir(directory,{recursive:true});await page.screenshot({path:path.join(directory,'explorer-compare.png')});
+ await page.locator('[data-action="explorer-subview"][data-subview="distributions"]').click();await page.locator('[data-explorer-chart-select]').selectOption('01-length-histogram');await page.screenshot({path:path.join(directory,'explorer-distributions.png')});
+ assert.deepEqual(facts.errors,[]);assert.deepEqual(facts.requests,[]);facts.passed=true;facts.completedAt=new Date().toISOString();await fs.writeFile(path.join(project,'docs/evidence/v2/gui-explorer.json'),JSON.stringify(facts,null,2)+'\n');console.log(JSON.stringify(facts));
+ }catch(e){console.error(e);console.error(JSON.stringify(facts));process.exitCode=1}finally{await app?.close().catch(()=>{});xserver?.kill();if(temp)await fs.rm(temp,{recursive:true,force:true});}})();

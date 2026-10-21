@@ -1,0 +1,10 @@
+/* Revision 5 additions retain the existing header flow and wave master control. */
+.thread-heading-top{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.thread-heading-copy{flex:1;min-width:0}
+.thread-heading-top>[data-action="close-thread"]{flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;padding:6px;margin:0}
+.welcome-video-options{margin:-8px 0 17px 14px;padding:0 0 0 12px;border-left:1px solid var(--border)}
+.welcome-video-setting{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 0;cursor:pointer}
+.welcome-video-copy{min-width:0;flex:1;color:var(--text);font-size:12px;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
+.welcome-video-copy .fine{display:block;margin-top:3px;font-size:11px;font-weight:400;line-height:1.5;color:var(--muted)}
+.welcome-video-options[hidden],#holidayVideoOption[hidden]{display:none!important}
+@media(max-width:700px){.thread-heading-top{gap:8px}.welcome-video-options{margin-left:8px;padding-left:10px}.welcome-video-setting{gap:10px}}

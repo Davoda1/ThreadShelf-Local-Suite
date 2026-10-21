@@ -1,0 +1,73 @@
+/* Original themes approved in the source-based design study. Effects change
+ * paint only: no workspace sizing, chart transforms, or tooltip containing
+ * blocks. Platinum, Prism and Nocturne share the established Modern treatment;
+ * Vellum keeps its matte surfaces. Nocturne and Garnet use the same glass
+ * foundations with their own accents. All syntax colors remain independent. */
+@media (forced-colors: none) {
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"])[data-theme="light"] {
+    --theme-role-user: #286b9b;
+    --theme-role-thinking: #795600;
+    --theme-role-tool: #69408f;
+  }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"])[data-theme="dark"] {
+    --theme-role-user: #79bfff;
+    --theme-role-thinking: #e6be65;
+    --theme-role-tool: #c2a7e5;
+  }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message.user { --theme-role: var(--theme-role-user); }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message.assistant { --theme-role: var(--role-assistant); }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message.thinking { --theme-role: var(--theme-role-thinking); background: var(--surface); border-color: var(--border); }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message:is(.tool,.system) { --theme-role: var(--theme-role-tool); }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message:is(.user,.assistant,.thinking,.tool,.system) { border-left-color: var(--theme-role); }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message .message-role { color: var(--theme-role); }
+}
+/* Vellum's study used a quiet, slightly tinted user bubble. The other new
+ * palettes use Modern's established plain Reader surfaces without adding tint. */
+:root[data-ui-palette="vellum"]:not([data-contrast="high"]) .reader-view .message.user { background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface)); }
+:root[data-ui-palette="vellum"]:not([data-contrast="high"]) .reader-view .message-content a { color: var(--accent); }
+:root:is([data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) .reader-view .message-content a { color: var(--accent); }
+:root[data-ui-palette="vellum"]:not([data-contrast="high"]) :is(.app-header,.statusbar) { box-shadow: inset 0 1px 0 #ffffff0c, 0 2px 8px #00000010; }
+:root[data-ui-palette="vellum"]:not([data-contrast="high"]) :is(.analytics-card,.analytics-stat,.conversation-row.active) { box-shadow: 0 2px 4px #0000000a, inset 0 1px 0 #ffffff12; }
+:root[data-ui-palette="vellum"] .modal-overlay { backdrop-filter: none; }
+:root[data-ui-palette="platinum"]:not([data-contrast="high"]) :is(.app-header,.statusbar)::before { backdrop-filter: blur(20px); }
+:root[data-ui-palette="prism"]:not([data-contrast="high"]) .app-header::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, #73bbda99, #b394e7bb, #75cebd77, transparent); pointer-events: none; }
+:root[data-ui-palette="prism"]:not([data-contrast="high"]) :is(.analytics-card,.analytics-stat) { box-shadow: inset 0 1px 0 #bda4ec40, var(--modern-shadow); }
+/* Nocturne: cool ivory/navy by day, midnight/pale gold by night. A thin static
+ * gold horizon and restrained neutral glass add depth without animated decor. */
+:root[data-ui-palette="nocturne"]:not([data-contrast="high"]) :is(.app-header,.statusbar)::before { backdrop-filter: blur(20px); }
+:root[data-ui-palette="nocturne"]:not([data-contrast="high"]) .app-header::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, #bc965b80, #e5cc98b3, transparent); pointer-events: none; }
+:root[data-ui-palette="nocturne"][data-theme="dark"]:not([data-contrast="high"]) { --modern-glow: #ffffff04; --modern-haze: #00000035; }
+/* Garnet's red control surfaces are deliberately separate from the brighter
+ * dark-mode accent used for links, graph lines and focus. Deep red buttons keep
+ * white ink, while the black Reader retains readable rose accents. */
+:root[data-ui-palette="garnet"][data-theme="light"] {
+  --garnet-control: #8f203a;
+  --garnet-control-hover: #701629;
+  --garnet-control-ink: #ffffff;
+  --garnet-bar-start: #f3e1e7;
+  --garnet-bar-end: #fffafb;
+}
+:root[data-ui-palette="garnet"][data-theme="dark"] {
+  --garnet-control: #86182a;
+  --garnet-control-hover: #a22338;
+  --garnet-control-ink: #ffffff;
+  --garnet-bar-start: #370d17;
+  --garnet-bar-end: #1d0910;
+  --modern-glow: transparent;
+  --modern-haze: transparent;
+}
+@media (forced-colors: none) {
+  :root[data-ui-palette="garnet"]:not([data-contrast="high"]) :is(.app-header,.statusbar)::before { background: linear-gradient(115deg, var(--garnet-bar-start), var(--garnet-bar-end)); backdrop-filter: blur(20px); }
+  :root[data-ui-palette="garnet"][data-theme]:not([data-contrast="high"]) .primary { background: linear-gradient(155deg, var(--garnet-control-hover), var(--garnet-control)); border-color: var(--garnet-control); color: var(--garnet-control-ink); }
+  :root[data-ui-palette="garnet"][data-theme]:not([data-contrast="high"]) .primary:hover:not(:disabled) { background: var(--garnet-control-hover); border-color: var(--garnet-control-hover); }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :root:is([data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]) .app-header::after { display: none; }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="vellum"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) :is(.app-header,.statusbar,.analytics-card,.analytics-stat,.conversation-row.active) { box-shadow: none; }
+  :root:is([data-ui-palette="platinum"],[data-ui-palette="platinum-plus"],[data-ui-palette="professional"],[data-ui-palette="prism"],[data-ui-palette="nocturne"],[data-ui-palette="garnet"]):not([data-contrast="high"]) :is(.app-header,.statusbar)::before { display: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-transparency: reduce) and (forced-colors: none) {
+  :root[data-ui-palette="garnet"][data-theme]:not([data-contrast="high"]) :is(.app-header,.statusbar) { background: var(--garnet-bar-end); }
+  :root[data-ui-palette="garnet"][data-theme]:not([data-contrast="high"]) .primary { background: var(--garnet-control); color: var(--garnet-control-ink); box-shadow: none; }
+  :root[data-ui-palette="garnet"][data-theme]:not([data-contrast="high"]) .primary:hover:not(:disabled) { background: var(--garnet-control-hover); }
+}

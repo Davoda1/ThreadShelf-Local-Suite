@@ -1,0 +1,17 @@
+{
+  "platform": "openrouter",
+  "exportedAt": "2026-05-05T00:00:00.000Z",
+  "pageTitle": "Anonimowa rozmowa OpenRouter",
+  "sourceUrl": "https://openrouter.ai/chat/anon",
+  "turns": [
+    {
+      "role": "user",
+      "content": "Jak zanonimizować historię rozmów przed testami? Użyj: gęś, 数据, かな, español, مرحبا."
+    },
+    {
+      "role": "assistant",
+      "content": "Zastąp nazwy, maile, tokeny i ścieżki neutralnymi wartościami. Zachowaj strukturę formatu oraz reprezentatywne znaki: 漢字, ひらがな, ñ, ç, ü, 🔐.",
+      "model": "openrouter/test-model"
+    }
+  ]
+}

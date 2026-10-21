@@ -1,0 +1,31 @@
+# Application development outputs (vendored dependency source is retained).
+/apps/reader/node_modules/
+/apps/analytics/node_modules/
+/node_modules/
+/tools/mermaid-bundle/node_modules/
+**/.packaging/
+**/.verification/
+**/.tooling/
+**/.build-runtime/
+**/.build/
+**/.cache/
+**/__pycache__/
+**/*.pyc
+/apps/*/dist/
+/apps/*/release/
+/apps/*/releases/
+/release/
+/releases/
+/out/
+
+# Personal state and credentials.
+.env
+.env.*
+!.env.example
+**/.lancedb/
+**/.threadshelf/
+**/*.log
+**/*.pem
+**/*.key
+**/.DS_Store
+**/Thumbs.db

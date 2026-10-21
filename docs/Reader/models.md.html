@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><meta http-equiv="Content-Security-Policy" content="default-src &apos;none&apos;; img-src &apos;self&apos; data:; style-src &apos;unsafe-inline&apos;; script-src &apos;sha256-kDt4EvO5xMazwflNipb9XMDVcetFgNLH4FnHAOzVr2k=&apos;; form-action &apos;self&apos;; base-uri &apos;none&apos;; object-src &apos;none&apos;"><title>Models and semantic search — ThreadShelf Local Suite</title><meta name="description" content="Configure Reader’s built-in Local meaning model, optional Ollama integration or separate ThreadShelf server search. Each system requires separate setup."><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWCAYAAADAQbwGAAAAeUlEQVR42mNgGHGAEcYItlH7j0/h2iO3GIkxkAWZs2ZJC1ZFITE1RLuQhRjXEatm7ZFbjCzE2tyU4oZXvm7OLlQvT29KYWBgE8aqeM2q6XgNe33jLPYwRJYgFzBRO9mMGjhq4GAwEJ5TXj96xPDoyWvqGQjL3MMfAABu8h+7mmPgfAAAAABJRU5ErkJggg=="><style>/* Gopher HTTP 3.0.0: compact directory styling; no webfonts. */
+:root{color-scheme:light dark;--bg:#fff;--fg:#111;--link:#0000ee;--visited:#551a8b;--rule:#777;--muted:#444}
+@media(prefers-color-scheme:dark){:root{--bg:#181a1a;--fg:#eee;--link:#309cff;--visited:#c29aff;--rule:#aaa;--muted:#c3c3c3}}
+html{background:var(--bg);color:var(--fg)}
+body{margin:8px;font:16px "Times New Roman",Times,serif;background:var(--bg);color:var(--fg)}
+a{color:var(--link);text-decoration:underline}a:visited{color:var(--visited)}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+h1{font-size:2em;margin:.67em 0}hr{border:0;border-top:1px solid var(--rule);margin:.65em 0}
+.menu{width:100%;table-layout:fixed;border-spacing:1px;border-collapse:separate}
+.menu col.icon-col{width:4%}.menu col.type-col{width:10%}
+.menu td{padding:0;vertical-align:middle;height:24px}
+.menu .icon-cell{vertical-align:top}.menu .icon{width:20px;height:22px;vertical-align:middle;image-rendering:pixelated}
+.menu .label{font:13px/1.65 "DejaVu Sans Mono","Liberation Mono",Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;padding-left:3px}
+.menu .summary{color:var(--muted);font-size:11px}
+.menu .type{font:10px/1.5 "Times New Roman",Times,serif;overflow-wrap:anywhere;padding-left:8px}
+.menu .info .label{min-height:22px}.menu .info td{height:24px}
+.breadcrumbs{font:13px/1.5 monospace;margin:-.5em 0 1em;overflow-wrap:anywhere}
+.document,.intro{margin:1em 0 1.5em 4%;max-width:90ch;font:14px/1.6 "DejaVu Sans Mono","Liberation Mono",Consolas,monospace;overflow-wrap:anywhere}
+.document pre,.intro pre{font:inherit;white-space:pre;overflow:auto;max-width:100%;tab-size:4}
+.document pre.plain{white-space:pre-wrap;overflow-wrap:anywhere}
+.markdown h1,.markdown h2,.markdown h3,.markdown h4{font-family:inherit;line-height:1.35}
+.markdown h1{font-size:1.55em}.markdown h2{font-size:1.3em}.markdown h3{font-size:1.1em}
+.markdown p{margin:.8em 0}.markdown blockquote{border-left:2px solid var(--rule);margin:1em 0;padding-left:1.2em}
+.markdown pre{padding:.8em;border:1px solid var(--rule)}.markdown code{font:inherit}
+.markdown li>p{margin:.3em 0}.table-scroll{overflow:auto;max-width:100%}
+.markdown table{border-collapse:collapse}.markdown th,.markdown td{padding:.2em .7em;text-align:left;border:1px solid var(--rule)}
+.document img,.intro img{max-width:100%;height:auto}.image-view{margin-left:4%;max-width:1000px}.image-view img{max-width:100%;height:auto}
+.file-actions,.notice,.search{margin:1em 0;font:13px/1.6 monospace;overflow-wrap:anywhere}
+.search label{display:block}.search input{max-width:90%;width:32em;font:inherit;padding:.25em}.search button{font:inherit;padding:.25em .7em;margin-left:.5em}
+footer{margin-top:.6em;overflow-wrap:anywhere}.muted{color:var(--muted)}.empty{font-style:italic}
+.skip{position:absolute;left:-10000px;top:auto}.skip:focus{position:static;display:block;margin-bottom:1em}
+@media(max-width:600px){.menu col.icon-col{width:34px}.menu col.type-col{width:77px}.menu .type{padding-left:4px}.menu .label{font-size:12px;line-height:1.6}.document,.intro,.image-view{margin-left:0}.breadcrumbs{font-size:12px}}
+@media print{:root{color-scheme:light;--bg:white;--fg:black;--link:black;--visited:black}.skip,.search{display:none}a{text-decoration:underline}}
+/* 3.0 additions preserve the compact directory layout. */
+[hidden]{display:none!important}
+button,input,select{color:var(--fg);background:var(--bg);border:1px solid var(--rule);border-radius:2px;font:inherit}
+button{cursor:pointer;padding:.3em .7em;min-height:30px}select{max-width:100%;padding:.3em}select:focus-visible,summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.filters{display:flex;gap:.6em 1.2em;flex-wrap:wrap;margin:.6em 0}.filters label{display:flex;gap:.4em;align-items:center;max-width:100%}
+.search input{box-sizing:border-box;width:min(38em,100%);max-width:100%}.search button{margin-left:0}
+.pagination,.siblings,.integrity{font:13px/1.6 monospace;margin:1em 0;overflow-wrap:anywhere}.pagination a,.pagination button{display:inline-block;padding:.25em .5em}.pagination a:first-child{padding-left:0}
+.contents{border-left:2px solid var(--rule);padding:.5em 1em;margin:1em 0}.contents summary{cursor:pointer;font-weight:bold}.contents ul{list-style:none;padding-left:0}.contents li{margin:.2em 0}.contents .level-2{padding-left:1em}.contents .level-3,.contents .level-4,.contents .level-5,.contents .level-6{padding-left:2em}
+.integrity code{display:block;overflow-wrap:anywhere;font-size:12px}.code-language{font-size:11px;color:var(--muted);margin-bottom:-.7em!important}.task{float:left;margin-right:.6em}.image-view figcaption{font:13px/1.6 monospace;margin:.5em 0}
+@media print{.pagination,.siblings,.integrity,footer,.file-actions{display:none}.contents{break-inside:avoid}img{max-height:80vh;object-fit:contain}.document,.intro{max-width:none}body{font-size:12pt}}
+</style><link rel="canonical" href="https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/Reader/models.md.html"><link rel="alternate" type="application/atom+xml" title="Atom feed" href="../_gopher/atom.xml"><link rel="alternate" type="application/rss+xml" title="RSS feed" href="../_gopher/rss.xml"></head><body id="_gh-top">
+<a class="skip" href="#_gh-main">Skip to content</a><h1>Models and semantic search</h1><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../index.html">server top</a> / <a href="index.html">Reader</a> / models.md</nav><main id="_gh-main" tabindex="-1"><p class="notice">Configure Reader’s built-in Local meaning model, optional Ollama integration or separate ThreadShelf server search. Each system requires separate setup.</p><p class="notice">Tags: <a href="../_gopher/tags/d8554253f56d58e88bc82df1e41507c325e2a6ceb27cf7c33838c05f1325c3cc.html">Reader</a></p><p class="file-actions">[<a href="../_gopher/files/e6fd8c4ea9efd59e51f768bb27406820bca3de61d78a3aacc646c1223421d095.txt" download="models.md">download original</a>] [<a href="../_gopher/files/e6fd8c4ea9efd59e51f768bb27406820bca3de61d78a3aacc646c1223421d095.txt">view raw text</a>] — 7,099 bytes</p><div class="document markdown"><details class="contents" open><summary>On this page</summary><nav aria-label="Document contents"><ul><li class="level-1"><a href="#models-and-semantic-search">Models and semantic search</a></li><li class="level-2"><a href="#three-separate-model-locations">Three separate model locations</a></li><li class="level-2"><a href="#built-in-model-setup">Built-in model setup</a></li><li class="level-2"><a href="#building-and-maintaining-the-index">Building and maintaining the index</a></li><li class="level-2"><a href="#hybrid-results">Hybrid results</a></li><li class="level-2"><a href="#optional-ollama-setup">Optional Ollama setup</a></li><li class="level-2"><a href="#downloading-or-removing-ollama-models">Downloading or removing Ollama models</a></li><li class="level-2"><a href="#ollama-privacy-and-lifecycle">Ollama privacy and lifecycle</a></li><li class="level-2"><a href="#clearing-indexes-versus-models">Clearing indexes versus models</a></li></ul></nav></details><h1 id="models-and-semantic-search">Models and semantic search</h1>
+<h2 id="three-separate-model-locations">Three separate model locations</h2>
+<p>Reader offers a built-in Local meaning model, an optional external Ollama integration and access to a ThreadShelf server&apos;s meaning search. They are separate systems. Installing or indexing one does not prepare the others.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Choice</th><th scope="col">Model location</th><th scope="col">Archive text processing</th></tr></thead><tbody><tr><td>Local meaning / Hybrid</td><td>Downloaded into the Reader profile</td><td>Inference runs locally after explicit setup</td></tr><tr><td>Ollama meaning</td><td>Managed by the configured Ollama installation</td><td>Query and needed text chunks go to that loopback/private-LAN service</td></tr><tr><td>Server meaning</td><td>Managed by the ThreadShelf server</td><td>The server searches the server-side data/index</td></tr></tbody></table></div>
+<p>An embedding model converts text into similarity vectors. It is not a conversational AI that writes answers. A chat model used by another tool for re-titling is not automatically capable of embeddings.</p>
+<h2 id="built-in-model-setup">Built-in model setup</h2>
+<ol><li><p>Open <strong>Settings → Search &amp; models</strong>.</p>
+</li><li><p>In the built-in model card, inspect the status.</p>
+</li><li><p>Choose <strong>Download model</strong> to explicitly download the required files.</p>
+</li><li><p>Wait for setup and the real embedding check to finish.</p>
+</li><li><p>Choose <strong>Build / update index</strong> for your Local archive.</p>
+</li><li><p>Wait for the completed index status.</p>
+</li><li><p>Return to Search options, choose <strong>Local meaning</strong> or <strong>Hybrid search</strong>, and run a query.</p>
+</li></ol>
+<p>The retained model is <code>Xenova/paraphrase-multilingual-MiniLM-L12-v2</code>. It uses quantized weights and 384-dimensional embeddings. The documented approximate model cache is 120–150 MB, plus separate space for archive and semantic indexes; actual download size can differ with supplied upstream files. Startup, import and ordinary text search do not automatically download it.</p>
+<p>After successful setup, the built-in model loads the required files locally. If the native inference binding cannot load, Reader can use the bundled CPU WebAssembly implementation with the same model/tokenizer. That path can be slower. A missing optional native runtime is therefore not automatically a reason to install another model or delete your archive.</p>
+<h2 id="building-and-maintaining-the-index">Building and maintaining the index</h2>
+<p>The index stores embeddings for the current archive and model identity. Long messages are split into overlapping windows so later portions can be found; one message is shown at most once in semantic results using that message’s best window. The displayed result still points to the original retained turn.</p>
+<p>New imports, changed records and removals can make an index stale. Run <strong>Build / update index</strong> again after a meaningful archive update. Unchanged passage embeddings are reused where the stored identity matches. The app publishes a new complete generation only when indexing finishes successfully against the expected source revision.</p>
+<p>Stopping or failing an index build preserves the previous completed generation. An unfinished new generation is not presented as current and is not promised as a resumable partial index. During setup/indexing or when the model/index is unavailable, applicable searches can report a text fallback. Always read that status before drawing conclusions about semantic relevance.</p>
+<h2 id="hybrid-results">Hybrid results</h2>
+<p>Hybrid search combines text and semantic rankings through reciprocal-rank fusion. It is useful when a query includes both exact technical language and a concept that might have been paraphrased. It does not guarantee that the first result is factually correct or that a semantically similar passage contains every required detail.</p>
+<p>Use a short diagnostic query and compare the top results with Text search. For exact identifiers, error codes or numbers, phrase/text search is often easier to audit. The stored conversation remains the evidence; similarity is a retrieval aid.</p>
+<h2 id="optional-ollama-setup">Optional Ollama setup</h2>
+<p>Ollama must already be installed independently. Reader can detect or start an existing local installation; it does not install Ollama or start a service on another computer.</p>
+<ol><li><p>Set the Ollama address in <strong>Settings → Search &amp; models</strong>. The usual local address is <code>http://127.0.0.1:11434</code>.</p>
+</li><li><p>Choose <strong>Load models</strong> to check the service and installed model information.</p>
+</li><li><p>If an installed local service is stopped and the control is available, choose <strong>Start installed Ollama</strong>.</p>
+</li><li><p>Select an embedding-capable model. Known chat-only models are excluded from the search chooser.</p>
+</li><li><p>Use <strong>Test model</strong>. This test sends a synthetic sentence, not your archive.</p>
+</li><li><p>Save settings.</p>
+</li><li><p>Choose <strong>Ollama meaning</strong> in Local Search options and run the search. The first search builds the corresponding archive index.</p>
+</li></ol>
+<p>Older services that do not return full capability metadata can be checked through the real embedding test. A model appearing in an installed-model list is not by itself proof that it can create embeddings.</p>
+<h2 id="downloading-or-removing-ollama-models">Downloading or removing Ollama models</h2>
+<p>If you need a compatible model, enter the exact model name in the download field and explicitly start the download. Progress and cancellation are available. Reader does not silently pull a model as part of ordinary import or text search. The embedding-catalog link opens external information; it does not itself install anything.</p>
+<p><strong>Manage installed models</strong> shows reported model sizes and relevant index status. Removing a model requires confirmation and acts on the configured Ollama service. That affects other programs using the same service too. Reader&apos;s retained conversations and indexes are kept, but the removed model will not be available until downloaded again. Verify the address before deletion.</p>
+<p>A saved model that is temporarily unreachable remains selected when unrelated settings are saved. A temporary outage should not force you to configure the entire integration from scratch.</p>
+<h2 id="ollama-privacy-and-lifecycle">Ollama privacy and lifecycle</h2>
+<p>The first Ollama index build sends retained message chunks to the configured service. Later queries reuse compatible vectors. Changing the service address, model, model digest or archive can require a corresponding refresh. The application permits loopback, private-network addresses and local hostnames for this integration and rejects redirects; it does not call Ollama cloud services.</p>
+<p>Reader keeps the archive and cached vectors in the Reader profile. The Ollama installation and model files are managed separately; Reader does not move them into the Reader profile. Thus a Reader Local backup is not a backup of your Ollama installation.</p>
+<h2 id="clearing-indexes-versus-models">Clearing indexes versus models</h2>
+<p><strong>Clear semantic index</strong> removes the derived semantic index while preserving conversations, ordinary text search and downloaded built-in model files. Rebuild it when needed. A compression conversion converts valid semantic objects along with other managed storage; changing compression is not an instruction to choose a different model.</p>
+<p>If results are unexpected, first confirm the active search method, current source, selected model and index status. Rebuilding an index cannot recover words or source metadata that were never present in the imported export.</p>
+<p>Related: <a href="search.md.html">Search</a>, <a href="../Data/storage.md.html">Storage</a>, <a href="../Data/privacy.md.html">Privacy</a>.</p>
+</div><nav class="siblings" aria-label="Adjacent files"><a rel="prev" href="interface.md.html">Previous: Reader interface and navigation</a> · <a rel="next" href="reading.md.html">Next: Reading, navigating and exporting conversations</a></nav></main><hr><footer>[<a href="../index.html">server top</a>] [<a href="index.html">parent directory</a>] [<a href="../_gopher/index.html">site index / search</a>] [<a href="../_gopher/tags/index.html">browse tags</a>] [<a href="../_gopher/recent.html">recently updated</a>] [<a href="../_gopher/atom.xml">Atom</a>] [<a href="../_gopher/rss.xml">RSS</a>] [<a href="../_gopher/sitemap.xml">sitemap</a>] [<a href="#_gh-top">back to top</a>]<br>Generated by Gopher HTTP 3.0.0</footer></body></html>

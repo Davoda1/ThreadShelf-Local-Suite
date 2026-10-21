@@ -1,0 +1,13 @@
+{
+  "name": "@types/node",
+  "version": "24.19.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+    "directory": "types/node"
+  },
+  "retainedNotices": [
+    "LICENSE"
+  ]
+}

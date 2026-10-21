@@ -1,0 +1,22 @@
+{
+  "runSettings": {
+    "model": "models/gemini-test"
+  },
+  "chunkedPrompt": {
+    "chunks": [
+      {
+        "role": "user",
+        "text": "Cześć, przygotuj anonimowy plan nauki. Uwzględnij: łódź, żółć, gęślą jaźń. 中文: 你好，测试搜索。日本語: こんにちは。Español: acción, niño, pingüino."
+      },
+      {
+        "role": "model",
+        "isThought": true,
+        "text": "Najpierw rozbijam prośbę na cele, ograniczenia i format odpowiedzi. العربية: مرحبا. Symbols: §, €, ™, ✓."
+      },
+      {
+        "role": "model",
+        "text": "Plan: 1. Zbierz materiały. 2. Ustal priorytety. 3. Sprawdź postępy po tygodniu. Emoji smoke: 🚀 🔒 🧪."
+      }
+    ]
+  }
+}

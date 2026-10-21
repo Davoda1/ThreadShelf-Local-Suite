@@ -1,0 +1,13 @@
+/* A small Windows-style orbit, using the selected interface's own colors. */
+.app-loading { width:100%; height:100%; display:grid; place-items:center; background:var(--bg); }
+.startup-loader { position:relative; width:40px; height:40px; color:var(--accent); }
+.startup-orbit { position:absolute; inset:0; --dot-index:0; transform:rotate(calc(var(--dot-index) * 35deg - 70deg)); animation:startup-orbit 1.8s cubic-bezier(.55,.05,.45,.95) infinite; animation-delay:calc(var(--dot-index) * -.14s); }
+.startup-orbit:nth-child(2) { --dot-index:1; }
+.startup-orbit:nth-child(3) { --dot-index:2; }
+.startup-orbit:nth-child(4) { --dot-index:3; }
+.startup-orbit:nth-child(5) { --dot-index:4; }
+.startup-dot { position:absolute; top:0; left:calc(50% - 2.5px); width:5px; height:5px; border-radius:50%; background:currentColor; }
+@keyframes startup-orbit { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .startup-orbit { animation:none; } }
+:root[data-animations="false"] .startup-orbit { animation:none; }
+@media (forced-colors:active) { .app-loading { background:Canvas; } .startup-loader { color:CanvasText; } .startup-dot { forced-color-adjust:none; } }

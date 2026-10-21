@@ -1,0 +1,21 @@
+{
+  "application": "ThreadShelf Local Reader",
+  "version": "1.0.0",
+  "method": "Production renderer in synthetic offline browser preview; native storage, network and OS-region operations are not exercised.",
+  "viewport": {
+    "width": 1360,
+    "height": 900
+  },
+  "holidayScenario": "Synthetic 2026-01-01 Europe/London",
+  "captures": [
+    "reader-light.png",
+    "reader-settings-dark.png",
+    "reader-dark.png",
+    "reader-search.png",
+    "reader-activity.png",
+    "reader-holiday-settings.png",
+    "reader-rich-rendering.png",
+    "reader-about.png"
+  ],
+  "pageErrors": []
+}

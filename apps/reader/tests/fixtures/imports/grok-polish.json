@@ -1,0 +1,55 @@
+{
+  "conversations": [
+    {
+      "conversation": {
+        "id": "anon-grok-conv-1",
+        "conversation_id": "anon-grok-conv-1",
+        "title": "Anonimowy eksport Grok",
+        "create_time": { "$date": { "$numberLong": "1771000000000" } },
+        "leaf_response_id": null,
+        "starred": false
+      },
+      "responses": [
+        {
+          "response": {
+            "_id": "anon-grok-resp-1",
+            "conversation_id": "anon-grok-conv-1",
+            "sender": "human",
+            "message": "Wyjaśnij, jak działa eksport Grok. Dodaj znaki: zażółć gęślą jaźń, 漢字, 🔐.",
+            "create_time": { "$date": { "$numberLong": "1771000000000" } },
+            "model": "grok-4-auto",
+            "parent_response_id": null
+          },
+          "share_link": null
+        },
+        {
+          "response": {
+            "_id": "anon-grok-resp-2",
+            "conversation_id": "anon-grok-conv-1",
+            "sender": "ASSISTANT",
+            "message": "Eksport Grok to JSON z polami conversations i responses. Unicode: ñ, ç, ü, 日本語.",
+            "create_time": { "$date": { "$numberLong": "1771000060000" } },
+            "model": "grok-test-model",
+            "parent_response_id": "anon-grok-resp-1",
+            "agent_thinking_traces": [
+              {
+                "agent_id": { "rollout_id": "0" },
+                "thinking_trace": "Rozkładam pytanie na kroki. 中文测试。"
+              }
+            ],
+            "steps": [
+              {
+                "tag_order": ["header"],
+                "tagged_text": { "header": "Thinking about your request" }
+              }
+            ]
+          },
+          "share_link": null
+        }
+      ]
+    }
+  ],
+  "projects": [],
+  "tasks": [],
+  "media_posts": []
+}

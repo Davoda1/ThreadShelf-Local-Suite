@@ -1,0 +1,12 @@
+{
+  "name": "sumchecker",
+  "version": "3.0.1",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/malept/sumchecker.git"
+  },
+  "retainedNotices": [
+    "LICENSE"
+  ]
+}

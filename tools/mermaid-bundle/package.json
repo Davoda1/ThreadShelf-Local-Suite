@@ -1,0 +1,31 @@
+{
+  "name": "threadshelf-mermaid-bundle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproducible offline diagram renderer shared by Reader and Alternative",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "24.19.0",
+    "npm": "11.9.0"
+  },
+  "packageManager": "npm@11.9.0",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "test": "node test.mjs"
+  },
+  "dependencies": {
+    "dompurify": "3.4.17",
+    "katex": "0.18.2",
+    "mermaid": "11.17.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "playwright-core": "1.62.1"
+  },
+  "overrides": {
+    "dompurify": "$dompurify",
+    "katex": "$katex"
+  }
+}

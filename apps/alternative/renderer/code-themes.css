@@ -1,0 +1,105 @@
+/* VS Code Light+ / Dark+ palette adapted from ThreadShelf Local Reader.
+ * Copyright (c) 2026 davoda1, MIT; see vendor/licenses/Reader-MIT.txt.
+ * highlight.js token names are mapped to editor colors; no VS Code runtime.
+ * The application resolves System to data-theme=light or dark automatically. */
+:root {
+  --syntax-background: #ffffff;
+  --syntax-foreground: #000000;
+  --syntax-header: #f3f3f3;
+  --syntax-label: #444444;
+  --syntax-border: #d4d4d4;
+  --syntax-comment: #008000;
+  --syntax-keyword: #0000ff;
+  --syntax-string: #a31515;
+  --syntax-number: #098658;
+  --syntax-title: #795e26;
+  --syntax-type: #267f99;
+  --syntax-attribute: #d00000;
+  --syntax-variable: #001080;
+  --syntax-meta: #707070;
+  --syntax-operator: #393a34;
+  --syntax-selector: #800000;
+  --syntax-addition: #207d36;
+  --syntax-addition-background: #e6ffed;
+  --syntax-deletion: #b31d28;
+  --syntax-deletion-background: #ffeef0;
+}
+:root[data-theme="dark"] {
+  --syntax-background: #1e1e1e;
+  --syntax-foreground: #d4d4d4;
+  --syntax-header: #252526;
+  --syntax-label: #cccccc;
+  --syntax-border: #454545;
+  --syntax-comment: #6a9955;
+  --syntax-keyword: #569cd6;
+  --syntax-string: #ce9178;
+  --syntax-number: #b5cea8;
+  --syntax-title: #dcdcaa;
+  --syntax-type: #4ec9b0;
+  --syntax-attribute: #9cdcfe;
+  --syntax-variable: #9cdcfe;
+  --syntax-meta: #c586c0;
+  --syntax-operator: #d4d4d4;
+  --syntax-selector: #d7ba7d;
+  --syntax-addition: #b5cea8;
+  --syntax-addition-background: #203622;
+  --syntax-deletion: #f0a0a0;
+  --syntax-deletion-background: #4d2323;
+}
+.message-content .tsa-code-block{background:var(--syntax-background);border-color:var(--syntax-border);color:var(--syntax-foreground)}
+.message-content .tsa-code-block .tsa-code-toolbar{background:var(--syntax-header);border-color:var(--syntax-border);color:var(--syntax-label)}
+.message-content .tsa-code-block .tsa-code-toolbar button{color:var(--syntax-label)}
+.message-content .tsa-code-block .tsa-code-toolbar button:hover{background:var(--syntax-background);border-color:var(--syntax-border);color:var(--syntax-foreground)}
+.message-content .tsa-code-block pre{background:var(--syntax-background);color:var(--syntax-foreground)}
+.message-content .tsa-code-block pre code.hljs{color:var(--syntax-foreground);background:transparent}
+.message-content .tsa-code-block pre code.hljs :is([class^="hljs-"],[class*=" hljs-"]) { color:inherit;background:transparent;font-style:normal;font-weight:400;text-decoration:none; }
+.message-content .tsa-code-block pre code.hljs .hljs-comment,
+.message-content .tsa-code-block pre code.hljs .hljs-quote,
+.message-content .tsa-code-block pre code.hljs .hljs-code { color:var(--syntax-comment); }
+.message-content .tsa-code-block pre code.hljs .hljs-keyword,
+.message-content .tsa-code-block pre code.hljs .hljs-doctag,
+.message-content .tsa-code-block pre code.hljs .hljs-selector-tag,
+.message-content .tsa-code-block pre code.hljs .hljs-template-tag,
+.message-content .tsa-code-block pre code.hljs .hljs-formula,
+.message-content .tsa-code-block pre code.hljs .hljs-name { color:var(--syntax-keyword); }
+.message-content .tsa-code-block pre code.hljs .hljs-string,
+.message-content .tsa-code-block pre code.hljs .hljs-regexp { color:var(--syntax-string); }
+.message-content .tsa-code-block pre code.hljs .hljs-number,
+.message-content .tsa-code-block pre code.hljs .hljs-literal,
+.message-content .tsa-code-block pre code.hljs .hljs-symbol,
+.message-content .tsa-code-block pre code.hljs .hljs-bullet { color:var(--syntax-number); }
+.message-content .tsa-code-block pre code.hljs .hljs-title,
+.message-content .tsa-code-block pre code.hljs .hljs-section { color:var(--syntax-title); }
+.message-content .tsa-code-block pre code.hljs .hljs-type,
+.message-content .tsa-code-block pre code.hljs .hljs-built_in,
+.message-content .tsa-code-block pre code.hljs .hljs-title.class_,
+.message-content .tsa-code-block pre code.hljs .hljs-title.class_.inherited__ { color:var(--syntax-type); }
+.message-content .tsa-code-block pre code.hljs .hljs-attr,
+.message-content .tsa-code-block pre code.hljs .hljs-attribute { color:var(--syntax-attribute); }
+.message-content .tsa-code-block pre code.hljs .hljs-variable,
+.message-content .tsa-code-block pre code.hljs .hljs-template-variable,
+.message-content .tsa-code-block pre code.hljs .hljs-params { color:var(--syntax-variable); }
+.message-content .tsa-code-block pre code.hljs .hljs-meta,
+.message-content .tsa-code-block pre code.hljs .hljs-tag { color:var(--syntax-meta); }
+.message-content .tsa-code-block pre code.hljs .hljs-operator,
+.message-content .tsa-code-block pre code.hljs .hljs-punctuation,
+.message-content .tsa-code-block pre code.hljs .hljs-subst { color:var(--syntax-operator); }
+.message-content .tsa-code-block pre code.hljs .hljs-selector-class,
+.message-content .tsa-code-block pre code.hljs .hljs-selector-id,
+.message-content .tsa-code-block pre code.hljs .hljs-selector-attr,
+.message-content .tsa-code-block pre code.hljs .hljs-selector-pseudo { color:var(--syntax-selector); }
+.message-content .tsa-code-block pre code.hljs .hljs-title.function_ { color:var(--syntax-title); }
+.message-content .tsa-code-block pre code.hljs .hljs-meta .hljs-keyword { color:var(--syntax-keyword); }
+.message-content .tsa-code-block pre code.hljs .hljs-meta .hljs-string { color:var(--syntax-string); }
+.message-content .tsa-code-block pre code.hljs .hljs-tag .hljs-name { color:var(--syntax-keyword); }
+.message-content .tsa-code-block pre code.hljs .hljs-comment,.message-content .tsa-code-block pre code.hljs .hljs-quote,.message-content .tsa-code-block pre code.hljs .hljs-emphasis { font-style:italic; }
+.message-content .tsa-code-block pre code.hljs .hljs-strong,.message-content .tsa-code-block pre code.hljs .hljs-section { font-weight:700; }
+.message-content .tsa-code-block pre code.hljs .hljs-link { color:var(--syntax-title);text-decoration:underline; }
+.message-content .tsa-code-block pre code.hljs .hljs-addition { color:var(--syntax-addition);background:var(--syntax-addition-background); }
+.message-content .tsa-code-block pre code.hljs .hljs-deletion { color:var(--syntax-deletion);background:var(--syntax-deletion-background); }
+
+@media(forced-colors:active){
+ .message-content .tsa-code-block,.message-content .tsa-code-block .tsa-code-toolbar,.message-content .tsa-code-block pre{background:Canvas;color:CanvasText;border-color:CanvasText}
+ .message-content .tsa-code-block pre code.hljs,.message-content .tsa-code-block pre code.hljs span{color:CanvasText;background:transparent}
+ .message-content .tsa-code-block .tsa-code-toolbar button{color:ButtonText}
+}

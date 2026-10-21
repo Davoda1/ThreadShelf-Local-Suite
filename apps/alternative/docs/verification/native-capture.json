@@ -1,0 +1,22 @@
+{
+  "product": "ThreadShelf Local Alternative",
+  "version": "1.0.0",
+  "data": "Bundled synthetic demo only",
+  "screenshots": [
+    "alternative-light.png",
+    "alternative-dark.png",
+    "alternative-settings.png",
+    "alternative-search.png",
+    "alternative-connect.png"
+  ],
+  "errors": [],
+  "requests": [],
+  "runtime": {
+    "electron": "44.4.5",
+    "platform": "linux"
+  },
+  "testAccommodations": {
+    "noSandbox": true,
+    "singleInstanceBypass": true
+  }
+}

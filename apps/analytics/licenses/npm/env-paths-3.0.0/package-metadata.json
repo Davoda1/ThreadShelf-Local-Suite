@@ -1,0 +1,9 @@
+{
+  "name": "env-paths",
+  "version": "3.0.0",
+  "license": "MIT",
+  "repository": "sindresorhus/env-paths",
+  "retainedNotices": [
+    "license"
+  ]
+}

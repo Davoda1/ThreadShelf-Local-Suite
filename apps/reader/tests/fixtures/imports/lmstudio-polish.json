@@ -1,0 +1,66 @@
+{
+  "name": "Notatka o eksportach 🔐",
+  "pinned": false,
+  "createdAt": 1700000000000,
+  "systemPrompt": "",
+  "tokenCount": 0,
+  "usePerChatPredictionConfig": true,
+  "perChatPredictionConfig": { "fields": [] },
+  "lastUsedModel": {
+    "identifier": "lmstudio-test-model",
+    "indexedModelIdentifier": "vendor/lmstudio-test-model-GGUF/lmstudio-test-model.Q4_K_S.gguf"
+  },
+  "messages": [
+    {
+      "versions": [
+        {
+          "type": "singleStep",
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Jak bezpiecznie eksportować historię? Dodaj: zażółć, 数据, かな, español, مرحبا."
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    },
+    {
+      "versions": [
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": { "senderName": "lmstudio-test-model" },
+          "steps": [
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Rozbijam prośbę na kroki. 漢字 test."
+                }
+              ],
+              "style": { "type": "thinking", "ended": true, "title": "Thought for 1.2 seconds" }
+            },
+            {
+              "type": "contentBlock",
+              "content": [
+                { "type": "text", "text": "<|start|>assistant<|channel|>final<|message|>" },
+                {
+                  "type": "text",
+                  "text": "Zastąp dane osobowe neutralnymi wartościami. Zachowaj Unicode: ñ, ç, ü, 🔐."
+                }
+              ]
+            },
+            {
+              "type": "debugInfoBlock",
+              "content": []
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    }
+  ]
+}

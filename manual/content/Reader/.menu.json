@@ -1,0 +1,37 @@
+{
+  "title": "Local Reader manual",
+  "entries": [
+    {
+      "path": "interface.md",
+      "label": "Reader interface and navigation"
+    },
+    {
+      "path": "importing.md",
+      "label": "Importing conversations"
+    },
+    {
+      "path": "reading.md",
+      "label": "Reading, navigating and exporting conversations"
+    },
+    {
+      "path": "search.md",
+      "label": "Archive search"
+    },
+    {
+      "path": "models.md",
+      "label": "Models and semantic search"
+    },
+    {
+      "path": "server.md",
+      "label": "ThreadShelf Server mode"
+    },
+    {
+      "path": "appearance.md",
+      "label": "Appearance, reading preferences and accessibility"
+    },
+    {
+      "path": "holidays.md",
+      "label": "Welcome-page holiday fireworks"
+    }
+  ]
+}

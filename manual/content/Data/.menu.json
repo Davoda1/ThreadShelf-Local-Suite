@@ -1,0 +1,21 @@
+{
+  "title": "Data management and recovery",
+  "entries": [
+    {
+      "path": "collections.md",
+      "label": "Database Manager: collections and conversations"
+    },
+    {
+      "path": "storage.md",
+      "label": "Storage, compression and maintenance"
+    },
+    {
+      "path": "backup.md",
+      "label": "Backup, restore, relocation and upgrades"
+    },
+    {
+      "path": "privacy.md",
+      "label": "Privacy, network use and source fidelity"
+    }
+  ]
+}

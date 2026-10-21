@@ -1,0 +1,17 @@
+[
+  {
+    "uuid": "anon-claude-1",
+    "name": "Anonimowa rozmowa Claude",
+    "chat_messages": [
+      {
+        "sender": "human",
+        "text": "Wytłumacz różnicę między testem jednostkowym a integracyjnym. Dodaj japoński przykład: 東京でテストを書く."
+      },
+      {
+        "sender": "assistant",
+        "text": "Test jednostkowy sprawdza małą funkcję w izolacji. Test integracyjny sprawdza współpracę kilku elementów. 中文例子：解析器和索引器一起工作。",
+        "model": "claude-test"
+      }
+    ]
+  }
+]

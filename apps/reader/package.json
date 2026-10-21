@@ -1,0 +1,46 @@
+{
+  "name": "threadshelf-local-reader",
+  "productName": "ThreadShelf Local Reader",
+  "version": "1.0.0",
+  "description": "Independent desktop archive and full-featured reader for AI exports, with optional ThreadShelf server access",
+  "author": "davoda1",
+  "homepage": "https://github.com/Davoda1/ThreadShelf-Local-Suite",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/desktop/main.cjs",
+  "engines": {
+    "node": "24.19.0",
+    "npm": "11.9.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/test.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@huggingface/tokenizers": "0.2.0",
+    "@huggingface/transformers": "4.3.0",
+    "@zip.js/zip.js": "2.8.11",
+    "highlight.js": "11.12.0",
+    "marked": "16.4.2",
+    "onnxruntime-web": "1.31.0-dev.20260914-8d85527a0",
+    "parse5": "8.0.0"
+  },
+  "devDependencies": {
+    "@electron/asar": "^4.0.1",
+    "@electron/get": "5.1.0",
+    "electron": "44.9.1",
+    "esbuild": "^0.25.12",
+    "resedit": "3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Davoda1/ThreadShelf-Local-Suite.git",
+    "directory": "apps/reader"
+  },
+  "bugs": {
+    "url": "https://github.com/Davoda1/ThreadShelf-Local-Suite/issues"
+  },
+  "packageManager": "npm@11.9.0"
+}

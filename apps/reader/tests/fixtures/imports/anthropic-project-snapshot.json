@@ -1,0 +1,59 @@
+{
+  "uuid": "anon-project-conversation-1",
+  "title": "Anonimowa rozmowa projektowa",
+  "project": {
+    "uuid": "anon-project-1",
+    "name": "Projekt testowy"
+  },
+  "created_at": "2026-06-10T08:00:00.000000+00:00",
+  "updated_at": "2026-06-10T08:02:00.000000+00:00",
+  "messages": [
+    {
+      "uuid": "anon-project-message-1",
+      "role": "user",
+      "content": {
+        "authorAccountUuid": "anon-account-1",
+        "authorName": "Tester",
+        "content": "Zaplanuj bezpieczny test parsera. Znaki: zażółć gęślą jaźń, 漢字, 🔐.",
+        "id": "anon-project-content-1",
+        "role": "user",
+        "timestamp": "2026-06-10T08:00:00.000Z"
+      },
+      "created_at": "2026-06-10T08:00:00.000000+00:00"
+    },
+    {
+      "uuid": "anon-project-message-2",
+      "role": "assistant",
+      "content": {
+        "id": "anon-project-content-2",
+        "role": "assistant",
+        "content": "Użyj małego syntetycznego pliku i sprawdź role, daty oraz Unicode.",
+        "contentBlocks": [
+          {
+            "type": "tool_call",
+            "toolCall": {
+              "id": "anon-tool-1",
+              "type": "read",
+              "name": "synthetic_tool",
+              "input": {
+                "path": "synthetic/input.json"
+              },
+              "output": "Techniczny wynik narzędzia nie jest treścią odpowiedzi."
+            }
+          },
+          {
+            "type": "thinking",
+            "text": ""
+          },
+          {
+            "type": "text",
+            "text": "Użyj małego syntetycznego pliku i sprawdź role, daty oraz Unicode."
+          }
+        ],
+        "timestamp": "2026-06-10T08:02:00.000Z",
+        "turnInputTokens": 42
+      },
+      "created_at": "2026-06-10T08:02:00.000000+00:00"
+    }
+  ]
+}

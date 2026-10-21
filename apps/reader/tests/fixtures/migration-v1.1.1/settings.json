@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "mode": "local",
+    "language": "hu",
+    "theme": "dark",
+    "fontSize": "normal",
+    "highContrast": false,
+    "compact": true,
+    "animations": true,
+    "listMode": "pages",
+    "pageSize": 20,
+    "sort": "updated",
+    "directoryMode": "last",
+    "customDirectory": "/legacy/unavailable-folder",
+    "lastDirectory": "",
+    "serverUrl": "http://127.0.0.1:3000/",
+    "serverAddresses": [
+      "http://127.0.0.1:3000/"
+    ],
+    "localCollection": "all",
+    "serverCollection": "all",
+    "searchMode": "keyword",
+    "ollamaUrl": "http://127.0.0.1:11434/",
+    "ollamaModel": ""
+  }
+}

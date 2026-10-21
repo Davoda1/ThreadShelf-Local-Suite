@@ -1,0 +1,17 @@
+{
+  "name": "threadshelf-offline-holidays",
+  "description": "Reproducible offline holiday rule data and browser engine for ThreadShelf Local Suite",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test holiday-engine.test.mjs",
+    "check": "npm run build && npm test"
+  },
+  "type": "module",
+  "dependencies": {
+    "date-holidays": "3.37.0",
+    "date-holidays-parser": "3.4.7",
+    "esbuild": "0.28.2"
+  },
+  "private": true,
+  "suiteVersion": "1.0.0"
+}

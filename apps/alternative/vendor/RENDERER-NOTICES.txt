@@ -1,0 +1,22 @@
+ThreadShelf Local Alternative rendering components
+
+ThreadShelf Local Reader: bounded rich content parser, chart renderer,
+rich layouts, message-scoped reference resolution, TeX source protection,
+and deterministic Mermaid repair candidates.
+Copyright (c) 2026 davoda1. MIT, see licenses/Reader-MIT.txt.
+Adapted to an isolated browser bundle, with generated math links disabled and chart category labels moved below
+negative-value labels to prevent overlap.
+
+Marked 17.0.5: Markdown parser. MIT, see licenses/Marked-LICENSE.md.
+MathJax 3.2.1: local TeX to SVG. Apache 2.0, see licenses/MathJax-LICENSE.txt.
+Mermaid 11.17.2: local diagram renderer, shared with the Local Reader bundle.
+Includes DOMPurify 3.4.17 and KaTeX 0.18.2. MIT for Mermaid itself;
+see licenses/Mermaid-LICENSE.txt and the complete incorporated-component
+notices/versions in licenses/Mermaid-BUNDLE-NOTICES.txt and
+licenses/Mermaid-BUNDLE-MANIFEST.json. Reproducible source recipe and lockfile:
+tools/mermaid-bundle/ in the suite repository.
+No library requires network access for its supported bundled features.
+
+highlight.js 11.12.0: offline code syntax highlighting. BSD 3-Clause, see
+licenses/highlight.js-LICENSE.txt. The language adapter, Fish grammar, and
+VS Code palette derive from Local Reader under its MIT license.

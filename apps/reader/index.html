@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>ThreadShelf Local Reader 1.0.0</title>
+  <script src="./src/ui/startup.js"></script>
+</head>
+<body>
+  <div id="app" aria-busy="true"><div class="app-loading"><div class="startup-loader" role="status" aria-label="Loading…"><span class="startup-orbit" aria-hidden="true"><span class="startup-dot"></span></span><span class="startup-orbit" aria-hidden="true"><span class="startup-dot"></span></span><span class="startup-orbit" aria-hidden="true"><span class="startup-dot"></span></span><span class="startup-orbit" aria-hidden="true"><span class="startup-dot"></span></span><span class="startup-orbit" aria-hidden="true"><span class="startup-dot"></span></span></div></div></div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" aria-live="polite"></div>
+  <script type="module" src="./src/ui/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "name": "Wiersz o kodzie",
+  "pinned": false,
+  "createdAt": 1769354110330,
+  "preset": "",
+  "tokenCount": 190,
+  "userLastMessagedAt": 1769354110330,
+  "assistantLastMessagedAt": 1769354120000,
+  "systemPrompt": "",
+  "usePerChatPredictionConfig": true,
+  "perChatPredictionConfig": { "fields": [] },
+  "lastUsedModel": {
+    "identifier": "llama-test-model",
+    "indexedModelIdentifier": "vendor/llama-test-model-GGUF/llama-test-model.Q4_K_M.gguf"
+  },
+  "messages": [
+    {
+      "versions": [
+        {
+          "type": "singleStep",
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Napisz krótki wiersz o kodzie. Znaki: zażółć gęślą jaźń, 漢字, 🔐."
+            }
+          ],
+          "edited": true
+        }
+      ],
+      "currentlySelected": 0
+    },
+    {
+      "versions": [
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": { "senderName": "llama-test-model" },
+          "steps": [
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Kod płynie jak rzeka nocą; ñ, ç, ü, 日本語."
+                }
+              ]
+            },
+            {
+              "type": "debugInfoBlock",
+              "content": []
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    }
+  ],
+  "notes": [],
+  "plugins": [],
+  "looseFiles": []
+}

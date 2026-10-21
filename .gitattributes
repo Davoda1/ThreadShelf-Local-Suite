@@ -1,0 +1,38 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.mjs text eol=lf
+*.ts text eol=lf
+*.inc text eol=lf
+*.patch text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.png binary
+*.ico binary
+*.mp4 binary
+*.woff2 binary
+*.exe binary
+*.so binary
+*.node binary
+*.xz binary
+*.zip binary
+
+# Preserve upstream bytes covered by bundled 7-Zip provenance hashes.
+apps/*/vendor/7zip/License.txt -text
+apps/*/vendor/7zip/copying.txt -text
+
+# Preserve original upstream native-component notices byte-for-byte.
+apps/reader/licenses/native-components/** -text
+
+# Preserve original GNU license texts across checkouts.
+apps/*/licenses/GNU-*.txt -text
+
+# Generated renderer files carry byte hashes; preserve the exact build output.
+apps/reader/public/mermaid.min.js -text
+apps/alternative/vendor/mermaid.min.js -text
+apps/reader/licenses/Mermaid-BUNDLE-* -text
+apps/alternative/vendor/licenses/Mermaid-BUNDLE-* -text

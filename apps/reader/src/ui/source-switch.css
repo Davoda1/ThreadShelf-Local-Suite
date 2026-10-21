@@ -1,0 +1,14 @@
+/* Preserve the existing responsive outer sizing in all three width preferences.
+   The wider choices use the original desktop ratio and its mirror. */
+.header-source-switch{position:relative;isolation:isolate;grid-template-columns:repeat(2,minmax(0,1fr))}
+:root[data-source-switch-width="server-wider"] .header-source-switch{grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr)}
+:root[data-source-switch-width="local-wider"] .header-source-switch{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr)}
+.header-source-switch::before{content:'';position:absolute;z-index:-1;pointer-events:none;left:0;top:3px;bottom:3px;width:var(--source-width,0px);transform:translateX(var(--source-x,0px));border-radius:5px;background:var(--accent-soft)}
+.header-source-switch[data-indicator-ready="true"]::before{transition:transform .2s ease,width .2s ease}
+.header-source-switch button{color:var(--muted)}
+.header-source-switch button[aria-pressed="true"]{background:transparent;color:var(--accent-text);box-shadow:none}
+.header-source-switch button:hover:not(:disabled){background:transparent;color:var(--text)}
+.header-source-switch button:focus-visible{outline-offset:-2px}
+:root[data-animations="false"] .header-source-switch::before{transition:none;animation:none}
+@media(prefers-reduced-motion:reduce){.header-source-switch::before{transition:none!important;animation:none!important}}
+@media(forced-colors:active){.header-source-switch::before{background:Highlight;forced-color-adjust:none}.header-source-switch button[aria-pressed="true"]{color:HighlightText;forced-color-adjust:none}}

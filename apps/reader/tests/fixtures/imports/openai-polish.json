@@ -1,0 +1,41 @@
+[
+  {
+    "title": "Anonimowa rozmowa ChatGPT",
+    "current_node": "assistant-1",
+    "default_model_slug": "gpt-test",
+    "mapping": {
+      "root": {
+        "id": "root",
+        "parent": null,
+        "children": ["user-1"]
+      },
+      "user-1": {
+        "id": "user-1",
+        "parent": "root",
+        "children": ["assistant-1"],
+        "message": {
+          "author": { "role": "user" },
+          "content": {
+            "content_type": "text",
+            "parts": ["Napisz krótką notatkę o bezpieczeństwie eksportów rozmów. Dodaj: zażółć, contraseña, corazón, mañana."]
+          },
+          "create_time": 1770000000
+        }
+      },
+      "assistant-1": {
+        "id": "assistant-1",
+        "parent": "user-1",
+        "children": [],
+        "message": {
+          "author": { "role": "assistant" },
+          "content": {
+            "content_type": "text",
+            "parts": ["Eksporty rozmów powinny być traktowane jak dane prywatne: usuń dane osobowe, hasła i identyfikatory. También conserva Unicode correctamente: ¿Qué tal? ¡Bien!"]
+          },
+          "metadata": { "model_slug": "gpt-test-response" },
+          "create_time": 1770000001
+        }
+      }
+    }
+  }
+]

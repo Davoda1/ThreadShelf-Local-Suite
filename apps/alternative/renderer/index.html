@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-boot="loading">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+  <style id="startup-fallback-style">
+    html,body{margin:0;background:#141c1d}html{--boot-bg:#141c1d;--boot-text:#e7eeea;--boot-muted:#a1b2ad;--boot-accent:#74c1b0}
+    html:not([data-boot="ready"]) body> :not(#startup-screen){visibility:hidden!important}html:not([data-boot="ready"]) dialog{display:none!important}
+    #startup-screen{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;box-sizing:border-box;padding:28px;overflow:auto;background:var(--boot-bg);color:var(--boot-text);font:14px "Segoe UI",sans-serif;text-align:center}
+    html[data-boot="ready"] #startup-screen{display:none!important}.startup-recovery{visibility:hidden;opacity:0;animation:startup-reveal-recovery 0s 15s forwards}.startup-recovery a{color:inherit}
+    html[data-boot="slow"] .startup-recovery,html[data-boot="error"] .startup-recovery{visibility:visible;opacity:1;animation:none}
+    @keyframes startup-reveal-recovery{to{visibility:visible;opacity:1}}
+  </style>
+  <script src="startup.js"></script>
+  <link rel="stylesheet" href="startup.css">
+  <title>ThreadShelf Local Alternative</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2317635f'/%3E%3Cpath d='M16 18h32v7H36v23h-8V25H16zm0 16h8v14h-8m24-14h8v14h-8' fill='%23f3f1eb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="content.css">
+  <link rel="stylesheet" href="code-themes.css">
+</head>
+<body>
+  <section id="startup-screen" class="startup-screen" aria-label="ThreadShelf is starting" aria-busy="true">
+    <div class="startup-card">
+      <div class="startup-symbol" aria-hidden="true"><span class="startup-orbit"></span><svg viewBox="0 0 32 32"><path d="M4 5h24v5h-9v17h-6V10H4zm0 13h6v9H4m18-9h6v9h-6"/></svg></div>
+      <p class="startup-eyebrow">THREADSHELF</p>
+      <h1>Local Alternative</h1>
+      <p id="startup-status" class="startup-status" role="status" aria-live="polite">Preparing your reading space</p>
+      <div class="startup-track" aria-hidden="true"><span></span></div>
+      <div id="startup-recovery" class="startup-recovery">
+        <p id="startup-detail">Startup is taking longer than expected. You can retry safely.</p>
+        <a id="startup-retry" class="startup-retry" href="">Retry startup <span aria-hidden="true">↻</span></a>
+        <noscript><p>JavaScript is required to open this application.</p></noscript>
+      </div>
+    </div>
+    <p class="startup-footnote">A little room for your ideas.</p>
+  </section>
+  <div id="app" class="app-shell" inert aria-hidden="true">
+    <nav class="rail" aria-label="Workspace">
+      <button class="brand-mark" id="home-button" aria-label="ThreadShelf home" title="ThreadShelf Local Alternative"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 5h24v5h-9v17h-6V10H4zm0 13h6v9H4m18-9h6v9h-6"/></svg></button>
+      <div class="rail-links">
+        <button class="rail-item active" data-view="library" aria-label="Library" title="Library"><span data-icon="library"></span><span>Library</span></button>
+        <button class="rail-item" data-view="pins" aria-label="Pinned conversations" title="Pinned conversations"><span data-icon="pin"></span><span>Pins</span></button>
+        <button class="rail-item" data-view="recent" aria-label="Recent conversations" title="Recent conversations"><span data-icon="clock"></span><span>Recent</span></button>
+      </div>
+      <div class="rail-bottom"><button class="rail-item" id="settings-button" aria-label="Settings" title="Settings"><span data-icon="settings"></span><span>Settings</span></button></div>
+    </nav>
+    <aside id="library-pane" class="library-pane" aria-label="Conversation library">
+      <header class="library-heading"><div><p class="eyebrow">THREADSHELF</p><h1>Local Alternative</h1></div><div class="library-heading-actions"><button class="icon-button" id="saved-searches-button" title="Saved searches" aria-label="Saved searches"><span data-icon="bookmark"></span></button><button class="icon-button small-shelf-close" id="hide-library" title="Hide library" aria-label="Hide library"><span data-icon="panel"></span></button></div></header>
+      <button class="connection-card" id="connection-button" title="Change server connection"><span class="status-dot" id="status-dot"></span><span class="connection-copy"><strong id="connection-label">Connect your server</strong><span id="connection-detail">Your conversations, your space</span></span><span data-icon="chevron"></span></button>
+      <div class="library-controls">
+        <form id="search-form" role="search"><label class="sr-only" for="search-input">Search conversations</label><div class="search-box"><span data-icon="search"></span><input id="search-input" type="search" placeholder="Search your conversations…" autocomplete="off"><button type="submit" class="icon-button" aria-label="Run search" title="Run search"><span data-icon="arrow"></span></button></div></form>
+        <div class="search-tools"><div id="search-modes" class="search-modes" role="group" aria-label="Search mode"><button data-mode="exact" class="active" aria-pressed="true">Text</button><button data-mode="semantic" aria-pressed="false">Semantic</button></div><button id="toggle-filters" class="filters-button" aria-expanded="false" aria-controls="filter-panel" title="Collection, role, and sorting"><span data-icon="filters"></span><span>Filters</span><span id="filter-count" class="filter-count" hidden>0</span></button><button id="save-search-button" class="icon-button" title="Save this search" aria-label="Save this search"><span data-icon="plus"></span></button></div>
+        <p id="filter-summary" class="filter-summary" aria-live="polite">All collections</p>
+        <div id="filter-panel" class="filter-panel" role="group" aria-label="Collection and search filters" hidden>
+        <label class="field-label" for="collection-select">COLLECTION</label><select id="collection-select"><option value="">Choose a collection</option></select>
+        <div class="filter-row"><label><span class="sr-only">Message role</span><select id="role-select" title="Message role"><option value="">All roles</option><option value="user">Your prompts</option><option value="assistant">Responses</option></select></label><label><span class="sr-only">Sort conversations</span><select id="sort-select" title="Sort conversations"><option value="updated">Recently updated</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option><option value="length">Longest first</option><option value="relevance" disabled>Server result order</option></select></label></div>
+        </div>
+      </div>
+      <div class="results-summary"><div class="results-heading"><h2 id="view-heading">Library</h2><span id="results-count">Ready when you are</span></div><button class="text-button" id="reset-search" title="Clear search" hidden>Clear</button></div>
+      <div id="results-notice" class="results-notice" hidden></div>
+      <div id="results-list" class="results-list" aria-live="polite"></div>
+      <footer class="pagination"><button class="icon-button" id="previous-page" title="Previous page" aria-label="Previous page" disabled><span data-icon="left"></span></button><span id="page-label">Library</span><button class="icon-button" id="next-page" title="Next page" aria-label="Next page" disabled><span data-icon="right"></span></button></footer>
+    </aside>
+    <main class="reader-pane" id="reader-pane">
+      <div class="demo-banner" id="demo-banner" hidden><span><span class="demo-dot"></span><strong>DEMO WORKSPACE</strong><span class="demo-long"> · Built-in guides and sample conversations</span></span><button id="leave-demo" class="text-button">Connect a server <span aria-hidden="true">↗</span></button></div>
+      <header class="reader-toolbar"><div class="toolbar-start"><button class="icon-button" id="toggle-library" title="Toggle library (Ctrl+\)" aria-label="Toggle library"><span data-icon="panel"></span></button><span class="toolbar-divider"></span><span id="breadcrumb" class="breadcrumb">A different perspective</span></div><div class="toolbar-actions"><button class="icon-button thread-action" id="pin-thread" aria-label="Pin conversation" title="Pin conversation" disabled><span data-icon="pin"></span></button><button class="icon-button thread-action" id="find-thread" aria-label="Find in conversation" title="Find in conversation (Ctrl+F)" disabled><span data-icon="search"></span></button><button class="icon-button thread-action" id="copy-thread" aria-label="Copy conversation" title="Copy conversation as text" disabled><span data-icon="copy"></span></button><button class="icon-button thread-action" id="export-thread" aria-label="Export conversation" title="Export conversation as Markdown" disabled><span data-icon="download"></span></button><span class="toolbar-divider"></span><button class="icon-button thread-action" id="toggle-outline" aria-label="Show conversation outline" title="Show conversation outline" aria-pressed="false" disabled><span data-icon="outline"></span></button><button class="icon-button" id="focus-mode" title="Focus mode (Ctrl+Shift+F)" aria-label="Enter focus mode"><span data-icon="expand"></span><span class="focus-label">Exit focus</span></button></div></header>
+      <div id="find-bar" class="find-bar" hidden><label class="sr-only" for="find-input">Find in this conversation</label><input id="find-input" type="search" placeholder="Find in this conversation…"><span id="find-count">0 matches</span><button class="icon-button" id="find-prev" title="Previous match" aria-label="Previous match"><span data-icon="up"></span></button><button class="icon-button" id="find-next" title="Next match" aria-label="Next match"><span data-icon="down"></span></button><button class="icon-button" id="find-close" title="Close find" aria-label="Close find"><span data-icon="close"></span></button></div>
+      <div class="reading-workspace"><div class="reader-scroll" id="reader-scroll" tabindex="0"><section id="welcome" class="welcome"><div class="welcome-kicker"><span class="tiny-line"></span> ROOM FOR YOUR IDEAS</div><h2>Good conversations<br>deserve a <em>second look.</em></h2><p>A calmer way to explore your ThreadShelf archive. Find the thought you remember, follow its context, and keep the conversations worth returning to.</p><div class="welcome-actions"><button id="welcome-connect" class="primary-button"><span data-icon="server"></span> Connect your server</button><button id="welcome-demo" class="secondary-button">Explore the demo <span aria-hidden="true">→</span></button></div><div class="welcome-notes"><div><span data-icon="search"></span><strong>Find the thread</strong><p>Search the words. Explore the idea.</p></div><div><span data-icon="pin"></span><strong>Keep what matters</strong><p>Pin a conversation. Pick up where you left off.</p></div><div><span data-icon="book"></span><strong>Make room to read</strong><p>Less clutter. More of the conversation.</p></div></div><p class="welcome-footnote">An independent offshoot · ThreadShelf Local Alternative</p></section><section id="thread-view" class="thread-view" hidden><header class="thread-heading"><div id="thread-kicker" class="thread-kicker"></div><h2 id="thread-title"></h2><div id="thread-meta" class="thread-meta"></div></header><div id="thread-content" class="thread-content"></div><footer class="thread-end"><span></span><p>You’ve reached the end of this conversation.</p><button class="text-button" id="back-top">Back to the beginning ↑</button></footer></section><div id="reader-loading" class="reader-loading" hidden><span class="spinner"></span><p>Opening conversation…</p></div></div><aside id="outline-pane" class="outline-pane" aria-label="Conversation outline" hidden><div class="section-heading"><h2>In this thread</h2><button class="icon-button" id="close-outline" title="Close outline" aria-label="Close outline"><span data-icon="close"></span></button></div><p class="outline-caption" id="outline-summary"></p><nav id="outline-list" aria-label="Prompt navigation"></nav><div class="reading-insights" id="reading-insights"></div></aside></div>
+      <footer class="reader-status"><span id="reader-status-text">Your archive, thoughtfully revisited.</span><span id="reading-progress"></span><button class="text-button" id="reading-settings" title="Reading settings"><span data-icon="type"></span><span>Reading</span></button></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="connect-dialog" class="app-dialog"><form id="connect-form"><header class="dialog-heading"><div><p class="eyebrow">YOUR ARCHIVE</p><h2>Connect to ThreadShelf</h2></div><button type="button" class="icon-button" data-close="connect-dialog" aria-label="Close"><span data-icon="close"></span></button></header><p class="dialog-intro">Enter the address of your ThreadShelf server. Your conversations stay on your server; this app keeps your reading preferences locally.</p><label class="field-label" for="server-url">SERVER ADDRESS</label><input id="server-url" type="url" placeholder="http://localhost:3000" required><p class="field-help">Include http:// or https:// and your server’s port, if needed.</p><div id="connect-error" class="form-error" role="alert" hidden></div><footer class="dialog-footer"><button type="button" class="secondary-button" id="connect-demo">Explore demo</button><button type="submit" id="connect-submit" class="primary-button">Connect server <span aria-hidden="true">→</span></button></footer></form></dialog>
+  <dialog id="settings-dialog" class="app-dialog settings-dialog"><header class="dialog-heading"><div><p class="eyebrow">MAKE IT YOURS</p><h2>Reading & appearance</h2></div><button class="icon-button" data-close="settings-dialog" aria-label="Close"><span data-icon="close"></span></button></header><div class="settings-body"><p id="settings-warning" class="form-error" role="status" hidden></p><div class="setting-group"><label class="field-label">COLOR THEME</label><div class="choice-group" id="theme-choices"><button data-theme="system">System</button><button data-theme="light">Light</button><button data-theme="dark">Dark</button></div></div><div class="setting-group"><div class="setting-title"><label for="font-size">Reading size</label><output id="font-size-label">16 px</output></div><input type="range" id="font-size" min="14" max="24" step="1"><p class="reading-sample">Ideas are easier to rediscover when there is room to read.</p></div><div class="setting-group"><label class="field-label" for="line-width">READING WIDTH</label><select id="line-width"><option value="compact">Compact · 640 px</option><option value="comfortable">Comfortable · 820 px</option><option value="wide">Wide · 1040 px</option></select></div><div class="setting-group setting-toggle"><div><label for="show-reasoning">Show reasoning when available</label><p>Display reasoning included in the conversation export.</p></div><input type="checkbox" id="show-reasoning" role="switch"></div><div class="settings-shortcuts"><h3>Keyboard shortcuts</h3><p><span>Search your library</span><kbd>Ctrl K</kbd></p><p><span>Find in this conversation</span><kbd>Ctrl F</kbd></p><p><span>Toggle focus mode</span><kbd>Ctrl Shift F</kbd></p><p><span>Leave focus / close dialogs</span><kbd>Esc</kbd></p></div><p class="about-line">ThreadShelf Local Alternative <strong>1.0.0</strong><br>Independent application · Separate preferences and data</p></div><footer class="dialog-footer"><span class="field-help" id="settings-save-status">Changes are saved automatically.</span><button class="primary-button" data-close="settings-dialog">Done</button></footer></dialog>
+  <dialog id="saved-dialog" class="app-dialog"><header class="dialog-heading"><div><p class="eyebrow">PICK UP A TRAIL</p><h2>Saved searches</h2></div><button class="icon-button" data-close="saved-dialog" aria-label="Close"><span data-icon="close"></span></button></header><p class="dialog-intro">Searches for this server. Save the current search with the + button beside the search modes.</p><div id="saved-list" class="saved-list"></div></dialog>
+  <script src="demo-data.js"></script>
+  <script src="../vendor/math-config.js"></script>
+  <script src="../vendor/marked.umd.js"></script>
+  <script src="../vendor/mathjax-tex-svg.js"></script>
+  <script src="../vendor/mermaid.min.js"></script>
+  <script src="../vendor/reader-rich.js"></script>
+  <script src="../vendor/highlight.bundle.js"></script>
+  <script src="content.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

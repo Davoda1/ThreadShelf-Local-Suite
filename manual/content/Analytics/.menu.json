@@ -1,0 +1,37 @@
+{
+  "title": "ThreadShelf Local Analytics 1.0.0",
+  "entries": [
+    {
+      "path": "01-Sources.md",
+      "label": "Installation, sources and captures"
+    },
+    {
+      "path": "02-Selections.md",
+      "label": "Filters, saved views and annotations"
+    },
+    {
+      "path": "03-Workspaces.md",
+      "label": "Standard workspaces and chart reading"
+    },
+    {
+      "path": "04-Explorer-Distributions.md",
+      "label": "Explorer: distributions and relationships"
+    },
+    {
+      "path": "05-Explorer-Sequences.md",
+      "label": "Explorer: sequences, observability and capture history"
+    },
+    {
+      "path": "06-Evidence-and-Reports.md",
+      "label": "Compare selections, inspect evidence and export reports"
+    },
+    {
+      "path": "07-Settings-and-Storage.md",
+      "label": "Appearance, accessibility, storage and backup"
+    },
+    {
+      "path": "08-Troubleshooting.md",
+      "label": "Troubleshooting and keyboard reference"
+    }
+  ]
+}

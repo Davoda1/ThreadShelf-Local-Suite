@@ -1,0 +1,12 @@
+{
+  "name": "foreground-child",
+  "version": "3.3.1",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tapjs/foreground-child.git"
+  },
+  "retainedNotices": [
+    "LICENSE"
+  ]
+}

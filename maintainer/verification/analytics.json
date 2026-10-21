@@ -1,0 +1,77 @@
+{
+  "evidenceScope": "Initial packaging and capture baseline before the final publication audit. Archive hashes and test totals here describe that baseline, not the rebuilt final release. Consult the final successful Build desktop packages workflow and release verification receipt for final artifacts.",
+  "application": "ThreadShelf Local Analytics",
+  "version": "1.0.0",
+  "node": "24.19.0",
+  "npm": "11.9.0",
+  "electron": "44.4.5",
+  "nodeTests": {
+    "passed": 306,
+    "failed": 0,
+    "skipped": 0
+  },
+  "pythonPackageValidatorTests": {
+    "passed": 37,
+    "failed": 0
+  },
+  "readerIntegration": "Public adjacent Reader live capture passes; Reader suite also passed 7z and ZIP6 integration",
+  "testEnvironment": "Tests used canonical temporary paths and a byte-identical executable 7-Zip copy because the working volume is noexec. Production codec selection unchanged.",
+  "rendererCaptures": {
+    "count": 13,
+    "source": "Exact compiled renderer with synthetic browser bridge",
+    "result": "PASS",
+    "browser": "Chromium 140.0.7339.186",
+    "externalRequests": 0,
+    "pageErrors": 0
+  },
+  "nativeWindowsExecution": false,
+  "nativeLinuxGuiExecution": false,
+  "archives": [
+    {
+      "file": "ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable.zip",
+      "files": 2338,
+      "uncompressedBytes": 417660977,
+      "archiveBytes": 179786480,
+      "sha256": "2efd415bc64d52e62013d1b93410c0d223172809473b1489a2323b819e557d78",
+      "stagingByteMatches": true,
+      "modeChecks": 0,
+      "nativeEntrypointSymlinkChecks": 0,
+      "launcherScriptDirectoriesChecked": [
+        "."
+      ],
+      "zipCrcChecked": true
+    },
+    {
+      "file": "ThreadShelf-Local-Analytics-1.0.0-Linux-amd64.tar.gz",
+      "files": 2339,
+      "uncompressedBytes": 328720983,
+      "archiveBytes": 139817635,
+      "sha256": "6cccd6bf4d4e71efb3acce1c51ffba54c14b4da579598e2fd6dfd78e800b6e6b",
+      "stagingByteMatches": true,
+      "modeChecks": 2337,
+      "nativeEntrypointSymlinkChecks": 2,
+      "launcherScriptDirectoriesChecked": [
+        ".",
+        "bin",
+        "app"
+      ],
+      "zipCrcChecked": false
+    },
+    {
+      "file": "threadshelf-local-analytics_1.0.0_amd64.deb",
+      "files": 2139,
+      "uncompressedBytes": 328420611,
+      "archiveBytes": 109915648,
+      "sha256": "cfaf4b11ed420b65ccc449e808d3207d2a28447e75eab28094b9d4809156e38d",
+      "stagingByteMatches": true,
+      "modeChecks": 2138,
+      "nativeEntrypointSymlinkChecks": 1,
+      "launcherScriptDirectoriesChecked": [
+        "usr/bin",
+        "opt/threadshelf-local-analytics"
+      ],
+      "zipCrcChecked": false
+    }
+  ],
+  "result": "PASS"
+}

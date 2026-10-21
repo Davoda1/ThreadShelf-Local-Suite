@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
+import { fork } from 'node:child_process';
+import { captureReader } from '../src/core/reader-capture.mjs';
+import { hash } from './helpers/reader-fixture.mjs';
+const project=fileURLToPath(new URL('../',import.meta.url));
+const baseline=path.resolve(process.env.READER_BASELINE_ROOT||path.join(project,'..','reader'));
+const present=await fs.access(path.join(baseline,'src/core/service.mjs')).then(()=>true,()=>false);
+
+test('public Reader process remains open through capture, import/checkpoint races, conversion, clear/restore and restart',{skip:!present?'Set READER_BASELINE_ROOT to the public Reader source directory.':false,timeout:120000},async t=>{
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-live-reader-')),reference=path.join(directory,'unmodified Reader reference'),source=path.join(directory,'Reader live profile'),workspace=path.join(directory,'Analytics work');
+  await fs.mkdir(path.join(reference,'src'),{recursive:true});await fs.cp(path.join(baseline,'src/core'),path.join(reference,'src/core'),{recursive:true});await fs.mkdir(path.join(reference,'vendor'),{recursive:true});await fs.cp(path.join(project,'vendor/7zip'),path.join(reference,'vendor/7zip'),{recursive:true});await fs.writeFile(path.join(reference,'package.json'),JSON.stringify({type:'module'}));await fs.symlink(path.join(project,'node_modules'),path.join(reference,'node_modules'),process.platform==='win32'?'junction':'dir');
+  for(const file of ['storage.mjs','archive.mjs','content-packs.mjs','service.mjs'])assert.equal(hash(await fs.readFile(path.join(reference,'src/core',file))),hash(await fs.readFile(path.join(baseline,'src/core',file))),'Reader code remains byte-for-byte unmodified');
+  const child=fork(fileURLToPath(new URL('./helpers/reader-process.mjs',import.meta.url)),[reference,source,path.join(directory,'Reader own temp')],{stdio:['ignore','pipe','pipe','ipc']});let output='';child.stderr.on('data',bytes=>{output+=bytes.toString();});child.stdout.on('data',()=>{});const pending=new Map();let sequence=0;
+  const ready=new Promise((resolve,reject)=>{child.once('error',reject);child.on('message',message=>{if(message.ready)resolve();else {const request=pending.get(message.id);if(request){pending.delete(message.id);message.error?request.reject(new Error(message.error.stack||message.error.message)):request.resolve(message.result);}}});child.on('exit',code=>{if(code){const error=new Error(`Reader exited ${code}: ${output}`);reject(error);for(const request of pending.values())request.reject(error);pending.clear();}});});
+  const send=(command,data={})=>new Promise((resolve,reject)=>{const id=++sequence;pending.set(id,{resolve,reject});child.send({id,command,...data});});
+  t.after(async()=>{if(child.connected)await send('shutdown').catch(()=>child.kill());await fs.rm(directory,{recursive:true,force:true});});await ready;
+  const doc=(key,provider)=>({provider,collection:'Mixed live collection',title:key,conversationKey:key,turns:[{turn_index:0,user:'Synthetic '+key,ai:'Synthetic answer',createdAt:'2026-01-01T00:00:00Z'}],raw:{synthetic:true}});
+  await send('upsert',{document:doc('openai-one','openai')});const writerPath=path.join(source,'local-storage-v2/writer.json'),lease=await fs.readFile(writerPath),access=[];
+  const initial=await captureReader(source,{workspace,onAccess:event=>access.push(event)});assert.equal(initial.conversations.length,1);assert.deepEqual(await fs.readFile(writerPath),lease);assert.ok(!access.some(e=>/writer|gate|settings|reading-v2|activity|search|vectors/.test(e.relative)));assert.equal((await send('query')).threads.length,1);
+  let raced=false;const afterRace=await captureReader(source,{workspace,fault:async phase=>{if(phase==='catalog-copied'&&!raced){raced=true;await send('upsert',{document:doc('venice-two','venice')});await send('checkpoint');}}});assert.equal(afterRace.attempts,2);assert.equal(afterRace.conversations.length,2);assert.deepEqual(new Set(afterRace.conversations.map(d=>d.provider)),new Set(['openai','venice']));
+  const state=await send('query'),collectionId=state.collections[0].id;await send('manage',{args:{action:'rename',collectionId,name:'Renamed live mixed collection'}});const renamed=await captureReader(source,{workspace});assert.equal(renamed.collections[0].name,'Renamed live mixed collection');
+  await send('convert',{profile:'zip6'});const zip=await captureReader(source,{workspace});assert.equal(zip.conversations.length,2);assert.notEqual(zip.commit.epoch,renamed.commit.epoch);
+  await send('convert',{profile:'7z'});const lzma=await captureReader(source,{workspace});assert.equal(lzma.conversations.length,2);
+  const backup=path.join(directory,'Reader synthetic backup.zip');await send('backup',{path:backup});await send('manage',{args:{action:'clear'}});const cleared=await captureReader(source,{workspace});assert.equal(cleared.conversations.length,0);
+  await send('restore',{path:backup});const restored=await captureReader(source,{workspace});assert.equal(restored.conversations.length,2);await send('restart');const restarted=await captureReader(source,{workspace});assert.equal(restarted.conversations.length,2);assert.equal((await send('query')).threads.length,2);
+  assert.deepEqual(await fs.readdir(workspace),[]);
+});

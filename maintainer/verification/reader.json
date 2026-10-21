@@ -1,0 +1,173 @@
+{
+  "evidenceScope": "Initial packaging and capture baseline before the final publication audit. Archive hashes and test totals here describe that baseline, not the rebuilt final release. Consult the final successful Build desktop packages workflow and release verification receipt for final artifacts.",
+  "version": "1.0.0",
+  "electronVersion": "44.9.1",
+  "buildNode": "24.19.0",
+  "buildNpm": "11.9.0",
+  "archives": [
+    {
+      "file": "ThreadShelf-Local-Reader-1.0.0-Windows-x64-Portable.zip",
+      "files": 5209,
+      "uncompressedBytes": 752574569,
+      "archiveBytes": 329550919,
+      "sha256": "88f193d8693a33303ac2949f5e8d0eaa47d0373d5511c84ebb5f1f1d02ed92d3",
+      "stagingByteMatches": true,
+      "modeChecks": 0,
+      "nativeEntrypointSymlinkChecks": 0,
+      "launcherScriptDirectoriesChecked": [
+        "."
+      ],
+      "zipCrcChecked": true
+    },
+    {
+      "file": "ThreadShelf-Local-Reader-1.0.0-Linux-amd64.tar.gz",
+      "files": 5221,
+      "uncompressedBytes": 660929339,
+      "archiveBytes": 284504328,
+      "sha256": "1fbaea1c7589b1d90473f99bd8d473278a29f6e5ab4367ecbbe7b080703aa673",
+      "modeChecks": 5219,
+      "nativeEntrypointSymlinkChecks": 2,
+      "launcherScriptDirectoriesChecked": [
+        ".",
+        "bin",
+        "app"
+      ],
+      "zipCrcChecked": false,
+      "extractedArchiveVerified": true,
+      "sourceAndOfficialRuntimeVerifiedIndependently": true
+    },
+    {
+      "file": "threadshelf-local-reader_1.0.0_amd64.deb",
+      "files": 5157,
+      "uncompressedBytes": 660478809,
+      "archiveBytes": 230714890,
+      "sha256": "f60f75eb21adf549ec4e2f74b4fa4193dabe6bdf72b40d41ea583c37ab3080fc",
+      "stagingByteMatches": true,
+      "modeChecks": 5156,
+      "nativeEntrypointSymlinkChecks": 1,
+      "launcherScriptDirectoriesChecked": [
+        "usr/bin",
+        "opt/threadshelf-local-reader"
+      ],
+      "zipCrcChecked": false,
+      "stagingOrigin": "Portable runtime plus independently reconstructed DEB command, desktop entry and source icon"
+    }
+  ],
+  "runtimes": [
+    {
+      "platform": "win32",
+      "electron": "44.9.1",
+      "officialFilesVerified": 72,
+      "omittedDefaultApp": true,
+      "windowsBrandingCheck": {
+        "machine": "AMD64",
+        "unchangedSections": [
+          ".text",
+          ".rdata",
+          ".data",
+          ".pdata",
+          ".eh_fram",
+          ".fptable",
+          ".rodata",
+          ".tls",
+          "CPADinfo",
+          "LZMADEC",
+          "_RDATA",
+          "malloc_h",
+          "prot",
+          ".reloc"
+        ],
+        "allowedResourceSection": ".rsrc"
+      }
+    },
+    {
+      "platform": "linux",
+      "electron": "44.9.1",
+      "officialFilesVerified": 71,
+      "omittedDefaultApp": true,
+      "windowsBrandingCheck": null
+    },
+    {
+      "package": "deb",
+      "platform": "linux",
+      "electron": "44.9.1",
+      "officialFilesVerified": 71,
+      "runtimeBytesReadFromArchive": true,
+      "omittedDefaultApp": true,
+      "windowsBrandingCheck": null
+    }
+  ],
+  "applicationInputs": [
+    {
+      "platform": "win32",
+      "files": 138,
+      "matchesCurrentSourceAndRenderer": true,
+      "licenseFiles": 51,
+      "retainedLicensesMatchCurrentSource": true,
+      "japaneseFont": {
+        "file": "dist/assets/NotoSansJP-variable-TR7IMD34.woff2",
+        "bytes": 4350080,
+        "matchesSourceFont": true
+      },
+      "bundled7ZipAndCorrespondingSource": true
+    },
+    {
+      "platform": "linux",
+      "files": 138,
+      "matchesCurrentSourceAndRenderer": true,
+      "licenseFiles": 51,
+      "retainedLicensesMatchCurrentSource": true,
+      "japaneseFont": {
+        "file": "dist/assets/NotoSansJP-variable-TR7IMD34.woff2",
+        "bytes": 4350080,
+        "matchesSourceFont": true
+      },
+      "bundled7ZipAndCorrespondingSource": true
+    },
+    {
+      "platform": "deb",
+      "files": 138,
+      "matchesCurrentSourceAndRenderer": true,
+      "licenseFiles": 51,
+      "retainedLicensesMatchCurrentSource": true,
+      "japaneseFont": {
+        "file": "dist/assets/NotoSansJP-variable-TR7IMD34.woff2",
+        "bytes": 4350080,
+        "matchesSourceFont": true
+      },
+      "bundled7ZipAndCorrespondingSource": true
+    }
+  ],
+  "windowsNativeExecution": false,
+  "result": "PASS",
+  "debSandbox": {
+    "owner": "root:root",
+    "mode": "04755",
+    "verifiedFromArchive": true
+  },
+  "linuxValidationMethod": "Portable archive integrity, source parity and official runtime comparison; complete DEB payload cross-compared with portable runtime and independently reconstructed installation files.",
+  "linuxNativeSmoke": {
+    "result": "PASS",
+    "applicationVersion": "1.0.0",
+    "electron": "44.9.1",
+    "embeddedNode": "24.22.0",
+    "nativeLinuxGui": true,
+    "checks": [
+      "packaged native launch",
+      "real archive worker and sandboxed preload",
+      "synthetic compressed archive read",
+      "local keyword search",
+      "persisted dark appearance"
+    ],
+    "pageErrors": [],
+    "rendererNetworkRequests": [],
+    "accommodations": [
+      "Xvfb display",
+      "test-only --no-sandbox",
+      "test-only singleton socket override through inspector",
+      "debugger worker inheritance adjustment"
+    ],
+    "packageBytesModified": false,
+    "windowsNativeExecution": false
+  }
+}

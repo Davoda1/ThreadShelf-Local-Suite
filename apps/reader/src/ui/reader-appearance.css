@@ -1,0 +1,22 @@
+/* Appearance controls and the decorative reader backdrop, introduced in 1.0.0. */
+.wave-background-setting{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 17px;padding:12px 14px;border:1px solid var(--border);border-radius:11px;background:var(--surface);cursor:pointer}
+.wave-background-copy{display:block;min-width:0;flex:1}
+.wave-background-title{display:block;color:var(--text);font-size:12px;font-weight:600;line-height:1.4}
+.wave-background-description{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.5}
+.wave-background-switch-wrap{position:relative;display:block;flex:0 0 42px;width:42px;height:24px}
+.wave-background-switch{appearance:none;position:absolute;z-index:2;inset:0;width:42px;height:24px;margin:0;padding:0;border:0;border-radius:999px;background:transparent;opacity:0;cursor:pointer}
+.wave-background-switch-track{position:absolute;inset:0;border:1px solid var(--border);border-radius:999px;background:var(--bg);pointer-events:none;transition:background-color .18s ease,border-color .18s ease}
+.wave-background-switch-thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px #0004;transition:transform .18s ease}
+.wave-background-switch:checked+.wave-background-switch-track{border-color:var(--accent);background:var(--accent)}
+.wave-background-switch:checked+.wave-background-switch-track .wave-background-switch-thumb{transform:translateX(18px)}
+.wave-background-switch:focus-visible+.wave-background-switch-track{outline:2px solid var(--accent);outline-offset:3px}
+.reader-view.wave-background-enabled{isolation:isolate}
+.reader-view .threadshelf-wave-video{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none;opacity:0;transition:opacity .35s ease;background:var(--bg)}
+.reader-view .threadshelf-wave-video.is-ready{opacity:.42}
+[data-theme="dark"] .reader-view .threadshelf-wave-video{filter:brightness(.62) contrast(1.05) saturate(.84)}
+[data-theme="light"] .reader-view .threadshelf-wave-video{filter:brightness(.88) saturate(.80)}
+.reader-view.wave-background-enabled .conversation-content{position:relative;z-index:1;background:transparent}
+@media(max-width:700px){.wave-background-setting{gap:12px;padding:11px 12px}}
+@media(prefers-reduced-motion:reduce){.wave-background-switch-track,.wave-background-switch-thumb,.reader-view .threadshelf-wave-video{transition:none}}
+:root[data-animations="false"] .wave-background-switch-track,:root[data-animations="false"] .wave-background-switch-thumb{transition:none}
+@media(forced-colors:active){.wave-background-switch-track{border-color:ButtonText;background:Canvas}.wave-background-switch-thumb{background:ButtonText}.wave-background-switch:checked+.wave-background-switch-track{border-color:Highlight;background:Highlight}.wave-background-switch:checked+.wave-background-switch-track .wave-background-switch-thumb{background:HighlightText}}

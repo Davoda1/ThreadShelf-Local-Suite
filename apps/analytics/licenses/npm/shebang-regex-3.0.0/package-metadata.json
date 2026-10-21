@@ -1,0 +1,9 @@
+{
+  "name": "shebang-regex",
+  "version": "3.0.0",
+  "license": "MIT",
+  "repository": "sindresorhus/shebang-regex",
+  "retainedNotices": [
+    "license"
+  ]
+}

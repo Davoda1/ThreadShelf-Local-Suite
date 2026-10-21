@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+import {ApplicationService} from '../src/core/service.mjs';
+import {localReadingKey} from '../src/core/manager-reading.mjs';
+
+test('acknowledged service import and reading survive a killed process after its complete temp workspace disappears',{timeout:30000},async t=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-service-kill-')),dataDir=path.join(root,'profile'),source=path.join(root,'input.json');
+ await fs.writeFile(source,JSON.stringify({id:'kill-test',title:'Crash survivor',messages:[{role:'user',content:'cobalt recovered after SIGKILL'},{role:'assistant',content:'Temporary database is disposable.'}]}));
+ let service,child,stderr='';t.after(async()=>{child?.kill('SIGKILL');await service?.shutdown().catch(()=>{});await fs.rm(root,{recursive:true,force:true});});
+ const program=`import {ApplicationService} from ${JSON.stringify(new URL('../src/core/service.mjs',import.meta.url).href)};
+ const [dataDir,source]=process.argv.slice(1); const app=await new ApplicationService({dataDir}).init();
+ const imported=await app.handle('import.paths',{paths:[source],collection:'Crash test'});if(imported.errors.length)throw new Error(JSON.stringify(imported.errors));
+ const item=(await app.handle('files',{mode:'local'})).files[0];const key=JSON.stringify({mode:'local',id:item.id});
+ await app.handle('reading.save',{key,position:{turnIndex:0,role:'user',offset:.31,ref:{mode:'local',...item}},bookmark:{turnIndex:0,role:'user',ref:{mode:'local',...item}}});
+ process.send({item,work:app.storage.workingDir});setInterval(()=>{},1000);`;
+ child=spawn(process.execPath,['--input-type=module','-e',program,dataDir,source],{stdio:['ignore','ignore','pipe','ipc']});child.stderr.on('data',bytes=>{stderr+=bytes;});
+ const ready=await new Promise((resolve,reject)=>{child.once('message',resolve);child.once('error',reject);child.once('exit',(code,signal)=>reject(new Error('Fixture exited before acknowledgement: '+code+' '+signal+' '+stderr)));});
+ assert.ok(ready.work.startsWith(path.join(os.tmpdir(),'threadshelf-local-')));
+ const exited=once(child,'exit');child.kill('SIGKILL');const [,signal]=await exited;assert.equal(signal,'SIGKILL');child=null;
+ await fs.rm(ready.work,{recursive:true,force:true});
+ service=await new ApplicationService({dataDir}).init();
+ const files=await service.handle('files',{mode:'local'});assert.equal(files.total,1);assert.equal(files.files[0].id,ready.item.id);
+ const thread=await service.handle('thread',{mode:'local',id:ready.item.id});assert.ok(JSON.stringify(thread.turns).includes('cobalt recovered after SIGKILL'));
+ const boot=await service.handle('bootstrap');assert.equal(boot.reading.positions[localReadingKey(ready.item.id)].offset,.31);assert.equal(boot.reading.bookmarks.length,1);
+ assert.equal((await service.handle('search',{mode:'local',q:'cobalt'})).results[0].conversationId,ready.item.id);
+});

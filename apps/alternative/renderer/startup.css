@@ -1,0 +1,25 @@
+/* Kept independent of application CSS so the first visible frame is complete. */
+html[data-boot="ready"]{background:var(--bg,#141c1d)}
+#startup-screen{isolation:isolate;width:100%;min-height:100dvh;display:grid;place-items:center;font-family:Inter,"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.startup-card{width:min(440px,100%);margin:0 auto;padding:28px 12px 12px;position:relative}
+.startup-symbol{position:relative;width:78px;height:78px;margin:0 auto 33px;display:grid;place-items:center;color:var(--boot-accent)}
+.startup-symbol:before{content:"";position:absolute;inset:10px;border:1px solid color-mix(in srgb,var(--boot-accent) 25%,transparent);border-radius:17px;background:color-mix(in srgb,var(--boot-accent) 6%,var(--boot-bg))}
+.startup-symbol svg{position:relative;width:31px;height:31px;fill:currentColor;stroke:none}
+.startup-orbit{position:absolute;inset:0;border:1px solid color-mix(in srgb,var(--boot-accent) 12%,transparent);border-top-color:color-mix(in srgb,var(--boot-accent) 70%,transparent);border-radius:50%;animation:startup-orbit 4s linear infinite}
+.startup-eyebrow{font-size:9px;font-weight:650;letter-spacing:.25em;color:var(--boot-muted);margin:0 0 9px}
+.startup-card h1{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:34px;line-height:1.2;letter-spacing:-.035em;margin:0;color:var(--boot-text)}
+.startup-status{font-size:12px;line-height:1.7;color:var(--boot-muted);margin:18px 0 21px}
+.startup-track{width:126px;height:2px;overflow:hidden;border-radius:2px;margin:0 auto;background:color-mix(in srgb,var(--boot-accent) 14%,transparent)}
+.startup-track span{display:block;height:100%;width:46px;background:var(--boot-accent);border-radius:2px;animation:startup-progress 2.3s ease-in-out infinite}
+.startup-recovery{margin:25px auto 0;max-width:360px;min-height:86px}
+.startup-recovery p{font-size:11px;line-height:1.7;color:var(--boot-muted);margin:0 0 13px;overflow-wrap:anywhere}
+.startup-retry{display:inline-flex;align-items:center;gap:10px;border:1px solid color-mix(in srgb,var(--boot-accent) 45%,transparent);border-radius:7px;padding:9px 14px;color:var(--boot-accent)!important;font-size:11px;text-decoration:none;background:color-mix(in srgb,var(--boot-accent) 5%,var(--boot-bg))}
+.startup-retry:hover{background:color-mix(in srgb,var(--boot-accent) 12%,var(--boot-bg))}
+.startup-retry:focus-visible{outline:2px solid var(--boot-accent);outline-offset:4px}
+.startup-footnote{position:absolute;bottom:23px;left:24px;right:24px;margin:0;font-size:10px;letter-spacing:.02em;color:var(--boot-muted)}
+html[data-boot="error"] .startup-track{display:none}html[data-boot="error"] .startup-orbit{animation:none;border-color:color-mix(in srgb,var(--boot-accent) 35%,transparent)}
+@keyframes startup-orbit{to{transform:rotate(360deg)}}
+@keyframes startup-progress{0%{transform:translateX(-46px)}55%,100%{transform:translateX(126px)}}
+@media(max-height:550px){.startup-card{padding-top:14px;padding-bottom:0}.startup-symbol{margin-bottom:23px;width:67px;height:67px}.startup-symbol svg{width:27px;height:27px}.startup-card h1{font-size:30px}.startup-status{margin-top:15px;margin-bottom:17px}.startup-recovery{margin-top:19px;min-height:82px}.startup-footnote{bottom:17px}}
+@media(max-height:420px){#startup-screen{align-items:start}.startup-card{padding-top:12px;padding-bottom:40px}.startup-symbol{width:50px;height:50px;margin-bottom:14px}.startup-symbol:before{inset:6px;border-radius:12px}.startup-symbol svg{width:23px;height:23px}.startup-card h1{font-size:26px}.startup-recovery{min-height:0}.startup-footnote{position:fixed;bottom:10px}}
+@media(prefers-reduced-motion:reduce){.startup-orbit,.startup-track span{animation:none}.startup-track span{width:100%;opacity:.55}}

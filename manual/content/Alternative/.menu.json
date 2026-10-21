@@ -1,0 +1,26 @@
+{
+  "title": "Local Alternative manual",
+  "entries": [
+    {
+      "path": "01-Connection-and-Workspace.md"
+    },
+    {
+      "path": "02-Search-and-Filters.md"
+    },
+    {
+      "path": "03-Reading-and-Rendering.md"
+    },
+    {
+      "path": "04-Saved-Work.md"
+    },
+    {
+      "path": "05-Settings-and-Data.md"
+    },
+    {
+      "path": "06-Demo.md"
+    },
+    {
+      "path": "07-Troubleshooting.md"
+    }
+  ]
+}

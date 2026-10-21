@@ -1,0 +1,21 @@
+{
+  "source": "ThreadShelf Local Suite 1.0.0",
+  "adaptations": [
+    "ThreadShelf startup bootstrap integration",
+    "Test dependency injection for startup loader",
+    "Build output/import paths",
+    "Removed private media container titles; video/audio stream payloads preserved"
+  ],
+  "upstream": {
+    "holidayRules": "https://github.com/commenthol/date-holidays",
+    "timezoneData": "https://data.iana.org/time-zones/tzdb/"
+  },
+  "bundledFiles": {
+    "src/desktop/holiday/src/holiday-engine.mjs": "8ef68f28c9fd6f8820048b16b28187d8c1b55ac33c8359ccd9e26969858a1579",
+    "src/desktop/holiday/src/startup-region.mjs": "c128927f97f974f0850969d4baa0146304d8f43613c70cbecd6ec08c8e39a6a8",
+    "src/desktop/holiday/src/timezone-countries.mjs": "c51235b0e57fe3b454cf5c0db9304a70b5cc9abe8e9968c231a42e91f012c7fa",
+    "src/desktop/holiday/assets/data/holiday-rules.json": "1d1360c0c4b1af968bb750036601e4aa56a0ab8720363428d0be6a72f969093a",
+    "src/desktop/holiday/assets/data/HOLIDAY-LICENSES.txt": "c8f97294180a3a3f823f7a933de2fe7897d05cbfc65fdc861a2631201906411b",
+    "public/waves/01-multicolour-loop.mp4": "a2cff625b574c191f97eb03b1baaf1d3686154398af6fde6530cf0560124d137"
+  }
+}

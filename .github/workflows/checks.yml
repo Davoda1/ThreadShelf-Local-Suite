@@ -1,0 +1,79 @@
+name: Checks
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.19.0
+      - run: npm install --global npm@11.9.0
+      - name: Repository hygiene
+        run: python3 tools/check-public-tree.py
+      - name: Offline diagram dependency and security regressions
+        working-directory: tools/mermaid-bundle
+        run: |
+          npm ci --ignore-scripts
+          npm run check
+          npx playwright-core install --with-deps chromium
+          npm test
+      - name: Package validator regression tests
+        run: |
+          python3 apps/reader/tests/package-validation.test.py
+          python3 apps/analytics/test/package-validation.test.py
+      - name: Server patch installer safety
+        run: node --test server-patch/tests/installer.test.mjs
+      - name: Alternative tests
+        run: node apps/alternative/scripts/test.cjs
+      - name: Reader tests and build
+        working-directory: apps/reader
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Analytics tests and build
+        working-directory: apps/analytics
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+  server-integration:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.19.0
+      - run: npm install --global npm@11.9.0
+      - name: Check out the exact supported upstream server
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: ChrystianSchutz/ThreadShelf
+          ref: 3430dd04f50218fdea916b104709d24a651017fc
+          path: .verification/upstream
+          persist-credentials: false
+      - name: Install upstream locked dependencies
+        working-directory: .verification/upstream
+        env:
+          ONNXRUNTIME_NODE_INSTALL: skip
+        run: npm ci --ignore-scripts
+      - name: Apply, query and roll back the patch with synthetic data
+        run: |
+          node server-patch/manage.mjs install .verification/upstream
+          node server-patch/tests/run-native.mjs .verification/upstream
+          node server-patch/manage.mjs uninstall .verification/upstream
+          node server-patch/manage.mjs check .verification/upstream

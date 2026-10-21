@@ -1,0 +1,160 @@
+{
+  "name": "Warianty odpowiedzi",
+  "pinned": false,
+  "createdAt": 1770508800000,
+  "preset": "",
+  "tokenCount": 256,
+  "userLastMessagedAt": 1770508800000,
+  "assistantLastMessagedAt": 1770508860000,
+  "systemPrompt": "",
+  "usePerChatPredictionConfig": true,
+  "perChatPredictionConfig": {
+    "fields": []
+  },
+  "lastUsedModel": {
+    "identifier": "last-chat-model",
+    "indexedModelIdentifier": "vendor/last-chat-model/last-chat-model.gguf"
+  },
+  "messages": [
+    {
+      "versions": [
+        {
+          "type": "singleStep",
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Wybierz aktywną wersję odpowiedzi. Znaki: zażółć gęślą jaźń, 日本語, 🔐."
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    },
+    {
+      "versions": [
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": {
+            "senderName": "unused-model-a"
+          },
+          "steps": [
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Nieaktywna odpowiedź A."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": {
+            "senderName": "unused-model-b"
+          },
+          "steps": [
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Nieaktywna odpowiedź B."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": {
+            "senderName": "unused-model-c"
+          },
+          "steps": [
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Nieaktywna odpowiedź C."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "senderInfo": {
+            "senderName": "selected-test-model"
+          },
+          "steps": [
+            {
+              "type": "status",
+              "status": "loading"
+            },
+            {
+              "type": "debugInfoBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Techniczne metadane mają zostać pominięte."
+                }
+              ]
+            },
+            {
+              "type": "citationBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Techniczny cytat ma zostać pominięty."
+                }
+              ]
+            },
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Sprawdzam wybraną wersję bez ujawniania prywatnych danych."
+                }
+              ],
+              "style": {
+                "type": "thinking",
+                "ended": true,
+                "title": "Thought for 0.5 seconds"
+              }
+            },
+            {
+              "type": "contentBlock",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "To jest aktywna odpowiedź: ñ, ç, ü, 中文."
+                }
+              ]
+            },
+            {
+              "type": "debugInfoBlock",
+              "content": []
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 3
+    }
+  ],
+  "clientInput": "",
+  "clientInputFiles": [],
+  "disabledPluginTools": [],
+  "pluginConfigs": {},
+  "notes": [],
+  "plugins": [],
+  "looseFiles": [],
+  "userFilesSizeBytes": 0
+}

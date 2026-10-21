@@ -1,0 +1,23 @@
+{
+  "product": "ThreadShelf Local Alternative",
+  "version": "1.0.0",
+  "repository": "https://github.com/Davoda1/ThreadShelf-Local-Suite",
+  "upstreamServer": {
+    "repository": "https://github.com/ChrystianSchutz/ThreadShelf",
+    "compatibleVersion": "1.3.0",
+    "license": "MIT",
+    "includedSource": false
+  },
+  "rendering": {
+    "source": "ThreadShelf Local Reader",
+    "license": "MIT",
+    "notice": "vendor/licenses/Reader-MIT.txt",
+    "mermaidRepairSource": "vendor/reader-source/mermaid-repair.js"
+  },
+  "demoData": "Thirteen synthetic, authored demonstration conversations.",
+  "toolchain": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "electron": "44.9.1"
+  }
+}

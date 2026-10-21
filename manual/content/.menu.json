@@ -1,0 +1,49 @@
+{
+  "title": "ThreadShelf Local Suite \u2014 User manual",
+  "entries": [
+    {
+      "path": "Start",
+      "label": "Start here and installation"
+    },
+    {
+      "path": "Reader",
+      "label": "Local Reader: import, search and read"
+    },
+    {
+      "path": "Activity",
+      "label": "Reader Activity and Server Insights"
+    },
+    {
+      "path": "Analytics",
+      "label": "Local Analytics: complete guide"
+    },
+    {
+      "path": "Alternative",
+      "label": "Local Alternative: server workspace"
+    },
+    {
+      "path": "Server",
+      "label": "ThreadShelf 1.3.0: search integration"
+    },
+    {
+      "path": "Data",
+      "label": "Data, backups and privacy"
+    },
+    {
+      "path": "Reference",
+      "label": "Shortcuts, troubleshooting and development"
+    },
+    {
+      "path": "Screenshots",
+      "label": "New light and dark screenshots"
+    },
+    {
+      "search": true,
+      "label": "Search this manual"
+    },
+    {
+      "tags": true,
+      "label": "Browse topic tags"
+    }
+  ]
+}

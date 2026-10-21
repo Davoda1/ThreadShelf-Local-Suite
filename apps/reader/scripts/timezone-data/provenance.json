@@ -1,0 +1,20 @@
+{
+  "upstream": "IANA Time Zone Database",
+  "version": "2026e",
+  "retrievedAt": "2026-10-15",
+  "retrievedBaseUrl": "https://data.iana.org/time-zones/tzdb/",
+  "versionArchive": "https://data.iana.org/time-zones/releases/tzdata2026e.tar.gz",
+  "license": "Public domain",
+  "inputDirectory": "iana-2026e",
+  "sha256": {
+    "zone.tab": "e2e8e31c4e10f44576c79345e76060591dbb3eef6ce14e006afc8a373caa9593",
+    "zone1970.tab": "5f23781702bf51408ff1581daa109ab3b9257fb433b1554e579d92172892c0cf",
+    "backward": "b8296b9ef1ece72d813878132c0f17e2c52b26af6004eeb9c37d049b64cd9401",
+    "iso3166.tab": "837c80785080c8433fd9d4ea87e78f161ac7a40389301c5153d4f90198baeb2a",
+    "version": "af35b79aa1b21f258217dc39db156c783db83fd78afd095c5426061993877063"
+  },
+  "exactZoneCountryRows": 418,
+  "generatedMappings": 500,
+  "isoCountryCodes": 249,
+  "policy": "Preserve exact zone.tab country-specific names; add slash-containing non-Etc/non-SystemV backward aliases only if their ultimate zone1970.tab target overlaps one country."
+}

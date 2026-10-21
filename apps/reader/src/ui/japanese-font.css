@@ -1,0 +1,39 @@
+/* Japanese glyphs remain available offline, including on minimal Linux hosts.
+   Preserve the existing Latin UI and Reader monospace font order. */
+@font-face {
+  font-family: "ThreadShelf Noto Sans JP";
+  src: url("./fonts/NotoSansJP-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  /* Do not capture Latin text before a generic sans/monospace fallback when
+     none of the platform-specific font names are installed. The full font
+     remains embedded; this only limits which characters CSS routes to it. */
+  unicode-range: U+2E80-9FFF, U+F900-FAFF, U+FE00-FE0F, U+FF00-FFEF,
+    U+20000-2FA1F;
+}
+
+:root[lang="ja"] {
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "ThreadShelf Noto Sans JP", sans-serif;
+}
+
+/* Explicit Reader monospace stacks do not inherit the root fallback. Keep
+   their existing Latin choices, adding Japanese before the generic family.
+   This covers inline/block code, Mermaid source, code chrome and raw maths;
+   the copy button inherits its titlebar's font exactly as before. */
+:root[lang="ja"] .reader-view .message-content code,
+:root[lang="ja"] .reader-view .message-content pre code,
+:root[lang="ja"] .reader-view .message-content pre code.hljs,
+:root[lang="ja"] .reader-view .message-content pre::before,
+:root[lang="ja"] .reader-view .message-content pre.has-code-controls > .code-block-titlebar,
+:root[lang="ja"] .reader-view .message-content .chatgpt-math-source {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    "Courier New", "ThreadShelf Noto Sans JP", monospace;
+}
+
+/* The existing language badge uses the same stack without Courier New. */
+:root[lang="ja"] .reader-view .code-block-language {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas,
+    "ThreadShelf Noto Sans JP", monospace;
+}

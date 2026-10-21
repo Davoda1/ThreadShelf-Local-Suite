@@ -1,0 +1,164 @@
+# Third-party notices
+
+ThreadShelf Local Reader's original application code is MIT licensed,
+Copyright (c) 2026 davoda1, as stated in `LICENSE`. This does **not** relicense
+the dependencies or make the complete desktop distribution MIT-only.
+Existing upstream copyrights and license terms continue to apply.
+
+## Principal components
+
+| Component | License and retained attribution |
+| --- | --- |
+| ThreadShelf adaptations and fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. See `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
+| Reader 3.1.1, Reader Plus 5.0.0, AI Export Converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
+| Electron 44.9.1 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
+| Chromium and Electron's bundled native components | Multiple licenses; original `LICENSES.chromium.html` is retained beside the executable. |
+| Mermaid 11.17.2 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.18.2; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |
+| MathJax 3.2.1 | Apache-2.0; The MathJax Consortium. The versioned upstream source notice includes Copyright (c) 2017–2022 The MathJax Consortium. See `licenses/MathJax-Upstream-LICENSE.txt` and the preserved source in `licenses/MathJax-3.2.1-MathDocument.ts`. |
+| highlight.js | BSD-3-Clause; Copyright (c) 2006 Ivan Sagalaev. See `licenses/highlight.js-LICENSE.txt`. |
+| Ayu code-palette adaptation | MIT; Copyright (c) Konstantin Pschera <me@kons.ch> (kons.ch). See `licenses/Ayu-MIT.txt` and the palette provenance below. |
+| Noto Sans JP Japanese font | SIL Open Font License 1.1; Copyright 2014–2021 Adobe, with Reserved Font Name “Source”. See `licenses/NotoSansJP-OFL.txt` and `licenses/NotoSansJP-provenance.json`. |
+| marked | MIT; Copyright (c) 2018+ MarkedJS and 2011–2018 Christopher Jeffrey, with the original Markdown BSD notice for Copyright (c) 2004 John Gruber. See `licenses/marked-LICENSE.md`. |
+| Hugging Face Transformers.js and Tokenizers | Apache-2.0; Hugging Face. Their npm license files remain in `resources/app/node_modules/`. |
+| ONNX Runtime | MIT; Copyright (c) Microsoft Corporation. The separately preserved official license is `licenses/ONNX-Runtime-MIT.txt`; the npm packages do not each supply a standalone license file. |
+| sharp and the prebuilt native/WASM packages | Apache-2.0 for sharp; Copyright 2013 Lovell Fuller and others. Native/WASM dependencies include **LGPL-3.0-or-later** and additional licenses; see below. |
+| zip.js | BSD-3-Clause; Copyright (c) 2023 Gildas Lormeau. The npm license remains with the package. |
+| parse5 | MIT; Copyright (c) 2013–2019 Ivan Nikulin. The npm license remains with the package. |
+| ThreadShelf offline holiday rules/evaluator | Rules adapted from date-holidays 3.37.0 under CC BY-SA 3.0; date-holidays-parser 3.4.7 under ISC and the parser dependencies retain their own licenses. See `licenses/HOLIDAY-LICENSES.txt`, `licenses/holiday-provenance.json` and `docs/Holidays.md`. |
+| IANA timezone-country map | Public domain IANA 2026e inputs; original comments, provenance and deterministic generator retained under `scripts/timezone-data/`. |
+
+The exact npm package/version/license declarations are recorded in
+`licenses/PRODUCTION-DEPENDENCIES-linux-x64.json` and
+`licenses/PRODUCTION-DEPENDENCIES-win32-x64.json`. Each built application also
+contains the target-specific `resources/app/licenses/DEPENDENCIES.json`.
+These declarations are metadata, not a replacement for the actual license
+texts. They do not enumerate every library inside Chromium or native DLLs.
+Bundling preserves extracted JavaScript legal comments beside the bundles.
+
+The interface palettes and code-theme CSS are newly authored. Their
+color references and original adaptations are documented in `docs/Themes.md`;
+no additional vendor stylesheet or executable is included. Existing
+highlight.js attribution remains unchanged. The custom Codex palette is not
+an official OpenAI theme.
+
+## Code-palette provenance
+
+**Xcode Classic** adapts the light color direction of the Xcode style bundled
+with highlight.js 11.12.0 (`node_modules/highlight.js/styles/xcode.css`). The
+specific upstream attribution is retained here: **XCode style (c) Angel
+Garcia <angelgarcia.mail@gmail.com>**. The highlight.js BSD-3-Clause terms are
+preserved in `licenses/highlight.js-LICENSE.txt`. The paired dark adaptation,
+Reader token mapping and contrast adjustments are original application work.
+This is an Xcode-inspired Reader palette, not an Apple theme asset or an
+official Apple product. Upstream project: <https://github.com/highlightjs/highlight.js>.
+
+**Ayu** adapts colors from the Ayu project's own palette,
+<https://github.com/ayu-theme/ayu-colors>, with Reader-specific token mapping,
+light-color contrast adjustments and paired light/dark surfaces. The exact
+upstream MIT license is retained in `licenses/Ayu-MIT.txt`; the license source is
+<https://github.com/ayu-theme/ayu-colors/blob/master/license>. The retrieved
+license URL, byte count and SHA-256 are recorded in
+`licenses/UPSTREAM-SOURCES.json`. The adaptation does not add an Ayu runtime
+dependency or import an editor stylesheet. The standalone offline preview
+embeds this license and the existing rendering notices without fetching
+external resources.
+
+## Japanese font
+
+Noto Sans JP is bundled as a local WOFF2 font so Japanese interface text can
+render offline on systems without a Japanese font. The font source is the
+official Google Fonts repository,
+<https://github.com/google/fonts/tree/main/ofl/notosansjp>. The original
+variable TrueType font was converted to WOFF2 without subsetting or changing
+the glyphs, character map or weight range (100–900). The retained license is
+the exact upstream `OFL.txt`; the font remains under SIL OFL 1.1, independently
+of the application's MIT license. Source and shipped-font hashes, conversion
+details and character coverage are recorded in
+`licenses/NotoSansJP-provenance.json`.
+
+The font is a Japanese-only fallback for the interface, Reader text and code
+surfaces. Existing Latin font choices and the order of explicit Reader
+monospace fonts are preserved; the bundled Japanese fallback also supports
+localized code controls and Japanese source text. The desktop includes the
+local font asset; the standalone offline preview embeds the same font and
+the font license, with no external font request.
+
+## sharp, libvips, and LGPL components
+
+The production graph includes `@img/sharp-libvips-linux-x64` and
+`@img/sharp-libvips-linuxmusl-x64` under LGPL-3.0-or-later,
+`@img/sharp-win32-x64` under Apache-2.0 AND LGPL-3.0-or-later, and
+`@img/sharp-wasm32` under Apache-2.0 AND LGPL-3.0-or-later AND MIT.
+Only the packages installed for a target are in that target's manifest.
+
+Upstream native-package READMEs, their library-by-library license tables,
+package metadata, and available `versions.json` files are preserved under
+`licenses/native/`. These tables additionally identify MPL-1.1, MIT, BSD,
+zlib, IJG, fontconfig, FreeType, libpng, and other component terms. They state
+that LGPLv3 use is through the “any later version” clause of LGPLv2 or
+LGPLv2.1. Full LGPLv3 and GPLv3 texts are supplied in
+`licenses/GNU-LGPL-3.0.txt` and `licenses/GNU-GPL-3.0.txt`, along with the
+libvips upstream license in `licenses/libvips-LICENSE.txt`.
+
+Source versions, the downloadable native-source companion archive, retained
+build recipes, and replacement/rebuild notes are in
+`licenses/SOURCE-AND-REBUILD.md`. Original component copyright/license texts
+and provenance indexes are retained under `licenses/native-components/`.
+Native
+modules and WASM assets are shipped as regular, unpacked files. The
+application imposes no restriction on modifying or replacing these
+components, or on reverse engineering to debug those modifications.
+
+## Optional semantic model and services
+
+No model weights are included in the release archives. The optional built-in
+semantic setup downloads `Xenova/paraphrase-multilingual-MiniLM-L12-v2` when
+requested by the user. The retrieved model card identifies
+`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` as the base model.
+The original model card explicitly declares **Apache-2.0**; the retrieved
+Xenova conversion card contains no separate license declaration. Both exact
+cards are preserved as `licenses/MiniLM-Original-Model-Card.md` and
+`licenses/MiniLM-Xenova-Model-Card.md`. This notice records that provenance
+without assigning a new license to the conversion. Apache-2.0's full text is
+in `licenses/Apache-2.0.txt`.
+
+Ollama and any model selected through it are separately installed/downloaded
+and are not redistributed in these application packages. Their own licenses
+apply.
+
+## Provenance
+
+`licenses/UPSTREAM-SOURCES.json` records official source URLs, retrieval
+dates, byte counts, and SHA-256 hashes for the additional preserved upstream
+documents. The npm lockfile records exact packages and registry integrity
+hashes. Existing npm license files remain with the relevant packages; the
+standalone additions above address packages/assets whose npm or bundled
+form omitted an explicit license or attribution file.
+
+These notices describe the included materials and retained sources. They
+are not a claim that all transitive native components use MIT, nor a
+comprehensive legal audit of Chromium or a substitute for upstream terms.
+
+## Electron runtime source access
+
+All three suite applications use Electron **44.9.1** / Chromium
+**152.0.7977.167**. The release
+[native-source companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz)
+mirrors the matching FFmpeg fork, Blink renderer/interfaces/tools, selected
+Chromium-modified Mozilla sources, and the identified Electron patches and build
+inputs. [Runtime source access and rebuild instructions](licenses/ELECTRON-SOURCE-ACCESS.md)
+provide exact complete upstream source retrieval, relinking/replacement directions,
+license selections and availability-maintenance instructions.
+
+Original runtime notices remain intact. LGPLv3 is selected only where the
+original grant permits that later version; Blink
+`platform/wtf/text/base64.cc` retains the original LGPL version 2 grant. The
+companion includes that exact source and records the reviewed per-file selections.
+The separate **numbered Runtime-Sources parts**, available from the
+[v1.0.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0),
+mirror the complete pinned Electron/Chromium Git dependency trees selected for
+Linux x64 and Windows x64, plus the supplemental source and release build data
+recorded in the manifests. Normal compiler, SDK and build-tool prerequisites
+remain separate. Preserve the suite Source archive, Native-Sources companion
+and **every** Runtime-Sources part with the matching binary downloads; the
+runtime source-access document explains verification, assembly and rebuilding.

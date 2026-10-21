@@ -1,0 +1,410 @@
+{
+  "items": {
+    "Activity/index.md": {
+      "title": "Reader Local Activity and Server Insights",
+      "description": "Reader's header offers Reader / Activity in Local mode and Reader / Insights in Server mode. The analytical workspace replaces the conversation list and reading pane while retaining the fixed header and status bar. It is…",
+      "tags": [
+        "Activity"
+      ]
+    },
+    "Activity": {
+      "title": "Reader Local Activity and Server Insights",
+      "description": "Reader's header offers Reader / Activity in Local mode and Reader / Insights in Server mode. The analytical workspace replaces the conversation list and reading pane while retaining the fixed header and status bar. It is…",
+      "tags": [
+        "Activity"
+      ]
+    },
+    "Alternative/01-Connection-and-Workspace.md": {
+      "title": "Alternative: connection and workspace",
+      "description": "If your installation serves ThreadShelf beneath a URL prefix, retain the required prefix. Do not paste a web UI page URL, a search URL or a conversation URL in place of the server base address. The address must be reachable…",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/02-Search-and-Filters.md": {
+      "title": "Alternative: browsing, search and filters",
+      "description": "Select Library, clear the search box and use Filters to choose the collection. With an empty query, the shelf lists conversations. The available browsing sorts are Recently updated, Oldest first, Title A–Z and Longest first.…",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/03-Reading-and-Rendering.md": {
+      "title": "Alternative: reading, rendering and export",
+      "description": "Open and navigate server conversations, use the prompt outline and Find controls, read supported rich content, and export a conversation.",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/04-Saved-Work.md": {
+      "title": "Alternative: pins, saved searches and recent work",
+      "description": "Open a thread and select Pin conversation in the reading toolbar. The active icon indicates a pinned thread. Select it again to unpin. Open Pins on the navigation rail to revisit the saved references for the current server.",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/05-Settings-and-Data.md": {
+      "title": "Alternative: settings and local data",
+      "description": "Open Settings on the navigation rail or Reading in the bottom status bar to open Reading & appearance. Unlike Reader and Analytics settings forms, these Alternative controls save automatically when changed. Done closes the…",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/06-Demo.md": {
+      "title": "Alternative: guided offline demo",
+      "description": "Choose Explore the demo on the welcome page or in the connection dialog. The visible DEMO WORKSPACE banner distinguishes invented content from a connected server. The built-in library contains 13 authored demonstration…",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/07-Troubleshooting.md": {
+      "title": "Alternative: troubleshooting and shortcuts",
+      "description": "Check whether you are in Demo workspace or connected to a real server. Confirm the server address, current collection, selected navigation view, query and role filter. Pins, Recent and Library intentionally show different…",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative/index.md": {
+      "title": "ThreadShelf Local Alternative 1.0.0",
+      "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Alternative": {
+      "title": "ThreadShelf Local Alternative 1.0.0",
+      "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
+      "tags": [
+        "Alternative"
+      ]
+    },
+    "Analytics/01-Sources.md": {
+      "title": "Installation, sources and captures",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/02-Selections.md": {
+      "title": "Filters, saved views and annotations",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/03-Workspaces.md": {
+      "title": "Standard workspaces and chart reading",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/04-Explorer-Distributions.md": {
+      "title": "Explorer: distributions and relationships",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/05-Explorer-Sequences.md": {
+      "title": "Explorer: sequences, observability and capture history",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/06-Evidence-and-Reports.md": {
+      "title": "Compare selections, inspect evidence and export reports",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/07-Settings-and-Storage.md": {
+      "title": "Appearance, accessibility, storage and backup",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/08-Troubleshooting.md": {
+      "title": "Troubleshooting and keyboard reference",
+      "description": "Analytics manual",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics/index.md": {
+      "title": "ThreadShelf Local Analytics 1.0.0",
+      "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Analytics": {
+      "title": "ThreadShelf Local Analytics 1.0.0",
+      "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
+      "tags": [
+        "Analytics"
+      ]
+    },
+    "Data/backup.md": {
+      "title": "Backup, restore, relocation and upgrades",
+      "description": "Choose a complete Local backup, restore a validated archive, relocate the Reader profile and preserve original exports when upgrading.",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Data/collections.md": {
+      "title": "Database Manager: collections and conversations",
+      "description": "Open Settings → Database Manager. It always manages the computer's Local archive, including when the reading source is a live server. It does not delete or reorganize that server. Manager actions save immediately through their…",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Data/index.md": {
+      "title": "Data management and recovery",
+      "description": "Create backups before destructive changes. These chapters distinguish Local organization, storage maintenance, recovery and privacy.",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Data": {
+      "title": "Data management and recovery",
+      "description": "Create backups before destructive changes. These chapters distinguish Local organization, storage maintenance, recovery and privacy.",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Data/privacy.md": {
+      "title": "Privacy, network use and source fidelity",
+      "description": "Ordinary Local reading, import, text search, bookmarks and Activity work from retained data on the computer. The source declares no telemetry. Imported HTML and component markup are treated as untrusted data; the renderer…",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Data/storage.md": {
+      "title": "Storage, compression and maintenance",
+      "description": "Understand Reader’s compact catalog, compressed content blocks, disk-space figures, compression profiles, temporary files and maintenance operations.",
+      "tags": [
+        "Data"
+      ]
+    },
+    "Reader/appearance.md": {
+      "title": "Appearance, reading preferences and accessibility",
+      "description": "Open Settings → Appearance. The app previews applicable appearance changes while the dialog is open. Save settings commits the choices; Cancel restores the saved appearance. Returning from nested Settings pages preserves the…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/holidays.md": {
+      "title": "Welcome-page holiday fireworks",
+      "description": "All three settings are required. The two welcome-specific switches default to Off, as does the master wave option. On a recognized holiday, the multicolour fireworks loop replaces the normal welcome-page video. Conversations…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/importing.md": {
+      "title": "Importing conversations",
+      "description": "Reader recognizes supported exports from ChatGPT, Claude, Grok, Google AI Studio, OpenRouter, LM Studio, VeniceAI, Gemini Takeout and MetaAI, plus compatible converted conversation/index formats. Google AI Studio and Gemini…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/index.md": {
+      "title": "Local Reader manual",
+      "description": "Use these chapters for the Reader workspace, supported imports, text/meaning search, server access and appearance settings.",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader": {
+      "title": "Local Reader manual",
+      "description": "Use these chapters for the Reader workspace, supported imports, text/meaning search, server access and appearance settings.",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/interface.md": {
+      "title": "Reader interface and navigation",
+      "description": "Reader divides the window into an application header, a conversation list, a reading pane and a status bar. In Activity or Insights, the analytical workspace replaces the list and reading pane. The header and status bar remain…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/models.md": {
+      "title": "Models and semantic search",
+      "description": "Configure Reader’s built-in Local meaning model, optional Ollama integration or separate ThreadShelf server search. Each system requires separate setup.",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/reading.md": {
+      "title": "Reading, navigating and exporting conversations",
+      "description": "Open retained conversations, navigate prompts and responses, expand content, find text, save reading positions and bookmarks, and copy or export archived content.",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/search.md": {
+      "title": "Archive search",
+      "description": "Archive search operates on the active Local or ThreadShelf Server source. The method determines whether you are finding conversations by metadata/content or ranked individual passages. The same text can therefore produce…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reader/server.md": {
+      "title": "ThreadShelf Server mode",
+      "description": "The default address is local (http://127.0.0.1:3000 or http://localhost:3000). Enter the actual address of your own server. The accepted address has no embedded username/password, query string or fragment. Saved addresses make…",
+      "tags": [
+        "Reader"
+      ]
+    },
+    "Reference/development.md": {
+      "title": "Developer and maintainer reference",
+      "description": "The suite source archive is an editable repository tree. Extract it and read the root README.md before building. Each application lives under apps/, the integration under server-patch/, and this manual’s source under manual/.…",
+      "tags": [
+        "Reference"
+      ]
+    },
+    "Reference/index.md": {
+      "title": "Reference and troubleshooting",
+      "description": "Look up keyboard controls, action scope and diagnostic checks without changing the archive unnecessarily.",
+      "tags": [
+        "Reference"
+      ]
+    },
+    "Reference": {
+      "title": "Reference and troubleshooting",
+      "description": "Look up keyboard controls, action scope and diagnostic checks without changing the archive unnecessarily.",
+      "tags": [
+        "Reference"
+      ]
+    },
+    "Reference/shortcuts.md": {
+      "title": "Keyboard and control reference",
+      "description": "The implementation also accepts Command equivalents on macOS source builds, but this release's distributed native packages are Windows/Linux x64. Do not infer unlisted desktop shortcuts such as a fullscreen key from the…",
+      "tags": [
+        "Reference"
+      ]
+    },
+    "Reference/troubleshooting.md": {
+      "title": "Troubleshooting and common questions",
+      "description": "Before repairing anything, note the app, product version, package identity, selected source/address, collection, active filters and exact error. Reader, Analytics and Alternative are separate programs. For Alternative…",
+      "tags": [
+        "Reference"
+      ]
+    },
+    "Screenshots/alternative-gallery.md": {
+      "title": "Local Alternative 1.0.0 — screenshot guide",
+      "description": "Actual Local Alternative 1.0.0 screenshots with synthetic demo data. Electron 44.4.5 identifies the historical capture environment; final desktop packages use Electron 44.9.1.",
+      "tags": [
+        "Screenshots"
+      ]
+    },
+    "Screenshots/analytics-gallery.md": {
+      "title": "Local Analytics 1.0.0 — screenshot guide",
+      "description": "View the real compiled Local Analytics 1.0.0 interface using synthetic demo data, with light and dark screenshots of Overview, Explorer, evidence and settings.",
+      "tags": [
+        "Screenshots"
+      ]
+    },
+    "Screenshots/index.md": {
+      "title": "Screenshot guides",
+      "description": "Explore screenshots of the 1.0.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "tags": [
+        "Screenshots"
+      ]
+    },
+    "Screenshots": {
+      "title": "Screenshot guides",
+      "description": "Explore screenshots of the 1.0.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "tags": [
+        "Screenshots"
+      ]
+    },
+    "Screenshots/reader-gallery.md": {
+      "title": "Local Reader 1.0.0 — screenshot guide",
+      "description": "View unaltered captures of the Local Reader 1.0.0 renderer in the labeled synthetic offline browser preview. Native, server and model operations are simulated.",
+      "tags": [
+        "Screenshots"
+      ]
+    },
+    "Server/01-Prerequisites.md": {
+      "title": "Server integration: prerequisites",
+      "description": "Obtain the verified upstream ThreadShelf 1.3.0 source, prepare a backup, check the runtime requirements and preserve the server environment and network configuration.",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Server/02-Apply.md": {
+      "title": "Server integration: check and apply",
+      "description": "Run the following commands from the extracted ThreadShelf-Local-Suite source root. Replace ../ThreadShelf with your own supported server source directory. The path is an example, not an existing user-specific directory.",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Server/03-Verify-and-Connect.md": {
+      "title": "Server integration: verify and connect clients",
+      "description": "After the server restarts, request:",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Server/04-Rollback-and-Troubleshooting.md": {
+      "title": "Server integration: rollback and troubleshooting",
+      "description": "Restore affected server files with the patcher’s recorded backup, diagnose installation and search problems, and keep deployment configuration separate.",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Server/index.md": {
+      "title": "ThreadShelf server search integration",
+      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 server. Learn how to prepare, apply, verify and roll back the search integration.",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Server": {
+      "title": "ThreadShelf server search integration",
+      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 server. Learn how to prepare, apply, verify and roll back the search integration.",
+      "tags": [
+        "Server"
+      ]
+    },
+    "Start/applications.md": {
+      "title": "Applications and data sources",
+      "description": "Choose the appropriate application and source. Reader, Analytics, Alternative and server workspaces use different data populations, storage and reading state.",
+      "tags": [
+        "Start"
+      ]
+    },
+    "Start/index.md": {
+      "title": "Getting started",
+      "description": "Choose an installation route and understand the distinct Reader, Analytics and Alternative applications before importing data or connecting a server. The server remains a separate upstream project.",
+      "tags": [
+        "Start"
+      ]
+    },
+    "Start": {
+      "title": "Getting started",
+      "description": "Choose an installation route and understand the distinct Reader, Analytics and Alternative applications before importing data or connecting a server. The server remains a separate upstream project.",
+      "tags": [
+        "Start"
+      ]
+    },
+    "Start/installation.md": {
+      "title": "Installation and first session",
+      "description": "Each desktop application is released as 1.0.0 for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for…",
+      "tags": [
+        "Start"
+      ]
+    },
+    "index.md": {
+      "title": "ThreadShelf Local Suite",
+      "description": "ThreadShelf Local Suite provides three separate desktop applications: Local Reader, Local Analytics and Local Alternative, plus a search-integration patch for ThreadShelf 1.3.0. This manual covers the public 1.0.0 GUI builds.…",
+      "tags": [
+        "Suite"
+      ]
+    }
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "file": "ONNX-Runtime-MIT.txt",
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+    "retrievedUTC": "2026-09-27T20:18:14.838347+00:00",
+    "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+    "bytes": 1073
+  },
+  {
+    "file": "GNU-LGPL-3.0.txt",
+    "url": "https://www.gnu.org/licenses/lgpl-3.0.txt",
+    "retrievedUTC": "2026-09-27T20:18:17.489987+00:00",
+    "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+    "bytes": 7652
+  },
+  {
+    "file": "GNU-GPL-3.0.txt",
+    "url": "https://www.gnu.org/licenses/gpl-3.0.txt",
+    "retrievedUTC": "2026-09-27T20:18:17.430636+00:00",
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "bytes": 35149
+  },
+  {
+    "file": "MathJax-Upstream-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/mathjax/MathJax/3.2.1/LICENSE",
+    "retrievedUTC": "2026-09-27T20:18:14.840116+00:00",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "file": "MiniLM-Xenova-Model-Card.md",
+    "url": "https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2/raw/main/README.md",
+    "retrievedUTC": "2026-09-27T20:18:22.734645+00:00",
+    "sha256": "1faca2377fb36a7c5ee603ffdd170cf93126be37e7b3b422d319b8ed34081e73",
+    "bytes": 1151
+  },
+  {
+    "file": "MiniLM-Original-Model-Card.md",
+    "url": "https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2/raw/main/README.md",
+    "retrievedUTC": "2026-09-27T20:18:22.782833+00:00",
+    "sha256": "1e98ea05b0de579fcaad3d625b62ea55647142ed674d5f5ebf1440e4bbbb6f23",
+    "bytes": 3888
+  },
+  {
+    "file": "sharp-libvips-Upstream-README-original.txt",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/README.md",
+    "retrievedUTC": "2026-09-27T20:18:23.718482+00:00",
+    "sha256": "52f8b2931fa6d496c792a2ed808177414ac24f2f87b667bb13fbc21bf1d99758",
+    "bytes": 1998
+  },
+  {
+    "file": "MathJax-3.2.1-MathDocument.ts",
+    "url": "https://raw.githubusercontent.com/mathjax/MathJax-src/3.2.1/ts/core/MathDocument.ts",
+    "retrievedUTC": "2026-09-27T20:22:00.484742+00:00",
+    "sha256": "e0574d773ea7b606e83012abbbb0d03bbbdbeefa26d97f04fb401613e051597c",
+    "bytes": 29922
+  },
+  {
+    "file": "sharp-libvips-THIRD-PARTY-NOTICES.md",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/THIRD-PARTY-NOTICES.md",
+    "retrievedUTC": "2026-09-27T20:22:00.450448+00:00",
+    "sha256": "6f0d5086e3bcbee12bcdacf5878b31d1104002aeecaeb241d3fff466108082fe",
+    "bytes": 4230
+  },
+  {
+    "file": "sharp-libvips-build.sh",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/build.sh",
+    "retrievedUTC": "2026-09-27T20:22:00.417747+00:00",
+    "sha256": "f32e344b1355b6bcf3836e7f25e2c2de7f25eefeb8c96d02711ad3fcea487488",
+    "bytes": 2804
+  },
+  {
+    "file": "sharp-libvips-build-posix.sh",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/build/posix.sh",
+    "retrievedUTC": "2026-09-27T20:22:00.461427+00:00",
+    "sha256": "333031b3b49bf1a16d0b9d6812d98f67c404218932ef8c0b389388524a524b36",
+    "bytes": 23877
+  },
+  {
+    "file": "sharp-libvips-build-win.sh",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/build/win.sh",
+    "retrievedUTC": "2026-09-27T20:22:00.424812+00:00",
+    "sha256": "52f2d9d76b07d4b4ad1720659b1e9bbc76121b85f21d9d084a85af28014473f3",
+    "bytes": 1262
+  },
+  {
+    "file": "sharp-libvips-build-wasm.sh",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/build/wasm.sh",
+    "retrievedUTC": "2026-09-27T20:22:00.480845+00:00",
+    "sha256": "53a0ae90da3ef3e212ae696c7cfa97f9f0f0d48092f5fffd8130f9275b5959b7",
+    "bytes": 1420
+  },
+  {
+    "file": "Apache-2.0.txt",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "retrievedUTC": "2026-09-27T20:22:01.302381+00:00",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "file": "libvips-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/libvips/libvips/v8.18.7/LICENSE",
+    "retrievedUTC": "2026-09-27T20:23:15.234972+00:00",
+    "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+    "bytes": 26530
+  },
+  {
+    "file": "sharp-libvips-versions.properties",
+    "url": "https://raw.githubusercontent.com/lovell/sharp-libvips/v1.3.4/versions.properties",
+    "retrievedUTC": "2026-09-27T20:23:20.026466+00:00",
+    "sha256": "c0ad634f7c2ac8994f831dd0bcb5c60043db7ba4ddd9cc2dbc3703b15f4ec7e5",
+    "bytes": 594
+  },
+  {
+    "file": "Ayu-MIT.txt",
+    "url": "https://raw.githubusercontent.com/ayu-theme/ayu-colors/master/license",
+    "retrievedUTC": "2026-09-29T06:48:11.709985+00:00",
+    "sha256": "0e516038e9348d278dd886a2f07826b78e851f6e5f002c62096529d508c55be1",
+    "bytes": 1093
+  },
+  {
+    "file": "NotoSansJP-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/OFL.txt",
+    "retrievedUTC": "2026-09-29T06:52:32.367252+00:00",
+    "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+    "bytes": 4388
+  }
+]

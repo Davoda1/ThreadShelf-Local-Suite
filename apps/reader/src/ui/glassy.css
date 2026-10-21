@@ -1,0 +1,186 @@
+/* ThreadShelf 3.1.0: approved Glassy study variants, adapted to the original
+ * application geometry. Every rule is scoped to these four palette IDs.
+ * Semantic/catalog colors stay opaque; these optional paint layers reveal only
+ * the application's own static wallpaper, never the desktop behind the window.
+ * Blur lives on decorative pseudo-elements, never on chart ancestors: fixed
+ * Activity tooltips retain viewport coordinates. No syntax-theme overrides. */
+:root[data-ui-palette="smoked-glass"][data-theme="light"] {
+  --glassy-glass: rgba(255,255,255,.36);
+  --glassy-glass-strong: rgba(249,250,249,.72);
+  --glassy-glass-side: rgba(246,248,247,.51);
+  --glassy-glass-card: rgba(255,255,255,.66);
+  --glassy-veil: rgba(21,26,30,.28);
+  --glassy-blur: 34px;
+  --glassy-wallpaper: radial-gradient(circle at 70% 15%,#f8e6c7 0,transparent 39%),radial-gradient(circle at 16% 76%,#9fa9ac 0,transparent 38%),linear-gradient(125deg,#d7d2cd,#92a9aa 65%,#6d7e88);
+}
+:root[data-ui-palette="smoked-glass"][data-theme="dark"] {
+  --glassy-glass: rgba(41,47,53,.42);
+  --glassy-glass-strong: rgba(36,42,49,.69);
+  --glassy-glass-side: rgba(38,44,50,.52);
+  --glassy-glass-card: rgba(55,61,67,.52);
+  --glassy-veil: rgba(7,10,15,.48);
+  --glassy-blur: 34px;
+  --glassy-wallpaper: radial-gradient(circle at 68% 18%,#c2b8aeaa 0,#746e70aa 13%,transparent 37%),radial-gradient(circle at 15% 58%,#977973 0,transparent 37%),radial-gradient(circle at 85% 88%,#3d6b76 0,transparent 45%),linear-gradient(125deg,#473b3c,#2b353c 45%,#171b23);
+}
+:root[data-ui-palette="harbor-haze"][data-theme="light"] {
+  --glassy-glass: rgba(237,253,255,.4);
+  --glassy-glass-strong: rgba(242,255,255,.78);
+  --glassy-glass-side: rgba(231,249,253,.57);
+  --glassy-glass-card: rgba(249,255,255,.71);
+  --glassy-veil: rgba(14,43,59,.25);
+  --glassy-blur: 38px;
+  --glassy-wallpaper: radial-gradient(circle at 21% 19%,#9ceee9 0,transparent 38%),radial-gradient(circle at 82% 25%,#bbcaf9 0,transparent 42%),linear-gradient(135deg,#c7ebed,#70abc3 53%,#519eb0);
+}
+:root[data-ui-palette="harbor-haze"][data-theme="dark"] {
+  --glassy-glass: rgba(14,54,76,.39);
+  --glassy-glass-strong: rgba(9,38,57,.72);
+  --glassy-glass-side: rgba(13,48,69,.48);
+  --glassy-glass-card: rgba(24,66,83,.47);
+  --glassy-veil: rgba(3,13,27,.52);
+  --glassy-blur: 38px;
+  --glassy-wallpaper: radial-gradient(circle at 20% 17%,#00a3bd 0,transparent 33%),radial-gradient(circle at 82% 24%,#657ee4 0,transparent 39%),radial-gradient(circle at 76% 82%,#2fbaa0 0,transparent 40%),linear-gradient(125deg,#0d384b,#14233e 56%,#0b2837);
+}
+:root[data-ui-palette="amber-room"][data-theme="light"] {
+  --glassy-glass: rgba(255,246,226,.42);
+  --glassy-glass-strong: rgba(255,247,231,.78);
+  --glassy-glass-side: rgba(255,245,225,.56);
+  --glassy-glass-card: rgba(255,250,238,.72);
+  --glassy-veil: rgba(66,39,20,.25);
+  --glassy-blur: 32px;
+  --glassy-wallpaper: radial-gradient(circle at 18% 30%,#ffca72 0,transparent 42%),radial-gradient(circle at 78% 16%,#e9e0d0 0,transparent 36%),linear-gradient(125deg,#e6b27d,#9c9185 60%,#7993a0);
+}
+:root[data-ui-palette="amber-room"][data-theme="dark"] {
+  --glassy-glass: rgba(67,49,36,.42);
+  --glassy-glass-strong: rgba(54,39,30,.7);
+  --glassy-glass-side: rgba(65,44,30,.49);
+  --glassy-glass-card: rgba(88,67,50,.51);
+  --glassy-veil: rgba(22,11,8,.48);
+  --glassy-blur: 32px;
+  --glassy-wallpaper: radial-gradient(circle at 17% 36%,#f9a13f 0,transparent 37%),radial-gradient(circle at 76% 16%,#ddc19c 0,transparent 33%),radial-gradient(circle at 79% 84%,#51667b 0,transparent 40%),linear-gradient(125deg,#6d3c1d,#3d342e 50%,#232a30);
+}
+:root[data-ui-palette="opal-daylight"][data-theme="light"] {
+  --glassy-glass: rgba(255,255,255,.38);
+  --glassy-glass-strong: rgba(253,255,255,.82);
+  --glassy-glass-side: rgba(247,252,255,.57);
+  --glassy-glass-card: rgba(255,255,255,.76);
+  --glassy-veil: rgba(42,66,85,.23);
+  --glassy-blur: 40px;
+  --glassy-wallpaper: radial-gradient(circle at 17% 20%,#f9fbff 0,transparent 36%),radial-gradient(circle at 83% 19%,#a6d8eb 0,transparent 42%),radial-gradient(circle at 65% 87%,#cfc5f0 0,transparent 42%),linear-gradient(128deg,#bfdbe8,#8caecb 60%,#9ea0ce);
+}
+:root[data-ui-palette="opal-daylight"][data-theme="dark"] {
+  --glassy-glass: rgba(28,52,78,.43);
+  --glassy-glass-strong: rgba(24,44,67,.76);
+  --glassy-glass-side: rgba(29,50,74,.56);
+  --glassy-glass-card: rgba(46,68,91,.57);
+  --glassy-veil: rgba(5,12,29,.5);
+  --glassy-blur: 40px;
+  --glassy-wallpaper: radial-gradient(circle at 18% 18%,#377db6 0,transparent 38%),radial-gradient(circle at 79% 20%,#8d8bcb 0,transparent 38%),radial-gradient(circle at 80% 85%,#406b9a 0,transparent 38%),linear-gradient(125deg,#21324b,#1c2640 60%,#15253a);
+}
+
+:root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"])[data-theme="light"] {
+  --glassy-edge: #ffffffc7;
+  --glassy-shadow: 0 8px 26px #1626351c, inset 0 1px 0 #ffffff99;
+  --glassy-wallpaper-veil: #ffffff00;
+  --glassy-role-user: #155a91;
+  --glassy-role-thinking: #80540c;
+  --glassy-role-tool: #684b92;
+}
+:root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"])[data-theme="dark"] {
+  --glassy-edge: #e1f0fc40;
+  --glassy-shadow: 0 8px 26px #00000033, inset 0 1px 0 #ffffff30;
+  --glassy-wallpaper-veil: #07121c38;
+  --glassy-role-user: #8eceff;
+  --glassy-role-thinking: #ffd392;
+  --glassy-role-tool: #d4b5ff;
+}
+/* Role labels remain colored in the opaque reduced-transparency fallback. */
+@media (forced-colors:none) {
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message.user { --glassy-role:var(--glassy-role-user); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message.assistant { --glassy-role:var(--role-assistant); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message.thinking { --glassy-role:var(--glassy-role-thinking); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message:is(.tool,.system) { --glassy-role:var(--glassy-role-tool); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message:is(.user,.assistant,.thinking,.tool,.system) { background:var(--surface);opacity:1;border-color:var(--border);border-left-color:var(--glassy-role); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message .message-role { color:var(--glassy-role); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message-content a { color:var(--accent); }
+}
+/* Glass effects are opt-in to both transparency and filter support. When either
+ * is unavailable the normal opaque core palette remains the full fallback. */
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+ @media (forced-colors:none) and (prefers-reduced-transparency:no-preference) {
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) body {
+    background:linear-gradient(var(--glassy-wallpaper-veil),var(--glassy-wallpaper-veil)),var(--glassy-wallpaper);
+    background-size:cover;
+  }
+  /* Relative positioning and isolation create only painting contexts, not
+   * containing blocks for fixed children or transforms for chart coordinates. */
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.app-header,.sidebar,.content-pane,.statusbar,.thread-heading,.analytics-card,.analytics-stat,.analytics-range-form,.reader-view .message,.modal) {
+    position:relative;
+    isolation:isolate;
+    background:transparent;
+    box-shadow:var(--glassy-shadow);
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.app-header,.sidebar,.content-pane,.statusbar,.thread-heading,.analytics-card,.analytics-stat,.analytics-range-form,.reader-view .message,.modal)::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    z-index:-1;
+    border-radius:inherit;
+    pointer-events:none;
+    background:var(--glassy-glass-card);
+    backdrop-filter:blur(var(--glassy-blur)) saturate(1.15);
+    -webkit-backdrop-filter:blur(var(--glassy-blur)) saturate(1.15);
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.app-header,.content-pane)::before { background:var(--glassy-glass); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .sidebar::before { background:var(--glassy-glass-side); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.statusbar,.thread-heading,.modal)::before { background:var(--glassy-glass-strong); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.content-pane,.thread-heading) { box-shadow:inset 0 1px 0 var(--glassy-edge); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.app-header,.sidebar,.statusbar,.thread-heading,.analytics-card,.analytics-stat,.analytics-range-form,.reader-view .message,.modal) { border-color:var(--glassy-edge); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message:is(.user,.assistant,.thinking,.tool,.system) {
+    border-left-color:var(--glassy-role);
+    border-radius:17px;
+    background:transparent;
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .message.system { opacity:1; }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .conversation-content { background:transparent; }
+  /* Activity labels outside cards need the same translucent wash as Reader.
+   * A paint-only fill protects contrast over bright/dark wallpaper areas without
+   * changing fixed tooltip coordinates or chart geometry. */
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .analytics-workspace { background:var(--glassy-glass); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.reader-search,.modal-header,.modal-footer,.settings-nav) { background:var(--glassy-glass-card);border-color:var(--glassy-edge); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.secondary,input:not([type="checkbox"]),select,textarea,.conversation-row.active,.status-card,.info-box,.manager-dialog,.manager-stats>div) {
+    background:var(--glassy-glass-card);
+    border-color:var(--glassy-edge);
+    box-shadow:inset 0 1px 0 var(--glassy-edge),0 3px 12px #00000012;
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) option { background:var(--surface);color:var(--text); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .conversation-row.active .conversation-title { color:var(--text); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.brand-mark,.welcome-symbol,.header-source-switch,.workspace-switch) {
+    background:var(--glassy-glass-card);
+    box-shadow:inset 0 1px 0 var(--glassy-edge),0 3px 12px #00000018;
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.header-source-switch,.workspace-switch)::before {
+    background:var(--glassy-glass-strong);
+    box-shadow:inset 0 1px 0 var(--glassy-edge),0 3px 12px #00000022;
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.header-source-switch,.workspace-switch) button[aria-pressed="true"] { color:var(--text); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .primary { box-shadow:inset 0 1px 0 var(--glassy-edge),0 5px 14px #00000026; }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) :is(.reader-view .message-copy-button,.reader-view .bookmark-message,.thread-tools button) {
+    background:var(--glassy-glass-card);border-color:var(--glassy-edge);color:var(--text);
+  }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .reader-view .navigator-trigger { background:var(--glassy-glass-strong); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .modal-overlay { background:var(--glassy-veil);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px); }
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]):not([data-contrast="high"]) .modal { box-shadow:0 30px 90px #00000066,inset 0 1px 0 var(--glassy-edge); }
+ }
+}
+/* Readouts and transient help keep opaque surfaces for stable text contrast. */
+:root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]) :is(.timeline-tooltip,.hover-help,.toast,.reader-view .navigator-panel) { background:var(--surface); }
+:root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"])[data-contrast="high"] .modal-overlay { backdrop-filter:none;-webkit-backdrop-filter:none;background:#000a; }
+@media (prefers-reduced-transparency:reduce), (forced-colors:active) {
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]) .modal-overlay { backdrop-filter:none;-webkit-backdrop-filter:none;background:#000a; }
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]) .modal-overlay { backdrop-filter:none;-webkit-backdrop-filter:none;background:#000a; }
+}
+@media (forced-colors:active) {
+  :root:is([data-ui-palette="smoked-glass"],[data-ui-palette="harbor-haze"],[data-ui-palette="amber-room"],[data-ui-palette="opal-daylight"]) :is(.timeline-tooltip,.hover-help,.toast,.reader-view .navigator-panel) { background:Canvas;color:CanvasText;border-color:CanvasText; }
+}

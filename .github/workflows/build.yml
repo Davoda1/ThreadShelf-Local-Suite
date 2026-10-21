@@ -1,0 +1,47 @@
+name: Build desktop packages
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  packages:
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [reader, analytics, alternative]
+        os: [ubuntu-24.04, windows-2022]
+        include:
+          - os: ubuntu-24.04
+            target: linux
+            platform: linux
+          - os: windows-2022
+            target: windows
+            platform: win32
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Enable long paths for Windows checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.19.0
+      - run: npm install --global npm@11.9.0
+      - name: Build pinned packages
+        run: python tools/build-suite.py --app ${{ matrix.app }} --target ${{ matrix.target }} --out release
+      - name: Verify packages and native runtime
+        run: python tools/validate-suite.py --app ${{ matrix.app }} --platform ${{ matrix.platform }} --out release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.app }}-${{ matrix.target }}-1.0.0
+          path: |
+            release/*.zip
+            release/*.tar.gz
+            release/*.deb
+            release/SHA256SUM.txt
+            release/verification/*.json
+          if-no-files-found: error
+          retention-days: 14

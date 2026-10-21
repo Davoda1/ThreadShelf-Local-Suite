@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "positions": {
+      "{\"mode\":\"local\",\"serverUrl\":\"\",\"id\":\"local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e\",\"collection\":\"Legacy one\",\"sourceFile\":\"/legacy/original.json\",\"conversationKey\":\"legacy-one\",\"title\":\"Legacy sparse turns\",\"provider\":\"openai\",\"turnCount\":3,\"importedAt\":\"2026-09-28T00:16:48.047Z\",\"updatedAt\":\"2026-09-28T00:16:48.047Z\"}": {
+        "turnIndex": 13,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e",
+          "collection": "Legacy one",
+          "sourceFile": "/legacy/original.json",
+          "conversationKey": "legacy-one",
+          "title": "Legacy sparse turns",
+          "provider": "openai",
+          "turnCount": 3,
+          "importedAt": "2026-09-28T00:16:48.047Z",
+          "updatedAt": "2026-09-28T00:16:48.047Z"
+        },
+        "updatedAt": 1790554608049
+      },
+      "{\"mode\":\"server\",\"serverUrl\":\"http://127.0.0.1:3000/\",\"id\":\"server-only\",\"collection\":\"Remote\",\"sourceFile\":\"server.json\",\"conversationKey\":\"remote\"}": {
+        "turnIndex": 91,
+        "role": "user",
+        "offset": 0.41,
+        "ref": {
+          "mode": "server",
+          "serverUrl": "http://127.0.0.1:3000/",
+          "id": "server-only",
+          "collection": "Remote",
+          "sourceFile": "server.json",
+          "conversationKey": "remote"
+        },
+        "updatedAt": 1790554608050
+      }
+    },
+    "bookmarks": [
+      {
+        "turnIndex": 7,
+        "role": "thinking",
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e",
+          "collection": "Legacy one",
+          "sourceFile": "/legacy/original.json",
+          "conversationKey": "legacy-one",
+          "title": "Legacy sparse turns",
+          "provider": "openai",
+          "turnCount": 3,
+          "importedAt": "2026-09-28T00:16:48.047Z",
+          "updatedAt": "2026-09-28T00:16:48.047Z"
+        },
+        "key": "{\"mode\":\"local\",\"serverUrl\":\"\",\"id\":\"local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e\",\"collection\":\"Legacy one\",\"sourceFile\":\"/legacy/original.json\",\"conversationKey\":\"legacy-one\",\"title\":\"Legacy sparse turns\",\"provider\":\"openai\",\"turnCount\":3,\"importedAt\":\"2026-09-28T00:16:48.047Z\",\"updatedAt\":\"2026-09-28T00:16:48.047Z\"}",
+        "updatedAt": 1790554608049
+      },
+      {
+        "turnIndex": 91,
+        "role": "user",
+        "ref": {
+          "mode": "server",
+          "serverUrl": "http://127.0.0.1:3000/",
+          "id": "server-only",
+          "collection": "Remote",
+          "sourceFile": "server.json",
+          "conversationKey": "remote"
+        },
+        "key": "{\"mode\":\"server\",\"serverUrl\":\"http://127.0.0.1:3000/\",\"id\":\"server-only\",\"collection\":\"Remote\",\"sourceFile\":\"server.json\",\"conversationKey\":\"remote\"}",
+        "updatedAt": 1790554608050
+      }
+    ],
+    "recent": [
+      {
+        "turnIndex": 91,
+        "role": "user",
+        "offset": 0.41,
+        "ref": {
+          "mode": "server",
+          "serverUrl": "http://127.0.0.1:3000/",
+          "id": "server-only",
+          "collection": "Remote",
+          "sourceFile": "server.json",
+          "conversationKey": "remote"
+        },
+        "updatedAt": 1790554608050,
+        "key": "{\"mode\":\"server\",\"serverUrl\":\"http://127.0.0.1:3000/\",\"id\":\"server-only\",\"collection\":\"Remote\",\"sourceFile\":\"server.json\",\"conversationKey\":\"remote\"}",
+        "title": ""
+      },
+      {
+        "turnIndex": 13,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e",
+          "collection": "Legacy one",
+          "sourceFile": "/legacy/original.json",
+          "conversationKey": "legacy-one",
+          "title": "Legacy sparse turns",
+          "provider": "openai",
+          "turnCount": 3,
+          "importedAt": "2026-09-28T00:16:48.047Z",
+          "updatedAt": "2026-09-28T00:16:48.047Z"
+        },
+        "updatedAt": 1790554608049,
+        "key": "{\"mode\":\"local\",\"serverUrl\":\"\",\"id\":\"local:1e8773316c77e3aaf586877e93a38fdec8dd3023f9c2f45bc1947d2edbd59a6e\",\"collection\":\"Legacy one\",\"sourceFile\":\"/legacy/original.json\",\"conversationKey\":\"legacy-one\",\"title\":\"Legacy sparse turns\",\"provider\":\"openai\",\"turnCount\":3,\"importedAt\":\"2026-09-28T00:16:48.047Z\",\"updatedAt\":\"2026-09-28T00:16:48.047Z\"}",
+        "title": ""
+      }
+    ]
+  }
+}

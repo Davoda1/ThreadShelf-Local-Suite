@@ -1,0 +1,21 @@
+{
+  "runSettings": {
+    "model": "models/imagen-test",
+    "assetCount": 1,
+    "aspectRatio": "1:1",
+    "outputResolution": "1K"
+  },
+  "imagenPrompt": {
+    "imagenTurns": [
+      {
+        "generatedImages": [{ "syntheticAsset": "image-1" }],
+        "prompt": "Stwórz anonimową mapę ruin. Znaki testowe: zażółć, 漢字, 🔐."
+      },
+      {
+        "generatedImages": [{ "syntheticAsset": "image-2" }],
+        "prompt": "Dodaj więcej zieleni i kamienny most."
+      }
+    ],
+    "prompt": "Dodaj więcej zieleni i kamienny most."
+  }
+}

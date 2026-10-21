@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible problem using synthetic data.
+title: "[Bug] "
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options: [Reader, Analytics, Alternative, Server patch, Manual, Build or packaging]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version, operating system and package type
+      placeholder: "1.0.0, Windows 11 x64, portable ZIP"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps and expected result
+      description: Use synthetic data. Remove personal paths, addresses, credentials and conversation content.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and sanitized diagnostics
+    validations:
+      required: true

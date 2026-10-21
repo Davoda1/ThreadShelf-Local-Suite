@@ -1,0 +1,162 @@
+{
+  "generatedWith": "unmodified released 2.0.0 ApplicationService",
+  "version": "2.0.0",
+  "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+  "key": "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}",
+  "thread": {
+    "provider": "openai",
+    "sourceFile": "synthetic-upgrade.json",
+    "conversationKey": "upgrade-original",
+    "title": "Upgrade continuity fixture",
+    "raw": {
+      "id": "upgrade-original",
+      "title": "Upgrade continuity fixture",
+      "create_time": 1704067200,
+      "current_node": "reply",
+      "mapping": {
+        "root": {
+          "parent": null,
+          "children": [
+            "question"
+          ],
+          "message": null
+        },
+        "question": {
+          "parent": "root",
+          "children": [
+            "reply",
+            "alternate"
+          ],
+          "message": {
+            "id": "q",
+            "author": {
+              "role": "user"
+            },
+            "create_time": 1704067260,
+            "content": {
+              "content_type": "text",
+              "parts": [
+                "Keep this original question."
+              ]
+            }
+          }
+        },
+        "reply": {
+          "parent": "question",
+          "children": [],
+          "message": {
+            "id": "a",
+            "author": {
+              "role": "assistant"
+            },
+            "create_time": 1704067320,
+            "metadata": {
+              "model_slug": "fixture-model"
+            },
+            "content": {
+              "content_type": "text",
+              "parts": [
+                "Keep this original answer."
+              ]
+            }
+          }
+        },
+        "alternate": {
+          "parent": "question",
+          "children": [],
+          "message": {
+            "id": "b",
+            "author": {
+              "role": "assistant"
+            },
+            "create_time": 1704153660,
+            "metadata": {
+              "model_slug": "fixture-alternate"
+            },
+            "content": {
+              "content_type": "text",
+              "parts": [
+                "Retained alternate branch."
+              ]
+            }
+          }
+        }
+      }
+    },
+    "turns": [
+      {
+        "user": "Keep this original question.",
+        "createdAt": "2024-01-01T00:01:00.000Z",
+        "source_message_id": "q",
+        "turn_index": 7
+      },
+      {
+        "ai": "Keep this original answer.",
+        "createdAt": "2024-01-01T00:02:00.000Z",
+        "source_message_id": "a",
+        "model": "fixture-model",
+        "turn_index": 91
+      }
+    ],
+    "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+    "collectionId": "collection:e5793efe-2d37-424d-b002-aed00ddfdd14",
+    "collection": "From 2.0.0",
+    "turnCount": 2,
+    "importedAt": "2026-09-29T02:39:31.611Z",
+    "updatedAt": "2026-09-29T02:39:31.611Z"
+  },
+  "reading": {
+    "positions": {
+      "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}": {
+        "turnIndex": 91,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "updatedAt": 1790649571665
+      }
+    },
+    "bookmarks": [
+      {
+        "turnIndex": 7,
+        "role": "user",
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "key": "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}",
+        "updatedAt": 1790649571665
+      }
+    ],
+    "recent": [
+      {
+        "turnIndex": 91,
+        "role": "assistant",
+        "offset": 0.37,
+        "ref": {
+          "mode": "local",
+          "serverUrl": "",
+          "id": "local:610c26ea-dd06-40df-b28c-73bcec10944f",
+          "collection": "From 2.0.0",
+          "sourceFile": "synthetic-upgrade.json",
+          "conversationKey": "upgrade-original"
+        },
+        "title": "Upgrade continuity fixture",
+        "updatedAt": 1790649571665,
+        "key": "{\"mode\":\"local\",\"id\":\"local:610c26ea-dd06-40df-b28c-73bcec10944f\"}"
+      }
+    ]
+  }
+}
