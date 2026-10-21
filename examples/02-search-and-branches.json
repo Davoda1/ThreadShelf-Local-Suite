@@ -1,0 +1,509 @@
+[
+  {
+    "conversation_id": "b1ec0bf2-25e4-5318-8dbf-4e0709b9d958",
+    "conversation_template_id": null,
+    "create_time": 1770022800.0,
+    "current_node": "40cf0aa4-c793-5590-9894-f77012fd7879",
+    "default_model_slug": "demo-model-amber",
+    "id": "b1ec0bf2-25e4-5318-8dbf-4e0709b9d958",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "2e30df40-6973-50cf-bdfb-607977a45f10": {
+        "id": "2e30df40-6973-50cf-bdfb-607977a45f10",
+        "parent": null,
+        "children": [
+          "14dcf620-1798-5d11-b166-975ee52a4760"
+        ],
+        "message": null
+      },
+      "14dcf620-1798-5d11-b166-975ee52a4760": {
+        "id": "14dcf620-1798-5d11-b166-975ee52a4760",
+        "parent": "2e30df40-6973-50cf-bdfb-607977a45f10",
+        "children": [
+          "40cf0aa4-c793-5590-9894-f77012fd7879"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a fictional note containing the exact phrase \"cobalt lantern\"."
+            ]
+          },
+          "create_time": 1770022800.0,
+          "id": "90219b67-a1bd-5d1f-925d-8949c2c02a02",
+          "metadata": {}
+        }
+      },
+      "40cf0aa4-c793-5590-9894-f77012fd7879": {
+        "id": "40cf0aa4-c793-5590-9894-f77012fd7879",
+        "parent": "14dcf620-1798-5d11-b166-975ee52a4760",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Lantern inventory\n\nThis is a synthetic archive record. The searchable phrase is **cobalt lantern**.\n\n| Sample | Count |\n|---|---:|\n| A | 2 |\n| B | 4 |\n\nNo real activity, identity or usage measurement is represented."
+            ]
+          },
+          "create_time": 1770022860.0,
+          "id": "ce7adc2e-81aa-5755-9a75-4af43b857139",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 01 · Lantern inventory",
+    "update_time": 1770022860.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "8bbfd466-7d22-5663-a098-e92883ccd026",
+    "conversation_template_id": null,
+    "create_time": 1770631200.0,
+    "current_node": "ef0a1de2-54b5-57c0-b083-6108c2c81272",
+    "default_model_slug": "demo-model-indigo",
+    "id": "8bbfd466-7d22-5663-a098-e92883ccd026",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "9dc8299c-b6da-5278-918e-e032551453b1": {
+        "id": "9dc8299c-b6da-5278-918e-e032551453b1",
+        "parent": null,
+        "children": [
+          "184dbb8d-7203-5a2f-9cc5-0906af575a5b"
+        ],
+        "message": null
+      },
+      "184dbb8d-7203-5a2f-9cc5-0906af575a5b": {
+        "id": "184dbb8d-7203-5a2f-9cc5-0906af575a5b",
+        "parent": "9dc8299c-b6da-5278-918e-e032551453b1",
+        "children": [
+          "ef0a1de2-54b5-57c0-b083-6108c2c81272"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a fictional note containing the exact phrase \"cobalt lantern\"."
+            ]
+          },
+          "create_time": 1770631200.0,
+          "id": "84f14403-d417-5273-8fbf-9e11b2da3a6c",
+          "metadata": {}
+        }
+      },
+      "ef0a1de2-54b5-57c0-b083-6108c2c81272": {
+        "id": "ef0a1de2-54b5-57c0-b083-6108c2c81272",
+        "parent": "184dbb8d-7203-5a2f-9cc5-0906af575a5b",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Prism calibration\n\nThis is a synthetic archive record. The searchable phrase is **cobalt lantern**.\n\n| Sample | Count |\n|---|---:|\n| A | 3 |\n| B | 5 |\n\nNo real activity, identity or usage measurement is represented."
+            ]
+          },
+          "create_time": 1770631260.0,
+          "id": "8607e43f-ed41-57c9-84c1-7c48b8857cad",
+          "metadata": {
+            "model_slug": "demo-model-indigo"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 02 · Prism calibration",
+    "update_time": 1770631260.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "fb44ce39-28fd-5416-934b-d9e110bb11ab",
+    "conversation_template_id": null,
+    "create_time": 1772535600.0,
+    "current_node": "e64f100d-62f4-5642-a8b0-e3894c103e78",
+    "default_model_slug": "demo-model-amber",
+    "id": "fb44ce39-28fd-5416-934b-d9e110bb11ab",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "04aee194-fdfe-572f-a723-7ba2a6cb1ce5": {
+        "id": "04aee194-fdfe-572f-a723-7ba2a6cb1ce5",
+        "parent": null,
+        "children": [
+          "fcf58d17-41dc-5db2-85b3-8d2d57e2c1bd"
+        ],
+        "message": null
+      },
+      "fcf58d17-41dc-5db2-85b3-8d2d57e2c1bd": {
+        "id": "fcf58d17-41dc-5db2-85b3-8d2d57e2c1bd",
+        "parent": "04aee194-fdfe-572f-a723-7ba2a6cb1ce5",
+        "children": [
+          "e64f100d-62f4-5642-a8b0-e3894c103e78"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a fictional note containing the exact phrase \"silver compass\"."
+            ]
+          },
+          "create_time": 1772535600.0,
+          "id": "171aee2b-61a4-5ef0-8770-e1c80bdc29e7",
+          "metadata": {}
+        }
+      },
+      "e64f100d-62f4-5642-a8b0-e3894c103e78": {
+        "id": "e64f100d-62f4-5642-a8b0-e3894c103e78",
+        "parent": "fcf58d17-41dc-5db2-85b3-8d2d57e2c1bd",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Compass checklist\n\nThis is a synthetic archive record. The searchable phrase is **silver compass**.\n\n| Sample | Count |\n|---|---:|\n| A | 4 |\n| B | 6 |\n\nNo real activity, identity or usage measurement is represented."
+            ]
+          },
+          "create_time": 1772535660.0,
+          "id": "c0b4e084-14c5-5231-8873-80d9ad0828c3",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 03 · Compass checklist",
+    "update_time": 1772535660.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "fa7a677b-b666-53ce-9bb4-f1b7e0934366",
+    "conversation_template_id": null,
+    "create_time": 1773748800.0,
+    "current_node": "72dd4632-3850-5bff-ad98-f00b25dc44d4",
+    "default_model_slug": "demo-model-indigo",
+    "id": "fa7a677b-b666-53ce-9bb4-f1b7e0934366",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "d3cdff8b-6654-538a-a809-65a85c950682": {
+        "id": "d3cdff8b-6654-538a-a809-65a85c950682",
+        "parent": null,
+        "children": [
+          "b67ad7ea-4514-5007-ae5d-a9cfaeb56ab1"
+        ],
+        "message": null
+      },
+      "b67ad7ea-4514-5007-ae5d-a9cfaeb56ab1": {
+        "id": "b67ad7ea-4514-5007-ae5d-a9cfaeb56ab1",
+        "parent": "d3cdff8b-6654-538a-a809-65a85c950682",
+        "children": [
+          "72dd4632-3850-5bff-ad98-f00b25dc44d4"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a fictional note containing the exact phrase \"quiet harbor\"."
+            ]
+          },
+          "create_time": 1773748800.0,
+          "id": "e464f966-cb58-5c6c-8734-ce0266416612",
+          "metadata": {}
+        }
+      },
+      "72dd4632-3850-5bff-ad98-f00b25dc44d4": {
+        "id": "72dd4632-3850-5bff-ad98-f00b25dc44d4",
+        "parent": "b67ad7ea-4514-5007-ae5d-a9cfaeb56ab1",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Harbor notes\n\nThis is a synthetic archive record. The searchable phrase is **quiet harbor**.\n\n| Sample | Count |\n|---|---:|\n| A | 5 |\n| B | 7 |\n\nNo real activity, identity or usage measurement is represented."
+            ]
+          },
+          "create_time": 1773748860.0,
+          "id": "7d81f995-d812-5756-b815-a24f0f65ab62",
+          "metadata": {
+            "model_slug": "demo-model-indigo"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 04 · Harbor notes",
+    "update_time": 1773748860.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "f9cc0d95-205a-509a-b71a-19c517d3a4cb",
+    "conversation_template_id": null,
+    "create_time": 1775480400.0,
+    "current_node": "f44ff7b7-a567-54db-8684-37a6daea4237",
+    "default_model_slug": "demo-model-amber",
+    "id": "f9cc0d95-205a-509a-b71a-19c517d3a4cb",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "0b7247e6-7f85-544f-aa3d-22506131f032": {
+        "id": "0b7247e6-7f85-544f-aa3d-22506131f032",
+        "parent": null,
+        "children": [
+          "9c5941ec-0184-51cb-a743-0f280ef0b9c9"
+        ],
+        "message": null
+      },
+      "9c5941ec-0184-51cb-a743-0f280ef0b9c9": {
+        "id": "9c5941ec-0184-51cb-a743-0f280ef0b9c9",
+        "parent": "0b7247e6-7f85-544f-aa3d-22506131f032",
+        "children": [
+          "f44ff7b7-a567-54db-8684-37a6daea4237"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a fictional note containing the exact phrase \"moss garden\"."
+            ]
+          },
+          "create_time": 1775480400.0,
+          "id": "853524b5-eeac-503e-9cab-ec48aa69b1cc",
+          "metadata": {}
+        }
+      },
+      "f44ff7b7-a567-54db-8684-37a6daea4237": {
+        "id": "f44ff7b7-a567-54db-8684-37a6daea4237",
+        "parent": "9c5941ec-0184-51cb-a743-0f280ef0b9c9",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Garden ledger\n\nThis is a synthetic archive record. The searchable phrase is **moss garden**.\n\n| Sample | Count |\n|---|---:|\n| A | 6 |\n| B | 8 |\n\nNo real activity, identity or usage measurement is represented."
+            ]
+          },
+          "create_time": 1775480460.0,
+          "id": "10d31f3b-2ce2-51ff-8b28-70b912a6029f",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 05 · Garden ledger",
+    "update_time": 1775480460.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "55de39d4-40ad-54d5-8aaf-ef6041545408",
+    "conversation_template_id": null,
+    "create_time": 1776693600.0,
+    "current_node": "6fcea632-ad0c-52f2-9c19-e34a5d44a340",
+    "default_model_slug": "demo-model-indigo",
+    "id": "55de39d4-40ad-54d5-8aaf-ef6041545408",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "433640a2-f84c-59f2-8c8f-bc6a75aedb30": {
+        "id": "433640a2-f84c-59f2-8c8f-bc6a75aedb30",
+        "parent": null,
+        "children": [
+          "f8164332-a03b-53b9-8f38-e8444038b3ec"
+        ],
+        "message": null
+      },
+      "f8164332-a03b-53b9-8f38-e8444038b3ec": {
+        "id": "f8164332-a03b-53b9-8f38-e8444038b3ec",
+        "parent": "433640a2-f84c-59f2-8c8f-bc6a75aedb30",
+        "children": [
+          "721628c1-5c7b-511c-b685-1d2edcdf04e7",
+          "ae40f1e8-d0eb-57b1-92c8-644dab1104ea"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Propose one of two imaginary walking routes. This conversation will retain two answer branches."
+            ]
+          },
+          "create_time": 1776693600.0,
+          "id": "eba1e5ed-f126-5a89-8515-fe562734f2e9",
+          "metadata": {}
+        }
+      },
+      "721628c1-5c7b-511c-b685-1d2edcdf04e7": {
+        "id": "721628c1-5c7b-511c-b685-1d2edcdf04e7",
+        "parent": "f8164332-a03b-53b9-8f38-e8444038b3ec",
+        "children": [
+          "b4cec359-5fd4-54ed-9a99-40871f9fd291"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Selected route: Moonlit boardwalk\n\nWalk from the fictional Lantern Gate to the imaginary Prism Bridge. The branch marker is **selected-moon-route**.\n\nThis answer belongs to the path identified by `current_node`."
+            ]
+          },
+          "create_time": 1776693660.0,
+          "id": "d9ed1a46-c5ac-50d6-9be4-03a0afa572dc",
+          "metadata": {
+            "model_slug": "demo-model-indigo"
+          }
+        }
+      },
+      "b4cec359-5fd4-54ed-9a99-40871f9fd291": {
+        "id": "b4cec359-5fd4-54ed-9a99-40871f9fd291",
+        "parent": "721628c1-5c7b-511c-b685-1d2edcdf04e7",
+        "children": [
+          "6fcea632-ad0c-52f2-9c19-e34a5d44a340"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "What should the review confirm?"
+            ]
+          },
+          "create_time": 1776693720.0,
+          "id": "1ed2119f-aab9-5cba-9560-8768a19ac56c",
+          "metadata": {}
+        }
+      },
+      "6fcea632-ad0c-52f2-9c19-e34a5d44a340": {
+        "id": "6fcea632-ad0c-52f2-9c19-e34a5d44a340",
+        "parent": "b4cec359-5fd4-54ed-9a99-40871f9fd291",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Confirm that this selected route remains readable and that the retained alternative can be counted separately. This is synthetic topology, not a real itinerary."
+            ]
+          },
+          "create_time": 1776693780.0,
+          "id": "609b3cf4-4c32-5af2-ad0f-e3afe41dd7b1",
+          "metadata": {
+            "model_slug": "demo-model-indigo"
+          }
+        }
+      },
+      "ae40f1e8-d0eb-57b1-92c8-644dab1104ea": {
+        "id": "ae40f1e8-d0eb-57b1-92c8-644dab1104ea",
+        "parent": "f8164332-a03b-53b9-8f38-e8444038b3ec",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Alternative route: Sunlit arcade\n\nThis retained answer is outside the selected path. The branch marker is **alternate-sun-route**.\n\nIt is included to demonstrate branch-aware analysis, not to replace the chosen answer."
+            ]
+          },
+          "create_time": 1776693690.0,
+          "id": "5ce12448-36d6-5578-bc99-f6a784ddb074",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Search 06 · Two possible itineraries",
+    "update_time": 1776693780.0,
+    "voice": null
+  }
+]

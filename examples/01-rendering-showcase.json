@@ -1,0 +1,742 @@
+[
+  {
+    "conversation_id": "e5abae41-1be9-5c73-8d9e-24a61b415b63",
+    "conversation_template_id": null,
+    "create_time": 1767603600.0,
+    "current_node": "16709fc8-5015-5b72-af60-311829645487",
+    "default_model_slug": "demo-model-amber",
+    "id": "e5abae41-1be9-5c73-8d9e-24a61b415b63",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "01582c17-51c3-5a66-8daf-4aa8c1df917c": {
+        "id": "01582c17-51c3-5a66-8daf-4aa8c1df917c",
+        "parent": null,
+        "children": [
+          "47e02c20-3505-5bae-9a2b-ea063c57afcb"
+        ],
+        "message": null
+      },
+      "47e02c20-3505-5bae-9a2b-ea063c57afcb": {
+        "id": "47e02c20-3505-5bae-9a2b-ea063c57afcb",
+        "parent": "01582c17-51c3-5a66-8daf-4aa8c1df917c",
+        "children": [
+          "16709fc8-5015-5b72-af60-311829645487"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a compact formatting field guide using an imaginary observatory. All details should be fictional."
+            ]
+          },
+          "create_time": 1767603600.0,
+          "id": "3f19d2b5-9bdd-51ae-8efd-1e35bd8182ff",
+          "metadata": {}
+        }
+      },
+      "16709fc8-5015-5b72-af60-311829645487": {
+        "id": "16709fc8-5015-5b72-af60-311829645487",
+        "parent": "47e02c20-3505-5bae-9a2b-ea063c57afcb",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# The Lantern Observatory\n\n**Synthetic demonstration.** This imaginary project exists only to show formatting.\n\n## A small comparison\n\n| Module | Status | Sample count |\n|:--|:--:|--:|\n| Lantern | Ready | 24 |\n| Prism | Reviewing | 18 |\n| Compass | Planned | 12 |\n\nThe notebook supports **bold**, *italic*, ~~strikethrough~~ and `inline code`.\n\n> A useful record explains what was observed and what remains unknown.\n>\n> — Fictional observatory handbook\n\n### Checklist\n\n- [x] Create synthetic records.\n- [x] Preserve the original message text.\n- [ ] Review the screenshots.\n\n1. Open the conversation.\n2. Compare the table and the checklist.\n3. Use the message copy control to inspect the saved source.\n\nThe [reserved example link](https://example.org/) demonstrates a normal link. It is not a project website.\n\n---\n\nUnicode samples: café · Δ · 日本語 · ✓ · 🌙\n\nLiteral characters: `a < b`, `x & y`, `**not bold inside code**`."
+            ]
+          },
+          "create_time": 1767603660.0,
+          "id": "9948a0bf-271a-522e-b7fa-4a975d149899",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 01 · Markdown field guide",
+    "update_time": 1767603660.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "b53a6d10-76ca-5fb0-a6fc-ff64bfb8c59a",
+    "conversation_template_id": null,
+    "create_time": 1767693600.0,
+    "current_node": "3772c478-3d7e-5d4f-bc7b-735a18ca1e3b",
+    "default_model_slug": "demo-model-amber",
+    "id": "b53a6d10-76ca-5fb0-a6fc-ff64bfb8c59a",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "ca357c3e-7063-5420-9bc3-d391a1fca343": {
+        "id": "ca357c3e-7063-5420-9bc3-d391a1fca343",
+        "parent": null,
+        "children": [
+          "413fac37-8495-5a44-858c-e07a21f9d742"
+        ],
+        "message": null
+      },
+      "413fac37-8495-5a44-858c-e07a21f9d742": {
+        "id": "413fac37-8495-5a44-858c-e07a21f9d742",
+        "parent": "ca357c3e-7063-5420-9bc3-d391a1fca343",
+        "children": [
+          "361da4a1-f86c-5b56-967b-a4d661f8fd14"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Show small standalone examples in common languages. These are display samples, not commands to run."
+            ]
+          },
+          "create_time": 1767693600.0,
+          "id": "1a83aa63-4d9d-565f-8dce-d2e5894a0f92",
+          "metadata": {}
+        }
+      },
+      "361da4a1-f86c-5b56-967b-a4d661f8fd14": {
+        "id": "361da4a1-f86c-5b56-967b-a4d661f8fd14",
+        "parent": "413fac37-8495-5a44-858c-e07a21f9d742",
+        "children": [
+          "baee3329-8b75-5ff9-bc00-1ce059794782"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Python and JavaScript\n\n```python\ndef lantern_total(samples):\n    return sum(value for value in samples if value >= 0)\n\nprint(lantern_total([4, 7, 0]))  # 11\n```\n\n```javascript\nconst samples = [4, 7, 0];\nconst total = samples.reduce((sum, value) => sum + value, 0);\nconsole.log({ total });\n```\n\n## TypeScript and Rust\n\n```typescript\ntype Sample = { label: string; value: number };\nconst reading: Sample = { label: \"Prism\", value: 3.125 };\n```\n\n```rust\nfn main() {\n    let samples = [4, 7, 0];\n    let total: i32 = samples.iter().sum();\n    println!(\"Total: {total}\");\n}\n```"
+            ]
+          },
+          "create_time": 1767693660.0,
+          "id": "f984bec2-e069-5110-a5a2-ae7dec739d2d",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      },
+      "baee3329-8b75-5ff9-bc00-1ce059794782": {
+        "id": "baee3329-8b75-5ff9-bc00-1ce059794782",
+        "parent": "361da4a1-f86c-5b56-967b-a4d661f8fd14",
+        "children": [
+          "3772c478-3d7e-5d4f-bc7b-735a18ca1e3b"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Also include data, a query and a harmless shell example."
+            ]
+          },
+          "create_time": 1767693720.0,
+          "id": "9f63e724-89fc-50c9-84f9-be77ac0c1fd3",
+          "metadata": {}
+        }
+      },
+      "3772c478-3d7e-5d4f-bc7b-735a18ca1e3b": {
+        "id": "3772c478-3d7e-5d4f-bc7b-735a18ca1e3b",
+        "parent": "baee3329-8b75-5ff9-bc00-1ce059794782",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Data and configuration\n\n```json\n{\"project\": \"Lantern\", \"synthetic\": true, \"samples\": [4, 7, 0]}\n```\n\n```yaml\nproject: Lantern\nsynthetic: true\nmodules:\n  - Prism\n  - Compass\n```\n\n```sql\nSELECT label, COUNT(*) AS sample_count\nFROM demo_samples\nGROUP BY label\nORDER BY label;\n```\n\n```bash\nprintf '%s\\n' 'Synthetic display sample'\n```\n\n```diff\n- status: planned\n+ status: reviewed\n```\n\nCopying a code block should retain the source text without running the code."
+            ]
+          },
+          "create_time": 1767693780.0,
+          "id": "9b2ae0ec-c854-50b7-a89a-286f65abf528",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 02 · Everyday code blocks",
+    "update_time": 1767693780.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "2775ead2-c714-5b7d-a1be-f78a836dd4f3",
+    "conversation_template_id": null,
+    "create_time": 1767783600.0,
+    "current_node": "0c3bc24f-ce53-569b-8dc8-a4895709ed12",
+    "default_model_slug": "demo-model-amber",
+    "id": "2775ead2-c714-5b7d-a1be-f78a836dd4f3",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "0e5be188-e78e-5474-b79d-aca5e6509d3b": {
+        "id": "0e5be188-e78e-5474-b79d-aca5e6509d3b",
+        "parent": null,
+        "children": [
+          "3a6c638b-801c-5854-811c-d590962535c6"
+        ],
+        "message": null
+      },
+      "3a6c638b-801c-5854-811c-d590962535c6": {
+        "id": "3a6c638b-801c-5854-811c-d590962535c6",
+        "parent": "0e5be188-e78e-5474-b79d-aca5e6509d3b",
+        "children": [
+          "1917897c-71cc-56a5-8c2c-3e2ca9160206"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Create a syntax-highlighting sampler for less common languages, with short invented examples."
+            ]
+          },
+          "create_time": 1767783600.0,
+          "id": "fa4c853d-367d-518a-b58c-07ad0e510ce7",
+          "metadata": {}
+        }
+      },
+      "1917897c-71cc-56a5-8c2c-3e2ca9160206": {
+        "id": "1917897c-71cc-56a5-8c2c-3e2ca9160206",
+        "parent": "3a6c638b-801c-5854-811c-d590962535c6",
+        "children": [
+          "d38c6f62-f752-543f-9643-aabcb54d4cfe"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Coq, Wren and Stan\n\n```coq\nTheorem sample_identity : forall n : nat, n = n.\nProof. intros n. reflexivity. Qed.\n```\n\n```wren\nvar samples = [2, 3, 5]\nSystem.print(samples.reduce { |a, b| a + b })\n```\n\n```stan\ndata {\n  int<lower=1> N;\n  vector[N] y;\n}\nparameters {\n  real mu;\n}\nmodel {\n  mu ~ normal(0, 1);\n  y ~ normal(mu, 1);\n}\n```"
+            ]
+          },
+          "create_time": 1767783660.0,
+          "id": "32fe567f-f0fe-5c71-976a-713d3ff5e2f5",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      },
+      "d38c6f62-f752-543f-9643-aabcb54d4cfe": {
+        "id": "d38c6f62-f752-543f-9643-aabcb54d4cfe",
+        "parent": "1917897c-71cc-56a5-8c2c-3e2ca9160206",
+        "children": [
+          "0c3bc24f-ce53-569b-8dc8-a4895709ed12"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Add Ada, Lisp, Fortran and a small logic example."
+            ]
+          },
+          "create_time": 1767783720.0,
+          "id": "4a70f102-7dd3-51f3-a8a8-2dfce9cf859b",
+          "metadata": {}
+        }
+      },
+      "0c3bc24f-ce53-569b-8dc8-a4895709ed12": {
+        "id": "0c3bc24f-ce53-569b-8dc8-a4895709ed12",
+        "parent": "d38c6f62-f752-543f-9643-aabcb54d4cfe",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Ada and Lisp\n\n```ada\nwith Ada.Text_IO; use Ada.Text_IO;\nprocedure Lantern is\nbegin\n   Put_Line (\"Synthetic sample\");\nend Lantern;\n```\n\n```lisp\n(defun lantern-total (samples)\n  (reduce #'+ samples :initial-value 0))\n(lantern-total '(2 3 5))\n```\n\n## Fortran and Mercury\n\n```fortran\nprogram lantern\n  implicit none\n  integer :: samples(3) = [2, 3, 5]\n  print *, sum(samples)\nend program lantern\n```\n\n```mercury\n:- module lantern.\n:- interface.\n:- import_module io.\n:- pred main(io::di, io::uo) is det.\n:- implementation.\nmain(!IO) :- io.write_string(\"Synthetic sample\\n\", !IO).\n```\n\nLanguage availability may differ: a readable, copyable block is the fallback when a grammar is unavailable. These snippets are rendering fixtures and were not compiled."
+            ]
+          },
+          "create_time": 1767783780.0,
+          "id": "d1fa540e-b3b5-514c-b280-4fbb986b38e3",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 03 · Less common code blocks",
+    "update_time": 1767783780.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "d1f89cb7-f3a0-5628-b10b-e41733463b04",
+    "conversation_template_id": null,
+    "create_time": 1767873600.0,
+    "current_node": "8e130ad3-3b97-59ba-806e-705899dcb55c",
+    "default_model_slug": "demo-model-amber",
+    "id": "d1f89cb7-f3a0-5628-b10b-e41733463b04",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "d351211e-ea4a-55ed-84ec-ba0bfa14316d": {
+        "id": "d351211e-ea4a-55ed-84ec-ba0bfa14316d",
+        "parent": null,
+        "children": [
+          "09bb8ac1-cc54-5add-9bca-e6a9d46463fd"
+        ],
+        "message": null
+      },
+      "09bb8ac1-cc54-5add-9bca-e6a9d46463fd": {
+        "id": "09bb8ac1-cc54-5add-9bca-e6a9d46463fd",
+        "parent": "d351211e-ea4a-55ed-84ec-ba0bfa14316d",
+        "children": [
+          "8e130ad3-3b97-59ba-806e-705899dcb55c"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Use a few clear equations to demonstrate inline and display mathematics."
+            ]
+          },
+          "create_time": 1767873600.0,
+          "id": "1191886a-3fe8-545c-9207-e6ec422b649e",
+          "metadata": {}
+        }
+      },
+      "8e130ad3-3b97-59ba-806e-705899dcb55c": {
+        "id": "8e130ad3-3b97-59ba-806e-705899dcb55c",
+        "parent": "09bb8ac1-cc54-5add-9bca-e6a9d46463fd",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# A synthetic measurement notebook\n\nFor the samples $x_1=2$, $x_2=4$ and $x_3=6$, the mean is $\\bar{x}=4$.\n\n$$\n\\bar{x}=\\frac{1}{n}\\sum_{i=1}^{n}x_i\n$$\n\nA compact matrix:\n\n$$\nA=\\begin{bmatrix}1 & 2\\\\3 & 4\\end{bmatrix},\\qquad \\det(A)=1\\cdot4-2\\cdot3=-2\n$$\n\nThe familiar identity $a^2+b^2=c^2$ stays inline. A display integral remains separate:\n\n$$\n\\int_0^1 x^2\\,dx=\\frac{1}{3}\n$$\n\n```latex\n\\frac{1}{n}\\sum_{i=1}^{n}x_i\n```\n\nThe fenced LaTeX above must remain a code sample, not become a second equation."
+            ]
+          },
+          "create_time": 1767873660.0,
+          "id": "6dd004e8-d7e9-5a32-8aa6-51cf1b0420e3",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 04 · Mathematics notebook",
+    "update_time": 1767873660.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "7b1cc83a-9111-5f4b-acf9-e09dfe315981",
+    "conversation_template_id": null,
+    "create_time": 1767963600.0,
+    "current_node": "7ace83ec-8656-5b55-a584-d3cd1b557398",
+    "default_model_slug": "demo-model-amber",
+    "id": "7b1cc83a-9111-5f4b-acf9-e09dfe315981",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "b75506fc-391e-59f1-814f-e8a7d19cb78b": {
+        "id": "b75506fc-391e-59f1-814f-e8a7d19cb78b",
+        "parent": null,
+        "children": [
+          "829a0561-832b-536d-b232-2b6023bb6323"
+        ],
+        "message": null
+      },
+      "829a0561-832b-536d-b232-2b6023bb6323": {
+        "id": "829a0561-832b-536d-b232-2b6023bb6323",
+        "parent": "b75506fc-391e-59f1-814f-e8a7d19cb78b",
+        "children": [
+          "7ace83ec-8656-5b55-a584-d3cd1b557398"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Draw a compact archive workflow and a sequence diagram using fictional actors."
+            ]
+          },
+          "create_time": 1767963600.0,
+          "id": "f0bd1df1-c5ed-51b5-b10b-0a4128876adb",
+          "metadata": {}
+        }
+      },
+      "7ace83ec-8656-5b55-a584-d3cd1b557398": {
+        "id": "7ace83ec-8656-5b55-a584-d3cd1b557398",
+        "parent": "829a0561-832b-536d-b232-2b6023bb6323",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# From sample to readable archive\n\n```mermaid\nflowchart TD\n    A[\"Synthetic export\"] --> B[\"Import validation\"]\n    B --> C[\"Local archive\"]\n    C --> D[\"Read and search\"]\n    C --> E[\"Analyze a capture\"]\n```\n\n## A read-only capture\n\n```mermaid\nsequenceDiagram\n    participant U as Demo user\n    participant R as Reader\n    participant A as Analytics\n    U->>R: Import synthetic file\n    R-->>U: Show saved conversations\n    U->>A: Add the example source\n    A->>A: Build an owned capture\n    A-->>U: Show recorded counts\n```\n\nThese diagrams describe the demonstration. They do not establish a connection or start an import."
+            ]
+          },
+          "create_time": 1767963660.0,
+          "id": "56646f3c-9777-50ae-abea-8e8ec03cc943",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 05 · Diagrams and workflow",
+    "update_time": 1767963660.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "56cefd10-b580-55d2-89ca-c3d99634a465",
+    "conversation_template_id": null,
+    "create_time": 1768053600.0,
+    "current_node": "ac1d0821-5c64-5e06-aca1-13f650778bfd",
+    "default_model_slug": "demo-model-amber",
+    "id": "56cefd10-b580-55d2-89ca-c3d99634a465",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "3d81d54e-5bf0-535f-88fd-10ced9fd8484": {
+        "id": "3d81d54e-5bf0-535f-88fd-10ced9fd8484",
+        "parent": null,
+        "children": [
+          "912e233f-7acb-5007-a0e7-328d10f40a2f"
+        ],
+        "message": null
+      },
+      "912e233f-7acb-5007-a0e7-328d10f40a2f": {
+        "id": "912e233f-7acb-5007-a0e7-328d10f40a2f",
+        "parent": "3d81d54e-5bf0-535f-88fd-10ced9fd8484",
+        "children": [
+          "ac1d0821-5c64-5e06-aca1-13f650778bfd"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Display a three-card status panel with a small progress comparison."
+            ]
+          },
+          "create_time": 1768053600.0,
+          "id": "d56223cb-880b-5068-aec0-0f3483752050",
+          "metadata": {}
+        }
+      },
+      "ac1d0821-5c64-5e06-aca1-13f650778bfd": {
+        "id": "ac1d0821-5c64-5e06-aca1-13f650778bfd",
+        "parent": "912e233f-7acb-5007-a0e7-328d10f40a2f",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Synthetic observatory dashboard\n\n<grid columns={3} gap={3}>\n  <grid-item><box border radius=\"lg\" padding={3} gap={2}><icon name=\"archive\" size=\"lg\"/><title size=\"lg\">24 records</title><text>Lantern archive</text><caption>Artificial sample count</caption></box></grid-item>\n  <grid-item><box border radius=\"lg\" padding={3} gap={2}><icon name=\"file-search\" size=\"lg\"/><title size=\"lg\">18 checks</title><text>Prism review</text><caption>Artificial sample count</caption></box></grid-item>\n  <grid-item><box border radius=\"lg\" padding={3} gap={2}><icon name=\"database\" size=\"lg\"/><title size=\"lg\">12 captures</title><text>Compass analysis</text><caption>Artificial sample count</caption></box></grid-item>\n</grid>\n\n## Recorded progress\n\n<box border radius=\"lg\" padding={3} gap={3}>\n  <row justify=\"between\"><text>Lantern</text><text tabularNums>40%</text></row>\n  <box width=\"100%\" height=\"12px\" background=\"surface-secondary\" radius=\"full\" clip><box width=\"40%\" height=\"12px\" background=\"info\" radius=\"full\"/></box>\n  <row justify=\"between\"><text>Prism</text><text tabularNums>65%</text></row>\n  <box width=\"100%\" height=\"12px\" background=\"surface-secondary\" radius=\"full\" clip><box width=\"65%\" height=\"12px\" background=\"info\" radius=\"full\"/></box>\n  <row justify=\"between\"><text>Compass</text><text tabularNums>90%</text></row>\n  <box width=\"100%\" height=\"12px\" background=\"surface-secondary\" radius=\"full\" clip><box width=\"90%\" height=\"12px\" background=\"info\" radius=\"full\"/></box>\n  <caption>Fixed demonstration values, not live progress.</caption>\n</box>\n\nThe cards are local presentations of saved text and dimensions."
+            ]
+          },
+          "create_time": 1768053660.0,
+          "id": "530eeb50-c193-5a5e-a1a4-6cff5f69e15b",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 06 · Cards and progress",
+    "update_time": 1768053660.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "1062034a-dc97-5797-9aa6-21a390871381",
+    "conversation_template_id": null,
+    "create_time": 1768143600.0,
+    "current_node": "d0c2ad15-5d34-576d-bda4-a5bf62504f45",
+    "default_model_slug": "demo-model-amber",
+    "id": "1062034a-dc97-5797-9aa6-21a390871381",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "cc1d87f4-33b4-5b37-8291-e63293cd3452": {
+        "id": "cc1d87f4-33b4-5b37-8291-e63293cd3452",
+        "parent": null,
+        "children": [
+          "e99ebb3d-ded0-5726-be43-731234e650a2"
+        ],
+        "message": null
+      },
+      "e99ebb3d-ded0-5726-be43-731234e650a2": {
+        "id": "e99ebb3d-ded0-5726-be43-731234e650a2",
+        "parent": "cc1d87f4-33b4-5b37-8291-e63293cd3452",
+        "children": [
+          "1e8d1c19-6cb1-5b6a-9666-e67913ae88ea"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Compare the artificial module counts and show a short trend. Retain exact values."
+            ]
+          },
+          "create_time": 1768143600.0,
+          "id": "fc0109ae-1038-566f-b6ad-41fbbd97c261",
+          "metadata": {}
+        }
+      },
+      "1e8d1c19-6cb1-5b6a-9666-e67913ae88ea": {
+        "id": "1e8d1c19-6cb1-5b6a-9666-e67913ae88ea",
+        "parent": "e99ebb3d-ded0-5726-be43-731234e650a2",
+        "children": [
+          "d156d2b0-ceee-5085-bb47-1593164d6f01"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Synthetic chart gallery\n\n<Chart content={{\"chartType\":\"bar\",\"xKey\":\"module\",\"series\":[{\"dataKey\":\"count\",\"label\":\"Samples\",\"valueFormat\":\"raw\"}],\"yAxisMin\":0,\"yAxisMax\":30,\"data\":[{\"module\":\"Lantern\",\"count\":24},{\"module\":\"Prism\",\"count\":18},{\"module\":\"Compass\",\"count\":12}],\"meta\":{\"title\":\"Synthetic module counts\",\"description\":\"Artificial values for rendering review.\",\"footer\":\"Saved example data.\"}}}/>\n\n## Recorded trend\n\ngenui{\"charts_widget_v2\":{\"content\":{\"chartType\":\"line\",\"xKey\":\"session\",\"series\":[{\"dataKey\":\"a\",\"label\":\"Lantern\"},{\"dataKey\":\"b\",\"label\":\"Prism\"}],\"yAxisMin\":0,\"yAxisMax\":10,\"data\":[{\"session\":\"One\",\"a\":2,\"b\":5},{\"session\":\"Two\",\"a\":6,\"b\":4},{\"session\":\"Three\",\"a\":8,\"b\":7}]}}}\n\nUse the chart keyboard controls or open **Exact values** to inspect the saved numbers. These are fictional samples, not benchmarks."
+            ]
+          },
+          "create_time": 1768143660.0,
+          "id": "fd9fbe52-2fa7-53dc-97f0-dc8777440fa1",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      },
+      "d156d2b0-ceee-5085-bb47-1593164d6f01": {
+        "id": "d156d2b0-ceee-5085-bb47-1593164d6f01",
+        "parent": "1e8d1c19-6cb1-5b6a-9666-e67913ae88ea",
+        "children": [
+          "d0c2ad15-5d34-576d-bda4-a5bf62504f45"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Add a share-of-total example and a numeric scatter plot."
+            ]
+          },
+          "create_time": 1768143720.0,
+          "id": "f72f2f41-420f-5a84-8ff6-4dadae4304a8",
+          "metadata": {}
+        }
+      },
+      "d0c2ad15-5d34-576d-bda4-a5bf62504f45": {
+        "id": "d0c2ad15-5d34-576d-bda4-a5bf62504f45",
+        "parent": "d156d2b0-ceee-5085-bb47-1593164d6f01",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "## Recorded proportions\n\ngenui{\"chart\":{\"content\":{\"chartType\":\"pie\",\"nameKey\":\"module\",\"valueKey\":\"count\",\"series\":[{\"dataKey\":\"count\",\"label\":\"Samples\"}],\"data\":[{\"module\":\"Lantern\",\"count\":5},{\"module\":\"Prism\",\"count\":3},{\"module\":\"Compass\",\"count\":2}]}}}\n\nThe local ring presentation calculates shares from the saved 5, 3 and 2 values.\n\n## Numeric coordinates\n\n<Chart content={{\"chartType\":\"scatter\",\"xKey\":\"x\",\"series\":[{\"dataKey\":\"y\",\"label\":\"Synthetic readings\"}],\"data\":[{\"x\":0.5,\"y\":-2.5},{\"x\":2,\"y\":3.125},{\"x\":4.5,\"y\":1.25}]}}/>\n\nThe value **3.125** should retain that precision in the exact-value table."
+            ]
+          },
+          "create_time": 1768143780.0,
+          "id": "62a6e291-da48-5486-b1a8-75a577093d19",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 07 · Charts and exact values",
+    "update_time": 1768143780.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "1808299a-b24a-51e2-90b3-907ffe68c93c",
+    "conversation_template_id": null,
+    "create_time": 1768233600.0,
+    "current_node": "2d3bcd75-f964-5fa2-9b5b-d007cca6847c",
+    "default_model_slug": "demo-model-amber",
+    "id": "1808299a-b24a-51e2-90b3-907ffe68c93c",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "6f452f81-3ab7-5404-8afb-776ca420f9ea": {
+        "id": "6f452f81-3ab7-5404-8afb-776ca420f9ea",
+        "parent": null,
+        "children": [
+          "71d8f92f-28ed-5a9e-95dc-8a6d07eac5fe"
+        ],
+        "message": null
+      },
+      "71d8f92f-28ed-5a9e-95dc-8a6d07eac5fe": {
+        "id": "71d8f92f-28ed-5a9e-95dc-8a6d07eac5fe",
+        "parent": "6f452f81-3ab7-5404-8afb-776ca420f9ea",
+        "children": [
+          "2d3bcd75-f964-5fa2-9b5b-d007cca6847c"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Demonstrate an explicit source, an unresolved citation and an offline image placeholder."
+            ]
+          },
+          "create_time": 1768233600.0,
+          "id": "091a81dc-75b2-558e-b146-ffe8ab5aea0d",
+          "metadata": {}
+        }
+      },
+      "2d3bcd75-f964-5fa2-9b5b-d007cca6847c": {
+        "id": "2d3bcd75-f964-5fa2-9b5b-d007cca6847c",
+        "parent": "71d8f92f-28ed-5a9e-95dc-8a6d07eac5fe",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Saved references and absent assets\n\nThe fictional <Entity category=\"project\" value=\"Lantern Observatory\" disambig=\"synthetic example\"/> has an explicitly recorded example source. <Cite ref=\"turn0search0\"/>\n\n## Imaginary instrument comparison\n\n| Fictional instrument | Demonstration role | Sample capacity |\n|:--|:--|--:|\n| Moon prism | Color comparison | 24 |\n| Lantern scope | Shape comparison | 18 |\n| Compass dial | Position comparison | 12 |\n\nThe <Entity category=\"instrument\" value=\"Moon prism\" disambig=\"invented object\"/> and <Entity category=\"instrument\" value=\"Lantern scope\" disambig=\"invented object\"/> are fictional labels, not products or recommendations.\n\nAn unresolved reference remains labelled rather than acquiring a guessed destination: <Cite ref=\"turn9view9\"/>\n\n<row align=\"start\" gap={3}>\n  <AsyncImage query=\"Imaginary blue observatory beneath a crescent moon; synthetic placeholder only\" width=\"240px\" maxWidth=\"240px\" aspectRatio=\"4:3\"/>\n  <box gap={2}><title size=\"lg\">An image was not supplied</title><text>This export intentionally contains a description without image bytes. The local placeholder is expected.</text><caption>No photograph is downloaded to fill the gap.</caption></box>\n</row>\n\nThe explicit <Link url=\"https://example.org/\" title=\"reserved example destination\"/> is a link-format sample. No source claim in this conversation should be treated as factual research."
+            ]
+          },
+          "create_time": 1768233660.0,
+          "id": "9fdbe8e6-ad68-5beb-8fc2-6d9baaa1077c",
+          "metadata": {
+            "model_slug": "demo-model-amber",
+            "content_references": [
+              {
+                "type": "grouped_webpages",
+                "items": [
+                  {
+                    "url": "https://example.org/",
+                    "title": "Reserved example source (synthetic citation)",
+                    "refs": [
+                      {
+                        "turn_index": 0,
+                        "ref_type": "search",
+                        "ref_index": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Demo 08 · References and image placeholders",
+    "update_time": 1768233660.0,
+    "voice": null
+  }
+]

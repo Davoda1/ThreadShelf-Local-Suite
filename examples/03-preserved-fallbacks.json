@@ -1,0 +1,221 @@
+[
+  {
+    "conversation_id": "3d2566cc-3a8e-58a2-b771-4b652e0afb2c",
+    "conversation_template_id": null,
+    "create_time": 1777885200.0,
+    "current_node": "74123e5f-fc63-57c1-aef2-1a517a3a59d8",
+    "default_model_slug": "demo-model-amber",
+    "id": "3d2566cc-3a8e-58a2-b771-4b652e0afb2c",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "0eed1c78-74e7-5a2d-b695-47c3c373ffcb": {
+        "id": "0eed1c78-74e7-5a2d-b695-47c3c373ffcb",
+        "parent": null,
+        "children": [
+          "30bdef0f-62c9-579b-aaa4-32b0fc1e1601"
+        ],
+        "message": null
+      },
+      "30bdef0f-62c9-579b-aaa4-32b0fc1e1601": {
+        "id": "30bdef0f-62c9-579b-aaa4-32b0fc1e1601",
+        "parent": "0eed1c78-74e7-5a2d-b695-47c3c373ffcb",
+        "children": [
+          "74123e5f-fc63-57c1-aef2-1a517a3a59d8"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Show an intentionally unknown language and some component syntax as literal code."
+            ]
+          },
+          "create_time": 1777885200.0,
+          "id": "2e6efe29-390e-5857-a90d-daa8ee3c0fb8",
+          "metadata": {}
+        }
+      },
+      "74123e5f-fc63-57c1-aef2-1a517a3a59d8": {
+        "id": "74123e5f-fc63-57c1-aef2-1a517a3a59d8",
+        "parent": "30bdef0f-62c9-579b-aaa4-32b0fc1e1601",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Readable source is a valid outcome\n\n```demo-lantern-language\nOBSERVE prism\nRECORD samples = 12\nEND\n```\n\nThe invented language name deliberately has no promised syntax grammar. The block should remain readable and copyable.\n\n```text\n<box border><text>This stays literal inside a code fence.</text></box>\n```\n\n```json\n{\"chartType\":\"bar\",\"data\":[{\"label\":\"Literal JSON\",\"value\":4}]}\n```\n\nThe fenced JSON is ordinary code. A reader should not guess that it is a live chart."
+            ]
+          },
+          "create_time": 1777885260.0,
+          "id": "946c677b-15dd-5079-ac32-df59fb271d5e",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Fallback 01 · Literal markup and unknown code",
+    "update_time": 1777885260.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "21cf5b3b-0c45-54f5-8a16-a83415727040",
+    "conversation_template_id": null,
+    "create_time": 1777975200.0,
+    "current_node": "75c45ab5-f67a-57f2-9755-503bb09a4c88",
+    "default_model_slug": "demo-model-amber",
+    "id": "21cf5b3b-0c45-54f5-8a16-a83415727040",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "244e9974-051f-5bd6-8925-c33d85440079": {
+        "id": "244e9974-051f-5bd6-8925-c33d85440079",
+        "parent": null,
+        "children": [
+          "9f045f6d-8f1f-5c03-be85-a6e3032cc571"
+        ],
+        "message": null
+      },
+      "9f045f6d-8f1f-5c03-be85-a6e3032cc571": {
+        "id": "9f045f6d-8f1f-5c03-be85-a6e3032cc571",
+        "parent": "244e9974-051f-5bd6-8925-c33d85440079",
+        "children": [
+          "75c45ab5-f67a-57f2-9755-503bb09a4c88"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Represent content whose original interactive asset is not in the export."
+            ]
+          },
+          "create_time": 1777975200.0,
+          "id": "16cab666-eca7-5261-9b51-457141a86338",
+          "metadata": {}
+        }
+      },
+      "75c45ab5-f67a-57f2-9755-503bb09a4c88": {
+        "id": "75c45ab5-f67a-57f2-9755-503bb09a4c88",
+        "parent": "9f045f6d-8f1f-5c03-be85-a6e3032cc571",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Intentionally absent content\n\n[Interactive visualization not included in this export.]\n\nThat saved sentence should remain intact.\n\n<AsyncImageGroup query={[\"imaginary lunar garden\", \"fictional glass conservatory\"]} aspectRatio=\"16:9\" layout=\"carousel\"/>\n\nThe query list is a passive description. No photograph or carousel asset is bundled.\n\nAn archived suggestion is also passive:\n\ngenui{\"suggest_automation\":{\"label\":\"Review the synthetic archive later\"}}\n\nIt does not create a reminder or schedule."
+            ]
+          },
+          "create_time": 1777975260.0,
+          "id": "fc84ea0d-4e98-569a-a027-58b8af0cbc11",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Fallback 02 · Missing interactive content",
+    "update_time": 1777975260.0,
+    "voice": null
+  },
+  {
+    "conversation_id": "383aecf8-37c9-5023-860b-af1afeee39af",
+    "conversation_template_id": null,
+    "create_time": 1778065200.0,
+    "current_node": "28138ecc-1ba3-553b-a2bf-bff36cc0ba3a",
+    "default_model_slug": "demo-model-amber",
+    "id": "383aecf8-37c9-5023-860b-af1afeee39af",
+    "is_archived": false,
+    "is_do_not_remember": true,
+    "is_read_only": false,
+    "is_starred": false,
+    "is_study_mode": false,
+    "mapping": {
+      "e7721950-4a9d-584c-aea3-04da73d984e7": {
+        "id": "e7721950-4a9d-584c-aea3-04da73d984e7",
+        "parent": null,
+        "children": [
+          "05828a14-3be4-5439-b32c-ae7ca25f4af9"
+        ],
+        "message": null
+      },
+      "05828a14-3be4-5439-b32c-ae7ca25f4af9": {
+        "id": "05828a14-3be4-5439-b32c-ae7ca25f4af9",
+        "parent": "e7721950-4a9d-584c-aea3-04da73d984e7",
+        "children": [
+          "28138ecc-1ba3-553b-a2bf-bff36cc0ba3a"
+        ],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "user"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "Keep an intentionally unsupported chart contract visible without inventing a chart."
+            ]
+          },
+          "create_time": 1778065200.0,
+          "id": "f9a6991a-30b2-567a-952d-d1eab64b4dd9",
+          "metadata": {}
+        }
+      },
+      "28138ecc-1ba3-553b-a2bf-bff36cc0ba3a": {
+        "id": "28138ecc-1ba3-553b-a2bf-bff36cc0ba3a",
+        "parent": "05828a14-3be4-5439-b32c-ae7ca25f4af9",
+        "children": [],
+        "message": {
+          "author": {
+            "name": null,
+            "role": "assistant"
+          },
+          "content": {
+            "content_type": "text",
+            "parts": [
+              "# Deliberate saved-data fallback\n\nThe following object uses a made-up chart type. A source or saved-data fallback is the expected result.\n\n<Chart content={{\"chartType\":\"fictional-orbit\",\"xKey\":\"module\",\"series\":[{\"dataKey\":\"count\",\"label\":\"Samples\"}],\"data\":[{\"module\":\"Lantern\",\"count\":4},{\"module\":\"Prism\",\"count\":7}]}}/>\n\n## Valid content continues\n\nThe rest of this message should still render normally. **Nothing here is a failed measurement.**"
+            ]
+          },
+          "create_time": 1778065260.0,
+          "id": "e27f02cc-7956-555b-8caf-c8c3861e0c13",
+          "metadata": {
+            "model_slug": "demo-model-amber"
+          }
+        }
+      }
+    },
+    "memory_scope": "global_enabled",
+    "pinned_time": null,
+    "plugin_ids": null,
+    "title": "Fallback 03 · Unsupported chart contract",
+    "update_time": 1778065260.0,
+    "voice": null
+  }
+]
