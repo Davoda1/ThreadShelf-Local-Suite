@@ -14,6 +14,8 @@ This release contains separate public editions of ThreadShelf Local Reader and T
 
 Existing public application names, profile directories, archive/schema identifiers and saved reading identities are retained. Reader's new image preferences and cache are separate from the existing conversation archive. Alternative retains its existing settings file and defaults missing image preferences to click-to-load. Alternative does not gain Reader's persistent resource cache.
 
+Native Windows validation exposed equivalent file URLs with different percent encoding. Both applications now compare the exact decoded native entry-file path for IPC trust while retaining the owning WebContents and main-frame object checks. Remote URLs, different paths, case changes, encoded separators and query suffixes are rejected; Reader retains its existing fragment support. Regression tests cover Windows and POSIX paths.
+
 Public loopback server defaults, synthetic examples, media with identifying metadata removed, third-party credits and the existing hardened diagram renderer remain in place. The shared Mermaid 11.17.2, DOMPurify 3.4.17 and KaTeX 0.18.2 bundle is unchanged. Reader's image decoder uses the already locked sharp 0.35.5 package, now declared directly; dependency versions and Electron 44.9.1 remain pinned.
 
 Reader always uses its validated desktop image bridge, even with caching disabled. The cache toggle controls disk persistence. Image loading is still a network operation and exposes the connection to the requested image host. Alternative loads images through Chromium with image-only credential/referrer filtering; it does not implement Reader's private-network, redirect or byte-decoding policy.

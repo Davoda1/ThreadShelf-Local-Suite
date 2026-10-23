@@ -6,6 +6,7 @@ const {pathToFileURL}=require('node:url');
 const {StateStore}=require('./core/state.cjs');
 const {ServerClient}=require('./core/server.cjs');
 const {allowRendererRequest,imageRequestHeaders,imageResponseHeaders}=require('./core/image-policy.cjs');
+const {isTrustedMainFrame}=require('./core/trusted-entry.cjs');
 const PRODUCT='ThreadShelf Local Alternative';
 app.setName(PRODUCT);
 app.setAppUserModelId('io.github.davoda1.threadshelf-local-alternative');
@@ -24,7 +25,7 @@ function applyWindowAppearance(theme){
 const entry=path.join(__dirname,'renderer','index.html');
 const trustedURL=pathToFileURL(entry).href;
 const methods=new Set(['collections','capabilities','health','stats','browse','search','thread']);
-function trustedSender(event){return !!win&&event.sender===win.webContents&&event.senderFrame===win.webContents.mainFrame&&event.senderFrame.url===trustedURL;}
+function trustedSender(event){return !!win&&isTrustedMainFrame(event,win.webContents,trustedURL);}
 function handle(action,fn){ipcMain.handle('alternative:'+action,async(event,...args)=>{
   try{
     if(!trustedSender(event))throw new Error('Untrusted request.');

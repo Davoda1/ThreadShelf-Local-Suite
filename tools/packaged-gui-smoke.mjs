@@ -252,9 +252,9 @@ async function alternative() {
   assert.notEqual(original, repaired);
   check('Four native Mermaid previews render, three malformed diagrams repair, and both sources reach the native clipboard');
   await page.locator('#reading-settings').click();
-  await page.locator('[data-theme="light"]').click();
+  await page.locator('button[data-theme="light"]').click();
   await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
-  await page.locator('[data-theme="dark"]').click();
+  await page.locator('button[data-theme="dark"]').click();
   await page.locator('#image-mode').selectOption('auto');
   await page.locator('#line-width').selectOption('compact');
   await page.locator('#settings-dialog [data-close="settings-dialog"]').last().click();

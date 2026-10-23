@@ -5,6 +5,7 @@ const path=require('node:path');
 const os=require('node:os');
 const {Worker}=require('node:worker_threads');
 const {pathToFileURL}=require('node:url');
+const {isTrustedMainFrame}=require('./trusted-entry.cjs');
 
 app.setName('ThreadShelf Local Reader');
 const dataDir=process.env.THREADSHELF_READER_TEST_DATA || path.join(process.platform==='win32'?(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming')):(process.env.XDG_CONFIG_HOME||path.join(os.homedir(),'.config')),'ThreadShelf Local Reader');
@@ -130,7 +131,7 @@ app.whenReady().then(async()=>{
   session.defaultSession.setPermissionRequestHandler((_web,_permission,callback)=>callback(false));
   win.webContents.setWindowOpenHandler(({url})=>{void external(url).catch(()=>{});return {action:'deny'};});
   win.webContents.on('will-navigate',(event,url)=>{if(url!==pageUrl){event.preventDefault();void external(url).catch(()=>{});}});
-  ipcMain.handle('reader:invoke',(event,action,args={})=>{if(event.sender!==win.webContents||event.senderFrame!==win.webContents.mainFrame||event.senderFrame.url.split('#')[0]!==pageUrl)throw new Error('Untrusted application request.');return invoke(action,args);});
+  ipcMain.handle('reader:invoke',(event,action,args={})=>{if(!isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}))throw new Error('Untrusted application request.');return invoke(action,args);});
   win.on('ready-to-show',()=>{if(b.maximized)win.maximize();if(b.fullscreen)win.setFullScreen(true);win.show();});
   win.on('close',saveWindow);
   await win.loadFile(page);

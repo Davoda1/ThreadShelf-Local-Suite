@@ -26,6 +26,21 @@ def run(args, cwd=ROOT, env=None):
     subprocess.run(list(map(str, args)), cwd=cwd, env=env, check=True)
 
 
+def resolve_npm_cli(node, npm):
+    # npm.cmd can select a globally upgraded npm while Node's adjacent bundled
+    # npm remains older. Ask the verified launcher which CLI it actually runs;
+    # offline/no-install prevents this probe from fetching an executable.
+    cli = Path(subprocess.check_output(
+        [npm, 'exec', '--offline', '--yes=false', '--', 'node', '--print', 'process.env.npm_execpath'],
+        cwd=ROOT, text=True).strip())
+    if not cli.is_absolute() or not cli.is_file():
+        raise RuntimeError('The pinned npm launcher did not provide an existing absolute CLI path.')
+    actual = subprocess.check_output([node, str(cli), '--version'], text=True).strip()
+    if actual != NPM:
+        raise RuntimeError(f'The npm CLI used for packaging must be {NPM}; found {actual}.')
+    return cli
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app', choices=('all',) + APPS, default='all')
@@ -44,6 +59,7 @@ def main():
     actual_npm = subprocess.check_output([npm, '--version'], text=True).strip()
     if (actual_node, actual_npm) != (NODE, NPM):
         parser.error(f'Expected Node {NODE} / npm {NPM}; found {actual_node} / {actual_npm}.')
+    npm_cli = resolve_npm_cli(node, npm)
     out = args.out.resolve()
     cache = args.runtime_cache.resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -51,6 +67,8 @@ def main():
     env['ELECTRON_SKIP_BINARY_DOWNLOAD'] = '1'
     env['ONNXRUNTIME_NODE_INSTALL'] = 'skip'
     env['TSLR_NODE_VERSION'] = NODE
+    # Both packagers honor this explicit CLI instead of guessing beside Node.
+    env['npm_execpath'] = str(npm_cli)
     for app in APPS if args.app == 'all' else (args.app,):
         project = ROOT / 'apps' / app
         package = json.loads((project / 'package.json').read_text(encoding='utf-8'))
