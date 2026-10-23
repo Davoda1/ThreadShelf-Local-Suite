@@ -113,6 +113,53 @@ async function launch() {
   assert.equal(await page.evaluate(() => typeof require), 'undefined');
   report.nativeGUIExecuted = true;
   report.chromiumSandboxEnabled = true;
+  if (application === 'alternative') {
+    // Observe the existing synchronous preload handshake without changing its
+    // return value, handler, security guard or any application state. This makes
+    // native file-URL/frame mismatches diagnosable from sanitized CI evidence.
+    await currentApp.evaluate(({ app, BrowserWindow, ipcMain }) => {
+      const path = process.mainModule.require('node:path');
+      const fs = process.mainModule.require('node:fs');
+      const { pathToFileURL, fileURLToPath } = process.mainModule.require('node:url');
+      const expected = pathToFileURL(path.join(app.getAppPath(), 'renderer', 'index.html')).href;
+      const records = [];
+      function compare(actual) {
+        const result = { exact: actual === expected, caseInsensitive: actual.toLowerCase() === expected.toLowerCase() };
+        try {
+          const url = new URL(actual), wanted = new URL(expected);
+          result.protocol = url.protocol; result.hostMatches = url.host === wanted.host;
+          result.queryMatches = url.search === wanted.search; result.fragmentMatches = url.hash === wanted.hash;
+          result.pathTail = url.pathname.split('/').slice(-4).join('/');
+          result.expectedPathTail = wanted.pathname.split('/').slice(-4).join('/');
+          const decoded = fileURLToPath(url), intended = fileURLToPath(wanted);
+          result.decodedPathExact = decoded === intended;
+          result.decodedPathCaseInsensitive = decoded.toLowerCase() === intended.toLowerCase();
+          result.realPathExact = fs.realpathSync(decoded) === fs.realpathSync(intended);
+          result.realPathCaseInsensitive = fs.realpathSync(decoded).toLowerCase() === fs.realpathSync(intended).toLowerCase();
+        } catch (error) { result.parseOrResolutionError = error.code || error.name; }
+        return result;
+      }
+      const observer = event => {
+        const web = BrowserWindow.getAllWindows()[0].webContents, frame = event.senderFrame, main = web.mainFrame;
+        records.push({ senderMatches: event.sender === web, frameObjectMatches: frame === main,
+          frameProcessMatches: frame?.processId === main.processId, frameRoutingMatches: frame?.routingId === main.routingId,
+          frameUrl: compare(frame?.url || ''), contentsUrl: compare(web.getURL()) });
+      };
+      globalThis.__releaseHandshakeObservation = { records, observer };
+      ipcMain.on('alternative:startup-theme', observer);
+    });
+    try {
+      await page.reload();
+      await page.waitForFunction(() => document.querySelector('#app')?.dataset.ready === 'true');
+    } finally {
+      report.nativeHandshakeDiagnostic = await currentApp.evaluate(({ ipcMain }) => {
+        const observed = globalThis.__releaseHandshakeObservation;
+        ipcMain.removeListener('alternative:startup-theme', observed.observer);
+        delete globalThis.__releaseHandshakeObservation;
+        return observed.records;
+      });
+    }
+  }
   return page;
 }
 async function minimumWindow(page) {
