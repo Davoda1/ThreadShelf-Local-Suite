@@ -1,6 +1,6 @@
 # Changelog
 
-## Reader and Alternative 1.1.0 — unpublished
+## Reader and Alternative 1.1.0
 
 - Reader adds controlled image loading and a separate resource cache, with settings and theme-aware image placeholders.
 - Reader filters empty reasoning and unusable JSON-only content from conversation display and navigation, and removes the version from the native window title.

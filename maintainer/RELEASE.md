@@ -2,16 +2,18 @@
 
 1. Review changes and ensure application version metadata agrees with the intended release.
 2. Build the affected components with the pinned toolchain; run tests and package validators.
-3. Rebuild the manual and check links, search and screenshots.
+3. Rebuild the manual and check links, search and screenshots if its content changes; preserve the existing manual for application-only updates.
 4. Run the public-tree check and review the complete source/release inputs for private data.
-5. Stage exactly three packages per application: Windows ZIP, Linux TAR.GZ and DEB. Alongside them, include the suite Source archive, the Native-Sources companion and **every numbered Runtime-Sources part** described in the component source notices. Verify the runtime mirror with `python assemble-runtime-sources.py` after extracting all parts together.
-6. Create a single release-level `SHA256SUM.txt` over the nine packages, the suite Source archive, the Native-Sources companion, every Runtime-Sources part and other explicitly listed distribution files. Do not hash the checksum file itself.
+5. Stage exactly three packages per updated application: Windows ZIP, Linux TAR.GZ and DEB. Include a complete source snapshot of the tested commit. Preserve direct links to unchanged applications and the Native-Sources companion and **every numbered Runtime-Sources part** described in the component source notices. Refresh source companions when their covered dependencies change. Verify the runtime mirror with `python assemble-runtime-sources.py` after extracting all parts together.
+6. Create a single release-level `SHA256SUM.txt` covering every asset attached to the new release except the checksum file itself. Keep unchanged assets and their original checksum manifest in the earlier release; do not rename them as a new application version.
 7. Verify checksums after copying or downloading the distribution.
 8. Tag the reviewed source commit; create a draft GitHub release, attach files, review it and publish.
 
+For **1.1.0**, Reader and Alternative supply six new native packages, two HTML previews, the complete source ZIP/TAR.GZ and a verification report, plus one checksum manifest. Analytics remains **1.0.0**. The offline manual, Native-Sources and all three Runtime-Sources parts remain at **v1.0.0**. The root README and release notes link to the exact current component downloads across both releases. The old combined `1.0.0-Releases.tar.gz` remains a historical 1.0.0 bundle.
+
 ## Windows checksum verification
 
-Run this PowerShell code from the extracted combined release directory. It accepts the SHA-256 manifest's two-space separator and fails on a missing file or mismatch.
+Run this PowerShell code in a directory containing the files listed in the chosen release's checksum manifest. It accepts the SHA-256 manifest's two-space separator and fails on a missing file or mismatch. If downloading individual files only, compare their `Get-FileHash -Algorithm SHA256` output with the corresponding manifest entries.
 
 ```powershell
 $failed = $false
@@ -44,8 +46,8 @@ On GNU/Linux, use `sha256sum -c SHA256SUM.txt` from the same directory.
 
 The source archive is an extracted repository snapshot containing code, tests, notices, build tools and both editable/built documentation. It excludes `.git` history, ordinary installed dependencies, build caches, personal state and native release packages. Intentional vendored dependency source and required codec assets are retained.
 
-The release archive is a distribution container. The nine inner native packages are the convenient individual GitHub Release downloads. The included `manual/` directory is the offline built manual. Extracting the container is required before installing a DEB or unpacking a portable application package.
+The historical 1.0.0 combined release archive is a distribution container with nine native packages and an offline manual. Version 1.1.0 uses individual component downloads and does not replace that historical container.
 
 The separate `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz` supplies the covered native dependency sources, patches and build recipes. **All numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` parts supply the complete pinned runtime Git dependency graph and supplemental build sources/data described in the source manifest. Both companions are release assets beside the binaries; they are separate from the combined application release archive.
 
-Offer the suite Source archive, Native-Sources companion and every Runtime-Sources part at the [same release location](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) as the matching binaries. Preserve component notices, manifests, provenance, build data and rebuild instructions. The release-level checksum manifest covers every source part as well as the individual packages and convenience archives. See [BUILD.md](BUILD.md) for verification/assembly commands and [runtime source access](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) for exact coverage and external SDK/tool prerequisites.
+Offer direct links to the current suite source and all applicable shared source companions beside the binary downloads, even when unchanged companions remain in an earlier release. Preserve component notices, manifests, provenance, build data and rebuild instructions. Use each asset's original release checksum manifest. See [BUILD.md](BUILD.md) for verification/assembly commands and [runtime source access](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) for exact coverage and external SDK/tool prerequisites.

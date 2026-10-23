@@ -3,14 +3,32 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      components:
+        description: Applications to build and validate
+        type: choice
+        default: all
+        options:
+          - all
+          - reader-and-alternative
+          - reader
+          - analytics
+          - alternative
 permissions:
   contents: read
 jobs:
   packages:
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      ONNXRUNTIME_NODE_INSTALL: skip
     strategy:
       fail-fast: false
       matrix:
-        app: [reader, analytics, alternative]
+        app: ${{ fromJSON(inputs.components == 'reader-and-alternative' && '["reader","alternative"]' || inputs.components == 'reader' && '["reader"]' || inputs.components == 'analytics' && '["analytics"]' || inputs.components == 'alternative' && '["alternative"]' || '["reader","analytics","alternative"]') }}
         os: [ubuntu-24.04, windows-2022]
         include:
           - os: ubuntu-24.04
@@ -26,17 +44,31 @@ jobs:
         shell: pwsh
         run: git config --global core.longpaths true
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 24.19.0
       - run: npm install --global npm@11.9.0
+      - name: Install pinned native GUI test driver
+        working-directory: tools/mermaid-bundle
+        run: npm ci --ignore-scripts
+      - name: Prepare Linux display and ordinary Chromium sandbox
+        if: runner.os == 'Linux'
+        working-directory: tools/mermaid-bundle
+        run: |
+          npx playwright-core install-deps chromium
+          # Allow the packaged Chromium user-namespace sandbox on this ephemeral runner.
+          if sysctl kernel.apparmor_restrict_unprivileged_userns >/dev/null 2>&1; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
       - name: Read component version
         id: component
         shell: bash
         run: node -e "const fs=require('node:fs');const p=require('./apps/${{ matrix.app }}/package.json');fs.appendFileSync(process.env.GITHUB_OUTPUT,'version='+p.version+'\n')"
       - name: Build pinned packages
         run: python tools/build-suite.py --app ${{ matrix.app }} --target ${{ matrix.target }} --out release
-      - name: Verify packages and native runtime
+      - name: Verify packages, native runtime and graphical application
         run: python tools/validate-suite.py --app ${{ matrix.app }} --platform ${{ matrix.platform }} --out release
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

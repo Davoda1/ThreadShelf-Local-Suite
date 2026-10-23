@@ -49,6 +49,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env['ELECTRON_SKIP_BINARY_DOWNLOAD'] = '1'
+    env['ONNXRUNTIME_NODE_INSTALL'] = 'skip'
     env['TSLR_NODE_VERSION'] = NODE
     for app in APPS if args.app == 'all' else (args.app,):
         project = ROOT / 'apps' / app
@@ -67,6 +68,11 @@ def main():
                      '--runtime-cache', runtime, '--output-dir', out,
                      '--work-dir', project / '.build', '--node', node], project, env)
         else:
+            # Analytics compatibility tests launch the public Reader source with
+            # Reader's own locked dependencies. An all-app build installed them
+            # in the preceding Reader iteration; standalone Analytics needs them too.
+            if app == 'analytics' and args.app != 'all' and not args.skip_tests:
+                run([npm, 'ci'], ROOT / 'apps/reader', env)
             run([npm, 'ci'], project, env)
             if not args.skip_tests:
                 run([npm, 'test'], project, env)

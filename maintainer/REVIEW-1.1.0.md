@@ -1,8 +1,8 @@
-# Reader and Alternative 1.1.0 — source validation
+# Reader and Alternative 1.1.0 — release scope and validation
 
-This tree prepares separate public editions of ThreadShelf Local Reader and ThreadShelf Local Alternative. It is based on `master` commit `1be2ceb8cd5fec04fc852861fc0f3173dc0d3155` of `Davoda1/ThreadShelf-Local-Suite`. The separate review delivery was prepared without commits, tags, pushes, release uploads, workflow runs or repository-setting changes. This source-publication step adds the reviewed changes and README banner for GitHub validation; release creation and release assets remain a separate next step. The personal editions are not part of this tree.
+This release contains separate public editions of ThreadShelf Local Reader and ThreadShelf Local Alternative, developed from public baseline `1be2ceb8cd5fec04fc852861fc0f3173dc0d3155`. Personal editions and their configuration are excluded. The suite release number does not change the version of every component.
 
-| Component | Prepared version | Scope |
+| Component | Current version | Scope |
 | --- | --- | --- |
 | Reader | 1.1.0 | Image loading controls, optional independent resource cache, image placeholders, rendering/visibility corrections and title/About cleanup |
 | Alternative | 1.1.0 | In-conversation image loading, automatic/click mode, failure placeholders, responsive image sizing and response visibility |
@@ -20,14 +20,18 @@ Reader always uses its validated desktop image bridge, even with caching disable
 
 ## Source and build delivery
 
-The earlier private review delivery includes a shared Source ZIP and TAR.GZ, application sources and tests, component build tools and the unchanged Analytics/manual/server-patch files. Those archives exclude Git history, installed build dependencies, profile data, caches, generated test logs and package staging. Each updated application has its own Windows portable ZIP, Linux TAR.GZ, Debian package and self-contained HTML preview. They are review artifacts, not releases of the current GitHub commit.
+The release provides six native packages: Windows portable ZIP, Linux TAR.GZ and Debian package for each updated application. It also includes two self-contained HTML previews, a complete suite Source ZIP and TAR.GZ, a verification report and one `SHA256SUM.txt`. Source archives are taken from the final tagged commit and exclude Git history, installed build dependencies, profile data, caches, generated test logs and package staging. The previews demonstrate production renderers with synthetic data; they do not implement native archive, server or disk-cache operations.
 
 Native packages retain the root Windows EXE and direct Linux native-binary entry points; no launcher wrappers are added. Node.js 24.19.0 and npm 11.9.0 are the development build pins. Build output names follow the per-component versions in `tools/release-versions.json`.
 
-The existing 1.0.0 Native-Sources and complete numbered Runtime-Sources companions remain applicable because those dependency/runtime versions have not changed. Preserve them with these sources and notices when redistributing the binaries. This delivery does not replace or republish those companions.
+Analytics 1.0.0 and the offline manual remain in the existing v1.0.0 release. The 1.0.0 Native-Sources and complete numbered Runtime-Sources companions also remain applicable because their covered dependency/runtime versions have not changed. The root README and release notes link directly to these unchanged downloads. Preserve them with the current application sources and notices when redistributing binaries.
 
 ## Verification
 
-GitHub source checks cover Linux and Windows unit tests and renderer builds, Reader cache/archive integration, public 1.0.0-to-1.1.0 profile upgrade and downgrade, and Linux browser regressions for both applications. The browser gate includes image loading, 380 cache-control layout cases, the bounded image queue and response visibility. Analytics tests now specify time zones at the New Year boundary and run the copied Reader source with Reader's own dependencies; Analytics production files are unchanged.
+The [Checks workflow](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml) covers Linux and Windows unit tests and renderer builds, Reader cache/archive integration, public 1.0.0-to-1.1.0 profile upgrade and downgrade, and Linux browser regressions for both applications. The browser gate includes image loading, 380 cache-control layout cases, the bounded image queue and response visibility. Optional model and platform-specific tests retain their explicit skips. Analytics tests specify time zones at the New Year boundary and run the copied Reader source with Reader's own dependencies; its GUI test explicitly enables Chromium's sandbox. Analytics production files are unchanged.
 
-The private review delivery's test counts, package checks, privacy review and execution limitations are recorded in its accompanying `ThreadShelf-Local-Suite-1.1.0-Verification.md`. GitHub checks provide the current source-validation results; this step does not publish those review packages or create a release. Historical 1.0.0 verification documents remain labeled as historical evidence and do not identify the new binary hashes. The one delivery-level `SHA256SUM.txt` identifies all downloadable files in this review set.
+The [package workflow](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/build.yml) builds on Windows and Linux, validates archive contents and native runtime identity, and exercises Reader storage. Its Reader and Alternative GUI gates launch the actual extracted Windows ZIP, Linux TAR.GZ and DEB executables with fresh synthetic profiles, check settings across restart, and verify that application files remain unchanged. The DEB check executes extracted payloads; it is not a system-wide installation test. See [build validation](BUILD.md#validate-on-the-target-operating-system) for commands and host requirements.
+
+The [release verification report](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Verification.md) records the final commit, workflow runs, package evidence and execution limits. Historical 1.0.0 verification documents do not identify new binary hashes. The release-level `SHA256SUM.txt` identifies the eleven other assets; unchanged v1.0.0 files keep their original checksum manifest.
+
+README screenshots use isolated synthetic renderer previews and contain no private exports or profiles. [Screenshot provenance](../docs/extras/SCREENSHOTS.md) distinguishes these captures from native package validation.

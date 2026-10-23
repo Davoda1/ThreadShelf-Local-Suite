@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current review tree prepares Reader **1.1.0** and Alternative **1.1.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds Reader **1.1.0** and Alternative **1.1.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -131,7 +131,9 @@ python tools/validate-suite.py --app reader --platform win32 --out release
 
 Replace `reader` with `analytics` or `alternative` for the other applications. Use the same `--runtime-cache` location passed to the build helper, if it was customized. Linux validation covers both the portable TAR.GZ and DEB; Windows validation covers the portable ZIP. Reports are written to `release/verification/` with machine-specific paths removed. The build workflow runs this validation before uploading an artifact.
 
-Native execution in Node mode does not exercise a desktop window or operating-system integration. Analytics validation on Linux additionally uses `xvfb-run` and the locked Playwright dependency to launch the actual relocated TAR.GZ and extracted DEB, import synthetic data, persist settings across restart, and verify that installed files remain unchanged. Install Xvfb and the required desktop libraries before running that check. The report distinguishes native runtime checks from GUI checks.
+Reader and Alternative validation additionally launches their actual extracted Windows ZIP and Linux TAR.GZ/DEB executables with the Chromium sandbox enabled, fresh synthetic profiles and the recipe-pinned Playwright driver. It checks the interface, settings across restart and byte integrity of the extracted application. Analytics validation on Linux uses its package GUI harness to import synthetic data, persist settings and verify unchanged installed files. Analytics Windows validation covers native runtime identity without a GUI claim.
+
+Install the locked driver with `npm ci --ignore-scripts` in `tools/mermaid-bundle`. Linux GUI checks require Xvfb, the required desktop libraries and working Chromium sandbox support. The GitHub runner configures its temporary host to permit sandboxed user namespaces; package launchers and application source receive no sandbox bypass. DEB checks use extracted payloads rather than system-wide installation. Reports distinguish native runtime checks from GUI checks.
 
 ## Validation and updating pins
 

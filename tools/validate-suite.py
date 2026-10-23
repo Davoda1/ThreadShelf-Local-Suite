@@ -2,8 +2,9 @@
 """Verify built archives and execute their native runtime on the matching host.
 
 Copyright (c) 2026 davoda1. MIT; see ../LICENSE.
-This is a development check, not an application launcher. Analytics on Linux
-also exercises its actual relocated TAR and extracted DEB graphical interface.
+This is a development check, not an application launcher. Reader and Alternative
+exercise relocated release archives on both systems; Analytics additionally
+exercises its relocated TAR and extracted DEB graphical interface on Linux.
 """
 from __future__ import annotations
 import argparse
@@ -16,7 +17,9 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
+import zipfile
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -177,6 +180,78 @@ def reader_storage(runtime, executable, manifest, platform, env, replacements):
         return sanitize(report, local_replacements)
 
 
+def packaged_gui(app, out, manifest, platform, env, replacements):
+    """Launch the unchanged native payload extracted from each release archive."""
+    node = shutil.which('node')
+    xvfb = shutil.which('xvfb-run') if platform == 'linux' else None
+    if not node or (platform == 'linux' and not xvfb):
+        raise ValueError('Native GUI validation requires Node.js and, on Linux, xvfb-run.')
+    version = manifest['version']
+    product = 'ThreadShelf Local ' + app.title()
+    stem = product.replace(' ', '-') + '-' + version
+    slug = 'threadshelf-local-' + app
+    archives = [('ZIP', out / (stem + '-Windows-x64-Portable.zip'))] if platform == 'win32' else [
+        ('TAR', out / (stem + '-Linux-amd64.tar.gz')),
+        ('DEB', out / (slug + '_' + version + '_amd64.deb')),
+    ]
+    cases = []
+    for kind, archive in archives:
+        with tempfile.TemporaryDirectory(prefix=f'threadshelf-{app}-gui-') as temporary:
+            temp = Path(temporary)
+            relocated = temp / 'relocated package with spaces'
+            relocated.mkdir()
+            evidence = temp / 'native-gui.json'
+            local_replacements = replacements + [(temp, '<synthetic-test>')]
+            if kind == 'ZIP':
+                with zipfile.ZipFile(archive) as package:
+                    package.extractall(relocated)
+                runtime = relocated
+                entry = runtime / (product + '.exe')
+            elif kind == 'TAR':
+                # The preceding archive validator has already checked every
+                # path, byte, mode and approved native executable symlink.
+                with tarfile.open(archive, 'r:gz') as package:
+                    extraction = {'filter': 'fully_trusted'} if hasattr(tarfile, 'fully_trusted_filter') else {}
+                    package.extractall(relocated, **extraction)
+                portable = relocated / (stem + '-Linux-amd64')
+                runtime = portable / ('app' if app == 'reader' else 'lib/' + slug)
+                entry = portable / 'bin' / slug
+            else:
+                run_checked(['dpkg-deb', '--extract', str(archive), str(relocated)],
+                            ROOT, env, local_replacements, timeout=180)
+                runtime = relocated / 'opt' / slug
+                # Absolute /usr/bin links in a DEB resolve only after a system
+                # installation. Their exact target is checked by the archive
+                # validator; exercise the extracted native target directly here.
+                entry = runtime / slug
+            archived_manifest = json.loads((runtime / 'resources/app/package.json').read_text(encoding='utf-8'))
+            if (archived_manifest.get('name'), archived_manifest.get('version')) != (manifest['name'], version):
+                raise ValueError('The relocated GUI payload does not match the selected application/version.')
+            gui_env = {**env, 'TMPDIR': str(temp), 'TMP': str(temp), 'TEMP': str(temp)}
+            command = [node, str(ROOT / 'tools/packaged-gui-smoke.mjs'), app,
+                       str(runtime), str(entry), str(evidence)]
+            if xvfb:
+                command = [xvfb, '-a', '-s', '-screen 0 1600x1200x24'] + command
+            run_checked(command, ROOT, gui_env, local_replacements, timeout=600)
+            report = json.loads(evidence.read_text(encoding='utf-8'))
+            expected = {'passed': True, 'application': app, 'version': version,
+                        'platform': platform, 'electron': manifest['devDependencies']['electron'],
+                        'nativeGUIExecuted': True, 'packageFilesUnchanged': True,
+                        'chromiumSandboxEnabled': True, 'errors': []}
+            if any(report.get(key) != value for key, value in expected.items()):
+                raise ValueError('Native GUI validation did not verify the unchanged sandboxed release payload.')
+            if len(report.get('checks', [])) < (6 if app == 'reader' else 5):
+                raise ValueError('Native GUI validation did not execute all required application checks.')
+            cases.append({**sanitize(report, local_replacements), 'archiveType': kind,
+                          'archive': archive.name, 'archiveSha256': digest(archive),
+                          'entryPoint': entry.relative_to(relocated).as_posix(),
+                          'relocatedArchiveExecuted': True})
+    return {'passed': True, 'application': app, 'version': version, 'platform': platform,
+            'nativeGUIExecuted': True, 'cases': cases,
+            'limitations': ['DEB payloads are extracted and exercised; no system-wide DEB installation is performed.']
+            if platform == 'linux' else []}
+
+
 def analytics_gui(out, manifest, env, replacements):
     project = ROOT / 'apps/analytics'
     xvfb, node = shutil.which('xvfb-run'), shutil.which('node')
@@ -257,6 +332,12 @@ def main():
             storage_report = reports / (prefix + '-storage.json')
             storage_report.write_text(json.dumps(storage, indent=2) + '\n', encoding='utf-8')
             summary['storageReport'] = storage_report.name
+        if args.app in ('reader', 'alternative'):
+            gui = packaged_gui(args.app, out, manifest, args.platform, env, replacements)
+            gui_report = reports / (prefix + '-gui.json')
+            gui_report.write_text(json.dumps(gui, indent=2) + '\n', encoding='utf-8')
+            summary['guiReport'] = gui_report.name
+            summary['nativeGUIExecuted'] = True
         if args.app == 'analytics' and args.platform == 'linux':
             gui = analytics_gui(out, manifest, env, replacements)
             gui_report = reports / (prefix + '-gui.json')

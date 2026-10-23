@@ -4,9 +4,9 @@
 
 Desktop readers, local archive analytics, and a search integration patch for [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
-**Development sources: Reader 1.1.0 · Alternative 1.1.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
+**Reader 1.1.0 · Alternative 1.1.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
 
-This repository contains the Reader and Alternative 1.1.0 development sources. The latest published application release remains **1.0.0**; no 1.1.0 release or release assets have been published. Analytics application code and its version, the server patch and the manual are unchanged; Analytics compatibility tests have been updated for the new Reader. See the [1.1.0 review notes](maintainer/REVIEW-1.1.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
+Reader and Alternative **1.1.0** add improved image handling; Reader also gains an optional image cache independent of its conversation archive. Analytics remains **1.0.0**, and the manual and server patch are unchanged. The download table below selects the current version of each component across the two releases. See the [1.1.0 changes](CHANGELOG.md), [validation scope](maintainer/REVIEW-1.1.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
 
 | Application | Choose it when you want… |
 | --- | --- |
@@ -17,7 +17,15 @@ This repository contains the Reader and Alternative 1.1.0 development sources. T
 
 ## Download and start
 
-Get an application package from [Releases](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases). You do not need Node.js or npm to run the packaged desktop apps.
+Choose one package for your application and operating system. These are direct file downloads; Node.js and npm are not needed to run the desktop apps.
+
+| Application | Version | Windows x64 | Linux amd64 | Debian / Ubuntu amd64 |
+| --- | --- | --- | --- | --- |
+| **Reader** | **1.1.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/threadshelf-local-reader_1.1.0_amd64.deb) |
+| **Alternative** | **1.1.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/threadshelf-local-alternative_1.1.0_amd64.deb) |
+| **Analytics** | **1.0.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Analytics-1.0.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/threadshelf-local-analytics_1.0.0_amd64.deb) |
+
+Verify downloads with the checksum manifest for their release: [1.1.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/SHA256SUM.txt) or [1.0.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/SHA256SUM.txt). [Verification instructions](maintainer/RELEASE.md#windows-checksum-verification) and the [1.1.0 validation report](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Verification.md) describe the checks and their limits.
 
 - **Windows:** extract the entire portable ZIP and run the application EXE at the extraction root. Keep the runtime files beside it.
 - **Linux portable:** extract the TAR.GZ and run the extracted `bin/threadshelf-local-*` entry. Preserve the extracted directory structure and executable permissions.
@@ -25,11 +33,28 @@ Get an application package from [Releases](https://github.com/Davoda1/ThreadShel
 
 The packages are unsigned. Linux needs the desktop libraries listed in the application's build/install guide. Analytics reads a compatible Reader archive or supported conversation exports; Alternative connects to a ThreadShelf server or runs the built-in synthetic demo. Semantic search requires the relevant search/embedding setup described in the manual.
 
+### Try the interface
+
+Download and open the self-contained [Reader 1.1.0 HTML preview](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Preview.html) or [Alternative 1.1.0 HTML demo](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Demo.html) in a browser. They use synthetic examples and demonstrate the interface; native archive, server and disk-cache operations require the desktop application.
+
+## Interface gallery
+
+Light and dark views of the public application renderers, captured with synthetic demonstration data. Click an image for its full resolution. [Capture details](docs/extras/SCREENSHOTS.md).
+
+| Reader · dark conversation view | Reader · light image-cache controls |
+| --- | --- |
+| ![Reader dark conversation with rich rendering](docs/extras/reader-dark.png) | ![Reader light image-cache manager](docs/extras/reader-cache-light.png) |
+
+| Alternative · dark reading workspace | Analytics · light dashboard |
+| --- | --- |
+| ![Alternative dark reading workspace with synthetic conversation](docs/extras/alternative-dark.png) | ![Analytics light dashboard with synthetic data](docs/extras/analytics-light.png) |
+
 ## Read the manual
 
 - [Read the manual on GitHub](manual/content/index.md).
 - [Built HTML manual files](docs/): download or clone the complete repository, then open `docs/index.html` locally.
 - [Online user manual](https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/).
+- [Download the offline manual ZIP (1.0.0, unchanged)](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Manual.zip).
 - Offline: open `docs/index.html` in the source distribution, or `manual/index.html` in the combined release distribution.
 
 The illustrated Gopher manual covers installation, first use, workflows, settings, charts, search, data management, troubleshooting, and the server patch. Screenshots use synthetic demonstration data. See the manual's screenshot provenance for the precise capture method.
@@ -51,7 +76,7 @@ This repository contains the integration changes and patching tools. Configurati
 | `apps/alternative/` | Alternative source, offline renderer dependencies and native packaging tools |
 | `server-patch/` | Version-bound integration patch, patcher and tests |
 | `manual/` | Editable manual content, fresh screenshots and Gopher 3.0.0 publisher |
-| `docs/` | Generated static user manual and README banner artwork in `docs/extras/` |
+| `docs/` | Generated static user manual; README banner and screenshots in `docs/extras/` |
 | `maintainer/` | GitHub setup, builds, release procedure and verification |
 | `tools/` | Suite-level build and source verification helpers |
 
@@ -67,7 +92,15 @@ ThreadShelf Local Suite is an independent companion project maintained by **davo
 
 Original suite code is available under the [MIT license](LICENSE), `Copyright (c) 2026 davoda1`. Third-party components, fonts, codecs, rendering libraries, and runtime files retain their own terms. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and each application's included notices/source offers.
 
-The [v1.0.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) provides the suite Source archive, the Native-Sources dependency companion, and **all numbered Runtime-Sources TAR.GZ parts**. The runtime mirror contains the complete pinned Electron/Chromium Git dependency trees for Linux x64 and Windows x64, plus the source-bearing build material and release profiles described in the manifests. Preserve all source downloads, notices and rebuild instructions alongside the desktop packages when redistributing them. Normal installation needs only an application package; runtime rebuilding also needs the documented compiler, SDK and build utilities. See [runtime source access and rebuilding](apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md).
+### Sources and shared components
+
+| Download | Version | Contents |
+| --- | --- | --- |
+| [Suite Source ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Source.zip) · [Source TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Source.tar.gz) | 1.1.0 | Current complete repository, including Analytics 1.0.0, build tools, tests, manual and the unchanged server patch |
+| [Native-Sources TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) | 1.0.0, reused | Sources and build recipes for the unchanged native dependencies |
+| Runtime-Sources: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-01.tar.gz) · [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-02.tar.gz) · [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-03.tar.gz) · [manifest](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/RUNTIME-SOURCES.json) | 1.0.0, reused | Complete source companion for the unchanged pinned runtime; all three parts are required |
+
+The runtime mirror contains the pinned Electron/Chromium Git dependency trees for Linux x64 and Windows x64, plus the source-bearing build material and release profiles described in its manifests. Preserve the current suite source, the shared source companions, notices and rebuild instructions alongside redistributed binaries. Normal installation needs only an application package; runtime rebuilding also needs the documented compiler, SDK and build utilities. See [runtime source access and rebuilding](apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md).
 
 ## Help and contributions
 
