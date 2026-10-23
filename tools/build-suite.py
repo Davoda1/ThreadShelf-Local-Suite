@@ -28,13 +28,12 @@ def run(args, cwd=ROOT, env=None):
 
 def resolve_npm_cli(node, npm):
     # npm.cmd can select a globally upgraded npm while Node's adjacent bundled
-    # npm remains older. Ask the verified launcher which CLI it actually runs;
-    # offline/no-install prevents this probe from fetching an executable.
+    # npm differs. Resolve that global installation without npm exec,
+    # which can interpret a command name as a package to install on Windows.
     cli = Path(subprocess.check_output(
-        [npm, 'exec', '--offline', '--yes=false', '--', 'node', '--print', 'process.env.npm_execpath'],
-        cwd=ROOT, text=True).strip())
+        [npm, 'root', '--global'], cwd=ROOT, text=True).strip()) / 'npm' / 'bin' / 'npm-cli.js'
     if not cli.is_absolute() or not cli.is_file():
-        raise RuntimeError('The pinned npm launcher did not provide an existing absolute CLI path.')
+        raise RuntimeError(f'Install npm {NPM} globally; its global CLI must exist at an absolute path.')
     actual = subprocess.check_output([node, str(cli), '--version'], text=True).strip()
     if actual != NPM:
         raise RuntimeError(f'The npm CLI used for packaging must be {NPM}; found {actual}.')
