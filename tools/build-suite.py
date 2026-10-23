@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NODE = '24.19.0'
 NPM = '11.9.0'
 APPS = ('reader', 'analytics', 'alternative')
+VERSIONS = json.loads((ROOT / 'tools/release-versions.json').read_text(encoding='utf-8'))
 
 
 def run(args, cwd=ROOT, env=None):
@@ -52,7 +53,7 @@ def main():
     for app in APPS if args.app == 'all' else (args.app,):
         project = ROOT / 'apps' / app
         package = json.loads((project / 'package.json').read_text(encoding='utf-8'))
-        if package['version'] != '1.0.0':
+        if package['version'] != VERSIONS[app]:
             raise SystemExit(f'{app}: update this release helper together with the application version.')
         version = package.get('devDependencies', {}).get('electron', '44.9.1')
         runtime = cache / version

@@ -1,6 +1,6 @@
 # ThreadShelf Local Reader
 
-**Public release 1.0.0 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.1.0 · Unpublished candidate · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
@@ -8,9 +8,9 @@ Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-S
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.0.0-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.0.0-Linux-amd64.tar.gz` and run `bin/threadshelf-local-reader`. It links directly to the native executable; preserve the directory structure and symlinks.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.0.0_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.0.0_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.1.0-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.1.0-Linux-amd64.tar.gz` and run `bin/threadshelf-local-reader`. It links directly to the native executable; preserve the directory structure and symlinks.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.1.0_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.1.0_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js or npm. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -36,6 +36,10 @@ The standalone Local Analytics application can capture supported Reader archive 
 
 The Reader supports code copying, an in-conversation find control, message outlines, collapsed prompts and exported reasoning, tables, mathematical formulas and Mermaid diagrams. A deterministic repair may be offered for imperfect Mermaid syntax; the original archived text is preserved. Unsupported rich content stays readable where possible, with theme-aware image placeholders when needed.
 
+Online images can load **automatically** (the default) or **on click** through Settings → Appearance. Images load inside the conversation, keep their aspect ratio, and stay within the reading pane. Failed loads use a theme-aware placeholder. Structurally empty ChatGPT status records are hidden from the view; substantive text, source indexes and stored records remain intact.
+
+An optional **Resources Cache** is available in Settings → Database manager. Caching starts disabled. When enabled, loaded supported images can be reused offline, with per-conversation and clear-all controls. It is separate from the conversation archive and backups. See [Images and Resources Cache](docs/Images-and-Cache.md).
+
 Color mode follows **System**, **Light** or **Dark** independently of the interface palette and code palette. Nineteen interface palettes include Platinum Plus and Professional. Platinum Plus has an opaque, unblurred thread header and Settings window. Ten code palettes include VS Code, Xcode Classic and Ayu.
 
 Wave video backgrounds are optional and bundled for offline playback. Optional welcome-page fireworks require both wave and welcome video preferences, and an offline holiday decision made at startup. Conversations keep the normal light/dark wave loop. See [Themes](docs/Themes.md) and [Holidays](docs/Holidays.md).
@@ -47,7 +51,7 @@ Default application data directories:
 - Windows: `%APPDATA%\ThreadShelf Local Reader`
 - Linux: `${XDG_CONFIG_HOME:-~/.config}/ThreadShelf Local Reader`
 
-These contain the local archive, search data, preferences and saved reading. The application directory is not the data directory. Use **Database manager** to inspect, organize, back up or restore the local archive. Review destructive-operation previews before confirming. Store backups outside the application profile. See [Storage](docs/Storage.md) and [Database manager](docs/DATABASE-MANAGER.md).
+These contain the local archive, search data, preferences, saved reading and a separately managed optional image cache. Upgrading from public 1.0.0 keeps the same profile and archive format; no reimport is required. The application directory is not the data directory. Use **Database manager** to inspect, organize, back up or restore the local archive. Review destructive-operation previews before confirming. Store backups outside the application profile. See [Storage](docs/Storage.md) and [Database manager](docs/DATABASE-MANAGER.md).
 
 Import and export actions use explicit file selection. Remote model setup and server connections are user-selected operations. Public demonstrations and test fixtures contain synthetic content.
 
@@ -69,6 +73,7 @@ To create the optional offline HTML preview, run `node scripts/preview.mjs` afte
 
 ## Technical reference
 
+- [Images and Resources Cache](docs/Images-and-Cache.md)
 - [Search](docs/Search.md)
 - [Activity](docs/Activity.md)
 - [Code highlighting](docs/Code-Highlighting.md)

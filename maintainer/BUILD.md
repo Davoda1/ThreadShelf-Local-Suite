@@ -1,5 +1,7 @@
 # Build the public desktop releases
 
+The current review tree prepares Reader **1.1.0** and Alternative **1.1.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+
 ## Pinned toolchain
 
 | Tool | Version / requirement |
@@ -78,7 +80,7 @@ python scripts/build.py --target linux --download --output-dir <output-directory
 python scripts/build.py --target deb --download --output-dir <output-directory>
 ```
 
-The Python command may be named `python3` on GNU/Linux. The build script's `--runtime-cache` and `--work-dir` switches support external caches/staging. Package filenames are public 1.0.0 names without development revision suffixes.
+The Python command may be named `python3` on GNU/Linux. The build script's `--runtime-cache` and `--work-dir` switches support external caches/staging. Package filenames use each application's public version without personal revision suffixes.
 
 ## Dependency and runtime source companions
 

@@ -6,7 +6,7 @@ const path = require('node:path');
 const {pathToFileURL} = require('node:url');
 let playwright; try { playwright = require('playwright'); } catch { playwright = require(process.env.PLAYWRIGHT_PATH || 'playwright'); }
 const root = path.resolve(__dirname, '..');
-const demo = process.env.DEMO_PATH || path.join(root, 'dist/ThreadShelf-Local-Alternative-1.0.0-Demo.html');
+const demo = process.env.DEMO_PATH || path.join(root, 'dist/ThreadShelf-Local-Alternative-1.1.0-Demo.html');
 const guideOrigin = 'https://guide.threadshelf.invalid';
 const guides = ['guide-start-here', 'guide-search-and-read', 'guide-server-and-resources'];
 const showcases = ['showcase-observatory', 'showcase-workshop'];
@@ -21,7 +21,7 @@ const originalHashes = {
   'color-notes':'b7ecbb7af3cb55161dc658c6cef3a566681cdcca32aeca684cf3b2a49c8f16b8',
   'small-tools':'65a5620e97b246604ab06969408c3fff0e77ce384f590fea46dbb88e8981b6c4'
 };
-const report = {version:'1.0.0',success:false,checks:[],fixtures:[],routes:[],showcases:[],layouts:[],networkRequests:[],pageErrors:[]};
+const report = {version:'1.1.0',success:false,checks:[],fixtures:[],routes:[],showcases:[],layouts:[],networkRequests:[],pageErrors:[]};
 (async () => {
   const browser = await playwright.chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH || undefined,args:['--no-sandbox']});
   const check = name => report.checks.push(name);
@@ -63,11 +63,11 @@ const report = {version:'1.0.0',success:false,checks:[],fixtures:[],routes:[],sh
     }
     check('13 distinct fictional chats; the original 8 are byte-identical, three Claude guides lead the default library, and two showcases identify ChatGPT');
     assert.equal(await page.title(),'ThreadShelf Local Alternative');
-    assert.doesNotMatch(await page.locator('.library-heading').textContent(),/Revision|1\.0\.0/i);
+    assert.doesNotMatch(await page.locator('.library-heading').textContent(),/Revision|1\.1\.0/i);
     await page.locator('#reading-settings').click();
-    assert.equal((await page.locator('.about-line strong').textContent()).trim(),'1.0.0');
+    assert.equal((await page.locator('.about-line strong').textContent()).trim(),'1.1.0');
     await page.locator('#settings-dialog .dialog-footer [data-close]').click();
-    check('Window and sidebar omit version; Settings retains 1.0.0');
+    check('Window and sidebar omit version; Settings retains 1.1.0');
     const adapterChecks = await page.evaluate(async () => {
       const a=TSADemo.create(), rows=[];
       for (const item of TSADemo.threads) {

@@ -1,6 +1,6 @@
 # Reproducible build toolchain
 
-The public application version is **1.0.0**. Release tools are pinned to Node.js **24.19.0 LTS**, npm **11.9.0** and Electron **44.9.1**. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
+The public application version is **1.1.0**. Release tools are pinned to Node.js **24.19.0 LTS**, npm **11.9.0** and Electron **44.9.1**. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
 
 `package-lock.json` records dependency versions and integrity values. Use `npm ci`, not an unlocked dependency update, to reproduce the release graph. The bundled 7-Zip codec includes corresponding source, checksums and license notices.
 

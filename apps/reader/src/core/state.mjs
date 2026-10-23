@@ -5,6 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { APPEARANCE_DEFAULTS, UI_PALETTE_IDS, CODE_THEME_IDS, SOURCE_SWITCH_WIDTHS } from './themes.mjs';
 import { READER_APPEARANCE_DEFAULTS, PROMPT_EXPAND_STYLES } from './reader-appearance.mjs';
 import { EXTENDED_DEFAULTS, validateSearchPreferences } from './extended-preferences.mjs';
+import { REMOTE_IMAGE_DEFAULTS, REMOTE_IMAGE_MODES } from './remote-images.mjs';
 import { normalizeReadingSourceScope, readingSourceFor, matchesReadingSource, limitRecentForSource } from './reading-identity.mjs';
 export { APPEARANCE_DEFAULTS } from './themes.mjs';
 export { READER_APPEARANCE_DEFAULTS } from './reader-appearance.mjs';
@@ -24,8 +25,9 @@ export function validateSettings(values) {
   if(!plain(values))throw new Error('Invalid settings.');
   const result={};
   for(const [key,value] of Object.entries(values)){
-    if(!Object.hasOwn(DEFAULTS,key)&&!Object.hasOwn(INTERFACE_DEFAULTS,key)&&!Object.hasOwn(APPEARANCE_DEFAULTS,key)&&!Object.hasOwn(LAYOUT_DEFAULTS,key)&&!Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)&&!Object.hasOwn(EXTENDED_DEFAULTS,key)) throw new Error(`Unknown setting: ${key}`);
+    if(!Object.hasOwn(DEFAULTS,key)&&!Object.hasOwn(INTERFACE_DEFAULTS,key)&&!Object.hasOwn(APPEARANCE_DEFAULTS,key)&&!Object.hasOwn(LAYOUT_DEFAULTS,key)&&!Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)&&!Object.hasOwn(EXTENDED_DEFAULTS,key)&&!Object.hasOwn(REMOTE_IMAGE_DEFAULTS,key)) throw new Error(`Unknown setting: ${key}`);
     if(key==='searchPreferences'){result[key]=validateSearchPreferences(value);continue;}
+    if(key==='remoteImages'){if(!REMOTE_IMAGE_MODES.includes(value))throw new Error(`Invalid setting: ${key}`);result[key]=value;continue;}
     if(enums[key]){if(!enums[key].includes(value))throw new Error(`Invalid setting: ${key}`);result[key]=value;}
     else if(['highContrast','compact','animations','searchPanelExpanded','waveVideoBackground','waveVideoWelcome','holidayVideoWelcome','analyticsStyledBars'].includes(key)){if(typeof value!=='boolean')throw new Error(`Invalid setting: ${key}`);result[key]=value;}
     else if(key==='pageSize'){if(![20,25,50,100,200].includes(value))throw new Error('Invalid page size.');result[key]=value;}

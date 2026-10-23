@@ -10,7 +10,7 @@ Existing upstream copyrights and license terms continue to apply.
 | Component | License and retained attribution |
 | --- | --- |
 | ThreadShelf adaptations and fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. See `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
-| Reader 3.1.1, Reader Plus 5.0.0, AI Export Converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
+| Conversation renderer, export-converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
 | Electron 44.9.1 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
 | Chromium and Electron's bundled native components | Multiple licenses; original `LICENSES.chromium.html` is retained beside the executable. |
 | Mermaid 11.17.2 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.18.2; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |

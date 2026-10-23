@@ -1,5 +1,5 @@
 import { WaveBackground } from './wave-background.js';
-import { turnToMessage } from './messages.js';
+import { turnToMessage, isHiddenThoughtsMessage } from './messages.js';
 export { turnToMessage } from './messages.js';
 import { highlighter as hljs } from './highlight.js';
 import { ConversationRenderer } from './renderer.js';
@@ -38,8 +38,8 @@ function loadAssets() {
 }
 
 export class ReaderView {
-  constructor({ container, onPosition = () => {}, onBookmark = () => {}, onExternal = () => {}, t, settings = {}, holidayStatus = null }) {
-    Object.assign(this, { container, onPosition, onBookmark, onExternal, t });
+  constructor({ container, onPosition = () => {}, onBookmark = () => {}, onExternal = () => {}, resolveImage = null, t, settings = {}, holidayStatus = null }) {
+    Object.assign(this, { container, onPosition, onBookmark, onExternal, resolveImage, t });
     this.abort = new AbortController();
     this.currentMessages = []; this.navigatorItems = []; this.navigatorPinned = false;
     this.navigatorFrame = 0; this.activeNavigatorTurn = null; this.navigatorOpen = false;
@@ -87,23 +87,26 @@ export class ReaderView {
   listen(target, name, fn, options = {}) { target.addEventListener(name, fn, {...options, signal: this.abort.signal}); }
   byId(id) { return this.container.querySelector(`#${id}`); }
   announce(text) { const node = this.container.querySelector('.reader-announcement'); if (node) node.textContent = text; }
-  async show(thread, { key, query = '', position, targetTurn, bookmarks = [] } = {}) {
+  async show(thread, { key, query = '', position, targetTurn, bookmarks = [], imageContext = {} } = {}) {
     const generation = ++this.generation;
     this.position.detach(); this.resetNavigator();
     this.waveBackground.setWelcome(false);
     this.waveBackground.setConversation(false);
     this.thread = thread; this.key = key || thread.id || '';
+    this.imageContext = Object.freeze({...imageContext});
     const richContextFor = createRichContextResolver(thread);
     this.currentMessages = (thread.turns || []).map((turn, index) => ({...turnToMessage(turn, index), richContext: richContextFor(turn)}));
+    const visibleMessages = this.currentMessages.filter(message => !isHiddenThoughtsMessage(message));
     this.bookmarks = bookmarks;
     this.currentQuery = query.trim();
     if (position) this.savedPositions.set(this.key, position);
     await loadAssets();
     if (generation !== this.generation) return;
     this.renderer.beginConversation(this.key);
+    this.renderer.setImageResolver(this.resolveImage, this.imageContext);
     this.renderer.setSearchQuery(this.currentQuery);
     this.renderer.renderMessages(this.currentMessages);
-    this.waveBackground.setConversation(this.currentMessages.length > 0);
+    this.waveBackground.setConversation(visibleMessages.length > 0);
     this.addBookmarks(); this.buildNavigator();
     const targeted = targetTurn !== undefined && targetTurn !== null;
     this.position.attach([this.key], { explicit: targeted });
@@ -112,7 +115,11 @@ export class ReaderView {
       const target = typeof targetTurn === 'object' ? targetTurn : {turnIndex: targetTurn};
       this.scrollToTurn(target.turnIndex, true, target.role === 'ai' ? 'assistant' : target.role);
     } else if (this.currentQuery && this.currentSearchMarks.length && !position) this.jumpSearch();
-    return { messages: this.currentMessages.length, prompts: this.currentMessages.filter(m => m.role === 'user').length };
+    return { messages: visibleMessages.length, prompts: visibleMessages.filter(m => m.role === 'user').length };
+  }
+  setImageResolver(resolveImage) {
+    this.resolveImage = typeof resolveImage === 'function' ? resolveImage : null;
+    this.renderer.setImageResolver(this.resolveImage, this.imageContext || {});
   }
   setSettings(settings) {
     if (this.abort.signal.aborted) return;
@@ -126,6 +133,7 @@ export class ReaderView {
     this.container.style.setProperty('--font-size-multiplier', ({small:.875,normal:1,large:1.15,xl:1.3})[this.settings.fontSize] || 1);
     this.renderer.animationsEnabled = this.settings.animations !== false;
     this.renderer.setPromptExpandStyle(this.settings.promptExpandStyle);
+    this.renderer.setRemoteImages(this.settings.remoteImages);
     this.waveBackground.setSettings(this.settings);
     this.renderer.setCompactMessagesEnabled(this.settings.compact !== false, {animate: false});
     this.byId('conversationNavigator').setAttribute('aria-label', tr('Conversation navigation'));
@@ -148,7 +156,7 @@ export class ReaderView {
     this.resetNavigator();
     this.waveBackground.setWelcome(false);
     this.waveBackground.setConversation(false);
-    this.thread = null; this.key = ''; this.currentMessages = []; this.bookmarks = [];
+    this.thread = null; this.key = ''; this.imageContext = Object.freeze({}); this.currentMessages = []; this.bookmarks = [];
     this.currentQuery = ''; this.currentSearchMarks = []; this.currentSearchIndex = -1;
     this.renderer.beginConversation('');
     this.renderer.setSearchQuery('');
@@ -349,6 +357,7 @@ export class ReaderView {
     const fragment = document.createDocumentFragment();
     const railFragment = document.createDocumentFragment();
     for (const message of this.currentMessages) {
+      if (isHiddenThoughtsMessage(message)) continue;
       if ((message.role !== 'user' && message.role !== 'assistant') || !String(message.content ?? '').trim()) continue;
       if (message.role === 'user') {
         prompt++; response = 0;

@@ -1,6 +1,6 @@
-# Local compressed storage — ThreadShelf Local Reader 1.0.0
+# Local compressed storage — ThreadShelf Local Reader 1.1.0
 
-Public Reader 1.0.0 uses internal Local storage format 2, plus a separate compressed and rebuildable Activity metadata database. Application, cache and storage schema versions are independent. See [Activity.md](Activity.md).
+Public Reader 1.1.0 uses internal Local storage format 2, plus a separate compressed and rebuildable Activity metadata database. Application, cache and storage schema versions are independent. See [Activity.md](Activity.md).
 
 The version 2 format keeps a compact SQLite catalog in a private working directory and keeps conversation bodies, retained raw data, and semantic vectors in independent compressed objects. Opening a conversation decodes the requested content blocks; it does not extract the entire conversation archive. The catalog itself remains expanded while Local storage is mounted. The catalog size grows with metadata and references.
 
@@ -11,6 +11,10 @@ catalog schema or authoritative content. Local backups omit the disposable text
 cache; it rebuilds after restore. ThreadShelf Local Analytics and older compatible
 Reader releases continue to read the established archive. Close one Reader
 before using the same profile in another version.
+
+## Optional image cache
+
+Public 1.1.0 adds `remote-images-v1.json`, `resource-cache-v1.json` and the separately owned `resource-cache-v1/` image directory under the existing profile. The original settings schemas and `local-storage-v2/` archive remain unchanged. Image-cache operations never modify the conversation archive; archive clear, conversion, backup and restore leave this cache untouched. The cache may contain image bytes and conversation metadata, so manage it independently through Resources Cache. See [Images and Resources Cache](Images-and-Cache.md).
 
 ## Compression and compatibility
 

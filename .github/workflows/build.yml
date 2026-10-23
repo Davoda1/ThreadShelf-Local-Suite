@@ -30,13 +30,17 @@ jobs:
         with:
           node-version: 24.19.0
       - run: npm install --global npm@11.9.0
+      - name: Read component version
+        id: component
+        shell: bash
+        run: node -e "const fs=require('node:fs');const p=require('./apps/${{ matrix.app }}/package.json');fs.appendFileSync(process.env.GITHUB_OUTPUT,'version='+p.version+'\n')"
       - name: Build pinned packages
         run: python tools/build-suite.py --app ${{ matrix.app }} --target ${{ matrix.target }} --out release
       - name: Verify packages and native runtime
         run: python tools/validate-suite.py --app ${{ matrix.app }} --platform ${{ matrix.platform }} --out release
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ matrix.app }}-${{ matrix.target }}-1.0.0
+          name: ${{ matrix.app }}-${{ matrix.target }}-${{ steps.component.outputs.version }}
           path: |
             release/*.zip
             release/*.tar.gz

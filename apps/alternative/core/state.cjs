@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const DEFAULTS = Object.freeze({version:1,serverUrl:'http://localhost:3000',theme:'system',fontSize:16,lineWidth:'comfortable',showReasoning:false,pins:[],savedSearches:[],recent:[],positions:{},collection:''});
+const DEFAULTS = Object.freeze({version:1,serverUrl:'http://localhost:3000',theme:'system',fontSize:16,lineWidth:'comfortable',showReasoning:false,imageMode:'click',pins:[],savedSearches:[],recent:[],positions:{},collection:''});
 function cleanState(value) {
   if(!value || typeof value!=='object' || Array.isArray(value)) return structuredClone(DEFAULTS);
   const out=structuredClone(DEFAULTS);
@@ -10,6 +10,7 @@ function cleanState(value) {
   if(Number.isFinite(value.fontSize)) out.fontSize=Math.max(13,Math.min(24,value.fontSize));
   if(['comfortable','wide','compact'].includes(value.lineWidth)) out.lineWidth=value.lineWidth;
   out.showReasoning=value.showReasoning===true;
+  if(['click','auto'].includes(value.imageMode)) out.imageMode=value.imageMode;
   for(const [key,max] of [['pins',500],['savedSearches',100],['recent',100]]) {
     if(Array.isArray(value[key])) out[key]=value[key].filter(v=>v && typeof v==='object' && !Array.isArray(v)).slice(0,max);
   }

@@ -1,10 +1,10 @@
-# Rich export rendering — ThreadShelf Local Reader 1.0.0
+# Rich export rendering — ThreadShelf Local Reader 1.1.0
 
 This release renders supported declarative graphics already present in a message. It does not reconstruct missing export data or run the original ChatGPT widget runtime. Local mode, Server mode and conversations copied from a server use the same message renderer. Existing converted Markdown tables, ordinary links and saved text snapshots continue through the existing Markdown pipeline.
 
 ## Format support
 
-| Preserved input | Presentation in 1.0.0 |
+| Preserved input | Presentation in 1.1.0 |
 | --- | --- |
 | `box`, `row`, `grid`, `grid-item` | Validated nested layouts, cards, architecture groups and layout-based bars; bounded dimensions, spacing, alignment and theme colors |
 | `text`, `title`, `caption`, `divider`, `icon` | Markdown text, semantic headings, captions, dividers and app-owned line icons; unknown icon names use a passive symbol |
@@ -12,7 +12,7 @@ This release renders supported declarative graphics already present in a message
 | `Entity` | Inline saved label; category/disambiguation retained in the title; no invented entity destination |
 | `Link` | Explicit safe HTTP(S) or mailto link; opened through the Reader's existing external-link action |
 | `Cite` | Exact recorded ID binding when available; otherwise a compact unavailable-source pill retaining the exact identifiers in the accessible label and tooltip |
-| `AsyncImage` | Source-sized local SVG placeholder: Corner aperture beside text, Soft horizon at full width; active-theme colors and saved descriptions in accessible labels/tooltips; no image search, image request or guessed asset |
+| `AsyncImage` | Recorded source image loaded inline under the online-image preference, or a theme-aware placeholder when no usable source exists; no image search or guessed asset |
 | `AsyncImageGroup` | Passive offline query-list text; no simulated carousel or guessed assets |
 | `Chart.content`, legacy `genui.chart.content` | Retained exported bar contract: categories, ordered series, numeric values, inherited chart/series suffixes, saved bounds and metadata |
 | Legacy `genui.charts_widget_v2.content` | Validated bar, horizontal-bar layout, categorical line, pie-family and numeric scatter contracts, using the supplied chat-derived fixture envelopes |
@@ -29,7 +29,7 @@ The renderer handles neutral percentage fills whose source surface color matched
 
 The renderer preserves the saved flex ratios of bounded horizontal allocation tracks, including the 160:32 two-colour example at minimum window size. Image slots keep their saved width/maxWidth and aspect ratio beside the accompanying entity text; query-only exports use a local SVG placeholder. Citation markers use compact pills with the original identifiers retained accessibly. These changes do not supply missing photographs or infer citation destinations from unrelated search-result lists.
 
-The renderer applies the Corner aperture and Soft horizon designs to the corresponding image layouts. The placeholder geometry remains local, trusted application code. All paints inherit the active Reader theme, while source dimensions, aspect ratios, descriptions and source copying are retained. This does not extend the exported SVG grammar or add remote image loading.
+The renderer applies the Corner aperture and Soft horizon designs to the corresponding image layouts. The placeholder geometry remains local, trusted application code. All paints inherit the active Reader theme, while source dimensions, aspect ratios, descriptions and source copying are retained. The exported SVG grammar remains bounded; recorded HTTP(S) image URLs use the separately documented online-image policy.
 
 Full schema details and limits are in [rich-parser-support.md](rich-parser-support.md) and [rich-chart-support.md](rich-chart-support.md). The source modules define the executable limits and property allow-lists.
 
@@ -57,7 +57,11 @@ A chart converted to an ordinary Markdown table stays a table. Values alone do n
 
 For native archives with `raw.mapping`, the display adapter associates a turn using the exact `source_node_id` and `source_message_id`. When only a source message ID exists, it must identify a unique node. It reads only that message's `metadata.content_references` and only the observed `grouped_webpages.items[].refs` tuples. A valid `{turn_index, ref_type: "search" | "view", ref_index}` tuple binds to that item's explicit safe HTTP(S) URL. Conflicting URLs for one reference are discarded. Supporting-site order, title similarity, list position and references from unrelated messages never establish a binding. Unsafe URLs, inherited properties, getters and ambiguous identities do not resolve.
 
-The context is a transient frozen record attached to display messages. Copied server turns without original mapping retain a passive citation fallback; their missing metadata is not invented. Already-converted Markdown citations remain unchanged. No citation or image is fetched while rendering.
+The context is a transient frozen record attached to display messages. Copied server turns without original mapping retain a passive citation fallback; their missing metadata is not invented. Already-converted Markdown citations remain unchanged. Citations are not fetched while rendering. Recorded image URLs may load under the selected online-image policy; query-only images remain unavailable.
+
+## Image loading and empty status records
+
+See [Images and Resources Cache](Images-and-Cache.md) for automatic/click loading, bounded sizing, placeholder behavior, cache ownership and trust boundaries. Empty ChatGPT intermediate status envelopes are filtered from presentation only; ordinary JSON examples, code blocks, unknown records and substantive thoughts remain visible.
 
 ## Data and compatibility
 
@@ -73,7 +77,7 @@ The parser uses Markdown tokenization plus a bounded component/literal grammar. 
 
 Transient random placeholders connect validated records to sanitized Markdown. Trusted code constructs DOM/SVG nodes and assigns saved values as text. Bound template values are inserted after Markdown parsing and cannot become tags, links, directives or code. Event attributes, spread attributes, prototype keys, arbitrary styles, CSS resource URLs and executable expressions are rejected. Parsing and expansion have aggregate budgets. Unsupported input falls back without changing archive data.
 
-Renderer, Electron and storage dependency versions are recorded in [package.json](../package.json) and [package-lock.json](../package-lock.json). See [Toolchain.md](Toolchain.md) for the current pinned runtime and build toolchain. CSP, context isolation, web security, disabled Node integration, preload APIs and the Electron sandbox configuration are unchanged. The offline preview bundles synthetic examples and existing renderer assets; it is an in-memory demonstration, not a physical archive or a server.
+Renderer, Electron and storage dependency versions are recorded in [package.json](../package.json) and [package-lock.json](../package-lock.json). See [Toolchain.md](Toolchain.md) for the current pinned runtime and build toolchain. Context isolation, web security, disabled Node integration and the Electron sandbox remain enabled. Image CSP permits HTTP(S) image resources, while connect-src remains disabled; the cache bridge validates every resource action and conversation-bound URL. The offline preview bundles synthetic examples and existing renderer assets; it is an in-memory demonstration, not a physical archive or a server.
 
 ## Verification
 

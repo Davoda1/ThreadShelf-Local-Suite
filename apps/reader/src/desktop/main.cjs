@@ -43,6 +43,11 @@ function markdown(thread){
   const title=String(thread.title||'Conversation');return '# '+title+'\n\n'+thread.turns.map(t=>{const role=Object.hasOwn(t,'user')?'User':Object.hasOwn(t,'thinking')?'Thinking':t.source_role==='tool'?'Tool':t.source_role==='system'?'System':'Assistant';return '## '+role+(t.model?' · '+t.model:'')+'\n\n'+String(t.user??t.thinking??t.ai??'');}).join('\n\n---\n\n')+'\n';
 }
 async function invoke(action,args){
+  if(typeof action==='string'&&action.startsWith('resources.')){
+    const {validateResourceRequest}=await import('../core/resource-requests.mjs');
+    validateResourceRequest(action,args);
+    return request(action,args);
+  }
   if(action==='bootstrap'){
     const [result,holiday]=await Promise.all([request(action,args),startupHoliday]);
     // Only the decorative decision crosses IPC; native country/date diagnostics stay in main.

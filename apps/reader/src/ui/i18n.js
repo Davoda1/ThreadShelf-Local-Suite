@@ -1,6 +1,31 @@
 import { japanese } from './i18n-ja.js';
 // All application chrome is localized; archive content remains in its original language.
 const rows = [
+["resourcesCacheCorrupt", "The image cache could not be read. Delete the cache to reset it.", "A képgyorsítótár nem olvasható. Az alaphelyzetbe állításhoz törölje a gyorsítótárat.", "Der Bildcache konnte nicht gelesen werden. Löschen Sie den Cache, um ihn zurückzusetzen.", "Le cache des images n’a pas pu être lu. Supprimez le cache pour le réinitialiser."],
+["resourcesCacheUnavailable", "The image cache is unavailable.", "A képgyorsítótár nem érhető el.", "Der Bildcache ist nicht verfügbar.", "Le cache des images est indisponible."],
+
+["resourcesCacheLimit", "The cache is full ({size}). New images can still load, but are not saved until you delete cached images.", "A gyorsítótár megtelt ({size}). Az új képek betöltődnek, de csak a gyorsítótárazott képek törlése után mentődnek.", "Der Cache ist voll ({size}). Neue Bilder können weiterhin geladen, aber erst nach dem Löschen gespeicherter Bilder gespeichert werden.", "Le cache est plein ({size}). Les nouvelles images peuvent être chargées, mais ne seront enregistrées qu’après la suppression d’images en cache."],
+["releaseRevision", "Revision {revision}", "{revision}. revízió", "Revision {revision}", "Révision {revision}"],
+["resourcesCache", "Resources Cache", "Erőforrás-gyorsítótár", "Ressourcen-Cache", "Cache des ressources"],
+["resourcesCacheScope", "Images from Local and Server conversations, stored on this device. Cache actions save immediately.", "A helyi és kiszolgálós beszélgetések ezen az eszközön tárolt képei. A gyorsítótár műveletei azonnal mentődnek.", "Bilder lokaler und Servergespräche auf diesem Gerät. Cache-Aktionen werden sofort gespeichert.", "Images des conversations locales et du serveur, stockées sur cet appareil. Les actions du cache sont enregistrées immédiatement."],
+["resourcesCacheEnable", "Cache loaded images", "Betöltött képek gyorsítótárazása", "Geladene Bilder zwischenspeichern", "Mettre en cache les images chargées"],
+["resourcesCacheHelp", "Save loaded images for offline use. Previously cached images remain available until deleted.", "A betöltött képek mentése offline használatra. A korábban gyorsítótárazott képek törlésükig elérhetők maradnak.", "Geladene Bilder zur Offline-Nutzung speichern. Bereits gespeicherte Bilder bleiben bis zum Löschen verfügbar.", "Enregistrer les images chargées pour une utilisation hors ligne. Les images déjà en cache restent disponibles jusqu’à leur suppression."],
+["resourcesCacheStorageHelp", "The cache is separate from conversation archives and backups.", "A gyorsítótár különálló a beszélgetésarchívumoktól és biztonsági mentésektől.", "Der Cache ist von Gesprächsarchiven und Sicherungen getrennt.", "Le cache est distinct des archives de conversations et des sauvegardes."],
+["resourcesCacheItems", "Cached images", "Gyorsítótárazott képek", "Gespeicherte Bilder", "Images en cache"],
+["resourcesCacheDisk", "Disk space", "Lemezterület", "Speicherplatz", "Espace disque"],
+["resourcesCacheConversations", "Cached conversations", "Gyorsítótárazott beszélgetések", "Gespräche im Cache", "Conversations en cache"],
+["resourcesCacheEmpty", "No cached images yet.", "Még nincsenek gyorsítótárazott képek.", "Noch keine Bilder im Cache.", "Aucune image en cache pour le moment."],
+["resourcesCacheClearAll", "Delete all cached images", "Minden gyorsítótárazott kép törlése", "Alle gespeicherten Bilder löschen", "Supprimer toutes les images en cache"],
+["resourcesCacheDelete", "Delete cached images", "Gyorsítótárazott képek törlése", "Gespeicherte Bilder löschen", "Supprimer les images en cache"],
+["resourcesCacheClearAllConfirm", "Delete all cached images from this device? Conversation archives and source images are unchanged.", "Törli az összes gyorsítótárazott képet erről az eszközről? A beszélgetésarchívumok és a forrásképek változatlanok maradnak.", "Alle gespeicherten Bilder von diesem Gerät löschen? Gesprächsarchive und Quellbilder bleiben unverändert.", "Supprimer toutes les images en cache de cet appareil ? Les archives de conversations et les images sources restent inchangées."],
+["resourcesCacheDeleteConfirm", "Delete cached images for this conversation? Conversation archives and source images are unchanged.", "Törli ennek a beszélgetésnek a gyorsítótárazott képeit? A beszélgetésarchívumok és a forrásképek változatlanok maradnak.", "Gespeicherte Bilder dieses Gesprächs löschen? Gesprächsarchive und Quellbilder bleiben unverändert.", "Supprimer les images en cache de cette conversation ? Les archives de conversations et les images sources restent inchangées."],
+["resourcesCacheItemCount", "{count} images", "{count} kép", "{count} Bilder", "{count} images"],
+["resourcesCacheUpdated", "Resource cache updated.", "Erőforrás-gyorsítótár frissítve.", "Ressourcen-Cache aktualisiert.", "Cache des ressources mis à jour."],
+
+["onlineImages", "Online images", "Online képek", "Onlinebilder", "Images en ligne"],
+["onlineImagesAuto", "Auto load", "Automatikus betöltés", "Automatisch laden", "Chargement automatique"],
+["onlineImagesClick", "Click to load", "Betöltés kattintásra", "Per Klick laden", "Charger au clic"],
+["onlineImagesHelp", "Load linked online images automatically or when you click their placeholder. Embedded images always display.", "A hivatkozott online képek automatikusan vagy a helyőrzőjükre kattintva töltődnek be. A beágyazott képek mindig megjelennek.", "Verknüpfte Onlinebilder automatisch oder per Klick auf ihren Platzhalter laden. Eingebettete Bilder werden immer angezeigt.", "Charger les images en ligne automatiquement ou en cliquant sur leur emplacement. Les images intégrées restent toujours affichées."],
 // Revision 5 controls and Professional theme.
 ["closeConversation", "Close conversation", "Beszélgetés bezárása", "Gespräch schließen", "Fermer la conversation"],
 ["waveVideoWelcome", "Show video on welcome page", "Videó az üdvözlőoldalon", "Video auf der Startseite anzeigen", "Afficher la vidéo sur la page d’accueil"],
@@ -310,7 +335,7 @@ const rows = [
 ["insightsLongest", "Longest conversations", "Leghosszabb beszélgetések", "Längste Gespräche", "Conversations les plus longues"],
 ["activityProvider", "Provider", "Szolgáltató", "Anbieter", "Fournisseur"],
 ["activityUnknownDate", "Undated", "Dátum nélkül", "Undatiert", "Non daté"],
-// Reader appearance settings introduced in 1.0.0.
+// Reader appearance settings introduced in 3.3.0.
 ["waveVideoBackground", "Wave video background", "Hullámvideó-háttér", "Wellenvideo-Hintergrund", "Arrière-plan vidéo de vagues"],
 ["waveVideoBackgroundHelp", "Show wave video loop behind conversation blocks.", "Hullámvideó ismételt lejátszása a beszélgetésblokkok mögött.", "Eine Wellenvideoschleife hinter den Gesprächsblöcken anzeigen.", "Afficher une boucle vidéo de vagues derrière les blocs de conversation."],
 ["promptExpandStyle", "Prompt expansion button", "Kérdéskibontó gomb", "Schaltfläche zum Erweitern von Eingaben", "Bouton de développement des invites"],

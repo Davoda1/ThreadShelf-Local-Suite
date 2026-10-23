@@ -1,4 +1,4 @@
-# Rich component grammar and passive adapters — Reader 1.0.0
+# Rich component grammar and passive adapters — Reader 1.1.0
 
 This is the exact implemented Reader-owned adapter contract. The known markup has no version declaration. It is a bounded interpretation of the observed export vocabulary, not a generic HTML/JSX/Svelte implementation or a promise to support future private formats. Chart schema details are in `rich-chart-support.md`.
 

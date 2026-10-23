@@ -1,6 +1,6 @@
 # Appearance and code themes
 
-Version 1.0.0 has these independent choices in Settings → Appearance:
+Version 1.1.0 has these independent choices in Settings → Appearance:
 
 - **Color mode:** System, Light or Dark. System follows the operating system, including changes while the application is open.
 - **Interface theme:** Default, Ocean, Forest, Ember, Amethyst, OLED, Modern, Modern OLED, Platinum, Platinum Plus, Professional, Vellum, Prism, Nocturne, Garnet, Smoked Glass, Harbor Haze, Amber Room or Opal Daylight.

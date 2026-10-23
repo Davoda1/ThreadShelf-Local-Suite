@@ -23,7 +23,7 @@ const appRoot = path.resolve(__dirname, '..');
 const ROOT = path.resolve(serverRoot);
 const serverNode = process.env.THREADSHELF_TEST_NODE || process.execPath;
 const report = {
-  product: 'ThreadShelf Local Alternative', version: '1.0.0', 
+  product: 'ThreadShelf Local Alternative', version: '1.1.0',
   verifiedAt: new Date().toISOString(), serverVersion: null,
   fixture: { syntheticOnly: true, collections: 2, chunks: 520, conversations: 520, sharedSourceAndKeys: true },
   dataIsolation: 'Fresh temporary LanceDB, uploads, settings, model cache, tools and collections paths; original installation unchanged.',

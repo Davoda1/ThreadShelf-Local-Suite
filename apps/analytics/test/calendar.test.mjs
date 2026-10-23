@@ -25,7 +25,10 @@ test('daily evidence associates exact applied table row identities without sourc
 test('calendar choices respect explicit empty-year selections and range boundaries',()=>{
   assert.deepEqual(calendarYearChoices(report([],{startDay:'2024-01-01',endDay:'2025-01-01'},{range:'year',year:2024})),[2024]);
   assert.deepEqual(calendarYearChoices(report([],{startDay:'2025-12-29',endDay:'2026-01-04'},{range:'7d'})),[2026,2025]);
-  assert.deepEqual(calendarYearChoices(report([],{},{}),Date.parse('2026-01-01T00:00:00Z')),[2026]);
+  const newYear=Date.parse('2026-01-01T00:00:00Z');
+  assert.deepEqual(calendarYearChoices(report([],{},{timeZone:'UTC'}),newYear),[2026]);
+  assert.deepEqual(calendarYearChoices(report([],{},{timeZone:'America/New_York'}),newYear),[2025]);
+  assert.deepEqual(calendarYearChoices(report([],{zone:'Asia/Tokyo'},{timeZone:'America/New_York'}),newYear),[2026]);
   const numeric=calendarRange(report([],{start:Date.parse('2026-03-29T00:00:00Z'),end:Date.parse('2026-03-30T00:00:00Z'),zone:'Europe/Budapest'}));assert.deepEqual(numeric,{start:'2026-03-29',end:'2026-03-30',invalid:false});
 });
 test('five intensity levels follow Reader square-root scaling rather than linear shading',()=>{

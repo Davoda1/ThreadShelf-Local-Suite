@@ -1,3 +1,18 @@
+# Alternative 1.1.0 source verification
+
+Prepared 23 October 2026 as an unpublished candidate. No commits or GitHub uploads were made during this preparation.
+
+- **31 unit tests passed**, with no failures or skips. Coverage includes existing server adapters, scoped identity/pagination, preserved corrupt settings, additive image preference migration, conservative empty-envelope filtering, and image-only request/response credential controls.
+- The focused image-loading browser check passed four groups covering click mode with no initial network requests, keyboard activation in the renderer, linked-image browser isolation, themed failure artwork, automatic mode/cancellation, safe sources and disposal.
+- The image-sizing browser check passed all **eight layouts**, including light/dark desktop, reading width/focus changes, and the 680 × 540 minimum window. Nine generated raster fixtures cover small/large landscapes, portraits, panoramas, square, emphasized standalone, inline, table and narrow rich-column contexts.
+- Content rendering, offline demo (12 checks), conversational guides (10), Reader parity (9), syntax highlighting (10) and startup (12) browser suites passed. Network requests were absent except for explicitly intercepted synthetic image fixtures. The startup recovery suite generated its intentional test error only.
+- The public vendor tree, synthetic demo-data source, assets and server client remain byte-identical to the public 1.0.0 baseline. The newer public Mermaid/DOMPurify/KaTeX bundle and public profile identity remain preserved.
+- The standalone HTML demo is rebuilt from the exact candidate renderer. Node.js 24.19.0, npm 11.9.0 and Electron 44.9.1 remain the pinned public toolchain.
+
+These are source/browser results. Native package and GUI results are recorded separately by the suite candidate verification report. Historical results below are retained as baseline evidence, not presented as new checks of 1.1.0.
+
+---
+
 # Alternative 1.0.0 verification
 
 Public release preparation: 21 October 2026.

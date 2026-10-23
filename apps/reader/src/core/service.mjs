@@ -1,5 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { ResourceCache, RESOURCE_CACHE_LIMITS } from './resource-cache.mjs';
+import { RESOURCE_CACHE_DEFAULTS, RESOURCE_CACHE_PREFERENCES_FILE, validateResourceCacheSettings } from './resource-cache-settings.mjs';
+import { RESOURCE_ACTIONS, validateResourceRequest } from './resource-requests.mjs';
+import { ResourceContexts } from './resource-contexts.mjs';
 import { ArchiveStore } from './archive.mjs';
 import { SearchService } from './search.mjs';
 import { CompressedStorage } from './storage.mjs';
@@ -8,11 +12,13 @@ import { ThreadShelfClient, ServerSearchPager } from './server.mjs';
 import { ActivityService, activityCSV } from './activity.mjs';
 import { JsonState, DEFAULTS, INTERFACE_DEFAULTS, APPEARANCE_DEFAULTS, LAYOUT_DEFAULTS, READER_APPEARANCE_DEFAULTS, validateSettings, validateCoreSettings, validateInterfaceSettings, validateAppearanceSettings, validateLayoutSettings, validateReaderAppearanceSettings, validateReading, applyReading, normalizeServerUrl } from './state.mjs';
 import { EXTENDED_DEFAULTS, EXTENDED_PREFERENCES_FILE, extendedPreferenceDefaults, validateExtendedPreferences, mergeExtendedPreferences } from './extended-preferences.mjs';
+import { REMOTE_IMAGE_DEFAULTS, REMOTE_IMAGES_FILE, validateRemoteImageSettings } from './remote-images.mjs';
 import { localIdFor, localReadingKey, reconcileLocalReading, replaceLocalReading, localReadingOnly } from './manager-reading.mjs';
 
 export class ApplicationService {
-  constructor({dataDir,onProgress=()=>{},storageOptions={}}) {
+  constructor({dataDir,onProgress=()=>{},storageOptions={},resourceCacheOptions={}}) {
     this.dataDir=dataDir; this.onProgress=onProgress; this.storageOptions=storageOptions;
+    this.resourceCacheOptions=resourceCacheOptions; this.resourceContexts=new ResourceContexts(); this.resourceLoads=new Map(); this.resourceError=''; this.resourceLimitReached=false;
     this.operation=null; this.inFlight=new Set(); this.searchControllers=new Set(); this.localSearches=new Set();
     this.lifetime=new AbortController(); this.closing=false; this.shutdownTask=null; this.mutationQueue=Promise.resolve();
     this.store=null; this.searcher=null; this.storage=null; this.mountTask=null; this.restoreTask=null; this.storageError='';
@@ -28,6 +34,11 @@ export class ApplicationService {
     this.layoutSettings=await new JsonState(this.dataDir,'layout.json',LAYOUT_DEFAULTS,validateLayoutSettings).init();
     // Keep all 3.2 preference files byte-compatible with its strict readers.
     this.readerAppearanceSettings=await new JsonState(this.dataDir,'reader-appearance.json',READER_APPEARANCE_DEFAULTS,validateReaderAppearanceSettings).init();
+    this.remoteImageSettings=await new JsonState(this.dataDir,REMOTE_IMAGES_FILE,REMOTE_IMAGE_DEFAULTS,validateRemoteImageSettings).init();
+    this.resourceSettings=await new JsonState(this.dataDir,RESOURCE_CACHE_PREFERENCES_FILE,RESOURCE_CACHE_DEFAULTS,validateResourceCacheSettings).init();
+    this.resourceCache=new ResourceCache({dataDir:this.dataDir,...this.resourceCacheOptions});
+    try{await this.resourceCache.init();}catch{this.resourceError='cache-unavailable';}
+    this.resourceCache.setEnabled(this.resourceSettings.value.resourceCacheEnabled);
     const readingFiles=await Promise.all(['reading-v2.json','reading-v2.json.bak'].map(async name=>{
       try{await fs.stat(path.join(this.dataDir,name));return true;}catch(error){if(error.code==='ENOENT')return false;throw error;}
     }));
@@ -38,6 +49,42 @@ export class ApplicationService {
     // explicit backup-recovery flow from opening.
     if(this.settings.value.mode==='local')try{await this.ensureLocal();}catch(error){this.storageError=error.message;}
     return this;
+  }
+  async resourceStatus(includeConversations=false) {
+    let data={resourceCount:0,totalBytes:0,maxBytes:RESOURCE_CACHE_LIMITS.totalBytes,conversations:[]};
+    try{data=await this.resourceCache.status();}catch{this.resourceError='cache-unavailable';}
+    const status={enabled:this.resourceSettings.value.resourceCacheEnabled,itemCount:data.resourceCount,byteSize:data.totalBytes,maxBytes:data.maxBytes,maxImageBytes:RESOURCE_CACHE_LIMITS.imageBytes,limitReached:this.resourceLimitReached,notice:this.resourceError||data.notice||(this.resourceLimitReached?'limit-reached':'')};
+    if(includeConversations)status.conversations=(data.conversations||[]).map(row=>({key:row.key,title:row.title,mode:row.source==='server'?'server':'local',source:row.sourceId||row.source,itemCount:row.resourceCount,byteSize:row.bytes}));
+    return status;
+  }
+  async resourceAction(action,args) {
+    validateResourceRequest(action,args);
+    if(action==='resources.status'||action==='resources.list')return this.resourceStatus(action==='resources.list');
+    if(action==='resources.context')return this.resourceContexts.token(args);
+    if(action==='resources.cancel'){this.resourceLoads.get(args.requestId)?.abort();return {ok:true};}
+    if(action==='resources.settings')return this.serialized(async()=>{
+      await this.resourceSettings.update(values=>({...values,resourceCacheEnabled:args.enabled}));
+      this.resourceCache.setEnabled(args.enabled);
+      return this.resourceStatus();
+    });
+    if(action==='resources.clear') {
+      if(args.conversationKey){const status=await this.resourceCache.status();if(!status.conversations.some(row=>row.key===args.conversationKey))throw new Error('Refresh the resource list before deleting this conversation’s cached images.');}
+      await this.resourceCache.clear(args);this.resourceLimitReached=false;this.resourceError='';
+      return this.resourceStatus();
+    }
+    if(action==='resources.load') {
+      if(this.resourceError)throw new Error('The resource cache is unavailable. Review Resources Cache in Settings.');
+      if(this.resourceLoads.has(args.requestId)||this.resourceLoads.size>=64)throw new Error('Too many pending image requests.');
+      const conversation=this.resourceContexts.owner(args.contextToken,args.url),controller=new AbortController();
+      this.resourceLoads.set(args.requestId,controller);
+      try {
+        const result=await this.resourceCache.load({url:args.url,conversation,enabled:this.resourceSettings.value.resourceCacheEnabled,signal:AbortSignal.any([controller.signal,this.lifetime.signal])});
+        if(result.warning==='cache-full')this.resourceLimitReached=true;
+        // Do not expose cache paths or archived source URLs back across IPC.
+        return {dataUrl:result.dataUrl,cached:result.cached,stored:result.stored,bytes:result.bytes,...(result.warning?{warning:result.warning}:{})};
+      } finally {this.resourceLoads.delete(args.requestId);}
+    }
+    throw new Error('Unknown resource action.');
   }
   async ensureLocal() {
     // Handles are assigned while mounting so redo can use them internally, but
@@ -206,13 +253,14 @@ export class ApplicationService {
   shutdown() {
     if(this.shutdownTask)return this.shutdownTask;
     this.closing=true;this.lifetime.abort();this.operation?.controller.abort();
+    for(const controller of this.resourceLoads.values())controller.abort();
     for(const controller of this.searchControllers)controller.abort();
     for(const controller of this.activityControllers)controller.abort();
     for(const controller of this.insightsControllers)controller.abort();
     this.shutdownTask=(async()=>{
       await Promise.allSettled([...this.inFlight]);await this.mutationQueue;
-      this.serverSearch.clear();
-      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.reading.queue]);
+      this.serverSearch.clear();this.resourceContexts.clear();await this.resourceCache?.close();
+      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.resourceSettings.queue,this.reading.queue]);
       // Direct ArchiveStore callers (test/embedding integrations) also receive a
       // durable close. Normal GUI mutations have already been committed.
       try{
@@ -228,10 +276,11 @@ export class ApplicationService {
   async dispatch(action,args={}) {
     if(!args||typeof args!=='object'||Array.isArray(args))throw new Error('Invalid request.');
     if(['collections','files','thread','search'].includes(action)&&args.mode!==undefined&&!['local','server'].includes(args.mode))throw new Error('Choose Local or ThreadShelf Server mode.');
+    if(RESOURCE_ACTIONS.includes(action))return this.resourceAction(action,args);
     switch(action) {
       case 'bootstrap': {
         const searchStatus=await this.localStatus();
-        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.0.0',searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
+        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.1.0',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
       }
       case 'settings.save': {
         const values=validateSettings(args.values),core=validateCoreSettings(values);
@@ -240,13 +289,15 @@ export class ApplicationService {
         const layout=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(LAYOUT_DEFAULTS,key)));
         const readerAppearance=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)));
         const extended=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(EXTENDED_DEFAULTS,key)));
+        const remoteImages=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(REMOTE_IMAGE_DEFAULTS,key)));
         if(Object.keys(extended).length)await this.extendedSettings.update(s=>mergeExtendedPreferences(s,extended));
         if(Object.keys(core).length)await this.settings.update(s=>({...s,...core}));
         if(Object.keys(ui).length)await this.interfaceSettings.update(s=>({...s,...ui}));
         if(Object.keys(appearance).length)await this.appearanceSettings.update(s=>({...s,...appearance}));
         if(Object.keys(layout).length)await this.layoutSettings.update(s=>({...s,...layout}));
         if(Object.keys(readerAppearance).length)await this.readerAppearanceSettings.update(s=>({...s,...readerAppearance}));
-        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot()};
+        if(Object.keys(remoteImages).length)await this.remoteImageSettings.update(s=>({...s,...remoteImages}));
+        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()};
       }
       case 'collections':
         if(args.mode==='server')return {collections:await this.client(args).collections()};
@@ -261,9 +312,13 @@ export class ApplicationService {
           task=this.searcher.files({...args,signal});this.localSearches.add(task);return await task;
         }finally{this.searchControllers.delete(controller);if(task)this.localSearches.delete(task);}
       }
-      case 'thread':
-        if(args.mode==='server')return this.client(args).thread(args);
-        await this.ensureLocal();return this.store.thread({id:args.id||args.conversationId});
+      case 'thread': {
+        let thread;
+        if(args.mode==='server')thread=await this.client(args).thread(args);
+        else {await this.ensureLocal();thread=this.store.thread({id:args.id||args.conversationId});}
+        this.resourceContexts.register(thread,args,this.settings.value.serverUrl);
+        return thread;
+      }
       case 'search': {
         if(typeof args.q!=='string'||args.q.length>8192)throw new Error('Search text must contain at most 8192 characters.');
         const controller=new AbortController();controller.mode=args.mode||'local';this.searchControllers.add(controller);

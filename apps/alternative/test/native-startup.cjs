@@ -15,7 +15,7 @@ const { PNG } = require(require.resolve('pngjs', { paths: [path.dirname(require.
 const root = path.resolve(__dirname, '..');
 const PRODUCT = 'ThreadShelf Local Alternative';
 const colors = { dark: '#141c1d', light: '#f3f1eb' };
-const report = { product: PRODUCT, version: '1.0.0',  tests: [], errors: [], status: 'running',
+const report = { product: PRODUCT, version: '1.1.0',  tests: [], errors: [], status: 'running',
   method: 'Native BrowserWindow constructor color, synchronous preload theme, delayed state hydration, screenshot edge pixels, and reload animation-frame samples.',
   limitations: ['Runs native Linux Electron under an X display; it does not claim native Windows execution.',
     'A temporary QA wrapper forces the simulated OS color scheme and delays only the asynchronous load-state IPC handler. Production application files are unchanged.',
@@ -173,7 +173,7 @@ async function launchCase(name, savedTheme, osTheme, { ready = true } = {}) {
   await check('saved theme survives real settings changes, atomic persistence, and reload', async () => {
     await page.click('#settings-button');
     const about=await page.locator('#settings-dialog .about-line').innerText();
-    assert.match(about,/1\.0\.0\b/); assert.doesNotMatch(about,/Revision/i);
+    assert.match(about,/1\.1\.0\b/); assert.doesNotMatch(about,/Revision/i);
     await page.click('[data-theme="light"]');
     await page.locator('#settings-dialog [data-close="settings-dialog"]').last().click();
     await page.evaluate(() => TSAFlush());

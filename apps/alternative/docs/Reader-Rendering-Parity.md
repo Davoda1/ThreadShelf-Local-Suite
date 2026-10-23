@@ -2,7 +2,7 @@
 
 Alternative shares licensed rich-rendering components with Local Reader, while retaining a separate reading interface. The following describes Alternative's implemented behavior.
 
-| Area | Alternative 1.0.0 behavior |
+| Area | Alternative 1.1.0 behavior |
 | --- | --- |
 | Mermaid repair | Uses Reader's unchanged deterministic repair module. It can infer missing flowchart/sequence headers, quote punctuation-sensitive labels, correct sequence message semicolons, and convert supported legacy bar syntax. Original rendering is tried first; a maximum of four candidates is attempted. |
 | Diagram inspection | Repaired previews are labelled. Original/repaired views and source disclosures remain available. Copy original and Copy repaired are separate; message copy and Markdown export preserve the original. |
@@ -11,7 +11,8 @@ Alternative shares licensed rich-rendering components with Local Reader, while r
 | Mathematics | Reader-derived source protection and local MathJax preserve TeX, including literal math-like text inside code. Exported HTML is not executed. |
 | Rich cards and layout | The bounded Reader parser/renderers support the validated Entity, box/row/text, divider, step/progress, and static-illustration contracts. Progress colors follow the active palette, and adjacent segments retain their saved proportions. |
 | Charts | The existing shared rich renderer retains validated bar, horizontal bar, line, area, pie/doughnut and scatter presentations, exact values and accessible tables. Hover and keyboard inspection handle negative, zero and fractional values. Escape dismisses an inspected chart without also closing reader panels. |
-| Images | Compact Corner aperture and full-width Soft horizon placeholders retain their saved bounds/aspect ratios and theme colors. Unavailable image assets are not replaced with guessed photographs; available external links open only when selected. |
+| Images | Available HTTP(S) and embedded raster images load in the reading pane. Click-to-load is the default; automatic loading is optional. Failed loads use themed Corner aperture or broken-connection artwork. Existing unavailable placeholders remain unchanged. Loaded images fit reading width and viewport height without cropping or stretching; inline/table images stay compact. No persistent image cache is added. |
+| Empty internal responses | Recognized empty ChatGPT thoughts envelopes are hidden from display and complete search hits. Substantive JSON, code examples, source indexes, ordinary copy and export remain intact. |
 | Citations | Compact citations use explicit, message-scoped source bindings. Direct raw-mapping messages preserve message/node identities so they reach the reference resolver. Missing or mismatched bindings remain unavailable rather than linking to a guessed source. |
 | Find, outline and reading | Alternative keeps a separate full-text Find, prompt outline, saved reading positions and focused reading layout. Syntax spans remain compatible with phrase matching and exact copying. |
 

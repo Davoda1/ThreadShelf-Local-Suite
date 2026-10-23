@@ -1,8 +1,8 @@
 # Code highlighting
 
-Version 1.0.0 retains the separate **Code theme** preference: Default, VS Code, GitHub, Monokai, Nord, Dracula, Solarized, Codex, Xcode Classic and Ayu. It changes colors, not language detection or source text. Every palette follows the independent System/Light/Dark color mode. The new wave background and prompt-control style do not change code colors or source text. See `Themes.md` for variants and provenance.
+Version 1.1.0 retains the separate **Code theme** preference: Default, VS Code, GitHub, Monokai, Nord, Dracula, Solarized, Codex, Xcode Classic and Ayu. It changes colors, not language detection or source text. Every palette follows the independent System/Light/Dark color mode. The new wave background and prompt-control style do not change code colors or source text. See `Themes.md` for variants and provenance.
 
-ThreadShelf Local Reader 1.0.0 bundles **194 grammars**: every one of highlight.js 11.12.0’s 193 registered languages, plus a dedicated Fish grammar written for this project under the MIT license. Plain text is included in that count. Mermaid uses a separate bundled diagram renderer and is not part of the grammar count. No grammar is downloaded at runtime.
+ThreadShelf Local Reader 1.1.0 bundles **194 grammars**: every one of highlight.js 11.12.0’s 193 registered languages, plus a dedicated Fish grammar written for this project under the MIT license. Plain text is included in that count. Mermaid uses a separate bundled diagram renderer and is not part of the grammar count. No grammar is downloaded at runtime.
 
 ## Requested languages and shell dialects
 

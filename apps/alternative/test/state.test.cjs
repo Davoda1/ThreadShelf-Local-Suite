@@ -33,3 +33,12 @@ test('oversized saved settings remain byte-exact when a default-state flush is a
     assert.deepEqual(fs.readFileSync(store.file),original);
   }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
+
+
+test('image preference upgrades existing profiles without changing their identity or saved records',()=>{
+ const old={version:1,theme:'dark',pins:[{id:'synthetic-pin',serverUrl:'http://localhost:3000'}],positions:{synthetic:37},savedSearches:[{name:'Example',q:'example'}]};
+ const before=JSON.stringify(old),upgraded=cleanState(old);
+ assert.equal(upgraded.imageMode,'click');assert.deepEqual(upgraded.pins,old.pins);assert.deepEqual(upgraded.positions,old.positions);assert.deepEqual(upgraded.savedSearches,old.savedSearches);assert.equal(JSON.stringify(old),before);
+ for(const value of [undefined,null,'other',true,{}])assert.equal(cleanState({...old,imageMode:value}).imageMode,'click');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tsa-images-'));try{const store=new StateStore(directory);store.save({...old,imageMode:'auto'});assert.equal(store.load().imageMode,'auto');assert.deepEqual(store.load().positions,old.positions);store.save({...store.load(),imageMode:'click'});assert.equal(store.load().imageMode,'click');}finally{fs.rmSync(directory,{recursive:true,force:true});}
+});

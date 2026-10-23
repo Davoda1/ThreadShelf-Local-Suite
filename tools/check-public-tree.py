@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+VERSIONS = json.loads((ROOT / 'tools/release-versions.json').read_text(encoding='utf-8'))
 IGNORE = {'.git', '.cache', '.build', '.packaging', '.verification', '.tooling', '__pycache__', '.build-runtime'}
 REQUIRED = ['README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CONTRIBUTING.md', 'SECURITY.md',
             'server-patch/README.md', 'manual/README.md', 'docs/index.html', 'maintainer/GITHUB-SETUP.md']
@@ -38,7 +39,7 @@ def main():
             problems.append('Missing app manifest: ' + app)
             continue
         package = json.loads(file.read_text(encoding='utf-8'))
-        if package.get('version') != '1.0.0':
+        if package.get('version') != VERSIONS[app]:
             problems.append('Incorrect public version: ' + app)
     count = 0
     largest = (0, '')

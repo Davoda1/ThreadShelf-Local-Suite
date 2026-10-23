@@ -1,6 +1,6 @@
 # Architecture and scope
 
-Public version 1.0.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
+Public version 1.1.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
 
 ## Components
 
@@ -53,3 +53,11 @@ Guide links use the reserved `https://guide.threadshelf.invalid/` origin. A narr
 The Local Reader Mermaid repair module is included unchanged and adapted into the offline rendering bundle. Rendering first tries the original source, then at most four deterministic candidates. Diagram source is bounded, exported configuration is ignored, strict Mermaid security remains enabled, and generated SVG is sanitized. Original and repaired display/source modes are separate; default Copy/export uses the original. Theme changes rerender diagrams, and disposed conversation views do not receive late updates.
 
 Direct ChatGPT mapping messages now retain their message/node identities during normalization so citation lookup can find the original message-scoped reference metadata. Provider names distinguish Claude and ChatGPT responses in the authored demos. No server protocol or saved-state schema changes were required.
+
+## Images and view filtering
+
+Available Markdown image sources remain inert until click-to-load activation or the saved automatic-loading preference. Embedded raster data is local and may display immediately. Only validated HTTP(S) image subresources may leave the sandboxed renderer; remote scripts, frames and fetch connections stay blocked. Image gestures do not reach browser-opening actions, including when images were nested inside Markdown links. Referrers, cookies and authentication headers are suppressed, response cookies are discarded, and the HTTP cache is disabled. There is no persistent image store. Image state is disposed with its conversation view.
+
+Loaded images use decoded aspect ratio, current reading width and viewport height bounds, so both small and large images fit the reading area. Failed loads have theme-aware app-owned SVG artwork. Export formats and source text are unchanged. The additive imageMode preference defaults to click for existing profiles.
+
+The message-visibility helper recognizes only bounded, complete, empty ChatGPT thoughts envelopes. It filters their rendered messages and complete search hits while retaining unknown JSON, user/tool/system messages, fenced examples, source IDs and original export/copy content. Filtered search pages preserve the server’s next offset and avoid presenting unfiltered totals as visible counts.

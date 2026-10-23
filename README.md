@@ -1,8 +1,12 @@
+![ThreadShelf Local Suite — Reader, Analytics and Alternative](docs/extras/threadshelf-local-suite-banner.png)
+
 # ThreadShelf Local Suite
 
 Desktop readers, local archive analytics, and a search integration patch for [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
-**Public release: 1.0.0 · Windows x64 · GNU/Linux amd64**
+**Development sources: Reader 1.1.0 · Alternative 1.1.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
+
+This repository contains the Reader and Alternative 1.1.0 development sources. The latest published application release remains **1.0.0**; no 1.1.0 release or release assets have been published. Analytics application code and its version, the server patch and the manual are unchanged; Analytics compatibility tests have been updated for the new Reader. See the [1.1.0 review notes](maintainer/REVIEW-1.1.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
 
 | Application | Choose it when you want… |
 | --- | --- |
@@ -47,7 +51,7 @@ This repository contains the integration changes and patching tools. Configurati
 | `apps/alternative/` | Alternative source, offline renderer dependencies and native packaging tools |
 | `server-patch/` | Version-bound integration patch, patcher and tests |
 | `manual/` | Editable manual content, fresh screenshots and Gopher 3.0.0 publisher |
-| `docs/` | Generated static user manual |
+| `docs/` | Generated static user manual and README banner artwork in `docs/extras/` |
 | `maintainer/` | GitHub setup, builds, release procedure and verification |
 | `tools/` | Suite-level build and source verification helpers |
 

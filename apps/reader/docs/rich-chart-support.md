@@ -1,4 +1,4 @@
-# Safe chart support in Reader 1.0.0
+# Safe chart support in Reader 1.1.0
 
 Charts are temporary renderer DOM/SVG. The adapter does not change message text, original source, turns, IDs, storage, reading positions, or Analytics events. Both Local and Server views call the same renderer. Existing converter-created Markdown tables and currency snapshots remain Markdown; the Reader never guesses a chart from their rows.
 

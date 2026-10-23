@@ -1,4 +1,4 @@
-/* ThreadShelf Local Alternative 1.0.0 — isolated archive rendering. */
+/* ThreadShelf Local Alternative 1.1.0 — isolated archive rendering. */
 (function () {
   'use strict';
   const rich = window.TSARich;
@@ -17,6 +17,42 @@
       if (['http:', 'https:'].includes(url.protocol) || (!image && url.protocol === 'mailto:')) return url.href;
     } catch { /* An archive-local/sandbox URL cannot be resolved by this app. */ }
     return null;
+  }
+  // Only explicit raster data and HTTP(S) image sources can be mounted. Sources
+  // stay inert until bind applies the current image-loading preference.
+  const RASTER_DATA = /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/i;
+  function safeImageSource(value) {
+    if (typeof value !== 'string' || !value || value.length > 8 * 1024 * 1024) return null;
+    if (RASTER_DATA.test(value)) {
+      const payload = value.slice(value.indexOf(',') + 1);
+      return payload.length % 4 === 0 ? value : null;
+    }
+    return safeUrl(value, true);
+  }
+  // A linked image is never an external-browser action. Split only the image
+  // out of its link and retain neighboring linked text and inline formatting.
+  function unlinkImages(container) {
+    const split = node => {
+      if (node.nodeType === 1 && node.classList.contains('tsa-image-slot')) return [{node, image:true}];
+      if (node.nodeType !== 1 || !node.querySelector('.tsa-image-slot')) return [{node:node.cloneNode(true), image:false}];
+      return [...node.childNodes].flatMap(split).map(part => {
+        if (part.image) return part;
+        const parent = node.cloneNode(false); parent.append(part.node);
+        return {node:parent,image:false};
+      });
+    };
+    for (const anchor of [...container.querySelectorAll('a')]) {
+      if (!anchor.querySelector('.tsa-image-slot')) continue;
+      const fragment = anchor.ownerDocument.createDocumentFragment(); let textLink = null;
+      for (const part of [...anchor.childNodes].flatMap(split)) {
+        if (part.image) { fragment.append(part.node); textLink = null; }
+        else {
+          if (!textLink) { textLink=anchor.cloneNode(false); fragment.append(textLink); }
+          textLink.append(part.node);
+        }
+      }
+      anchor.replaceWith(fragment);
+    }
   }
   function textValue(value) {
     if (value == null) return '';
@@ -93,15 +129,16 @@
       return url ? `<a href="${escape(url)}" rel="noopener noreferrer" target="_blank"${token.title ? ` title="${escape(token.title)}"` : ''}>${label}</a>` : `<span class="tsa-unavailable-link" title="This saved link cannot be opened here">${label}</span>`;
     };
     renderer.image = token => {
-      const url = safeUrl(token.href, true);
+      const url = safeImageSource(token.href);
       const label = token.text || token.title || 'Archived image';
-      return `<span class="tsa-image-slot" role="group" aria-label="${escape(label)}"><span class="tsa-image-icon" aria-hidden="true">▧</span><span class="tsa-image-label">${escape(label)}</span>${url ? `<button type="button" data-open-image="${escape(url)}" data-image-alt="${escape(label)}" title="Open this image in your browser from ${escape(new URL(url).hostname)}">Open image · ${escape(new URL(url).hostname)}</button>` : '<span class="tsa-image-note">Image not available in this export</span>'}</span>`;
+      const host = url && !/^data:/i.test(url) ? new URL(url).hostname : 'embedded image';
+      return `<span class="tsa-image-slot" role="group" aria-label="${escape(label)}" data-image-state="${url ? 'deferred' : 'missing'}"><span class="tsa-image-icon" aria-hidden="true">▧</span><span class="tsa-image-label">${escape(label)}</span>${url ? `<button type="button" data-load-image="${escape(url)}" data-image-alt="${escape(label)}" aria-label="Load image · ${escape(label)}" title="Load this image here from ${escape(host)}">Load image · ${escape(host)}</button>` : '<span class="tsa-image-note">Image not available in this export</span>'}</span>`;
     };
   }
   function sanitize(html) {
     const template = document.createElement('template'); template.innerHTML = html;
     const allowed = new Set(['P','BR','HR','H1','H2','H3','H4','H5','H6','BLOCKQUOTE','UL','OL','LI','STRONG','B','EM','I','DEL','S','CODE','PRE','A','TABLE','THEAD','TBODY','TFOOT','TR','TH','TD','SPAN','DIV','SUP','SUB','KBD','BUTTON','INPUT']);
-    const attributes = new Set(['class','title','href','target','rel','align','start','colspan','rowspan','type','disabled','checked','role','aria-label','data-code-language','data-highlight','data-copy-code','data-open-image','data-image-alt']);
+    const attributes = new Set(['class','title','href','target','rel','align','start','colspan','rowspan','type','disabled','checked','role','aria-label','data-code-language','data-highlight','data-copy-code','data-load-image','data-image-alt','data-image-state']);
     for (const element of [...template.content.querySelectorAll('*')]) {
       if (!allowed.has(element.tagName)) { element.replaceWith(document.createTextNode(element.textContent || '')); continue; }
       for (const attr of [...element.attributes]) if (!attributes.has(attr.name) || /^on/i.test(attr.name)) element.removeAttribute(attr.name);
@@ -109,10 +146,11 @@
         const url = safeUrl(element.getAttribute('href'));
         if (url) { element.setAttribute('href',url); element.setAttribute('rel','noopener noreferrer'); element.setAttribute('target','_blank'); } else element.removeAttribute('href');
       }
-      if (element.hasAttribute('data-open-image') && !safeUrl(element.getAttribute('data-open-image'), true)) element.removeAttribute('data-open-image');
+      if (element.hasAttribute('data-load-image') && !safeImageSource(element.getAttribute('data-load-image'))) element.removeAttribute('data-load-image');
       if (element.tagName === 'INPUT') { element.type = 'checkbox'; element.disabled = true; }
     }
     template.content.querySelectorAll('table').forEach(table => { const div = document.createElement('div'); div.className='tsa-table-scroll'; div.tabIndex=0; div.setAttribute('role','region'); div.setAttribute('aria-label','Scrollable table'); table.replaceWith(div); div.append(table); });
+    unlinkImages(template.content);
     return template.innerHTML;
   }
   function basicMarkdown(text) {
@@ -210,7 +248,7 @@
   function summary(value, length=90) { const text=value.replace(/[#*_`>]/g,'').replace(/\s+/g,' ').trim(); return text.length>length ? text.slice(0,length-1)+'…' : text; }
   function renderThread(thread,options={}) {
     sources.clear(); rich?.Math?.clearPendingMath();
-    const messages=normalize(thread); const run=++sequence;
+    const messages=normalize(thread).filter(message=>!window.TSAVisibility?.isHiddenThoughtsMessage(message)); const run=++sequence;
     const providerLabel=({chatgpt:'ChatGPT',openai:'ChatGPT',claude:'Claude',anthropic:'Claude'})[String(thread?.provider||'').toLowerCase()]||'Assistant';
     const metrics={messages:messages.length,user:0,assistant:0,reasoning:0,tool:0,system:0,words:0,characters:0,readingMinutes:0};
     const outline=[];
@@ -358,6 +396,88 @@
       await renderDiagram(block,state,alive);
     }
   }
+  const imageControllers = new WeakMap();
+  function failedImageArt(document, compact) {
+    // Reader's failure designs: corner aperture for inline slots; centered
+    // broken-connection artwork for full-width slots. App-owned SVG only.
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox',compact?'0 0 80 68':'204 34 224 50');
+    svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+    svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
+    svg.classList.add('tsa-image-failure-art');
+    const parts=compact ? [
+      ['path',{class:'tsa-image-accent',d:'M23 7H10v13M57 7h13v13M10 48v13h13M70 48v13H57'}],
+      ['path',{d:'m21 47 12-15 10 12 6-7 10 10M27 18h.01'}],
+      ['path',{class:'tsa-image-cut-under',d:'m20 55 41-42'}],
+      ['path',{class:'tsa-image-accent',d:'m20 55 41-42'}],
+    ] : [
+      ['rect',{x:208,y:38,width:51,height:42,rx:6}],
+      ['circle',{cx:223,cy:50,r:3}],
+      ['path',{d:'m1 34 14-12 11 10 10-13 14 18',transform:'translate(208 38)'}],
+      ['path',{class:'tsa-image-connection',d:'M269 59h29m46 0h29'}],
+      ['path',{class:'tsa-image-accent',d:'m8 4-6 6a8 8 0 0 0 11 11l3-3M18 22l6-6A8 8 0 0 0 13 5l-2 2',transform:'translate(309 45)'}],
+      ['path',{class:'tsa-image-cut-under',d:'m0 27 25-28',transform:'translate(309 45)'}],
+      ['path',{class:'tsa-image-accent',d:'m0 4-4-4m29 25 4 4',transform:'translate(309 45)'}],
+      ['rect',{x:382,y:42,width:42,height:34,rx:5}],
+      ['circle',{class:'tsa-image-accent-dot',cx:403,cy:59,r:3}],
+    ];
+    for(const [tag,attributes] of parts){const part=document.createElementNS(svg.namespaceURI,tag);for(const [name,value] of Object.entries(attributes))part.setAttribute(name,String(value));svg.append(part);}
+    return svg;
+  }
+  function mountImage(wrapper) {
+    const button=wrapper.querySelector('[data-load-image]');
+    const source=safeImageSource(button?.dataset.loadImage);
+    if(!source)return null;
+    const doc=wrapper.ownerDocument,alt=button.dataset.imageAlt||'';
+    const paragraph=wrapper.closest('p');
+    // Formatting around a standalone image is not adjacent prose. Inspect text
+    // outside this slot rather than its own hidden label/loading control.
+    const beside=node=>node===wrapper?false:node.nodeType===3?Boolean(node.textContent.trim()):[...node.childNodes].some(beside);
+    const proseBeside=paragraph&&[...paragraph.childNodes].some(node=>node!==wrapper&&(node.nodeType===3?node.textContent.trim():node.textContent.trim()||node.querySelector?.('.tsa-image-slot')));
+    const compact=Boolean(wrapper.closest('td,th,.rich-row')||proseBeside);
+    wrapper.dataset.imageDesign=compact?'compact':'wide';
+    // Keep the existing fallback design unchanged; this refined context affects only
+    // successfully loaded pixels and their responsive size.
+    wrapper.dataset.imageSize=wrapper.closest('td,th,.rich-row')||(paragraph&&beside(paragraph))?'compact':'wide';
+    const original=[...wrapper.childNodes];
+    const image=doc.createElement('img');image.className='tsa-image-content';image.alt=alt;image.decoding='async';image.referrerPolicy='no-referrer';image.draggable=false;image.hidden=true;
+    const loading=doc.createElement('span');loading.className='tsa-image-note';loading.textContent='Loading image…';loading.setAttribute('role','status');loading.hidden=true;
+    const fallback=doc.createElement('span');fallback.className='tsa-image-failure';fallback.setAttribute('role','img');fallback.setAttribute('aria-label',['Image unavailable',alt].filter(Boolean).join(' · '));fallback.hidden=true;
+    const failureCopy=doc.createElement('span');failureCopy.className='tsa-image-failure-copy';
+    const failureLabel=doc.createElement('strong');failureLabel.textContent='Image unavailable';
+    const failureDetail=doc.createElement('span');failureDetail.textContent='The image could not be loaded.';
+    failureCopy.append(failureLabel,failureDetail);fallback.append(failedImageArt(doc,compact),failureCopy);
+    wrapper.append(image,loading,fallback);
+    let state='deferred',mode='click',manual=false,disposed=false;
+    const paint=()=>{
+      wrapper.dataset.imageState=state;wrapper.setAttribute('aria-busy',String(state==='loading'));
+      wrapper.classList.toggle('tsa-image-loaded',state==='loaded');wrapper.classList.toggle('tsa-image-failed',state==='failed');
+      original.forEach(node=>{if(node.nodeType===1)node.hidden=state!=='deferred';});
+      image.hidden=state!=='loaded'&&state!=='loading';loading.hidden=state!=='loading';fallback.hidden=state!=='failed';
+    };
+    const settle=()=>{
+      if(disposed||state!=='loading'||image.getAttribute('src')!==source||!image.complete)return;
+      state=image.naturalWidth>0&&image.naturalHeight>0?'loaded':'failed';
+      // The decoded aspect ratio sizes the display; original pixel dimensions
+      // are not a display ceiling. CSS recalculates on reader/window resizing.
+      if(state==='loaded')image.style.setProperty('--tsa-image-ratio',String(image.naturalWidth/image.naturalHeight));
+      paint();
+    };
+    const cancel=()=>{image.removeAttribute('src');};
+    const start=activated=>{
+      if(disposed||state!=='deferred')return;
+      manual=activated;state='loading';image.loading=manual||/^data:/i.test(source)?'eager':'lazy';
+      image.src=source;paint();if(image.complete)settle();
+    };
+    image.addEventListener('load',settle);image.addEventListener('error',settle);
+    const controller={start,configure(value){
+      if(disposed)return;const next=value==='auto'?'auto':'click';
+      if(next==='click'&&mode==='auto'&&state==='loading'&&!manual){if(image.complete&&image.naturalWidth>0)settle();else{cancel();state='deferred';}}
+      mode=next;
+      if(mode==='auto'||/^data:/i.test(source))start(false);paint();
+    },destroy(){disposed=true;cancel();image.removeEventListener('load',settle);image.removeEventListener('error',settle);image.remove();loading.remove();fallback.remove();original.forEach(node=>{if(node.nodeType===1)node.hidden=false;});wrapper.classList.remove('tsa-image-loaded','tsa-image-failed');wrapper.dataset.imageState='deferred';wrapper.removeAttribute('aria-busy');imageControllers.delete(wrapper);}};
+    imageControllers.set(wrapper,controller);paint();return controller;
+  }
   function bind(container,options={}) {
     const controller=new AbortController();let disposed=false;
     const alive=()=>!disposed&&container.isConnected;
@@ -365,6 +485,19 @@
     const queueDiagrams=()=>{diagramQueue=diagramQueue.catch(()=>{}).then(()=>diagrams(container,alive));return diagramQueue;};
     const localSources=new Map();container.querySelectorAll('[data-source-key]').forEach(element=>{const key=element.dataset.sourceKey;if(sources.has(key))localSources.set(key,sources.get(key));});
     const disposeCharts=rich?.Interactions?.mountChartInteractions(container);
+    unlinkImages(container);
+    const mountedImages=[...container.querySelectorAll('.tsa-image-slot')].map(mountImage).filter(Boolean);
+    const configureImages=(settings={})=>mountedImages.forEach(image=>image.configure(settings.imageMode));
+    configureImages(options);
+    // Capture before generic link handling, including auxiliary activation and
+    // any later app-created wrappers. Image content must never open a browser.
+    for (const eventName of ['click','auxclick','contextmenu','dragstart']) container.addEventListener(eventName,event=>{
+      const target=event.target instanceof Element?event.target:null;
+      const image=target?.closest('.tsa-image-slot');
+      if(!image||!container.contains(image))return;
+      event.preventDefault();event.stopPropagation();
+      if(eventName==='click'&&target.closest('[data-load-image]')) imageControllers.get(image)?.start(true);
+    },{signal:controller.signal,capture:true});
     container.addEventListener('click',async event=>{
       const target=event.target instanceof Element?event.target:null;if(!target)return;
       const toggle=target.closest('[data-mermaid-toggle]');
@@ -378,13 +511,6 @@
         const text=copy.hasAttribute('data-copy-repaired')?state?.repaired||'':copy.hasAttribute('data-copy-code')?state?.original??block?.querySelector('code')?.textContent??'':localSources.get(copy.closest('[data-source-key]')?.dataset.sourceKey)||'';
         try{await clipboard(text,options.copy);status(copy,'Copied');}catch{status(copy,'Copy failed');}return;
       }
-      const image=target.closest('[data-open-image]');
-      if(image&&container.contains(image)){
-        const url=safeUrl(image.dataset.openImage,true);if(!url)return;event.preventDefault();
-        if(options.openExternal){try{await options.openExternal(url);}catch{status(image,'Could not open image');}}
-        else window.open(url,'_blank','noopener,noreferrer');
-        return;
-      }
       const link=target.closest('a[href]');if(link&&container.contains(link)){const url=safeUrl(link.getAttribute('href'));event.preventDefault();if(!url)return;if(options.openExternal){try{await options.openExternal(url);}catch{link.title='Could not open this link';}}else window.open(url,'_blank','noopener,noreferrer');}
     },{signal:controller.signal});
     const mathReady=rich?.Math?.renderMathPlaceholders(container)||Promise.resolve();
@@ -394,9 +520,10 @@
       diagramQueue=diagramQueue.catch(()=>{}).then(async()=>{themeQueued=false;if(alive())await diagrams(container,alive);});
     });
     themeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-    const dispose=()=>{disposed=true;controller.abort();themeObserver.disconnect();disposeCharts?.();localSources.clear();};
+    const dispose=()=>{disposed=true;controller.abort();themeObserver.disconnect();disposeCharts?.();mountedImages.forEach(image=>image.destroy());localSources.clear();};
     dispose.ready=Promise.allSettled([mathReady,firstDiagrams]);
+    dispose.configureImages=configureImages;
     return dispose;
   }
-  window.TSAContent=Object.freeze({renderThread,normalize,markdown,plainText,bind,safeUrl,markMatches,escapeHtml:escape});
+  window.TSAContent=Object.freeze({renderThread,normalize,markdown,plainText,bind,safeUrl,safeImageSource,markMatches,escapeHtml:escape});
 })();

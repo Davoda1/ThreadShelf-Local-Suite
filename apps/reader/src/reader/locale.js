@@ -16,6 +16,9 @@ const rows = {
   'Chart exceeds display limits': ['A diagram meghaladja a megjelenítési korlátokat', 'Das Diagramm überschreitet die Anzeigegrenzen', 'Le graphique dépasse les limites d’affichage'],
   'Image unavailable offline': ['A kép offline nem érhető el', 'Bild offline nicht verfügbar', 'Image indisponible hors ligne'],
   'Image unavailable': ['A kép nem érhető el', 'Bild nicht verfügbar', 'Image indisponible'],
+  'The image could not be loaded.': ['A képet nem sikerült betölteni.', 'Das Bild konnte nicht geladen werden.', 'L’image n’a pas pu être chargée.'],
+  'Load image': ['Kép betöltése', 'Bild laden', 'Charger l’image'],
+  'Loading image…': ['Kép betöltése…', 'Bild wird geladen…', 'Chargement de l’image…'],
   'Source unavailable': ['A forrás nem érhető el', 'Quelle nicht verfügbar', 'Source indisponible'],
   'Archived suggestion': ['Archivált javaslat', 'Archivierter Vorschlag', 'Suggestion archivée'],
   'Archived map locations': ['Archivált térképpontok', 'Archivierte Kartenorte', 'Lieux cartographiques archivés'],
@@ -59,6 +62,8 @@ const rows = {
   'Equation rendering failed': ['Az egyenlet nem jeleníthető meg', 'Gleichung konnte nicht dargestellt werden', 'Échec du rendu de l’équation'],
 };
 const japanese = Object.freeze({
+  "Load image": "画像を読み込む",
+  "Loading image…": "画像を読み込み中…",
   'Share of total (calculated)': '合計に占める割合（計算値）',
   'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.': '矢印キーで値を確認できます。Escapeキーで閉じます。正確な値は下に表示されます。',
   'Chart': 'グラフ',
@@ -73,6 +78,7 @@ const japanese = Object.freeze({
   'Chart exceeds display limits': 'グラフが表示上限を超えています',
   'Image unavailable offline': 'オフラインでは画像を利用できません',
   'Image unavailable': '画像を利用できません',
+  'The image could not be loaded.': '画像を読み込めませんでした。',
   'Source unavailable': '参照元を利用できません',
   'Archived suggestion': '保存された提案',
   'Archived map locations': '保存された地図上の場所',

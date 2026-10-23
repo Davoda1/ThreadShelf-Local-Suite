@@ -1,4 +1,5 @@
 import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
+import { isHiddenThoughtsMessage } from './messages.js';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
 import { highlighter, normalizeCodeLanguage, getCodeLanguageLabel } from './highlight.js';
 export { normalizeCodeLanguage } from './highlight.js';
@@ -6,6 +7,7 @@ import { tr } from './locale.js';
 import { marked } from 'marked';
 import { prepareRichMarkdown } from './rich-parser.js';
 import { renderRichHtml } from './rich-renderer.js';
+import { wrapMarkdownImage, mountMarkdownImages, unlinkMarkdownImages, destroyMarkdownImages } from './markdown-images.js';
 import { buildMermaidRepairCandidates } from './mermaid-repair.js';
 import {
   clearPendingMath,
@@ -140,11 +142,12 @@ function sanitizeRenderedHtml(html) {
     'P', 'BR', 'HR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
     'BLOCKQUOTE', 'UL', 'OL', 'LI', 'STRONG', 'B', 'EM', 'I', 'DEL', 'S',
     'CODE', 'PRE', 'A', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TH', 'TD',
-    'SPAN', 'DIV', 'SUP', 'SUB', 'KBD',
+    'SPAN', 'DIV', 'SUP', 'SUB', 'KBD', 'IMG',
   ]);
   const globalAttrs = new Set(['class', 'title']);
   const perTagAttrs = {
     A: new Set(['href', 'target', 'rel']),
+    IMG: new Set(['src', 'alt']),
     PRE: new Set(['data-language']),
     CODE: new Set(['data-language', 'data-highlighted', 'data-original-code']),
     SPAN: new Set(['data-chatgpt-math-id']),
@@ -175,8 +178,15 @@ function sanitizeRenderedHtml(html) {
       element.setAttribute('target', '_blank');
       element.setAttribute('rel', 'noopener noreferrer');
     }
+    if (element.tagName === 'IMG') {
+      // IMG is produced only by Markdown; raw archived HTML remains literal.
+      const marker = document.createTextNode('');
+      element.replaceWith(marker);
+      marker.replaceWith(wrapMarkdownImage(element, tr));
+    }
   }
 
+  unlinkMarkdownImages(template.content);
   template.content.querySelectorAll('pre code').forEach((block) => highlightCodeBlock(block));
   return template.innerHTML;
 }
@@ -478,6 +488,7 @@ export class ConversationRenderer {
     this.disposeChartInteractions = mountChartInteractions(container);
     this.currentQuery = '';
     this.conversationKey = '';
+    this.imageRenderPending = false;
     this.compactMessagesEnabled = true;
     this.messageExpansionState = new Map();
     this.messageContentSequence = 0;
@@ -508,6 +519,7 @@ export class ConversationRenderer {
   }
 
   destroy() {
+    destroyMarkdownImages(this.contentContainer);
     this.disposeChartInteractions();
     this.renderGeneration++;
     this.messageResizeObserver?.disconnect();
@@ -518,6 +530,8 @@ export class ConversationRenderer {
   beginConversation(key) {
     const nextKey = String(key || '');
     if (nextKey === this.conversationKey) return;
+    destroyMarkdownImages(this.contentContainer);
+    this.imageRenderPending = true;
     this.conversationKey = nextKey;
     this.messageExpansionState.clear();
   }
@@ -541,11 +555,33 @@ export class ConversationRenderer {
     }
   }
 
+  setRemoteImages(value) {
+    this.remoteImagesMode = value === 'click' ? 'click' : 'auto';
+    if (!this.imageRenderPending) mountMarkdownImages(this.contentContainer, { mode: this.remoteImagesMode, resolveImage: this.imageResolver, context: this.imageContext });
+    this.refreshCollapsibleMessages({ animate: false });
+  }
+
+  setImageResolver(resolveImage, context = {}) {
+    const previousContext = this.imageContext || {};
+    const contextChanged = [...new Set([...Object.keys(previousContext), ...Object.keys(context)])]
+      .some(key => previousContext[key] !== context[key]);
+    this.imageResolver = typeof resolveImage === 'function' ? resolveImage : undefined;
+    this.imageContext = Object.freeze({ ...context });
+    // A new source identity belongs to the next render. Never resolve the old
+    // conversation's URLs under the new conversation's cache authorization.
+    if (contextChanged) { destroyMarkdownImages(this.contentContainer); this.imageRenderPending = true; }
+    if (this.imageRenderPending) return;
+    mountMarkdownImages(this.contentContainer, { mode: this.remoteImagesMode, resolveImage: this.imageResolver, context: this.imageContext });
+    this.refreshCollapsibleMessages({ animate: false });
+  }
+
   setSearchQuery(query) {
     this.currentQuery = query || '';
   }
 
   renderMessages(messages) {
+    destroyMarkdownImages(this.contentContainer);
+    this.imageRenderPending = false;
     dismissChartInteractions(this.contentContainer);
     const generation = ++this.renderGeneration;
     this.messageResizeObserver?.disconnect();
@@ -558,6 +594,7 @@ export class ConversationRenderer {
     clearPendingMath();
     const fragment = document.createDocumentFragment();
     for (const message of messages) {
+      if (isHiddenThoughtsMessage(message)) continue;
       if (!message.content?.trim()) continue;
       fragment.appendChild(this.createMessageElement(message));
     }
@@ -939,6 +976,8 @@ export class ConversationRenderer {
     let content = this.processMessageContent(message.content, message.richContext || {});
     if (this.currentQuery) content = highlightTextInHtml(content, this.currentQuery);
     contentDiv.innerHTML = content;
+    mountMarkdownImages(contentDiv, { mode: this.remoteImagesMode, resolveImage: this.imageResolver,
+      context: { ...this.imageContext, messageId: message.message_id || message.id || null } });
 
     const contentViewport = document.createElement('div');
     contentViewport.className = 'message-content-viewport';

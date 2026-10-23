@@ -1,5 +1,16 @@
 # Changelog
 
+## Reader and Alternative 1.1.0 — unpublished
+
+- Reader adds controlled image loading and a separate resource cache, with settings and theme-aware image placeholders.
+- Reader filters empty reasoning and unusable JSON-only content from conversation display and navigation, and removes the version from the native window title.
+- Reader's About window describes this desktop application without references to separate personal web readers.
+- Alternative loads requested images within the conversation, offers automatic or click-to-load behavior, provides failure placeholders, and fits images to the reading area.
+- Alternative suppresses unusable JSON-only responses. It does not add Reader's persistent resource cache.
+- Existing public profile names and data/schema identifiers are retained. Public defaults, synthetic examples and hardened offline rendering dependencies are preserved.
+- Build helpers track component versions separately. Analytics remains 1.0.0; the server patch and manual are unchanged.
+- GitHub source checks cover Windows as well as Linux, including explicit image/cache browser and archive integration gates. Analytics test fixtures use explicit time zones and Reader's own dependency tree without changing Analytics application code.
+
 ## 1.0.0 — 2026-10-20
 
 First public ThreadShelf Local Suite release.

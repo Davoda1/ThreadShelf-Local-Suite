@@ -251,7 +251,7 @@ async function binary(platform) {
   await extractZip(archive, runtime);
   await fsp.rm(path.join(runtime, 'resources/default_app.asar'), { force: true });
   const app = path.join(runtime, 'resources/app'); await fsp.mkdir(app, { recursive: true });
-  for (const p of ['package.json', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
+  for (const p of ['package.json', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
   await fsp.cp(modules, path.join(app, 'node_modules'), { recursive: true, dereference: true });
   // Verify the complete native dependency tree before accepting the binary
   // staging, including dereferenced npm .bin links.
@@ -264,7 +264,7 @@ async function binary(platform) {
   const portableReadme = (await fsp.readFile(path.join(root, 'README.md'), 'utf8'))
     .replaceAll('[LICENSE](LICENSE)', '[application LICENSE](APPLICATION-LICENSE)');
   await fsp.writeFile(path.join(folder, 'README.md'), portableReadme);
-  for (const p of ['ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
+  for (const p of ['ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
   if (platform === 'win32') {
     const exe = path.join(runtime, 'ThreadShelf Local Reader.exe');
     await fsp.rename(path.join(runtime, 'electron.exe'), exe);

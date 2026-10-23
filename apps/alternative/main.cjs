@@ -5,9 +5,12 @@ const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
 const {StateStore}=require('./core/state.cjs');
 const {ServerClient}=require('./core/server.cjs');
+const {allowRendererRequest,imageRequestHeaders,imageResponseHeaders}=require('./core/image-policy.cjs');
 const PRODUCT='ThreadShelf Local Alternative';
 app.setName(PRODUCT);
 app.setAppUserModelId('io.github.davoda1.threadshelf-local-alternative');
+// Image resources are display-only. Do not persist Chromium’s HTTP image cache.
+app.commandLine.appendSwitch('disable-http-cache');
 // This profile is deliberately independent of Reader, Analytics, and the server.
 app.setPath('userData',path.join(app.getPath('appData'),'ThreadShelf Local Alternative'));
 const store=new StateStore(app.getPath('userData'));
@@ -37,8 +40,13 @@ async function external(value){
 async function start(){
   session.defaultSession.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
   session.defaultSession.setPermissionCheckHandler(()=>false);
-  // The renderer is entirely offline; API traffic goes through the narrow main-process client.
-  session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:/^(?:https?|wss?|ftp):/i.test(details.url)}));
+  // Only image resources may leave the renderer. API traffic still goes through
+  // the read-only main-process client; other remote subresources stay blocked.
+  session.defaultSession.webRequest.onBeforeRequest((details,callback)=>callback({cancel:!allowRendererRequest(details)}));
+  // Displaying an archived image must not transmit ambient account cookies or
+  // auth headers, disclose a referrer, or persist a response cookie.
+  session.defaultSession.webRequest.onBeforeSendHeaders((details,callback)=>callback({requestHeaders:imageRequestHeaders(details)}));
+  session.defaultSession.webRequest.onHeadersReceived((details,callback)=>callback({responseHeaders:imageResponseHeaders(details)}));
   // Read appearance before the native surface or any renderer document can paint.
   applyWindowAppearance(store.load().theme);
   win=new BrowserWindow({width:1360,height:880,minWidth:680,minHeight:540,title:PRODUCT,backgroundColor:backgroundFor(appearancePreference),icon:path.join(__dirname,'assets','icon.png'),show:false,autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,spellcheck:false}});
@@ -74,7 +82,7 @@ async function start(){
     if(result.canceled||!result.filePath)return {canceled:true};
     await fs.writeFile(result.filePath,value.text,'utf8');return {canceled:false};
   });
-  handle('info',()=>({name:PRODUCT,version:'1.0.0',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
+  handle('info',()=>({name:PRODUCT,version:'1.1.0',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
   await win.loadFile(entry);
 }
 if(!app.requestSingleInstanceLock())app.quit();else{

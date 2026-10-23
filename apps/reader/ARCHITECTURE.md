@@ -25,9 +25,10 @@ ThreadShelf Local Analytics reads the unchanged authoritative archive.
 - src/core/search.mjs: SearchService({store,dataDir,onProgress}), search({q,collection='all',mode='keyword',provider,role,limit=100}), setupSemantic({signal}), indexSemantic({signal}), status(), ollamaModels({url}), searchOllama(options). Modes keyword/exact/fuzzy/semantic/hybrid. Results {results:[{conversationId,turnIndex,role,text,score,title,collection,provider}],total,notice?}. Supports local multilingual embedding model and optional Ollama. Model files remain persistent under dataDir/search/models; the derived vector SQLite file is mounted lazily in temporary storage and snapshotted independently. Archive revision/model metadata marks stale indexes.
 - src/core/server.mjs and service.mjs: server adapter, dispatch, import orchestration, settings and reading state. ServerSearchPager supplies desktop pages through the optional cursor API or a live text scan. Legacy semantic requests remain bounded to 50 and explicitly require the server extension for further pages. Network search requests never exceed 50; collection copying is independent.
 - src/core/ollama.mjs: discovery of an installed local Ollama executable and explicitly requested service startup. SearchService owns capability detection, synthetic embedding tests, model download progress/cancellation, and archive embedding search.
+- src/core/resource-cache.mjs + resource-contexts.mjs + resource-requests.mjs: bounded, conversation-authorized image loading and optional independently owned cache; new image preferences remain separate from legacy settings.
 - src/desktop/main.cjs + preload.cjs: Electron process, tightly scoped IPC, native file dialogs, window bounds and app-data paths.
 - src/ui/app.js + style.css + i18n.js + index.html: desktop shell, controller, settings, collections, source transfer and localization.
-- src/reader/* + public renderer assets: complete port from Reader 3.1.1/Plus5, including navigator and reading interactions through adapter.
+- src/reader/* + public renderer assets: conversation rendering, navigator and reading interactions through the desktop adapter.
 - scripts build/package/docs: reproducible build and packaging commands, portable/source archives, licensing and verification evidence.
 
 ## Conversation contract
@@ -45,7 +46,7 @@ at page one before continuous scrolling can append.
 UI receives window.desktop.invoke(action,args), window.desktop.onProgress(callback), window.desktop.onMenu(callback). Progress {operation,phase,current?,total?,message?}. All methods promise; errors reject with actionable Error. DOM is isolated and has no Node primitives.
 
 Actions:
-- bootstrap -> {settings,reading,dataDir,version:'1.0.0',searchStatus}
+- bootstrap -> {settings,reading,dataDir,version:'1.1.0',searchStatus}
 - settings.save {values} -> settings (merge validated keys). Legacy preferences stay in settings.json; new drawer preference searchPanelExpanded stays in interface.json. Both schema-1 files are under the same dataDir. New uiPalette/codeTheme preferences use appearance.json, preserving the strict 1.1.0 interface reader too. Bootstrap and save return all three validated snapshots merged. Legacy files keep their previous schema and keys.
 - collections {mode,serverUrl?} -> {collections:[{name,count}]}; server call may fetch summaries to determine nonempty.
 - files {mode,serverUrl?,collection:'all'|name,page:1,pageSize:50,sort:'updated'|'title'|'length',q?,provider?} -> {files,total,page,pageSize}

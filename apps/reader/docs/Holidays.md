@@ -1,6 +1,6 @@
 # Welcome-page holiday video
 
-ThreadShelf Local Reader 1.0.0 can substitute the multicolour fireworks
+ThreadShelf Local Reader 1.1.0 can substitute the multicolour fireworks
 loop for the normal welcome-page wave loop on a recognized holiday. This requires
 all three user preferences: **Wave video background**, video on the welcome page,
 and holiday fireworks. Their defaults remain off. An open conversation always

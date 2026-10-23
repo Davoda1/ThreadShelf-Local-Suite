@@ -1,7 +1,7 @@
 {
   "name": "threadshelf-local-alternative",
   "productName": "ThreadShelf Local Alternative",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Independent search-first desktop reading workspace for ThreadShelf servers",
   "author": "davoda1",
   "license": "MIT",

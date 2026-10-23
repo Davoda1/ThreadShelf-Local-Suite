@@ -19,17 +19,17 @@ for (const group of groups) RE.Resource.IconGroupEntry.replaceIconsForResource(
 const infos = RE.Resource.VersionInfo.fromEntries(resource.entries);
 if (!infos.length || !groups.length) throw new Error('Unexpected Electron resource layout.');
 for (const info of infos) {
-  info.setFileVersion(1, 0, 0, 0, 1033);
-  info.setProductVersion(1, 0, 0, 0, 1033);
+  info.setFileVersion(1, 1, 0, 0, 1033);
+  info.setProductVersion(1, 1, 0, 0, 1033);
   info.setStringValues({ lang: 1033, codepage: 1200 }, {
     CompanyName: 'davoda1',
     FileDescription: 'ThreadShelf Local Alternative',
-    FileVersion: '1.0.0.0',
+    FileVersion: '1.1.0.0',
     InternalName: 'threadshelf-local-alternative',
     LegalCopyright: 'Copyright (c) 2026 davoda1; Electron contributors and third parties',
     OriginalFilename: 'ThreadShelf Local Alternative.exe',
     ProductName: 'ThreadShelf Local Alternative',
-    ProductVersion: '1.0.0',
+    ProductVersion: '1.1.0',
   });
   info.outputToResourceEntries(resource.entries);
 }

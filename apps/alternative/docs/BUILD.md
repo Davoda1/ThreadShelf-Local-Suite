@@ -1,6 +1,6 @@
 # Build and package
 
-Application version: **1.0.0**. This is an independent product.
+Application version: **1.1.0**. This is an independent product.
 
 ## Requirements
 
@@ -91,7 +91,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.0.0.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.1.0.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 
@@ -126,7 +126,11 @@ and a copied model cache live only in freshly created temporary directories.
 
 For browser checks, install Playwright, or set `PLAYWRIGHT_PATH` to the Playwright
 module directory, and optionally `CHROMIUM_PATH` to a compatible Chromium binary.
-`node test/content.cjs` exercises content rendering. `node test/highlighting.cjs`
+`node test/content.cjs` exercises content rendering. `node test/image-loading.cjs`
+checks inert click mode, in-renderer activation, link isolation, automatic loading,
+cancellation, safe source validation and themed failure placeholders.
+`node test/image-sizing.cjs` checks actual reading-pane geometry at desktop and
+minimum window sizes. Set `SIZING_REPORT` to choose its report destination. `node test/highlighting.cjs`
 verifies token colors, language aliases, exact copying, safe fallbacks, phrase
 search across tokens, and automatic theme switching. Build the demo, then set
 `DEMO_PATH` and run `node test/demo.cjs` for the full offline interface checks.

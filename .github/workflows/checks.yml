@@ -9,8 +9,11 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: 24.19.0
@@ -36,6 +39,7 @@ jobs:
         working-directory: apps/reader
         env:
           ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+          ONNXRUNTIME_NODE_INSTALL: skip
         run: |
           npm ci
           npm test
@@ -48,6 +52,66 @@ jobs:
           npm ci
           npm test
           npm run build
+
+      - name: Check out the exact public Reader 1.0.0 baseline
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: 1be2ceb8cd5fec04fc852861fc0f3173dc0d3155
+          path: .verification/public-1.0.0
+          sparse-checkout: apps/reader
+          persist-credentials: false
+      - name: Reader cache storage, archive integration and public profile upgrade
+        run: node tools/check-feature-regressions.mjs integration
+      - name: Reader and Alternative image, cache and visibility browser regressions
+        run: node tools/check-feature-regressions.mjs browser
+
+  windows-source:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Enable long paths for Windows checkout
+        shell: pwsh
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24.19.0
+      - run: npm install --global npm@11.9.0
+      - name: Alternative source tests
+        run: node apps/alternative/scripts/test.cjs
+      - name: Reader source tests and renderer build
+        working-directory: apps/reader
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+          ONNXRUNTIME_NODE_INSTALL: skip
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Analytics source tests and renderer build
+        working-directory: apps/analytics
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Check out the exact public Reader 1.0.0 baseline
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: 1be2ceb8cd5fec04fc852861fc0f3173dc0d3155
+          path: .verification/public-1.0.0
+          sparse-checkout: apps/reader
+          persist-credentials: false
+      - name: Reader cache storage, archive integration and public profile upgrade
+        run: node tools/check-feature-regressions.mjs integration
 
   server-integration:
     runs-on: ubuntu-24.04
