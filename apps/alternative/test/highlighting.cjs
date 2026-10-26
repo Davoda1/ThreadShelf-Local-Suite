@@ -20,7 +20,7 @@ const fixtures = [
   { name: 'CSS', aliases: ['css'], source: '/* A synthetic example */\n.reader {\n  color: #17635f;\n  font-size: 16px;\n  display: block;\n}' },
 ];
 const cases = fixtures.flatMap(fixture => fixture.aliases.map(language => ({ ...fixture, language })));
-const report = { product: 'ThreadShelf Local Alternative', version: '1.1.0',  success: false, checks: [], languages: [], palettes: [], networkRequests: [], pageErrors: [] };
+const report = { product: 'ThreadShelf Local Alternative', version: '1.2.0',  success: false, checks: [], languages: [], palettes: [], networkRequests: [], pageErrors: [] };
 const check = async (name, run) => { const details = await run(); report.checks.push({ name, status: 'pass', ...(details || {}) }); console.log('PASS ' + name); };
 function watch(page) {
   page.on('pageerror', error => report.pageErrors.push(error.message));

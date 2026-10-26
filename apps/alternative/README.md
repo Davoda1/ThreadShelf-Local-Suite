@@ -1,6 +1,6 @@
 # ThreadShelf Local Alternative
 
-**Version 1.1.0 · Windows x64 and GNU/Linux amd64**
+**Version 1.2.0 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
@@ -10,9 +10,9 @@ The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github
 
 | Platform | Package | Start |
 | --- | --- | --- |
-| Windows x64 | `ThreadShelf-Local-Alternative-1.1.0-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
-| Linux amd64 | `ThreadShelf-Local-Alternative-1.1.0-Linux-amd64.tar.gz` | Extract with symlinks and executable permissions preserved, then run `bin/threadshelf-local-alternative`. |
-| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.1.0_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.1.0_amd64.deb`, then use the application menu. |
+| Windows x64 | `ThreadShelf-Local-Alternative-1.2.0-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
+| Linux amd64 | `ThreadShelf-Local-Alternative-1.2.0-Linux-amd64.tar.gz` | Extract with symlinks and executable permissions preserved, then run `bin/threadshelf-local-alternative`. |
+| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.2.0_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.2.0_amd64.deb`, then use the application menu. |
 
 The Windows executable is unsigned. Native packages contain the application runtime; ordinary use does not require Node.js or Python. Linux needs a compatible x86-64 graphical desktop and the declared Chromium/GTK dependencies. Portable Linux requires a working user-namespace sandbox; the Debian package installs Electron's sandbox helper. The desktop entry points are native binaries or direct symlinks to them.
 
@@ -39,6 +39,7 @@ To explore without a server, select **Explore demo**. Thirteen synthetic convers
 - Code blocks use offline syntax highlighting with VS Code Light+/Dark+ palettes and separate copy controls.
 - Markdown tables, mathematics, supported rich cards and charts, citations, and Mermaid diagrams use bundled renderers.
 - Available images load inside the conversation and resize to the reading space, preserving their aspect ratio. Click-to-load is the default; automatic loading is optional. Failed requests use themed placeholders.
+- JSON-only assistant and reasoning responses use indented, syntax-highlighted code. Formatting preserves duplicate keys, exact number tokens and key order; conservative display repairs never replace the archived text. **Copy message** and exports retain the original, while **Copy code** uses the displayed formatting.
 - Empty internal ChatGPT thoughts envelopes are hidden from rendered messages and complete search hits. Useful JSON, code examples and original copied/exported text are preserved.
 - Repaired Mermaid diagrams are labelled. The original source stays available; **Copy repaired** is separate from ordinary copy/export, which preserves archived text.
 
@@ -84,7 +85,7 @@ URL credentials, redirects, reverse-proxy login, and bearer-token authentication
 
 ## Source and builds
 
-See [docs/BUILD.md](docs/BUILD.md) for pinned Node.js LTS, Electron hashes, Windows/Linux commands, and package validation. `node scripts/test.cjs` runs the isolated server-adapter, state, and message-visibility tests. The application is packaged directly from source files without a transpilation step. Development scripts are excluded from native runtime packages.
+See [docs/BUILD.md](docs/BUILD.md) for pinned Node.js LTS, Electron hashes, Windows/Linux commands, and package validation. `node scripts/test.cjs` runs the isolated server-adapter, state, message-visibility, JSON-formatting and native-path tests. The application is packaged directly from source files without a transpilation step. Development scripts are excluded from native runtime packages.
 
 `python3 scripts/build-demo.py` produces a self-contained offline HTML demonstration from the exact application renderer. It supports fictional search, pins, preferences, outline, and exports; it is not a live-server browser client.
 

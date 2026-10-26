@@ -94,20 +94,22 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Electron release resolution failed.' }
     $env:TSLR_ELECTRON_VERSION = [string]$resolvedElectron
     $env:ELECTRON_OVERRIDE_DIST_PATH = Join-Path $toolingDir ('electron-' + $resolvedElectron + '-win32-' + $arch + '/dist')
-    $npmCommand = Join-Path $nodeDir 'npm.cmd'
-    $npmVersion = & $npmCommand --version
+    # npm.cmd may redirect to a global npm prefix. Use the selected distribution
+    # directly so installation, packaging and the toolchain record agree.
+    $npmCLI = Join-Path $nodeDir 'node_modules/npm/bin/npm-cli.js'
+    $npmVersion = & $downloadedNode $npmCLI --version
     if ($LASTEXITCODE -ne 0) { throw 'The selected Node distribution does not contain a working npm.' }
     Write-Host ('Selected Node ' + $NodeVersion + ' (' + $env:TSLR_NODE_CHANNEL + '); npm ' + $npmVersion + '; Electron ' + $resolvedElectron + ' (stable).')
     Write-Host 'Exact selections recorded in .tooling/toolchain.json.'
     if ($ResolveOnly) { return }
     $env:ONNXRUNTIME_NODE_INSTALL = 'skip'
     $env:ELECTRON_SKIP_BINARY_DOWNLOAD = '1'
-    Invoke-Checked $npmCommand @('ci', '--include=optional')
+    Invoke-Checked $downloadedNode @($npmCLI, 'ci', '--include=optional')
     Invoke-Checked $downloadedNode @('scripts/ensure-electron.mjs')
-    Invoke-Checked $npmCommand @('run', 'build')
-    if ($Test) { Invoke-Checked $npmCommand @('test') }
-    elseif ($Package) { Invoke-Checked $npmCommand @('run', 'package', '--', '--win32') }
-    elseif (-not $Build) { Invoke-Checked $npmCommand @('start') }
+    Invoke-Checked $downloadedNode @($npmCLI, 'run', 'build')
+    if ($Test) { Invoke-Checked $downloadedNode @($npmCLI, 'test') }
+    elseif ($Package) { Invoke-Checked $downloadedNode @($npmCLI, 'run', 'package', '--', '--win32') }
+    elseif (-not $Build) { Invoke-Checked $downloadedNode @($npmCLI, 'start') }
 } finally {
     foreach ($name in $preserve.Keys) { [Environment]::SetEnvironmentVariable($name, $preserve[$name], 'Process') }
     foreach ($file in @($sumPath, $indexPath)) { if (Test-Path -LiteralPath $file) { Remove-Item -LiteralPath $file -Force } }

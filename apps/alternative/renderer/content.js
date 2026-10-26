@@ -1,4 +1,4 @@
-/* ThreadShelf Local Alternative 1.1.0 — isolated archive rendering. */
+/* ThreadShelf Local Alternative 1.2.0 — isolated archive rendering. */
 (function () {
   'use strict';
   const rich = window.TSARich;
@@ -164,8 +164,15 @@
       return `<pre class="tsa-plain-fallback">${escape(text)}</pre>`;
     }
   }
-  function markdown(text, context = {}) {
+  function markdown(text, context = {}, role = '') {
     const value = textValue(text);
+    const jsonCode = window.TSAJsonResponse?.formatJsonResponse(value, role);
+    if (jsonCode != null) {
+      // Keep JSON literal: do not interpret embedded rich tags, math or HTML.
+      // The sources map still retains the exact archived message for copying.
+      return renderer ? sanitize(renderer.code({text:jsonCode, lang:'json'}))
+        : `<pre class="tsa-plain-fallback">${escape(jsonCode)}</pre>`;
+    }
     if (value.length > 2 * 1024 * 1024) return `<pre class="tsa-plain-fallback">${escape(value)}</pre>`;
     try {
       if (rich) {
@@ -259,7 +266,7 @@
       const date=new Date(message.createdAt); const time=message.createdAt && Number.isFinite(date.getTime()) ? `<time datetime="${escape(date.toISOString())}" title="${escape(date.toLocaleString())}">${escape(date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}))}</time>` : '';
       const label=message.role==='assistant'?providerLabel:labels[message.role];
       const header=`<div class="tsa-message-meta"><span class="tsa-role">${label}</span>${message.model ? `<span class="tsa-model">${escape(message.model)}</span>` : ''}${time}<button type="button" class="tsa-copy-message" data-copy-message aria-label="Copy ${label.toLowerCase()} message">Copy</button></div>`;
-      const body=`<div class="message-content">${highlight(markdown(message.content,message.richContext),options.query)}</div>`;
+      const body=`<div class="message-content">${highlight(markdown(message.content,message.richContext,message.role),options.query)}</div>`;
       const fold=['reasoning','tool','system'].includes(message.role);
       return `<article id="${message.id}" class="tsa-message message tsa-${message.role}" data-role="${message.role}" data-message-index="${index}" data-source-key="${key}" tabindex="-1">${header}${fold ? `<details class="tsa-message-details"${message.role==='reasoning'&&options.showReasoning?' open':''}><summary>${message.role==='reasoning'?'Reasoning notes':'Saved '+labels[message.role].toLowerCase()+' message'}<span>${words(message.content).toLocaleString()} words</span></summary>${body}</details>`:body}</article>`;
     }).join('');

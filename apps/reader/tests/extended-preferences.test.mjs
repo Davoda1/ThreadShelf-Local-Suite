@@ -28,7 +28,7 @@ async function fixture(t) {
 test('new analytics/search preferences default without rewriting any 3.2 or original 3.3 preference file', async t => {
   const { dataDir, open, files } = await fixture(t), before = await files(), app = await open();
   const boot = await app.handle('bootstrap');
-  assert.equal(boot.version, '1.1.0');
+  assert.equal(boot.version, '1.2.0');
   assert.equal(boot.settings.analyticsStyledBars, false);
   assert.deepEqual(boot.settings.searchPreferences, {
     local: { mode: 'exact', provider: '', role: '', period: 'all' },

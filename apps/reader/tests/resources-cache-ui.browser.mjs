@@ -48,7 +48,7 @@ try{
   window.fixture={seed(){cache.conversations=clone(rows);saveCache();},status,settings,cache:()=>clone(cache),calls:[],failSettings:false,failClear:false,recovery:false,contextGate:null,loadGate:null};
   window.desktop={onProgress(){},onMenu(){},invoke:async(action,args={})=>{
    window.fixture.calls.push({action,args:clone(args)});
-   if(action==='bootstrap')return {settings:clone(settings),resources:status(),reading:{positions:{},bookmarks:[],recent:[]},version:'1.1.0',searchStatus:{}};
+   if(action==='bootstrap')return {settings:clone(settings),resources:status(),reading:{positions:{},bookmarks:[],recent:[]},version:'1.2.0',searchStatus:{}};
    if(action==='collections')return {collections:[{name:'Fixture',count:1}]};
    if(action==='files')return {files:[{...clone(thread),id:settings.mode==='server'?undefined:thread.id,turns:undefined}],total:1};
    if(action==='thread')return clone(thread);
@@ -64,7 +64,7 @@ try{
    if(action==='resources.load'){if(window.fixture.loadGate)await window.fixture.loadGate;return {dataUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAIAAAD4YuoOAAAAIElEQVR4nGM0arrDQEvARFPTRy0YtWDUglELRi2gEgAA3M0BsKdT9rEAAAAASUVORK5CYII=',cached:true,stored:false};}
    if(action==='resources.cancel'||action==='operation.cancel')return {ok:true};
    if(action==='search.status')return {};
-   if(action==='app.about')return {version:'1.1.0'};
+   if(action==='app.about')return {version:'1.2.0'};
    throw Error('Unexpected resource UI fixture action '+action);
   }};
  });
@@ -144,7 +144,7 @@ try{
  checks.push('Default-off empty cache stays idle in Click mode and routes the clicked image through the validated bridge without direct network requests');
 
  assert.deepEqual(errors,[]);assert.deepEqual(dialogs,[]);assert.deepEqual(externalRequests,[]);
- report={passed:true,version:'1.1.0',browser:browser.version(),checks,geometry,paletteCount:UI_PALETTE_IDS.length,localeCount:5,colorModes:2,minimumViewport:{width:680,height:540},geometryCases:geometry.length,pageErrors:errors,nativeDialogs:dialogs,externalRequests};
+ report={passed:true,version:'1.2.0',browser:browser.version(),checks,geometry,paletteCount:UI_PALETTE_IDS.length,localeCount:5,colorModes:2,minimumViewport:{width:680,height:540},geometryCases:geometry.length,pageErrors:errors,nativeDialogs:dialogs,externalRequests};
  console.log(JSON.stringify({passed:true,checks:checks.length,geometryCases:geometry.length}));
 }catch(error){report={passed:false,error:error.stack,checks,geometry,pageErrors:errors,nativeDialogs:dialogs,externalRequests};throw error;}
 finally{await fs.mkdir(path.dirname(evidence),{recursive:true});await fs.writeFile(evidence,JSON.stringify(report,null,2)+'\n');await browser.close();await new Promise(resolve=>server.close(resolve));await fs.rm(tmp,{recursive:true,force:true});}

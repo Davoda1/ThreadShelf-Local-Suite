@@ -1,6 +1,6 @@
 # Architecture and scope
 
-Public version 1.1.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
+Public version 1.2.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
 
 ## Components
 
@@ -61,3 +61,9 @@ Available Markdown image sources remain inert until click-to-load activation or 
 Loaded images use decoded aspect ratio, current reading width and viewport height bounds, so both small and large images fit the reading area. Failed loads have theme-aware app-owned SVG artwork. Export formats and source text are unchanged. The additive imageMode preference defaults to click for existing profiles.
 
 The message-visibility helper recognizes only bounded, complete, empty ChatGPT thoughts envelopes. It filters their rendered messages and complete search hits while retaining unknown JSON, user/tool/system messages, fenced examples, source IDs and original export/copy content. Filtered search pages preserve the server’s next offset and avoid presenting unfiltered totals as visible counts.
+
+## JSON-only display formatting
+
+The bounded JSON formatter runs only for assistant and reasoning objects/arrays after the existing visibility filter. It preserves token spelling, duplicate keys and key order instead of parsing and serializing source data. Formatting and conservative repairs affect only the rendered code block. HTML, rich tags, Markdown and TeX inside JSON stay literal; ordinary Markdown, fenced or indented code, and user/tool/system messages retain their existing path. Source indexes, copying, exports and stored records are unchanged.
+
+Native startup loads the canonical file URL used by the IPC trust checks. Path comparisons decode once and retain case, host, query, fragment, frame and owner checks; a literal POSIX backslash is accepted as a filename character without accepting encoded Windows separators.

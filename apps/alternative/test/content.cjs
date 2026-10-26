@@ -13,7 +13,7 @@ const root=path.resolve(__dirname,'..');
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
  await page.setContent('<!doctype html><html data-theme="light"><head></head><body><main style="max-width:760px;margin:30px auto;font-family:system-ui" id="content"></main></body></html>');
  await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;},process.env.CONTENT_THEME||'light');
- for(const f of ['vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/content.js']) await page.addScriptTag({path:path.join(root,f)});
+ for(const f of ['vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js']) await page.addScriptTag({path:path.join(root,f)});
  if(fs.existsSync(path.join(root,'renderer/app.css')))await page.addStyleTag({path:path.join(root,'renderer/app.css')});
  await page.addStyleTag({path:path.join(root,'renderer/content.css')});
  await page.addStyleTag({path:path.join(root,'renderer/code-themes.css')});

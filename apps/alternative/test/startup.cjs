@@ -11,7 +11,7 @@ const http = require('node:http');
 let playwright; try { playwright = require('playwright'); } catch { playwright = require(process.env.PLAYWRIGHT_PATH || 'playwright'); }
 const root = path.resolve(__dirname, '..');
 const shots = process.env.STARTUP_SCREENSHOTS;
-const report = { product: 'ThreadShelf Local Alternative', version: '1.1.0',
+const report = { product: 'ThreadShelf Local Alternative', version: '1.2.0',
   success: false, checks: [], cases: [], externalRequests: [], pageErrors: [],
   limits: ['Browser frame samples inspect rendered DOM backgrounds after content exists; native first-visible-window background is covered by the separate native startup gate.'] };
 const scenarios = new Map(); let serial = 0;
@@ -69,7 +69,7 @@ async function setup(browser, test, options = {}) {
         connect: async () => { probe.connectPending = true; return new Promise((resolve, reject) => { rejectConnect = reject; }); },
         request: async () => { throw new Error('Synthetic offline server'); },
         copy: async () => true, openExternal: async () => true, exportFile: async () => ({ canceled: true }),
-        getInfo: async () => ({ name: 'ThreadShelf Local Alternative', version: '1.1.0' }),
+        getInfo: async () => ({ name: 'ThreadShelf Local Alternative', version: '1.2.0' }),
       });
     }
     try { new PerformanceObserver(list => { probe.paints.push(...list.getEntries().map(entry => ({ name: entry.name, startTime: entry.startTime }))); }).observe({ type: 'paint', buffered: true }); } catch {}
@@ -165,7 +165,7 @@ async function screenshot(page, name) { if (shots) { await fs.mkdir(shots, { rec
         assert.equal(await page.locator('.result-card').count(), 13);
         await page.locator('#reading-settings').click(); assert.equal(await page.locator('#settings-dialog').isVisible(), true);
         const about = await page.locator('#settings-dialog .about-line').innerText();
-        assert.match(about, /1\.1\.0\b/); assert.doesNotMatch(about, /Revision/i);
+        assert.match(about, /1\.2\.0\b/); assert.doesNotMatch(about, /Revision/i);
         await page.locator('#settings-dialog .dialog-footer [data-close]').click();
         const frames = await frameEvidence(page, options.resolved, `browser-${options.saved}-os-${options.os}`);
         return { viewport: early.bounds, background: early.background, sampledFrames: frames.rafFrames };

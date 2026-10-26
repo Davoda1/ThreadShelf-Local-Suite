@@ -1,7 +1,7 @@
 {
   "name": "threadshelf-local-reader",
   "productName": "ThreadShelf Local Reader",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Independent desktop archive and full-featured reader for AI exports, with optional ThreadShelf server access",
   "author": "davoda1",
   "homepage": "https://github.com/Davoda1/ThreadShelf-Local-Suite",

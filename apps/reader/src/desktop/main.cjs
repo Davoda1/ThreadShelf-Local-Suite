@@ -134,7 +134,8 @@ app.whenReady().then(async()=>{
   ipcMain.handle('reader:invoke',(event,action,args={})=>{if(!isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}))throw new Error('Untrusted application request.');return invoke(action,args);});
   win.on('ready-to-show',()=>{if(b.maximized)win.maximize();if(b.fullscreen)win.setFullScreen(true);win.show();});
   win.on('close',saveWindow);
-  await win.loadFile(page);
+  // Use the same canonical encoding as the trust guard, including literal percent signs.
+  await win.loadURL(pageUrl);
   if(process.env.THREADSHELF_READER_SMOKE==='1'){
     const result=await request('bootstrap');console.log('READER_SMOKE '+JSON.stringify({version:result.version,dataDir,node:process.versions.node,electron:process.versions.electron}));
   }

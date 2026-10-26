@@ -1,10 +1,10 @@
-# Rich export rendering — ThreadShelf Local Reader 1.1.0
+# Rich export rendering — ThreadShelf Local Reader 1.2.0
 
 This release renders supported declarative graphics already present in a message. It does not reconstruct missing export data or run the original ChatGPT widget runtime. Local mode, Server mode and conversations copied from a server use the same message renderer. Existing converted Markdown tables, ordinary links and saved text snapshots continue through the existing Markdown pipeline.
 
 ## Format support
 
-| Preserved input | Presentation in 1.1.0 |
+| Preserved input | Presentation in 1.2.0 |
 | --- | --- |
 | `box`, `row`, `grid`, `grid-item` | Validated nested layouts, cards, architecture groups and layout-based bars; bounded dimensions, spacing, alignment and theme colors |
 | `text`, `title`, `caption`, `divider`, `icon` | Markdown text, semantic headings, captions, dividers and app-owned line icons; unknown icon names use a passive symbol |
@@ -62,6 +62,14 @@ The context is a transient frozen record attached to display messages. Copied se
 ## Image loading and empty status records
 
 See [Images and Resources Cache](Images-and-Cache.md) for automatic/click loading, bounded sizing, placeholder behavior, cache ownership and trust boundaries. Empty ChatGPT intermediate status envelopes are filtered from presentation only; ordinary JSON examples, code blocks, unknown records and substantive thoughts remain visible.
+
+## Standalone JSON responses
+
+Assistant and reasoning responses consisting only of an object or array use the existing JSON code block and syntax highlighting. User/tool content, mixed prose, Markdown links, and already fenced or indented code retain their normal rendering. Empty internal status records are still filtered before rendering.
+
+Formatting is display-only: duplicate keys, large integer digits, negative zero, exponent spelling and key order are retained. Trailing commas and literal control characters inside strings receive conservative display repairs; uncertain or truncated JSON stays visible without invented data. Whole-message Copy, export, source indexes, bookmarks and stored records retain the exact original text. The code block's Copy control copies its displayed text. JSON strings remain inert code, including embedded markup, image syntax and mathematics.
+
+Processing is bounded to 1 MiB of input, 64 levels of nesting and 4 MiB of formatted output. A limit or uncertain syntax falls back safely without changing stored data.
 
 ## Data and compatibility
 

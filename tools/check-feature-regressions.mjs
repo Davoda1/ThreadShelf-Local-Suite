@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Source-only CI gates for public image, cache and archive compatibility changes.
+// Source-only CI gates for public rendering, image, cache and archive compatibility changes.
 // Copyright (c) 2026 davoda1. MIT; see ../LICENSE.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -52,11 +52,13 @@ if (mode === 'integration') {
   assert.deepEqual(totals, { tests: 2, pass: 2, fail: 0, cancelled: 0, skipped: 0, todo: 0 },
     'Both 7z and ZIP6 Reader-Analytics workflows must execute and pass without skips');
   jsonCheck('apps/reader/tests/resource-cache-storage.integration.mjs', { checks: 9 });
-  const publicBaseline = path.join(root, '.verification', 'public-1.0.0', 'apps', 'reader');
-  assert.equal(JSON.parse(fs.readFileSync(path.join(publicBaseline, 'package.json'), 'utf8')).version, '1.0.0',
-    'Check out the pinned public Reader 1.0.0 baseline before running integration checks');
-  env.READER_PUBLIC_UPGRADE_REPORT = path.join(reports, 'reader-public-upgrade.json');
-  jsonCheck('apps/reader/tests/public-upgrade.integration.mjs', { checks: 5 }, [publicBaseline]);
+  for (const version of ['1.0.0', '1.1.0']) {
+    const publicBaseline = path.join(root, '.verification', `public-${version}`, 'apps', 'reader');
+    assert.equal(JSON.parse(fs.readFileSync(path.join(publicBaseline, 'package.json'), 'utf8')).version, version,
+      `Check out the pinned public Reader ${version} baseline before running integration checks`);
+    env.READER_PUBLIC_UPGRADE_REPORT = path.join(reports, `reader-public-upgrade-${version}.json`);
+    jsonCheck('apps/reader/tests/public-upgrade.integration.mjs', { checks: 5 }, [publicBaseline]);
+  }
 } else {
   const recipe = path.join(root, 'tools', 'mermaid-bundle');
   const playwright = path.join(recipe, 'node_modules', 'playwright-core');
@@ -71,6 +73,7 @@ if (mode === 'integration') {
     READER_IMAGE_QUEUE_REPORT: path.join(reports, 'reader-image-queue.json'),
     READER_THOUGHTS_INTERFACE_EVIDENCE: path.join(reports, 'reader-visibility.json'),
     SIZING_REPORT: path.join(reports, 'alternative-image-sizing.json'),
+    JSON_REPORT: path.join(reports, 'alternative-json-rendering.json'),
   });
   jsonCheck('apps/reader/tests/markdown-images.browser.mjs', { checks: 17, layoutCases: 6 });
   jsonCheck('apps/reader/tests/resources-cache-ui.browser.mjs', { checks: 7, geometryCases: 380 });
@@ -78,5 +81,6 @@ if (mode === 'integration') {
   jsonCheck('apps/reader/tests/thoughts-interface.browser.mjs', { checks: 7 });
   jsonCheck('apps/alternative/test/image-loading.cjs', { checks: 4 });
   jsonCheck('apps/alternative/test/image-sizing.cjs', { checks: 4, layouts: 8 });
+  jsonCheck('apps/alternative/test/json-rendering.cjs', { checks: 9, layouts: 4 });
 }
 console.log(`\nPublic ${mode} feature regressions passed without skipped feature checks.`);

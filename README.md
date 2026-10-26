@@ -4,9 +4,9 @@
 
 Desktop readers, local archive analytics, and a search integration patch for [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
-**Reader 1.1.0 · Alternative 1.1.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
+**Reader 1.2.0 · Alternative 1.2.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
 
-Reader and Alternative **1.1.0** add improved image handling; Reader also gains an optional image cache independent of its conversation archive. Analytics remains **1.0.0**, and the manual and server patch are unchanged. The download table below selects the current version of each component across the two releases. See the [1.1.0 changes](CHANGELOG.md), [validation scope](maintainer/REVIEW-1.1.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
+Reader and Alternative **1.2.0** format useful JSON-only responses as highlighted, indented code while preserving the original text for copy and export. They also improve startup from paths containing special characters. Existing image controls and Reader’s independent image cache are retained. Analytics remains **1.0.0**, and the manual and server patch are unchanged. The download table below selects the current version of each component across the current and earlier releases. See the [1.2.0 changes](CHANGELOG.md), [validation scope](maintainer/REVIEW-1.2.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
 
 | Application | Choose it when you want… |
 | --- | --- |
@@ -21,11 +21,11 @@ Choose one package for your application and operating system. These are direct f
 
 | Application | Version | Windows x64 | Linux amd64 | Debian / Ubuntu amd64 |
 | --- | --- | --- | --- | --- |
-| **Reader** | **1.1.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/threadshelf-local-reader_1.1.0_amd64.deb) |
-| **Alternative** | **1.1.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/threadshelf-local-alternative_1.1.0_amd64.deb) |
+| **Reader** | **1.2.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Reader-1.2.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Reader-1.2.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/threadshelf-local-reader_1.2.0_amd64.deb) |
+| **Alternative** | **1.2.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Alternative-1.2.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Alternative-1.2.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/threadshelf-local-alternative_1.2.0_amd64.deb) |
 | **Analytics** | **1.0.0** | [Portable ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable.zip) | [Portable TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Analytics-1.0.0-Linux-amd64.tar.gz) | [DEB package](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/threadshelf-local-analytics_1.0.0_amd64.deb) |
 
-Verify downloads with the checksum manifest for their release: [1.1.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/SHA256SUM.txt) or [1.0.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/SHA256SUM.txt). [Verification instructions](maintainer/RELEASE.md#windows-checksum-verification) and the [1.1.0 validation report](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Verification.md) describe the checks and their limits.
+Verify downloads with the checksum manifest for their release: [1.2.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/SHA256SUM.txt) or [1.0.0 SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/SHA256SUM.txt). [Verification instructions](maintainer/RELEASE.md#windows-checksum-verification) and the [1.2.0 validation report](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Suite-1.2.0-Verification.md) describe the checks and their limits.
 
 - **Windows:** extract the entire portable ZIP and run the application EXE at the extraction root. Keep the runtime files beside it.
 - **Linux portable:** extract the TAR.GZ and run the extracted `bin/threadshelf-local-*` entry. Preserve the extracted directory structure and executable permissions.
@@ -35,7 +35,7 @@ The packages are unsigned. Linux needs the desktop libraries listed in the appli
 
 ### Try the interface
 
-Download and open the self-contained [Reader 1.1.0 HTML preview](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Reader-1.1.0-Preview.html) or [Alternative 1.1.0 HTML demo](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Alternative-1.1.0-Demo.html) in a browser. They use synthetic examples and demonstrate the interface; native archive, server and disk-cache operations require the desktop application.
+Download and open the self-contained [Reader 1.2.0 HTML preview](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Reader-1.2.0-Preview.html) or [Alternative 1.2.0 HTML demo](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Alternative-1.2.0-Demo.html) in a browser. They use synthetic examples and demonstrate the interface; native archive, server and disk-cache operations require the desktop application.
 
 ## Interface gallery
 
@@ -96,7 +96,7 @@ Original suite code is available under the [MIT license](LICENSE), `Copyright (c
 
 | Download | Version | Contents |
 | --- | --- | --- |
-| [Suite Source ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Source.zip) · [Source TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.1.0/ThreadShelf-Local-Suite-1.1.0-Source.tar.gz) | 1.1.0 | Current complete repository, including Analytics 1.0.0, build tools, tests, manual and the unchanged server patch |
+| [Suite Source ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Suite-1.2.0-Source.zip) · [Source TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Suite-1.2.0-Source.tar.gz) | 1.2.0 | Current complete repository, including Analytics 1.0.0, build tools, tests, manual and the unchanged server patch |
 | [Native-Sources TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) | 1.0.0, reused | Sources and build recipes for the unchanged native dependencies |
 | Runtime-Sources: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-01.tar.gz) · [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-02.tar.gz) · [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-03.tar.gz) · [manifest](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/RUNTIME-SOURCES.json) | 1.0.0, reused | Complete source companion for the unchanged pinned runtime; all three parts are required |
 

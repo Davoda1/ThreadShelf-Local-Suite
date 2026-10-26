@@ -1,5 +1,6 @@
 import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
 import { isHiddenThoughtsMessage } from './messages.js';
+import { formatJsonResponse } from './json-response.js';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
 import { highlighter, normalizeCodeLanguage, getCodeLanguageLabel } from './highlight.js';
 export { normalizeCodeLanguage } from './highlight.js';
@@ -973,7 +974,7 @@ export class ConversationRenderer {
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    let content = this.processMessageContent(message.content, message.richContext || {});
+    let content = this.processMessageContent(message.content, message.richContext || {}, message.role);
     if (this.currentQuery) content = highlightTextInHtml(content, this.currentQuery);
     contentDiv.innerHTML = content;
     mountMarkdownImages(contentDiv, { mode: this.remoteImagesMode, resolveImage: this.imageResolver,
@@ -1003,7 +1004,11 @@ export class ConversationRenderer {
     return messageDiv;
   }
 
-  processMessageContent(content, context = {}) {
+  processMessageContent(content, context = {}, role = '') {
+    const jsonCode = formatJsonResponse(content, role);
+    // Use the established escaped code markup, syntax highlighting and copy
+    // controls. JSON strings must not be interpreted as rich components or TeX.
+    if (jsonCode !== null) return sanitizeRenderedHtml(markedRenderer.code({ text: jsonCode, lang: 'json' }));
     const plainMarkdown = (text) => {
       const protectedMath = protectMathInMarkdown(text);
       try {

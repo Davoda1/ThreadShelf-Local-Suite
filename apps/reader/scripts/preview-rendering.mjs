@@ -2,14 +2,14 @@
 export const renderingPreview = {
   "id": "preview-rendering-4",
   "collection": "Reader examples",
-  "title": "1.1.0 rendering examples",
+  "title": "1.2.0 rendering examples",
   "provider": "openai",
   "sourceFile": "synthetic/rendering-examples.json",
   "conversationKey": "preview-rendering-4",
-  "turnCount": 4,
+  "turnCount": 7,
   "turns": [
     {
-      "user": "Show how 1.1.0 handles embedded images and empty ChatGPT intermediate statuses.",
+      "user": "Show how 1.2.0 handles embedded images and empty ChatGPT intermediate statuses.",
       "turn_index": 1
     },
     {
@@ -23,6 +23,18 @@ export const renderingPreview = {
     {
       "thinking": "This substantive reasoning example is still visible. Only structurally empty status content is hidden.",
       "turn_index": 4
+    },
+    {
+      "ai": "{\"summary\":\"Synthetic JSON display example\",\"count\":900719925474099312345,\"score\":1.2300e+99,\"duplicate\":1,\"duplicate\":2,\"literal\":\"<box>saved text</box> $x$\"}",
+      "turn_index": 5
+    },
+    {
+      "thinking": "{\"content_type\":\"reasoning_recap\",\"content\":\"Substantive synthetic reasoning remains visible.\"}",
+      "turn_index": 6
+    },
+    {
+      "ai": "{\"summary\":\"An incomplete synthetic response",
+      "turn_index": 7
     }
   ]
 };

@@ -33,10 +33,34 @@ const report = {
   packageFilesUnchanged: false, chromiumSandboxEnabled: false,
   syntheticOnly: true, checks: [], errors: [], observedRendererRequests: [],
   harness: { alternateMain: false, copiedExecutable: false, singletonOverride: false,
-    sandboxDisabled: false, nativeFilePickerSelectionOnly: application === 'reader' },
+    sandboxDisabled: false, nativeFilePickerSelectionOnly: application === 'reader',
+    syntheticRendererFixtureViaProductionAPI: application === 'alternative' },
   limitations: ['Renderer network observation begins after attaching the initial window; it is not a complete host network trace.'],
 };
 const check = name => { report.checks.push(name); console.log('PASS ' + name); };
+const literalJSONValue = '<script>window.__releaseJSONExecuted=true</script>'
+  + '<img src="https://example.test/never-request.png" onerror="window.__releaseJSONExecuted=true">'
+  + '<box><title>Literal card</title></box><Chart content={{}} />'
+  + ' $$x^2$$ ![literal](https://example.test/never-request.png) [literal](https://example.test/)';
+// Keep these tokens literal: JSON.parse/stringify would round the integer and
+// discard a duplicate member, defeating the display-only preservation check.
+const rawJSONResponse = '  {"large":900719925474099312345,"same":1,"same":2,"spelling":1.2300e+04,"literal":'
+  + JSON.stringify(literalJSONValue) + '}  ';
+const hiddenJSONResponse = JSON.stringify({ content_type: 'thoughts',
+  source_analysis_msg_id: 'synthetic-hidden-native-json', thoughts: [] });
+function assertJSONDisplay(display) {
+  assert.match(display, /\n  "large": 900719925474099312345,/);
+  assert.equal((display.match(/"same"/g) || []).length, 2);
+  assert.match(display, /"spelling": 1\.2300e\+04/);
+  assert.equal(JSON.parse(display).literal, literalJSONValue);
+  assert.notEqual(display, rawJSONResponse);
+}
+async function copyAndCheck(button, expected) {
+  await button.click();
+  // The UI reports success only after the trusted native clipboard IPC resolves.
+  await button.filter({ hasText: /^Copied$/ }).waitFor();
+  assert.equal(await currentApp.evaluate(({ clipboard }) => clipboard.readText()), expected);
+}
 async function digest(file) {
   const hash = createHash('sha256');
   for await (const bytes of createReadStream(file)) hash.update(bytes);
@@ -189,6 +213,9 @@ async function reader() {
   await fs.writeFile(source, JSON.stringify({ id: 'native-release-synthetic', title: 'Synthetic native release check', messages: [
     { role: 'user', content: 'Preserve quartz, a synthetic search keyword.' },
     { role: 'assistant', content: 'An **offline** table and image policy check.\n\n| Test | State |\n| --- | --- |\n| Native | Ready |\n\n![Blocked local image](http://127.0.0.1:9/synthetic-only.png)' },
+    { role: 'assistant', content: rawJSONResponse },
+    { role: 'assistant', content: hiddenJSONResponse },
+    { role: 'reasoning', content: hiddenJSONResponse },
   ] }), { mode: 0o444 });
   const sourceHash = await digest(source);
   await currentApp.evaluate(({ dialog }, file) => {
@@ -206,6 +233,32 @@ async function reader() {
   const results = await page.evaluate(() => window.desktop.invoke('search', { mode: 'local', q: 'quartz', searchMode: 'keyword' }));
   assert.ok(results.total > 0);
   check('Native picker, real archive worker, readonly synthetic import, rich table and keyword search work');
+  const archiveJSON = await page.evaluate(async () => {
+    const { files } = await window.desktop.invoke('files', { mode: 'local' });
+    return window.desktop.invoke('thread', { mode: 'local', id: files[0].id });
+  });
+  assert.ok(archiveJSON.turns.some(turn => turn.ai === rawJSONResponse));
+  assert.ok(archiveJSON.turns.some(turn => turn.ai === hiddenJSONResponse));
+  assert.ok(archiveJSON.turns.some(turn => turn.thinking === hiddenJSONResponse));
+  assert.equal(await page.locator('#readerHost .message').count(), 3);
+  assert.ok(!(await page.locator('#readerHost').innerText()).includes('synthetic-hidden-native-json'));
+  const jsonMessage = page.locator('#readerHost .message').filter({ has: page.locator('pre code.language-json') });
+  assert.equal(await jsonMessage.count(), 1);
+  const jsonCode = jsonMessage.locator('pre code.language-json');
+  const jsonDisplay = await jsonCode.textContent();
+  assertJSONDisplay(jsonDisplay);
+  assert.ok(await jsonCode.locator('.hljs-attr').count() >= 5);
+  assert.equal(await jsonMessage.locator('script,img,iframe,svg,mjx-container,.katex,.mermaid-block,.rich-box,.rich-chart,a[href]').count(), 0);
+  assert.equal(await page.evaluate(() => Boolean(window.__releaseJSONExecuted)), false);
+  assert.equal(await jsonMessage.evaluate(element => element.sourceText), rawJSONResponse);
+  await copyAndCheck(jsonMessage.locator('[data-copy-message]'), rawJSONResponse);
+  await copyAndCheck(jsonMessage.locator('.code-copy-button'), jsonDisplay);
+  assert.deepEqual(await page.evaluate(async () => {
+    const { files } = await window.desktop.invoke('files', { mode: 'local' });
+    return window.desktop.invoke('thread', { mode: 'local', id: files[0].id });
+  }), archiveJSON);
+  assert.equal(await digest(source), sourceHash);
+  check('Native JSON rendering preserves large-number tokens and duplicate keys, hides empty thoughts, keeps embedded markup inert, and copies raw messages versus displayed code without changing the archive');
   await page.locator('.reader-image-load').click();
   await page.locator('[data-image-state="failed"]').waitFor();
   assert.deepEqual(report.observedRendererRequests, []);
@@ -224,6 +277,10 @@ async function reader() {
   assert.equal(reopened.settings.theme, 'dark'); assert.equal(reopened.settings.remoteImages, 'click');
   assert.equal(reopened.resources.enabled, true);
   assert.equal((await page.evaluate(() => window.desktop.invoke('files', { mode: 'local' }))).total, 1);
+  assert.deepEqual(await page.evaluate(async () => {
+    const { files } = await window.desktop.invoke('files', { mode: 'local' });
+    return window.desktop.invoke('thread', { mode: 'local', id: files[0].id });
+  }), archiveJSON);
   assert.equal(await digest(source), sourceHash);
   assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
   await page.evaluate(() => window.desktop.invoke('resources.clear', { all: true }));
@@ -251,6 +308,48 @@ async function alternative() {
   assert.equal(await currentApp.evaluate(({ clipboard }) => clipboard.readText()), repaired);
   assert.notEqual(original, repaired);
   check('Four native Mermaid previews render, three malformed diagrams repair, and both sources reach the native clipboard');
+  // Exercise the shipped renderer and native bridge with synthetic input. The
+  // original demo node and its bindings are restored before the app UI resumes.
+  const jsonFixture = await page.evaluate(async ({ raw, hidden }) => {
+    const original = document.getElementById('thread-content'), node = original.cloneNode(false);
+    const thread = { turns: [{ ai: raw }, { ai: hidden }, { thinking: hidden }] };
+    const before = JSON.stringify(thread);
+    const rendered = window.TSAContent.renderThread(thread, { showReasoning: true });
+    node.innerHTML = rendered.html;
+    original.replaceWith(node);
+    const cleanup = window.TSAContent.bind(node, {
+      copy: text => window.alternative.copy(text), imageMode: 'click',
+    });
+    window.__releaseJSONFixture = { original, node, thread, before, cleanup };
+    await cleanup.ready;
+    return { visible: rendered.messages.length, stored: window.TSAContent.normalize(thread).length,
+      raw: rendered.messages[0].content, unchanged: JSON.stringify(thread) === before };
+  }, { raw: rawJSONResponse, hidden: hiddenJSONResponse });
+  assert.deepEqual(jsonFixture, { visible: 1, stored: 3, raw: rawJSONResponse, unchanged: true });
+  const jsonMessage = page.locator('#thread-content .tsa-message');
+  assert.equal(await jsonMessage.count(), 1);
+  assert.ok(!(await page.locator('#thread-content').innerText()).includes('synthetic-hidden-native-json'));
+  const jsonCode = jsonMessage.locator('pre code.language-json');
+  const jsonDisplay = await jsonCode.textContent();
+  assertJSONDisplay(jsonDisplay);
+  assert.ok(await jsonCode.locator('.hljs-attr').count() >= 5);
+  assert.equal(await jsonMessage.locator('script,img,iframe,svg,mjx-container,.katex,.tsa-mermaid,.rich-box,.rich-chart,a[href]').count(), 0);
+  assert.equal(await page.evaluate(() => Boolean(window.__releaseJSONExecuted)), false);
+  await copyAndCheck(jsonMessage.locator('[data-copy-message]'), rawJSONResponse);
+  await copyAndCheck(jsonMessage.locator('[data-copy-code]'), jsonDisplay);
+  const jsonPreserved = await page.evaluate(({ raw, hidden }) => {
+    const fixture = window.__releaseJSONFixture;
+    const result = { unchanged: JSON.stringify(fixture.thread) === fixture.before,
+      contents: window.TSAContent.normalize(fixture.thread).map(message => message.content),
+      plainPreservesRaw: window.TSAContent.plainText(fixture.thread).includes(raw),
+      plainPreservesHidden: window.TSAContent.plainText(fixture.thread).includes(hidden) };
+    fixture.cleanup(); fixture.node.replaceWith(fixture.original);
+    delete window.__releaseJSONFixture;
+    return result;
+  }, { raw: rawJSONResponse, hidden: hiddenJSONResponse });
+  assert.deepEqual(jsonPreserved, { unchanged: true, contents: [rawJSONResponse, hiddenJSONResponse, hiddenJSONResponse],
+    plainPreservesRaw: true, plainPreservesHidden: true });
+  check('Shipped native JSON renderer highlights useful responses, suppresses empty assistant/reasoning thoughts, keeps embedded markup inert, and preserves raw message/export text while code Copy uses formatted text');
   await page.locator('#reading-settings').click();
   await page.locator('button[data-theme="light"]').click();
   await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');

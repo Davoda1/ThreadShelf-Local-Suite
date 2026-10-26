@@ -46,7 +46,7 @@ at page one before continuous scrolling can append.
 UI receives window.desktop.invoke(action,args), window.desktop.onProgress(callback), window.desktop.onMenu(callback). Progress {operation,phase,current?,total?,message?}. All methods promise; errors reject with actionable Error. DOM is isolated and has no Node primitives.
 
 Actions:
-- bootstrap -> {settings,reading,dataDir,version:'1.1.0',searchStatus}
+- bootstrap -> {settings,reading,dataDir,version:'1.2.0',searchStatus}
 - settings.save {values} -> settings (merge validated keys). Legacy preferences stay in settings.json; new drawer preference searchPanelExpanded stays in interface.json. Both schema-1 files are under the same dataDir. New uiPalette/codeTheme preferences use appearance.json, preserving the strict 1.1.0 interface reader too. Bootstrap and save return all three validated snapshots merged. Legacy files keep their previous schema and keys.
 - collections {mode,serverUrl?} -> {collections:[{name,count}]}; server call may fetch summaries to determine nonempty.
 - files {mode,serverUrl?,collection:'all'|name,page:1,pageSize:50,sort:'updated'|'title'|'length',q?,provider?} -> {files,total,page,pageSize}

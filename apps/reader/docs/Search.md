@@ -1,4 +1,4 @@
-# Search in ThreadShelf Local Reader 1.1.0
+# Search in ThreadShelf Local Reader 1.2.0
 
 Local search runs against the local archive. ThreadShelf Server mode searches the active server through the server API; the two sources never silently substitute for each other.
 

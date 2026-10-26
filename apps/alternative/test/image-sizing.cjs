@@ -7,7 +7,7 @@ const os=require('node:os');
 const {pathToFileURL}=require('node:url');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..'),appPath=path.resolve(process.env.TSA_APP_PATH||root);
-const report={product:'ThreadShelf Local Alternative',version:'1.1.0',target:process.env.TSA_SIZING_TARGET||'source',runtime:process.env.ELECTRON_PATH?'native-linux-electron':'browser',checks:[],layouts:[],errors:[],requests:[],passed:false};
+const report={product:'ThreadShelf Local Alternative',version:'1.2.0',target:process.env.TSA_SIZING_TARGET||'source',runtime:process.env.ELECTRON_PATH?'native-linux-electron':'browser',checks:[],layouts:[],errors:[],requests:[],passed:false};
 let browser,context,electron,temporary,page;
 async function settings(){await page.click('#reading-settings');await page.waitForSelector('#settings-dialog[open]');}
 async function done(){await page.locator('#settings-dialog .dialog-footer [data-close]').click();}

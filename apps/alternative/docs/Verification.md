@@ -1,3 +1,15 @@
+# Alternative 1.2.0 source verification
+
+Prepared 26 October 2026. This update adds display-only JSON formatting and canonical special-character native paths. Existing public image credential controls, corrupt-state protection, profile identity, server API, synthetic demo and pinned runtime remain preserved. No conversation or settings migration is introduced.
+
+- **51 isolated unit tests passed**, with no failures or skips, under Node.js 24.22.1. The suite includes JSON token fidelity, conservative display repair/fallback, visibility and source identity, Windows/POSIX/UNC trust boundaries, read-only server behavior, image credential controls and corrupt-state preservation.
+- New browser/native acceptance scripts cover literal JSON safety, raw message copy/export versus formatted code copy, three archive input forms, hidden thoughts and light/dark minimum-window geometry. Native-path acceptance covers sandboxed preload/IPC, state save/reload and public version identity under a synthetic special-character path.
+- Local native source checks passed all **9 JSON groups and 4 light/dark layouts**, plus **3 special-path/IPC/state groups**, with zero renderer exceptions and no JSON fixture network requests. They used an available Electron 44.4.5 runtime and temporary root-host sandbox/single-instance accommodations; they are not validation of the release-pinned Electron 44.9.1 packages.
+- A generated corpus of **5,000 synthetic cases** matched the current Reader JSON formatter exactly. Offline demo generation and application/build-script syntax checks passed.
+- Public release workflow and package results are recorded by the suite verification report. Historical results below are baseline evidence, not new executions of 1.2.0.
+
+---
+
 # Alternative 1.1.0 source verification
 
 Prepared 23 October 2026 as an unpublished candidate. No commits or GitHub uploads were made during this preparation.

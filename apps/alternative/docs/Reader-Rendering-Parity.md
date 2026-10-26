@@ -2,12 +2,13 @@
 
 Alternative shares licensed rich-rendering components with Local Reader, while retaining a separate reading interface. The following describes Alternative's implemented behavior.
 
-| Area | Alternative 1.1.0 behavior |
+| Area | Alternative 1.2.0 behavior |
 | --- | --- |
 | Mermaid repair | Uses Reader's unchanged deterministic repair module. It can infer missing flowchart/sequence headers, quote punctuation-sensitive labels, correct sequence message semicolons, and convert supported legacy bar syntax. Original rendering is tried first; a maximum of four candidates is attempted. |
 | Diagram inspection | Repaired previews are labelled. Original/repaired views and source disclosures remain available. Copy original and Copy repaired are separate; message copy and Markdown export preserve the original. |
 | Diagram appearance and safety | Diagrams rerender when Light/Dark/System appearance changes. Archive directives cannot override rendering configuration; HTML, callbacks and external diagram links remain inert. Unsupported or oversized diagrams retain readable source. |
 | Markdown and code | Tables, inline formatting, lists, quotations and fenced code retain their structure. The offline 194-language highlighter uses VS Code Light+/Dark+ colors; literal source is preserved for copying. |
+| JSON-only responses | Assistant and reasoning objects/arrays use two-space indentation and JSON highlighting. Duplicate keys, large integer digits, number spelling and source order remain exact. Only trailing commas and literal string controls receive conservative display repairs; incomplete data stays literal. Original message copy/export remains unchanged. |
 | Mathematics | Reader-derived source protection and local MathJax preserve TeX, including literal math-like text inside code. Exported HTML is not executed. |
 | Rich cards and layout | The bounded Reader parser/renderers support the validated Entity, box/row/text, divider, step/progress, and static-illustration contracts. Progress colors follow the active palette, and adjacent segments retain their saved proportions. |
 | Charts | The existing shared rich renderer retains validated bar, horizontal bar, line, area, pie/doughnut and scatter presentations, exact values and accessible tables. Hover and keyboard inspection handle negative, zero and fractional values. Escape dismisses an inspected chart without also closing reader panels. |

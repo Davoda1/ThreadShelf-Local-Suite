@@ -1,4 +1,4 @@
-# Local Database Manager — 1.1.0
+# Local Database Manager — 1.2.0
 
 Open **Settings → Database Manager**. It always manages this computer’s Local data, even when the reader is browsing a ThreadShelf server. Manager actions save immediately; the Settings **Cancel** button does not undo a completed manager action.
 
@@ -53,7 +53,7 @@ The application keeps Settings and Server mode available and shows **Local archi
 
 ## Storage format boundary
 
-Public Reader 1.1.0 uses internal storage format 2 and the `reading-v2.json` namespace. These internal format numbers are independent of the application version. Both compression profiles can be converted to each other. Activity uses a separate rebuildable metadata cache; see [Activity.md](Activity.md).
+Public Reader 1.2.0 uses internal storage format 2 and the `reading-v2.json` namespace. These internal format numbers are independent of the application version. Both compression profiles can be converted to each other. Activity uses a separate rebuildable metadata cache; see [Activity.md](Activity.md).
 
 ## Resources Cache
 

@@ -7,7 +7,7 @@ const os=require('node:os');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..');
 const pixel='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
-const report={version:'1.1.0',passed:false,checks:[],requests:[],errors:[]};
+const report={version:'1.2.0',passed:false,checks:[],requests:[],errors:[]};
 (async()=>{
  let browser,electron,temporary,page;
  try{
@@ -29,7 +29,7 @@ const report={version:'1.1.0',passed:false,checks:[],requests:[],errors:[]};
    return route.fulfill({status:200,contentType:'image/png',body:Buffer.from(pixel,'base64')});
   });
   await page.setContent('<!doctype html><html data-theme="light"><head></head><body><main id="content" style="max-width:780px;margin:25px"></main></body></html>');
-  for(const name of ['vendor/marked.umd.js','vendor/reader-rich.js','renderer/message-visibility.js','renderer/content.js'])await page.addScriptTag({path:path.join(root,name)});
+  for(const name of ['vendor/marked.umd.js','vendor/reader-rich.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js'])await page.addScriptTag({path:path.join(root,name)});
   for(const name of ['renderer/app.css','renderer/content.css'])await page.addStyleTag({path:path.join(root,name)});
   await page.addStyleTag({content:'html,body{height:auto;overflow:auto}body{min-height:100vh}'});
   await page.evaluate(()=>{window.opened=[];window.copied=[];window.renderImageTest=(source,mode='click')=>{window.cleanup?.();const el=document.getElementById('content');const thread={turns:[{ai:source}]};window.rendered=TSAContent.renderThread(thread);el.innerHTML=rendered.html;window.cleanup=TSAContent.bind(el,{imageMode:mode,openExternal:url=>opened.push(url),copy:value=>copied.push(value)});};});

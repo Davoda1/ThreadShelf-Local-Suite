@@ -83,8 +83,10 @@ async function start(){
     if(result.canceled||!result.filePath)return {canceled:true};
     await fs.writeFile(result.filePath,value.text,'utf8');return {canceled:false};
   });
-  handle('info',()=>({name:PRODUCT,version:'1.1.0',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
-  await win.loadFile(entry);
+  handle('info',()=>({name:PRODUCT,version:'1.2.0',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
+  // Use the same canonical URL for loading and trust checks. Electron's legacy
+  // loadFile conversion can misencode literal percent signs and POSIX backslashes.
+  await win.loadURL(trustedURL);
 }
 if(!app.requestSingleInstanceLock())app.quit();else{
   app.on('second-instance',()=>{if(win){if(win.isMinimized())win.restore();win.show();win.focus();}});

@@ -96,7 +96,7 @@ test('3.2 profile opens with waves off and Outlined right, without rewriting any
   const { dataDir, open } = await fixture(t);
   const before = await readFiles(dataDir);
   const app = await open(), boot = await app.handle('bootstrap');
-  assert.equal(boot.version, '1.1.0');
+  assert.equal(boot.version, '1.2.0');
   assert.equal(boot.settings.waveVideoBackground, false);
   assert.equal(boot.settings.promptExpandStyle, 'outlined-right');
   for (const values of Object.values(legacyValues)) for (const [key, value] of Object.entries(legacy.validateSettings(values))) assert.deepEqual(boot.settings[key], value);

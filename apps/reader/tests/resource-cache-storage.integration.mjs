@@ -186,7 +186,7 @@ try {
   assert.equal(hash(await fs.readFile(backup)), backupHash);
   record('Resources clear-all removes image cache without rewriting remaining archive, reading state or external backup');
 
-  const report = { version: '1.1.0', suite: 'resource-cache-storage.integration', passed: true,
+  const report = { version: '1.2.0', suite: 'resource-cache-storage.integration', passed: true,
     checks, backupMemberCount: members.length, controlledFetchCount: fetches,
     actualServices: ['ApplicationService', 'ResourceCache', 'CompressedStorage', 'ArchiveStore'],
     network: 'Controlled synthetic transport with validated public DNS; no external network requests',

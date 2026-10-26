@@ -24,12 +24,12 @@ for (const info of infos) {
   info.setStringValues({ lang: 1033, codepage: 1200 }, {
     CompanyName: 'davoda1',
     FileDescription: 'ThreadShelf Local Alternative',
-    FileVersion: '1.1.0.0',
+    FileVersion: '1.2.0.0',
     InternalName: 'threadshelf-local-alternative',
     LegalCopyright: 'Copyright (c) 2026 davoda1; Electron contributors and third parties',
     OriginalFilename: 'ThreadShelf Local Alternative.exe',
     ProductName: 'ThreadShelf Local Alternative',
-    ProductVersion: '1.1.0',
+    ProductVersion: '1.2.0',
   });
   info.outputToResourceEntries(resource.entries);
 }

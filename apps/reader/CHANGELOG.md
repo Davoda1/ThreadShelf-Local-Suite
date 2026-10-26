@@ -1,6 +1,15 @@
 # Changelog
 
-## 1.1.0 — Unreleased
+## 1.2.0
+
+- Display standalone assistant and reasoning JSON as indented, syntax-highlighted code while preserving exact original message text for whole-message copying and export.
+- Keep empty internal status responses hidden. Ordinary Markdown, user/tool messages, fenced code and mixed prose retain their existing rendering.
+- Preserve duplicate JSON keys, large integer digits and original number spelling; incomplete or ambiguous JSON remains visible without guessed content.
+- Load the desktop page with the same canonical file URL used by its IPC trust guard, including paths with literal percent signs.
+- Run the Windows build helper through the selected Node distribution's npm CLI, avoiding global npm-wrapper redirection.
+- Preserve public profile paths, archive/storage formats, image loading/cache controls and the existing public image-address policy.
+
+## 1.1.0
 
 - Load supported images inside the conversation, automatically or on click, with bounded dimensions and distinct unavailable/loading/failure placeholders.
 - Add an optional, independently managed Resources Cache for Local and Server images; caching is disabled by default and is excluded from conversation backup/restore and data-clearing operations.

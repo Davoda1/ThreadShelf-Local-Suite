@@ -1,6 +1,6 @@
 # Build and package
 
-Application version: **1.1.0**. This is an independent product.
+Application version: **1.2.0**. This is an independent product.
 
 ## Requirements
 
@@ -91,7 +91,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.1.0.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.2.0.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 
@@ -129,6 +129,7 @@ module directory, and optionally `CHROMIUM_PATH` to a compatible Chromium binary
 `node test/content.cjs` exercises content rendering. `node test/image-loading.cjs`
 checks inert click mode, in-renderer activation, link isolation, automatic loading,
 cancellation, safe source validation and themed failure placeholders.
+`node test/json-rendering.cjs` checks JSON-only display formatting, literal-content safety, original message/export text, hidden thoughts and four light/dark layouts. Set `JSON_REPORT` to choose its report destination. It also accepts `DEMO_PATH`, or `ELECTRON_PATH` plus `TSA_APP_PATH`, for the same assertions against the offline demo or native application.
 `node test/image-sizing.cjs` checks actual reading-pane geometry at desktop and
 minimum window sizes. Set `SIZING_REPORT` to choose its report destination. `node test/highlighting.cjs`
 verifies token colors, language aliases, exact copying, safe fallbacks, phrase
@@ -149,6 +150,8 @@ pixel checks. It always uses a temporary test wrapper: select the official
 Electron executable with `ELECTRON_PATH` and the application's directory with
 `TSA_APP_PATH`. For packaged files, point the latter at `resources/app`; do not
 set `TSA_PACKAGED` for this startup test.
+
+`node test/native-path.cjs` checks real IPC, settings and reload under a Linux path containing spaces, Unicode, percent signs and a literal backslash. Set `TSA_PATH_REPORT` for its evidence path. Unit tests separately cover Windows and UNC path semantics.
 
 `node test/native-demo.cjs` uses the same isolated native setup to exercise
 Explore demo, the conversational menu, showcase diagrams, native clipboard,

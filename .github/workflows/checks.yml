@@ -61,6 +61,14 @@ jobs:
           path: .verification/public-1.0.0
           sparse-checkout: apps/reader
           persist-credentials: false
+      - name: Check out the exact public Reader 1.1.0 baseline
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: 07ba8221176def076c394d07ef0057fac69c59d4
+          path: .verification/public-1.1.0
+          sparse-checkout: apps/reader
+          persist-credentials: false
       - name: Reader cache storage, archive integration and public profile upgrade
         run: node tools/check-feature-regressions.mjs integration
       - name: Reader and Alternative image, cache and visibility browser regressions
@@ -85,6 +93,8 @@ jobs:
       - run: npm install --global npm@11.9.0
       - name: Alternative source tests
         run: node apps/alternative/scripts/test.cjs
+      - name: Reader bundled npm PowerShell helper regression
+        run: node --test apps/reader/tests/windows-toolchain.integration.mjs
       - name: Reader source tests and renderer build
         working-directory: apps/reader
         env:
@@ -108,6 +118,14 @@ jobs:
           repository: Davoda1/ThreadShelf-Local-Suite
           ref: 1be2ceb8cd5fec04fc852861fc0f3173dc0d3155
           path: .verification/public-1.0.0
+          sparse-checkout: apps/reader
+          persist-credentials: false
+      - name: Check out the exact public Reader 1.1.0 baseline
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: 07ba8221176def076c394d07ef0057fac69c59d4
+          path: .verification/public-1.1.0
           sparse-checkout: apps/reader
           persist-credentials: false
       - name: Reader cache storage, archive integration and public profile upgrade

@@ -1,5 +1,14 @@
 # Changelog
 
+## Reader and Alternative 1.2.0
+
+- Useful JSON-only assistant and reasoning responses display as indented, syntax-highlighted JSON. Strings, large numbers and original lexical values remain intact; message copy and export retain the original source, while code-block copy uses the formatted display.
+- Empty and internal-only responses stay hidden. User messages, Markdown examples and fenced code keep their existing rendering. Embedded HTML and rich-content markers inside JSON remain literal text.
+- Native startup uses canonical file URLs so special characters in installation paths do not break the trusted renderer or IPC checks. Alternative also handles literal backslashes in POSIX paths without weakening Windows separator checks.
+- Reader’s PowerShell development helper resolves bundled npm through Node when no standalone npm wrapper is present.
+- Public settings, profile/archive identities, image controls and Reader’s separate optional image cache are preserved. Analytics remains 1.0.0; the manual, server patch, runtime and dependency pins are unchanged.
+- Source and native package validation cover JSON rendering, hidden responses and exact-source clipboard behavior, alongside existing image, storage and compatibility checks.
+
 ## Reader and Alternative 1.1.0
 
 - Reader adds controlled image loading and a separate resource cache, with settings and theme-aware image placeholders.

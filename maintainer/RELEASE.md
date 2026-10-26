@@ -9,7 +9,7 @@
 7. Verify checksums after copying or downloading the distribution.
 8. Tag the reviewed source commit; create a draft GitHub release, attach files, review it and publish.
 
-For **1.1.0**, Reader and Alternative supply six new native packages, two HTML previews, the complete source ZIP/TAR.GZ and a verification report, plus one checksum manifest. Analytics remains **1.0.0**. The offline manual, Native-Sources and all three Runtime-Sources parts remain at **v1.0.0**. The root README and release notes link to the exact current component downloads across both releases. The old combined `1.0.0-Releases.tar.gz` remains a historical 1.0.0 bundle.
+For **1.2.0**, Reader and Alternative supply six new native packages, two HTML previews, the complete source ZIP/TAR.GZ and a verification report, plus one checksum manifest. Analytics remains **1.0.0**. The offline manual, Native-Sources and all three Runtime-Sources parts remain at **v1.0.0**. The root README and release notes link to the exact current component downloads across the current and earlier releases. The old combined `1.0.0-Releases.tar.gz` remains a historical 1.0.0 bundle.
 
 ## Windows checksum verification
 
@@ -46,7 +46,7 @@ On GNU/Linux, use `sha256sum -c SHA256SUM.txt` from the same directory.
 
 The source archive is an extracted repository snapshot containing code, tests, notices, build tools and both editable/built documentation. It excludes `.git` history, ordinary installed dependencies, build caches, personal state and native release packages. Intentional vendored dependency source and required codec assets are retained.
 
-The historical 1.0.0 combined release archive is a distribution container with nine native packages and an offline manual. Version 1.1.0 uses individual component downloads and does not replace that historical container.
+The historical 1.0.0 combined release archive is a distribution container with nine native packages and an offline manual. Versions 1.1.0 and 1.2.0 use individual component downloads and does not replace that historical container.
 
 The separate `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz` supplies the covered native dependency sources, patches and build recipes. **All numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` parts supply the complete pinned runtime Git dependency graph and supplemental build sources/data described in the source manifest. Both companions are release assets beside the binaries; they are separate from the combined application release archive.
 

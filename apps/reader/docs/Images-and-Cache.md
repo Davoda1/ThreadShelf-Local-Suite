@@ -1,4 +1,4 @@
-# Images and Resources Cache — Reader 1.1.0
+# Images and Resources Cache — Reader 1.2.0
 
 Settings → Appearance → Online images chooses **Load automatically** (default) or **Click to load**. Embedded supported images display immediately. A saved remote source loads inside the conversation; the load control does not open a browser. An unavailable source keeps a placeholder, and a failed request receives a distinct failure placeholder. Images preserve their aspect ratio and remain bounded by the reading pane, including inside tables and supported rich cards.
 

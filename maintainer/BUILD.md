@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds Reader **1.1.0** and Alternative **1.1.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds Reader **1.2.0** and Alternative **1.2.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -84,7 +84,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [release downloads](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) include the suite Source archive, `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz`, and **every numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` part. The ordinary application packagers use the official pinned Electron binaries; rebuilding the runtime is a separate workflow.
+The [current release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.2.0) supplies the suite Source archive. The unchanged [shared source downloads](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) supply `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz`, and **every numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` part. The ordinary application packagers use the official pinned Electron binaries; rebuilding the runtime is a separate workflow.
 
 The runtime parts mirror the complete pinned Electron/Chromium Git dependency trees selected for Linux x64 and Windows x64, including recursive dependencies, runtime JavaScript package sources, source-bearing build packages, Rust standard-library and vendored sources, and exact Linux, Windows and V8 optimization profiles. The source manifest and dependency-condition audit record coverage and separately obtained build tools and SDKs. A compiler, platform SDK, normal build utilities and package-manager installation remain necessary.
 

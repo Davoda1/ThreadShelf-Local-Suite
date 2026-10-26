@@ -1,4 +1,4 @@
-// Usage: node tests/public-upgrade.integration.mjs /path/to/public-1.0.0/apps/reader
+// Usage: node tests/public-upgrade.integration.mjs /path/to/public-baseline/apps/reader
 // Only synthetic data is created. The supplied baseline tree is read-only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -10,8 +10,11 @@ import { ApplicationService } from '../src/core/service.mjs';
 import { localReadingKey } from '../src/core/manager-reading.mjs';
 
 const baseline = process.argv[2] && path.resolve(process.argv[2]);
-if (!baseline) throw new Error('Pass the public 1.0.0 Reader source directory.');
-assert.equal(JSON.parse(await fs.readFile(path.join(baseline, 'package.json'))).version, '1.0.0');
+if (!baseline) throw new Error('Pass the public 1.0.0 or 1.1.0 Reader source directory.');
+const baselineVersion = JSON.parse(await fs.readFile(path.join(baseline, 'package.json'))).version;
+assert.ok(['1.0.0', '1.1.0'].includes(baselineVersion), 'Only released public baselines are supported.');
+const imagePreferencesExist = baselineVersion === '1.1.0';
+const candidateImageMode = imagePreferencesExist ? 'auto' : 'click', candidateCacheEnabled = !imagePreferencesExist;
 const project = fileURLToPath(new URL('..', import.meta.url));
 const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'reader-public-upgrade-'));
 const legacy = path.join(temporary, 'baseline'), dataDir = path.join(temporary, 'synthetic-profile');
@@ -38,15 +41,20 @@ try {
   await fs.symlink(path.join(baseline, 'vendor'), path.join(legacy, 'vendor'), 'junction');
   const { ApplicationService: BaselineService } = await import(pathToFileURL(path.join(legacy, 'src/core/service.mjs')));
   service = await new BaselineService({ dataDir }).init();
-  assert.equal((await service.handle('bootstrap')).version, '1.0.0');
+  assert.equal((await service.handle('bootstrap')).version, baselineVersion);
   const source = path.join(temporary, 'synthetic.json');
   await fs.writeFile(source, JSON.stringify({ id: 'upgrade-fixture', title: 'Synthetic public upgrade', messages: [
     { role: 'user', content: 'Preserve this question.' },
     { role: 'assistant', content: 'Preserve this answer and ![synthetic image](https://images.example.test/sample.png).' },
+    { role: 'assistant', content: '{"duplicate":1,"duplicate":2,"large":900719925474099312345}' },
   ] }));
   const imported = await service.handle('import.paths', { paths: [source], collection: 'Synthetic upgrade' });
   assert.equal(imported.imported, 1); assert.deepEqual(imported.errors, []);
   await service.handle('settings.save', { values: { theme: 'dark', language: 'ja', uiPalette: 'platinum-plus', codeTheme: 'ayu', promptExpandStyle: 'outlined-right', pageSize: 25 } });
+  if (imagePreferencesExist) {
+    await service.handle('settings.save', { values: { remoteImages: 'click' } });
+    await service.handle('resources.settings', { enabled: true });
+  }
   const item = (await service.handle('files', { mode: 'local' })).files[0];
   const ref = { mode: 'local', id: item.id }, key = localReadingKey(item.id);
   await service.handle('reading.save', { key, position: { turnIndex: 1, role: 'assistant', offset: 0.375, title: item.title, ref }, bookmark: { turnIndex: 0, role: 'user', title: item.title, ref } });
@@ -56,35 +64,40 @@ try {
 
   service = await new ApplicationService({ dataDir }).init();
   let boot = await service.handle('bootstrap');
-  assert.equal(boot.version, '1.1.0'); assert.equal(boot.settings.remoteImages, 'auto'); assert.equal(boot.resources.enabled, false);
+  assert.equal(boot.version, '1.2.0'); assert.equal(boot.settings.remoteImages, imagePreferencesExist ? 'click' : 'auto'); assert.equal(boot.resources.enabled, imagePreferencesExist);
   for (const [key,value] of Object.entries(before.settings)) assert.deepEqual(boot.settings[key], value, key);
   assert.deepEqual(boot.reading, before.reading); assert.deepEqual(await service.handle('thread', ref), original);
-  await service.handle('settings.save', { values: { remoteImages: 'click' } });
-  await service.handle('resources.settings', { enabled: true });
+  const upgradedProfile = await treeHashes(dataDir);
+  for (const [name,digest] of Object.entries(profileBefore)) assert.equal(upgradedProfile[name], digest, `Upgrade changed original profile bytes: ${name}`);
+  await service.handle('settings.save', { values: { remoteImages: candidateImageMode } });
+  await service.handle('resources.settings', { enabled: candidateCacheEnabled });
   await service.shutdown(); service = null;
   const profileAfter = await treeHashes(dataDir);
-  for (const [name,digest] of Object.entries(profileBefore)) assert.equal(profileAfter[name], digest, `Original profile file changed: ${name}`);
-  assert.deepEqual(await treeHashes(path.join(dataDir, 'local-storage-v2')), archiveBefore);
   const sidecarNames = ['remote-images-v1.json', 'resource-cache-v1.json'];
+  for (const [name,digest] of Object.entries(profileBefore)) {
+    if (!sidecarNames.some(sidecar => name === sidecar || name === sidecar + '.bak')) assert.equal(profileAfter[name], digest, `Unrelated original profile file changed: ${name}`);
+  }
+  assert.deepEqual(await treeHashes(path.join(dataDir, 'local-storage-v2')), archiveBefore);
   const sidecars = await Promise.all(sidecarNames.map(name => fs.readFile(path.join(dataDir, name))));
 
   service = await new BaselineService({ dataDir }).init();
-  boot = await service.handle('bootstrap'); assert.deepEqual(boot.settings, before.settings); assert.deepEqual(boot.reading, before.reading);
+  boot = await service.handle('bootstrap'); assert.deepEqual(boot.settings, imagePreferencesExist ? {...before.settings, remoteImages: candidateImageMode} : before.settings); assert.deepEqual(boot.reading, before.reading);
+  if (imagePreferencesExist) assert.equal(boot.resources.enabled, candidateCacheEnabled);
   assert.deepEqual(await service.handle('thread', ref), original);
   await service.shutdown(); service = null;
   for (let i=0;i<sidecarNames.length;i++) assert.deepEqual(await fs.readFile(path.join(dataDir, sidecarNames[i])), sidecars[i]);
   assert.deepEqual(await treeHashes(path.join(dataDir, 'local-storage-v2')), archiveBefore);
 
   service = await new ApplicationService({ dataDir }).init();
-  boot = await service.handle('bootstrap'); assert.equal(boot.settings.remoteImages, 'click'); assert.equal(boot.resources.enabled, true);
+  boot = await service.handle('bootstrap'); assert.equal(boot.settings.remoteImages, candidateImageMode); assert.equal(boot.resources.enabled, candidateCacheEnabled);
   assert.deepEqual(await service.handle('thread', ref), original); assert.deepEqual(boot.reading, before.reading);
   await service.shutdown(); service = null;
-  const report = { passed: true, baselineVersion: '1.0.0', candidateVersion: '1.1.0', checks: [
+  const report = { passed: true, baselineVersion, candidateVersion: '1.2.0', checks: [
     'Actual public baseline imports synthetic source and saves preferences, bookmark and reading position',
-    'Upgrade preserves every original profile file byte, archive byte, source identity, message and reading record',
-    'New image settings use independent sidecars',
-    'Public 1.0.0 reopens the profile and preserves new image sidecars',
-    'Public 1.1.0 reopens again with both old data and new image preferences intact',
+    'Upgrade preserves every original profile file byte before explicit preference changes, archive bytes, source identities, messages and reading records',
+    'Image settings use independent sidecars; only explicit preference writes change them',
+    `Public ${baselineVersion} reopens the profile and preserves image sidecars`,
+    'Public 1.2.0 reopens again with both old data and new image preferences intact',
   ] };
   if (process.env.READER_PUBLIC_UPGRADE_REPORT) await fs.writeFile(process.env.READER_PUBLIC_UPGRADE_REPORT, JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));

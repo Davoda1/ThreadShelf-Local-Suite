@@ -1,4 +1,4 @@
-# Local Activity and Server Insights — 1.1.0
+# Local Activity and Server Insights — 1.2.0
 
 The Banner bar has two independent choices: **Local / Server** selects the data
 source; **Reader / Activity** or **Reader / Insights** selects the workspace.

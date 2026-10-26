@@ -1,6 +1,6 @@
 # Release verification — 1.0.0
 
-This document records the historical 1.0.0 baseline. For the current Reader and Alternative release, see [1.1.0 scope and validation](REVIEW-1.1.0.md).
+This document records the historical 1.0.0 baseline. For the current Reader and Alternative release, see [1.2.0 scope and validation](REVIEW-1.2.0.md).
 
 This public release uses the latest supplied Reader 3.3.0 Revision 9, Analytics 2.0.0 Revision 4 and Alternative 1.0.0 Revision 4 codebases, with public GUI versions reset to 1.0.0. Internal archive/schema compatibility identifiers are retained where they affect data interoperability.
 
