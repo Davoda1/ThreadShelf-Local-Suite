@@ -54,6 +54,13 @@ async function fixture(t) {
   const wrapper = path.join(directory, 'exercise.ps1');
   await fs.writeFile(wrapper, `param([string]$Action)
 $ErrorActionPreference = 'Stop'
+# This fixture always stages an x64 Node distribution. Configure its Windows
+# architecture inside the child process: inherited environment keys can differ
+# in case, and Windows child environments treat those aliases as one variable.
+[Environment]::SetEnvironmentVariable('OS', 'Windows_NT', 'Process')
+[Environment]::SetEnvironmentVariable('PROCESSOR_ARCHITECTURE', 'AMD64', 'Process')
+[Environment]::SetEnvironmentVariable('PROCESSOR_ARCHITEW6432', $null, 'Process')
+if ($env:PROCESSOR_ARCHITECTURE -ne 'AMD64' -or $env:PROCESSOR_ARCHITEW6432) { throw 'Synthetic x64 architecture was not isolated.' }
 function Invoke-WebRequest {
   param([string]$Uri, [string]$OutFile, [int]$TimeoutSec, [switch]$UseBasicParsing)
   if ($Uri -notlike 'https://nodejs.org/dist/*/SHASUMS256.txt') { throw ('Unexpected network request: ' + $Uri) }
@@ -71,7 +78,7 @@ finally {
   [IO.File]::WriteAllText($env:TSLR_FIXTURE_SNAPSHOT, (@{before=$before; after=$after} | ConvertTo-Json -Depth 4))
 }
 `);
-  async function run(action = '', failure = '') {
+  async function run(action = '', failure = '', parentEnv = process.env) {
     await fs.writeFile(log, '');
     // Seed owned variables: Linux and Windows PowerShell differ in whether an
     // absent variable restored with a null .NET string remains absent or empty.
@@ -79,9 +86,14 @@ finally {
     const retained = Object.fromEntries(environmentNames.map(name => [name, `preserve-${name}`]));
     retained.Path = process.env.Path || process.env.PATH;
     retained.NODE_USE_ENV_PROXY = '1';
-    const env = { ...process.env, ...retained, OS: 'Windows_NT', PROCESSOR_ARCHITECTURE: 'AMD64', PROCESSOR_ARCHITEW6432: '',
+    const overrides = { ...retained,
       TSLR_FIXTURE_LOG: log, TSLR_FIXTURE_SNAPSHOT: snapshot, TSLR_FIXTURE_SUMS: sums, TSLR_FIXTURE_NODE: process.version,
       TSLR_FIXTURE_FAIL: failure, TSLR_NODE_VERSION: 'preserve-before', TSLR_NODE_CHANNEL: 'preserve-channel' };
+    // Node's Windows spawn deduplicates environment names case-insensitively.
+    // Remove inherited aliases before applying fixture-owned values, so a
+    // differently cased parent key cannot win over the synthetic selection.
+    const ownedNames = new Set([...Object.keys(overrides), 'OS', 'PROCESSOR_ARCHITECTURE', 'PROCESSOR_ARCHITEW6432'].map(name => name.toUpperCase()));
+    const env = { ...Object.fromEntries(Object.entries(parentEnv).filter(([name]) => !ownedNames.has(name.toUpperCase()))), ...overrides };
     const result = spawnSync(pwsh, ['-NoLogo', '-NoProfile', '-File', wrapper, ...(action ? [action] : [])], { encoding: 'utf8', env, timeout: 60000 });
     assert.ifError(result.error);
     const state = JSON.parse(await fs.readFile(snapshot, 'utf8'));
@@ -92,8 +104,11 @@ finally {
   return { run, directory, npmCLI, nodeDir };
 }
 
-test('PowerShell ResolveOnly records and displays the exact selected distribution npm', async t => {
-  const f = await fixture(t), result = await f.run('ResolveOnly');
+test('PowerShell ResolveOnly isolates inherited environment aliases and records the selected distribution npm', async t => {
+  const f = await fixture(t), result = await f.run('ResolveOnly', '', {
+    ...process.env, processor_architecture: 'ARM64', PROCESSOR_ARCHITEW6432: 'ARM64',
+    tslr_fixture_node: 'v0.0.0', path: 'invalid synthetic inherited path',
+  });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, new RegExp(`npm ${fixtureNpm.replaceAll('.', '\\.')}`));
   assert.equal(JSON.parse(await fs.readFile(path.join(f.directory, '.tooling/toolchain.json'))).npm, fixtureNpm);

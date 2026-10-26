@@ -11,6 +11,7 @@ import {UI_PALETTE_IDS} from '../src/core/themes.mjs';
 import {dictionaries} from '../src/ui/i18n.js';
 
 const root=fileURLToPath(new URL('..',import.meta.url));
+const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-resources-ui-'));
 const evidence=process.env.READER_RESOURCES_UI_REPORT||path.join(root,'.verification/resources-cache-ui.json');
 const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
@@ -31,7 +32,7 @@ try{
  page.on('pageerror',error=>errors.push(error.message));
  page.on('dialog',async dialog=>{dialogs.push(dialog.type());await dialog.dismiss();});
  await page.route(/^https?:/,route=>{if(new URL(route.request().url()).origin!==origin){externalRequests.push(route.request().url());return route.abort();}return route.continue();});
- await page.addInitScript(()=>{
+ await page.addInitScript(({version})=>{
   const params=new URLSearchParams(location.search),clone=value=>structuredClone(value);
   const saved=JSON.parse(localStorage.getItem('fixture-settings')||'{}');
   const settings={mode:'local',language:'en',theme:'dark',uiPalette:'default',fontSize:'normal',animations:false,waveVideoBackground:false,remoteImages:'auto',pageSize:25,listMode:'pages',localCollection:'all',serverCollection:'all',serverUrl:'http://server-one.test/',...saved};
@@ -48,7 +49,7 @@ try{
   window.fixture={seed(){cache.conversations=clone(rows);saveCache();},status,settings,cache:()=>clone(cache),calls:[],failSettings:false,failClear:false,recovery:false,contextGate:null,loadGate:null};
   window.desktop={onProgress(){},onMenu(){},invoke:async(action,args={})=>{
    window.fixture.calls.push({action,args:clone(args)});
-   if(action==='bootstrap')return {settings:clone(settings),resources:status(),reading:{positions:{},bookmarks:[],recent:[]},version:'1.2.0',searchStatus:{}};
+   if(action==='bootstrap')return {settings:clone(settings),resources:status(),reading:{positions:{},bookmarks:[],recent:[]},version,searchStatus:{}};
    if(action==='collections')return {collections:[{name:'Fixture',count:1}]};
    if(action==='files')return {files:[{...clone(thread),id:settings.mode==='server'?undefined:thread.id,turns:undefined}],total:1};
    if(action==='thread')return clone(thread);
@@ -64,10 +65,10 @@ try{
    if(action==='resources.load'){if(window.fixture.loadGate)await window.fixture.loadGate;return {dataUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAIAAAD4YuoOAAAAIElEQVR4nGM0arrDQEvARFPTRy0YtWDUglELRi2gEgAA3M0BsKdT9rEAAAAASUVORK5CYII=',cached:true,stored:false};}
    if(action==='resources.cancel'||action==='operation.cancel')return {ok:true};
    if(action==='search.status')return {};
-   if(action==='app.about')return {version:'1.2.0'};
+   if(action==='app.about')return {version};
    throw Error('Unexpected resource UI fixture action '+action);
   }};
- });
+ },{version});
  const go=async(query='')=>{await page.goto(origin+'/'+query);await page.locator('.conversation-row').waitFor();};
  const open=async()=>{await page.locator('[data-action="settings"]').click();await page.locator('[data-action="settings-tab"][data-tab="databaseManager"]').click();await page.waitForFunction(()=>!document.querySelector('#managerRoot fieldset')?.disabled);await page.locator('[data-action="manager-view"][data-view="resources"]').click();await page.waitForFunction(()=>document.querySelector('#resourcesCacheEnabled')&&!document.querySelector('#managerRoot fieldset')?.disabled);};
  const close=async()=>{await page.locator('.modal-header [data-action="modal-close"]').click();await page.locator('#settingsForm').waitFor({state:'detached'});};
@@ -116,7 +117,7 @@ try{
   }
  }
  checks.push('All 19 palettes × 5 languages × 2 color modes, XL text at 680×540; cache view and confirmation fit their scroll panel');
- await go();await page.locator('[data-action="about"]').click();assert.match(await page.locator('.about-brand').innerText(),/1\.1\.0/s);assert.doesNotMatch(await page.locator('.modal').innerText(),/Reader Plus|ThreadShelf Reader 3\.1\.1|Revision/);await page.locator('.modal-header [data-action="modal-close"]').click();
+ await go();await page.locator('[data-action="about"]').click();assert.equal(await page.locator('.about-brand .fine').innerText(),version);assert.doesNotMatch(await page.locator('.modal').innerText(),/Reader Plus|ThreadShelf Reader 3\.1\.1|Revision/);await page.locator('.modal-header [data-action="modal-close"]').click();
  await page.evaluate(()=>{localStorage.setItem('fixture-cache','{"enabled":false,"conversations":[]}');});await page.reload();await page.locator('.conversation-row').waitFor();await page.locator('.conversation-row').click();
  await page.waitForFunction(()=>document.querySelectorAll('.reader-markdown-image-content').length===2&&[...document.querySelectorAll('.reader-markdown-image-content')].every(n=>n.complete&&n.naturalWidth===32));
  let calls=await page.evaluate(()=>fixture.calls);assert.equal(calls.filter(c=>c.action==='resources.context').length,1,'Two images share one lazy captured conversation context');
@@ -144,7 +145,7 @@ try{
  checks.push('Default-off empty cache stays idle in Click mode and routes the clicked image through the validated bridge without direct network requests');
 
  assert.deepEqual(errors,[]);assert.deepEqual(dialogs,[]);assert.deepEqual(externalRequests,[]);
- report={passed:true,version:'1.2.0',browser:browser.version(),checks,geometry,paletteCount:UI_PALETTE_IDS.length,localeCount:5,colorModes:2,minimumViewport:{width:680,height:540},geometryCases:geometry.length,pageErrors:errors,nativeDialogs:dialogs,externalRequests};
+ report={passed:true,version,browser:browser.version(),checks,geometry,paletteCount:UI_PALETTE_IDS.length,localeCount:5,colorModes:2,minimumViewport:{width:680,height:540},geometryCases:geometry.length,pageErrors:errors,nativeDialogs:dialogs,externalRequests};
  console.log(JSON.stringify({passed:true,checks:checks.length,geometryCases:geometry.length}));
 }catch(error){report={passed:false,error:error.stack,checks,geometry,pageErrors:errors,nativeDialogs:dialogs,externalRequests};throw error;}
 finally{await fs.mkdir(path.dirname(evidence),{recursive:true});await fs.writeFile(evidence,JSON.stringify(report,null,2)+'\n');await browser.close();await new Promise(resolve=>server.close(resolve));await fs.rm(tmp,{recursive:true,force:true});}
