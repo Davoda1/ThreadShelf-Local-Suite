@@ -20,7 +20,9 @@ const environmentNames = ['Path', 'TSLR_NODE_VERSION', 'TSLR_NODE_CHANNEL', 'TSL
   'ONNXRUNTIME_NODE_INSTALL', 'ELECTRON_SKIP_BINARY_DOWNLOAD'];
 
 async function fixture(t) {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'tslr npm ~ % '));
+  // Windows TEMP may use an 8.3 parent alias while Node reports its long name.
+  // Keep the intentional special characters, but compare real file identities.
+  const directory = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'tslr npm ~ % ')));
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const scripts = path.join(directory, 'scripts');
   const nodeDir = path.join(directory, '.tooling', `node-${process.version}-win-x64`);
@@ -113,7 +115,7 @@ test('PowerShell ResolveOnly isolates inherited environment aliases and records 
   assert.match(result.stdout, new RegExp(`npm ${fixtureNpm.replaceAll('.', '\\.')}`));
   assert.equal(JSON.parse(await fs.readFile(path.join(f.directory, '.tooling/toolchain.json'))).npm, fixtureNpm);
   assert.deepEqual(result.calls.map(x => x.args), [['--version'], ['--version']]);
-  for (const call of result.calls) assert.equal(call.node, path.join(f.nodeDir, 'node.exe'));
+  for (const call of result.calls) assert.equal(await fs.realpath(call.node), await fs.realpath(path.join(f.nodeDir, 'node.exe')), 'The selected Node executable was used');
 });
 
 test('PowerShell selected npm runs every existing build/test/package/start flow without the global wrapper', async t => {
@@ -125,8 +127,8 @@ test('PowerShell selected npm runs every existing build/test/package/start flow 
     if (last) expected.push(last);
     assert.deepEqual(result.calls.map(x => x.args), expected, action);
     for (const call of result.calls.filter(x => x.node)) {
-      assert.equal(call.node, path.join(f.nodeDir, 'node.exe'));
-      assert.equal(call.cwd, f.directory);
+      assert.equal(await fs.realpath(call.node), await fs.realpath(path.join(f.nodeDir, 'node.exe')), 'The selected Node executable was used');
+      assert.equal(await fs.realpath(call.cwd), f.directory, 'Commands run in the isolated project directory');
     }
   }
 });
