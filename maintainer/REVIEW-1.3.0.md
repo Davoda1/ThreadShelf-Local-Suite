@@ -63,9 +63,30 @@ Electron 45.1.0 was released during review. It updates embedded Node to 24.22.1 
 
 The official npm 12.2.1 and 11.21.1 tarballs inspected on 27 October 2026 both bundle Undici 6.29.0. The candidate therefore uses an isolated npm 12.2.1 copy with the complete official Undici 6.29.1 package substituted for that dependency. Both input tarballs have pinned SHA-512 integrity values; the managed profile verifies its full file inventory and node-gyp's actual module resolution before use. This is a documented local toolchain modification, not a new official npm release or a global npm update. The separate application lockfile Undici entries and Electron's embedded Undici remain 7.30.1.
 
-Independent dependency checks reproduced the original unhandled-error process crash and safe handling after replacement: four regression cases passed across Client and RetryAgent. Seven actual node-gyp consumer checks passed on each version, including redirects, gzip, retries, proxy bypass and custom-CA HTTPS. Undici 6.29.1 satisfies node-gyp's `^6.25.0` requirement and is outside all five affected ranges reported for 6.29.0 at review time. Final local integration verification passed: 18 managed-toolchain security/integrity tests, clean Reader and Analytics installs/builds/source suites, all four Linux/Windows-target dependency preparation paths, 12 Reader runtime-policy tests, four Reader PowerShell and seven Analytics PowerShell fixtures, plus Mermaid and holiday clean builds/tests. Both copies of the bootstrap are identical. Updated CI definitions passed actionlint; GitHub execution and native Windows execution remain pending. The npm bundled-Undici blocker is resolved for the managed build paths. A clean application npm audit is not proof that every runtime or toolchain component is vulnerability-free.
+Independent dependency checks reproduced the original unhandled-error process crash and safe handling after replacement: four regression cases passed across Client and RetryAgent. Seven actual node-gyp consumer checks passed on each version, including redirects, gzip, retries, proxy bypass and custom-CA HTTPS. Undici 6.29.1 satisfies node-gyp's `^6.25.0` requirement and is outside all five affected ranges reported for 6.29.0 at review time. Final local integration verification passed: 19 managed-toolchain security/integrity tests, clean Reader and Analytics installs/builds/source suites, all four Linux/Windows-target dependency preparation paths, 12 Reader runtime-policy tests, four Reader PowerShell and seven Analytics PowerShell fixtures, plus Mermaid and holiday clean builds/tests. Both copies of the bootstrap are identical. Updated CI definitions passed actionlint; corrected-head GitHub and native Windows validation remain pending after the initial hosted findings below. The npm bundled-Undici blocker is resolved for the managed build paths. A clean application npm audit is not proof that every runtime or toolchain component is vulnerability-free.
 
 This container blocks the local Unix sockets required by normal Chromium/Electron process-singleton startup and Xvfb. Supported headless-shell renderer checks work, but do not replace native desktop GUI execution. Native Windows execution requires a Windows runner. No production sandbox/IPC checks were weakened to work around the host restriction.
+
+## Initial hosted validation and corrections
+
+The first source candidate, `fd8c1938b1ac77b1de76b0783da5345f72d895f8`, was pushed in
+[PR #1](https://github.com/Davoda1/ThreadShelf-Local-Suite/pull/1).
+[Checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/runs/40595431212)
+passed server integration and exposed an Alternative test that still expected
+1.2.0. The [package matrix](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/runs/40595504316)
+passed Reader and Alternative Linux native GUI validation. Analytics Linux
+stopped on a test assertion expecting 1.0.0, and Windows preparation stopped
+because GNU tar treated an absolute drive-letter archive path as a remote host.
+
+The consolidated correction uses an archive basename with its containing
+directory as tar's working directory. A new regression verifies real extraction
+and the unchanged full managed npm fingerprint; all 19 toolchain tests pass.
+Current GUI/browser harnesses derive their strict version expectations from
+the source manifests, retaining rejection of stale packaged versions. Historical
+profile and schema fixtures retain their original versions. The complete
+eight-suite browser feature matrix passed again after these corrections.
+The corrected head and merged commit still require hosted checks and all six
+package jobs. The original failures remain in the run history.
 
 ## Publication gates
 

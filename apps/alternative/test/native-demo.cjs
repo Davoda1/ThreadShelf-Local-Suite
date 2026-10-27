@@ -3,6 +3,7 @@
 // isolated profile. TSA_APP_PATH can point to frozen packaged resources/app.
 // The temporary QA wrapper observes outbound calls without changing their behavior.
 // TSA_TEST_NO_UNIX_SOCKETS=1 bypasses only the single-instance lock on restricted hosts.
+const VERSION = require('../package.json').version;
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -13,7 +14,7 @@ const PRODUCT = 'ThreadShelf Local Alternative';
 const START = 'Start here · Your ThreadShelf guide';
 const WORKSHOP = 'The diagram workshop · From rough notes to clear plans';
 const report = {
-  product: PRODUCT, version: '1.2.0',
+  product: PRODUCT, version: VERSION,
   target: process.env.TSA_DEMO_TARGET || 'source', tests: [], errors: [], status: 'running',
   method: 'Native welcome entry, rendered internal guide links, Mermaid previews, real native clipboard, and connection dialog with outbound-call observation.',
   limitations: ['Runs native Linux Electron; native Windows execution is not claimed.',
@@ -63,7 +64,7 @@ require(${JSON.stringify(main)});
 
   await check('native welcome loads thirteen conversations and the three Claude guides first', async () => {
     const info = await page.evaluate(() => alternative.getInfo());
-    assert.equal(info.name, PRODUCT); assert.equal(info.version, '1.2.0'); assert.equal(Object.hasOwn(info, "revision"), false);
+    assert.equal(info.name, PRODUCT); assert.equal(info.version, VERSION); assert.equal(Object.hasOwn(info, "revision"), false);
     assert.ok(info.profile.startsWith(temporary), 'The native profile must be isolated');
     assert.equal(await page.locator('#welcome-demo').isVisible(), true);
     await page.click('#welcome-demo');

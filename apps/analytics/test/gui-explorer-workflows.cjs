@@ -3,7 +3,7 @@
  * The production application and its security preferences are unchanged. */
 const fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path'),net=require('node:net'),assert=require('node:assert/strict');
 const {spawn}=require('node:child_process'),{_electron}=require('playwright');
-const project=path.resolve(__dirname,'..');let app,page,temp,xserver;
+const project=path.resolve(__dirname,'..');const expectedVersion=require('../package.json').version;let app,page,temp,xserver;
 const facts={runtime:'Actual offline preview UI in Linux Electron',syntheticOnly:true,testOnlyRootSandboxFlag:true,productionSourcesUnmodified:true,errors:[],networkRequests:[],workflows:[]};
 const waitPort=port=>new Promise((resolve,reject)=>{const end=Date.now()+12000;function check(){const s=net.createConnection({host:'127.0.0.1',port});s.once('connect',()=>{s.destroy();resolve()});s.once('error',()=>Date.now()>end?reject(Error('Display unavailable')):setTimeout(check,100))}check()});
 async function idle(){await page.waitForFunction(()=>!document.querySelector('#analytics-boot')&&!/Loading|Calculating/.test(document.querySelector('.footer')?.textContent||''));}
@@ -12,7 +12,7 @@ async function saveView(name){await page.locator('[data-action="save-view"]').cl
 (async()=>{try{
  temp=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-explorer-workflows-'));const env={...process.env};
  const xvfb=env.ANALYTICS_XVFB_PATH;if(xvfb){env.DISPLAY='localhost:108';xserver=spawn(xvfb,[':108','-screen','0','2000x1400x24','-ac','-nolisten','unix','-nolisten','local','-listen','tcp','-pn',...(env.ANALYTICS_XKB_DIR?['-xkbdir',env.ANALYTICS_XKB_DIR]:[])],{env,stdio:'ignore'});await waitPort(6108);}
- const main=path.join(temp,'main.cjs'),preview=path.join(project,'release','ThreadShelf-Local-Analytics-1.0.0-Preview.html');await fs.writeFile(main,"const{app,BrowserWindow}=require('electron');app.setPath('userData',"+JSON.stringify(path.join(temp,'profile'))+");app.whenReady().then(()=>{const w=new BrowserWindow({width:1180,height:800,minWidth:680,minHeight:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile("+JSON.stringify(preview)+");});app.on('window-all-closed',()=>app.quit());");
+ const main=path.join(temp,'main.cjs'),preview=path.join(project,'release',`ThreadShelf-Local-Analytics-${expectedVersion}-Preview.html`);await fs.writeFile(main,"const{app,BrowserWindow}=require('electron');app.setPath('userData',"+JSON.stringify(path.join(temp,'profile'))+");app.whenReady().then(()=>{const w=new BrowserWindow({width:1180,height:800,minWidth:680,minHeight:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile("+JSON.stringify(preview)+");});app.on('window-all-closed',()=>app.quit());");
  app=await _electron.launch({executablePath:env.ANALYTICS_ELECTRON_PATH||path.join(project,'node_modules/electron/dist/electron'),args:['--no-sandbox',main],env,timeout:30000});page=await app.firstWindow();page.on('pageerror',e=>facts.errors.push(e.message));page.on('request',r=>{if(!/^(file:|blob:|data:)/.test(r.url()))facts.networkRequests.push(r.url())});await idle();assert.equal(await page.evaluate(()=>typeof window.analytics),'undefined');
  // A saved provider selection is created using the actual shared filter controls.
  await page.locator('[data-quick="providers"]').selectOption('VeniceAI');await idle();await saveView('Workflow Venice');await page.locator('[data-action="reset"]').click();await idle();

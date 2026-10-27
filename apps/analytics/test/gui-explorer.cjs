@@ -3,14 +3,14 @@
  * Production executable and sandbox options are unchanged. */
 const fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict'),net=require('node:net');
 const {spawn}=require('node:child_process'),{_electron}=require('playwright');
-const project=path.resolve(__dirname,'..');let app,xserver,temp,page;
-const facts={version:'1.0.0',runtime:'Actual offline UI in Linux Electron',syntheticOnly:true,productionSourcesUnmodified:true,testOnlyRootSandboxFlag:true,errors:[],requests:[],families:[],layouts:[],workflows:[]};
+const project=path.resolve(__dirname,'..');const expectedVersion=require('../package.json').version;let app,xserver,temp,page;
+const facts={version:expectedVersion,runtime:'Actual offline UI in Linux Electron',syntheticOnly:true,productionSourcesUnmodified:true,testOnlyRootSandboxFlag:true,errors:[],requests:[],families:[],layouts:[],workflows:[]};
 const waitPort=port=>new Promise((resolve,reject)=>{const end=Date.now()+12000;function check(){const socket=net.createConnection({host:'127.0.0.1',port});socket.once('connect',()=>{socket.destroy();resolve()});socket.once('error',()=>Date.now()>end?reject(Error('Display unavailable')):setTimeout(check,100))}check()});
 async function layout(name){const m=await page.evaluate(()=>({width:innerWidth,height:innerHeight,bodyWidth:document.body.scrollWidth,bodyHeight:document.body.scrollHeight}));assert(m.bodyWidth<=m.width+1&&m.bodyHeight<=m.height+1,name+' global overflow');facts.layouts.push({name,...m});}
 (async()=>{try{
  temp=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-explorer-gui-'));const env={...process.env};
  if(env.ANALYTICS_XVFB_PATH){env.DISPLAY='localhost:107';xserver=spawn(env.ANALYTICS_XVFB_PATH,[':107','-screen','0','2000x1400x24','-ac','-nolisten','unix','-nolisten','local','-listen','tcp','-pn',...(env.ANALYTICS_XKB_DIR?['-xkbdir',env.ANALYTICS_XKB_DIR]:[])],{env,stdio:'ignore'});await waitPort(6107)}
- const main=path.join(temp,'main.cjs');await fs.writeFile(main,"const{app,BrowserWindow}=require('electron');app.whenReady().then(()=>{const w=new BrowserWindow({width:1180,height:800,minWidth:680,minHeight:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile("+JSON.stringify(path.join(project,'release','ThreadShelf-Local-Analytics-1.0.0-Preview.html'))+");});app.on('window-all-closed',()=>app.quit());");
+ const main=path.join(temp,'main.cjs');await fs.writeFile(main,"const{app,BrowserWindow}=require('electron');app.whenReady().then(()=>{const w=new BrowserWindow({width:1180,height:800,minWidth:680,minHeight:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile("+JSON.stringify(path.join(project,'release',`ThreadShelf-Local-Analytics-${expectedVersion}-Preview.html`))+");});app.on('window-all-closed',()=>app.quit());");
  app=await _electron.launch({executablePath:path.join(project,'node_modules/electron/dist/electron'),args:['--no-sandbox',main],env});page=await app.firstWindow();page.on('pageerror',e=>facts.errors.push(String(e.message)));page.on('request',r=>{if(!/^(file:|data:|blob:)/.test(r.url()))facts.requests.push(r.url().split('?')[0])});await page.waitForFunction(()=>!document.querySelector('#analytics-boot')&&!!document.querySelector('[data-workspace="explorer"]'));
  await page.locator('[data-workspace="explorer"]').click();const families=new Set();let views=0;
  for(const subview of ['distributions','relationships','sequences','compare','observability']){

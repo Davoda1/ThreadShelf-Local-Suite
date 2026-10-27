@@ -7,6 +7,7 @@
  * copy of its embedding cache live in a new temporary directory. No real chat
  * exports or existing databases are read. The temporary directory is removed.
  */
+const VERSION = require('../package.json').version;
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -23,7 +24,7 @@ const appRoot = path.resolve(__dirname, '..');
 const ROOT = path.resolve(serverRoot);
 const serverNode = process.env.THREADSHELF_TEST_NODE || process.execPath;
 const report = {
-  product: 'ThreadShelf Local Alternative', version: '1.2.0',
+  product: 'ThreadShelf Local Alternative', version: VERSION,
   verifiedAt: new Date().toISOString(), serverVersion: null,
   fixture: { syntheticOnly: true, collections: 2, chunks: 520, conversations: 520, sharedSourceAndKeys: true },
   dataIsolation: 'Fresh temporary LanceDB, uploads, settings, model cache, tools and collections paths; original installation unchanged.',

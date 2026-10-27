@@ -4,14 +4,14 @@
  */
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),net=require('node:net'),assert=require('node:assert/strict');
 const {spawn}=require('node:child_process'),{_electron}=require('playwright');
-const project=path.resolve(__dirname,'..');let app,xserver,temp;
-const facts={application:'ThreadShelf Local Analytics',version:'1.0.0',suite:'Focused synthetic line hover and attachment width',syntheticOnly:true,sandboxedRenderer:true,productionSourceModified:false,externalRequests:[],rendererErrors:[],checks:[]};
+const project=path.resolve(__dirname,'..');const expectedVersion=require('../package.json').version;let app,xserver,temp;
+const facts={application:'ThreadShelf Local Analytics',version:expectedVersion,suite:'Focused synthetic line hover and attachment width',syntheticOnly:true,sandboxedRenderer:true,productionSourceModified:false,externalRequests:[],rendererErrors:[],checks:[]};
 const waitPort=port=>new Promise((resolve,reject)=>{const until=Date.now()+12000;function probe(){const socket=net.createConnection({port,host:'127.0.0.1'});socket.once('connect',()=>{socket.destroy();resolve();});socket.once('error',()=>Date.now()>until?reject(Error('QA display did not start')):setTimeout(probe,100));}probe();});
 (async()=>{try{
   temp=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-hover-qa-'));
   const env={...process.env,DISPLAY:process.env.ANALYTICS_HOVER_DISPLAY||'localhost:106'};
   if(process.env.ANALYTICS_XVFB_PATH){xserver=spawn(process.env.ANALYTICS_XVFB_PATH,[':106','-screen','0','1600x1200x24','-ac','-nolisten','unix','-nolisten','local','-listen','tcp','-pn',...(process.env.ANALYTICS_XKB_DIR?['-xkbdir',process.env.ANALYTICS_XKB_DIR]:[])],{env,stdio:'ignore'});await waitPort(6106);}
-  const preview=path.resolve(process.env.ANALYTICS_HOVER_PREVIEW||path.join(project,'release','ThreadShelf-Local-Analytics-1.0.0-Preview.html'));
+  const preview=path.resolve(process.env.ANALYTICS_HOVER_PREVIEW||path.join(project,'release',`ThreadShelf-Local-Analytics-${expectedVersion}-Preview.html`));
   const harness=path.join(temp,'harness');await fs.mkdir(harness);await fs.writeFile(path.join(harness,'package.json'),JSON.stringify({name:'analytics-synthetic-hover-qa',main:'main.cjs'}));
   await fs.writeFile(path.join(harness,'main.cjs'),`const {app,BrowserWindow}=require('electron');app.setPath('userData',${JSON.stringify(path.join(temp,'profile'))});app.whenReady().then(()=>{const window=new BrowserWindow({width:680,height:540,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,partition:'qa-synthetic-hover'}});window.setContentSize(680,540);window.loadFile(${JSON.stringify(preview)});});app.on('window-all-closed',()=>app.quit());`);
   app=await _electron.launch({executablePath:process.env.ANALYTICS_ELECTRON_PATH||path.join(project,'.packaging','native-test-runtime','electron'),args:['--no-sandbox','--disable-gpu',harness],env,timeout:30000});

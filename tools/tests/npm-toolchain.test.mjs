@@ -4,7 +4,9 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import https from 'node:https';
+import childProcess from 'node:child_process';
 import { spawnSync } from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { ARCHIVES, TOOLCHAIN, ensureNpm, npmEnvironment, treeFingerprint, verifyIntegrity, verifyNpm } from '../../apps/reader/scripts/npm-toolchain.mjs';
 
@@ -75,6 +77,34 @@ describe('managed npm archive and cache boundary', { concurrency: false }, () =>
     assert.deepEqual(await ensureNpm({ cacheRoot }), toolchain);
     assert.equal((await fs.stat(toolchain.cli)).mtimeMs, before.mtimeMs);
     assert.equal(https.get.mock.callCount(), 0);
+  });
+
+  test('archive paths containing a drive colon extract locally with system tar', async t => {
+    // Git Bash can select GNU tar on Windows, where D:\\ in -f selects its
+    // remote-archive parser. Verify the actual subprocess boundary on every
+    // platform, then let real system tar extract and verify the complete tree.
+    const cache = path.join(temporary, process.platform === 'win32' ? 'drive path cache' : 'D: drive path cache');
+    await seedCache(cache);
+    t.mock.method(https, 'get', () => { throw new Error('Tests must not download toolchain archives'); });
+    const originalSpawn = childProcess.spawnSync, archives = [];
+    const observedSpawn = t.mock.method(childProcess, 'spawnSync', (command, args, options) => {
+      if (command === 'tar' || command === 'tar.exe') {
+        assert.equal(args[0], '-xzf');
+        assert.equal(args[1], path.basename(args[1]), 'tar must receive a local archive basename, never an absolute drive path');
+        assert.equal(options.cwd, path.join(cache, 'downloads'));
+        archives.push(args[1]);
+      }
+      return originalSpawn(command, args, options);
+    });
+    syncBuiltinESMExports();
+    try {
+      const prepared = await ensureNpm({ cacheRoot: cache });
+      assert.deepEqual(archives, Object.values(ARCHIVES).map(archive => archive.name));
+      assert.equal(prepared.treeSha256, TOOLCHAIN.treeSha256);
+      assert.equal(prepared.files, TOOLCHAIN.files);
+      assert.equal(prepared.undici, TOOLCHAIN.undici);
+      assert.equal(https.get.mock.callCount(), 0);
+    } finally { observedSpawn.mock.restore(); syncBuiltinESMExports(); }
   });
 
   test('corrupt cached archive fails before extraction or network access', async t => {

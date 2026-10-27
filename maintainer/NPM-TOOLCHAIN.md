@@ -113,12 +113,18 @@ version, including redirects, gzip, retries, proxy bypass and custom-CA HTTPS.
 These checks establish the dependency behavior; they do not by themselves
 verify every integration entrypoint.
 
-Final local integration passed: 18 security/integrity regressions, clean
+Final local integration passed: 19 security/integrity regressions, clean
 application installs/builds/tests, all four package dependency-preparation
 paths, PowerShell bootstrap fixtures, and shared renderer/holiday checks.
 [REVIEW-1.3.0.md](REVIEW-1.3.0.md) records the evidence and remaining platform
-limits. This closes the npm blocker; it does not authorize a commit or push. A later official npm update must receive the same
+limits. This closes the managed npm blocker. A later official npm update must receive the same
 dependency inspection before removing this replacement.
+
+The first Windows hosted run exposed GNU tar interpreting the drive colon in
+an absolute archive filename as a remote host. Extraction now supplies a local
+archive basename from its containing directory, which works with both GNU and
+BSD tar. The regression exercises real extraction and verifies the complete
+managed tree; the pinned inputs and resulting inventory remain unchanged.
 
 The verified package contains 1,984 regular files. Its inventory fingerprint is
 `9ebc2520cba8d11db8eb1ad2dcf01cc1f5be769a880631166553660c0837b0ca`.
