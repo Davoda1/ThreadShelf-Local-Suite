@@ -121,9 +121,12 @@ limits. This closes the managed npm blocker. A later official npm update must re
 dependency inspection before removing this replacement.
 
 The first Windows hosted run exposed GNU tar interpreting the drive colon in
-an absolute archive filename as a remote host. Extraction now supplies a local
-archive basename from its containing directory, which works with both GNU and
-BSD tar. The regression exercises real extraction and verifies the complete
+an absolute archive filename as a remote host. A follow-up run exposed direct
+Node spawning also passing a Windows backslash path to GNU tar's `-C` argument.
+Extraction now uses the destination as Node's working directory, a relative
+archive path with forward slashes, and no `-C` argument. Both paths are in the
+same private cache. The regression exercises real extraction through this
+portable subprocess boundary and verifies the complete
 managed tree; the pinned inputs and resulting inventory remain unchanged.
 
 The verified package contains 1,984 regular files. Its inventory fingerprint is

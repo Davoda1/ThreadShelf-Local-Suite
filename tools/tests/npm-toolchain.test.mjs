@@ -79,20 +79,24 @@ describe('managed npm archive and cache boundary', { concurrency: false }, () =>
     assert.equal(https.get.mock.callCount(), 0);
   });
 
-  test('archive paths containing a drive colon extract locally with system tar', async t => {
-    // Git Bash can select GNU tar on Windows, where D:\\ in -f selects its
-    // remote-archive parser. Verify the actual subprocess boundary on every
-    // platform, then let real system tar extract and verify the complete tree.
+  test('archive and extraction paths remain local across native Windows and POSIX tar', async t => {
+    // Direct Node spawning does not translate Windows drive/backslash paths
+    // for GNU tar from Git Bash. Keep them in native cwd, not tar arguments.
+    // Observe the boundary, then use real tar and verify the complete tree.
     const cache = path.join(temporary, process.platform === 'win32' ? 'drive path cache' : 'D: drive path cache');
     await seedCache(cache);
     t.mock.method(https, 'get', () => { throw new Error('Tests must not download toolchain archives'); });
     const originalSpawn = childProcess.spawnSync, archives = [];
     const observedSpawn = t.mock.method(childProcess, 'spawnSync', (command, args, options) => {
       if (command === 'tar' || command === 'tar.exe') {
-        assert.equal(args[0], '-xzf');
-        assert.equal(args[1], path.basename(args[1]), 'tar must receive a local archive basename, never an absolute drive path');
-        assert.equal(options.cwd, path.join(cache, 'downloads'));
-        archives.push(args[1]);
+        assert.deepEqual(args, ['-xzf', args[1], '--strip-components=1'], 'extract into native cwd without passing a Windows -C path');
+        assert.equal(path.isAbsolute(args[1]), false, 'tar must receive a relative archive path');
+        assert.doesNotMatch(args[1], /[:\\]/, 'tar archive path must contain neither a drive colon nor backslash separators');
+        assert.equal(path.dirname(path.dirname(options.cwd)), cache, 'native cwd must be inside the private extraction stage');
+        assert.match(path.basename(path.dirname(options.cwd)), /^\.stage-/);
+        assert.ok(['npm', 'undici'].includes(path.basename(options.cwd)));
+        assert.equal(path.resolve(options.cwd, args[1]), path.join(cache, 'downloads', path.basename(args[1])));
+        archives.push(path.basename(args[1]));
       }
       return originalSpawn(command, args, options);
     });

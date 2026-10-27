@@ -6,7 +6,7 @@ Desktop readers, local archive analytics, and a search integration patch for [Th
 
 **Reader 1.3.0 · Analytics 1.3.0 · Alternative 1.3.0 · Windows x64 · GNU/Linux amd64**
 
-Version **1.3.0 is an unreleased local candidate** updating the three desktop apps to Electron **45.1.0**, the pinned Node.js **24.22.1** / npm **12.2.1** build toolchain, stable **ONNX Runtime 1.31.1** for Reader’s native and portable inference paths, and reviewed rendering/archive dependencies. Application versions are aligned; persisted formats and existing package layouts retain their compatibility contracts. See the [1.3.0 changes](CHANGELOG.md), [candidate validation and outstanding gates](maintainer/REVIEW-1.3.0.md), and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml). The published downloads below remain at their existing versions until the candidate passes its release gates.
+Version **1.3.0 is an unreleased candidate** updating the three desktop apps to Electron **45.1.0**, the pinned Node.js **24.22.1** / npm **12.2.1** build toolchain, stable **ONNX Runtime 1.31.1** for Reader’s native and portable inference paths, and reviewed rendering/archive dependencies. Application versions are aligned; persisted formats and existing package layouts retain their compatibility contracts. See the [1.3.0 changes](CHANGELOG.md), [candidate validation and outstanding gates](maintainer/REVIEW-1.3.0.md), and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml). The published downloads below remain at their existing versions until the candidate passes its release gates.
 
 | Application | Choose it when you want… |
 | --- | --- |

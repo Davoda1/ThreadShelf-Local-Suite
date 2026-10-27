@@ -78,8 +78,11 @@ passed Reader and Alternative Linux native GUI validation. Analytics Linux
 stopped on a test assertion expecting 1.0.0, and Windows preparation stopped
 because GNU tar treated an absolute drive-letter archive path as a remote host.
 
-The consolidated correction uses an archive basename with its containing
-directory as tar's working directory. A new regression verifies real extraction
+The first correction exposed a second GNU tar boundary issue: direct Node
+spawning does not translate a Windows backslash destination for `-C`. The final
+correction uses the extraction destination as Node's working directory, passes
+a relative archive path with forward slashes and omits `-C`. A new regression
+verifies real extraction
 and the unchanged full managed npm fingerprint; all 19 toolchain tests pass.
 Current GUI/browser harnesses derive their strict version expectations from
 the source manifests, retaining rejection of stale packaged versions. Historical

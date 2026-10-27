@@ -106,9 +106,11 @@ async function extract(archive, directory) {
   await fs.mkdir(directory,{recursive:true});
   // These exact official archives contain only regular files/directories.
   // Their pinned SHA-512 is checked immediately before invoking system tar.
-  // Git Bash may supply GNU tar, which treats a Windows drive colon in -f as
-  // a remote host. A basename plus cwd is local with both GNU and BSD tar.
-  const result=spawnSync(process.platform==='win32'?'tar.exe':'tar',['-xzf',path.basename(archive),'--strip-components=1','-C',directory],{cwd:path.dirname(archive),encoding:'utf8'});
+  // Native Node spawning does not translate drive/backslash paths for GNU
+  // tar from Git Bash. Both paths share this cache: keep the native directory
+  // in cwd and give GNU/BSD tar only a slash-separated relative archive path.
+  const relativeArchive=path.relative(directory,archive).split(path.sep).join('/');
+  const result=spawnSync(process.platform==='win32'?'tar.exe':'tar',['-xzf',relativeArchive,'--strip-components=1'],{cwd:directory,encoding:'utf8'});
   if(result.error)throw new Error(`Cannot extract the npm toolchain. Install system tar and retry: ${result.error.message}`);
   if(result.status!==0)throw new Error(`Toolchain extraction failed: ${result.stderr}`);
 }
