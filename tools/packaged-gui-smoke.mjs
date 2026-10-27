@@ -13,8 +13,8 @@ import { _electron } from './mermaid-bundle/node_modules/playwright-core/index.m
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const [application, runtimeArg, executableArg, reportArg] = process.argv.slice(2);
-assert.ok(['reader', 'alternative'].includes(application) && runtimeArg && executableArg && reportArg && process.argv.length === 6,
-  'Usage: node tools/packaged-gui-smoke.mjs reader|alternative RUNTIME EXECUTABLE REPORT.json');
+assert.ok(['reader', 'analytics', 'alternative'].includes(application) && runtimeArg && executableArg && reportArg && process.argv.length === 6,
+  'Usage: node tools/packaged-gui-smoke.mjs reader|analytics|alternative RUNTIME EXECUTABLE REPORT.json');
 assert.ok(['linux', 'win32'].includes(process.platform), 'Run on a supported native package host.');
 const runtime = path.resolve(runtimeArg), executable = path.resolve(executableArg), reportPath = path.resolve(reportArg);
 const appRoot = path.join(runtime, 'resources', 'app');
@@ -103,6 +103,11 @@ async function launch() {
     XDG_CONFIG_HOME: path.join(temporary, 'config'), XDG_CACHE_HOME: path.join(temporary, 'cache'),
     THREADSHELF_READER_TEST_DATA: path.join(temporary, 'reader-profile') };
   for (const name of ['ELECTRON_RUN_AS_NODE', 'NODE_OPTIONS', 'THREADSHELF_READER_SMOKE']) delete env[name];
+  // Analytics uses its ordinary profile and boot path, without test-mode data
+  // roots or any singleton, copied-main, display or sandbox accommodations.
+  if (application === 'analytics') {
+    for (const name of Object.keys(env)) if (/^ANALYTICS_/i.test(name)) delete env[name];
+  }
   currentApp = await _electron.launch({ executablePath: executable, args: ['--disable-gpu'],
     chromiumSandbox: true, env, cwd: temporary, timeout: 45000 });
   const page = await currentApp.firstWindow({ timeout: 45000 });
@@ -111,6 +116,7 @@ async function launch() {
   page.on('request', request => { if (/^https?:/i.test(request.url())) report.observedRendererRequests.push(request.url()); });
   await page.waitForFunction(app => app === 'reader'
     ? !!window.desktop?.invoke && !!document.querySelector('.shell')
+    : app === 'analytics' ? !!window.analytics?.bootstrap && !!document.querySelector('.shell')
     : !!window.alternative?.getInfo && document.querySelector('#app')?.dataset.ready === 'true', application);
   const identity = await currentApp.evaluate(({ app, BrowserWindow }) => ({
     exe: process.execPath, appRoot: app.getAppPath(), resources: process.resourcesPath,
@@ -370,21 +376,65 @@ async function alternative() {
   await close();
 }
 
+async function analytics() {
+  async function settled(page) {
+    await page.waitForFunction(async () => {
+      const value = await window.analytics.bootstrap();
+      return value.boot?.phase === 'ready' && value.discovery?.status === 'absent'
+        && !value.discoveryBusy && !value.registrationBusy && !value.job?.running
+        && !document.querySelector('#analytics-boot') && document.querySelector('#app')?.inert === false;
+    });
+    return page.evaluate(() => window.analytics.bootstrap());
+  }
+  let page = await launch();
+  assert.equal(page.url(), 'analytics://app/index.html');
+  assert.deepEqual(await currentApp.evaluate(() => Object.keys(process.env).filter(name => /^ANALYTICS_/i.test(name))), []);
+  const initial = await settled(page);
+  assert.deepEqual(initial.sources, []); assert.deepEqual(initial.conversations, []);
+  assert.equal(initial.settings.language, 'en'); assert.equal(initial.settings.history.enabled, false);
+  check('Shipped native Analytics completes its production boot and empty worker-backed bootstrap through the sandboxed preload');
+  await page.evaluate(() => window.analytics.updateSettings({ language: 'hu', appearance: 'light' }));
+  await page.waitForFunction(() => document.documentElement.lang === 'hu' && document.documentElement.dataset.theme === 'light');
+  await page.evaluate(() => window.analytics.updateSettings({ language: 'de', appearance: 'dark' }));
+  await page.waitForFunction(() => document.documentElement.lang === 'de' && document.documentElement.dataset.theme === 'dark');
+  check('Production settings IPC updates the visible light/dark theme and Hungarian/German language');
+  const usage = await page.evaluate(() => window.analytics.storageUsage());
+  assert.ok(usage.totalBytes > 0); assert.equal(usage.rollbackBaselinePreserved, true);
+  const profile = await currentApp.evaluate(({ app }) => app.getPath('userData'));
+  const lease = path.join(profile, 'analytics-v2', 'writer-lock');
+  assert.equal((await fs.lstat(lease)).isDirectory(), true);
+  await close();
+  assert.equal(await fs.lstat(lease).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; }), false);
+  check('Native storage IPC reports the owned profile and graceful close releases its writer lease');
+  page = await launch();
+  const reopened = await settled(page);
+  assert.equal(await canonical(await currentApp.evaluate(({ app }) => app.getPath('userData'))), await canonical(profile));
+  assert.equal(reopened.settings.language, 'de'); assert.equal(reopened.settings.appearance, 'dark');
+  assert.deepEqual(reopened.sources, []); assert.deepEqual(reopened.conversations, []);
+  await page.waitForFunction(() => document.documentElement.lang === 'de' && document.documentElement.dataset.theme === 'dark');
+  await close();
+  assert.equal(await fs.lstat(lease).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; }), false);
+  check('Analytics settings and visible language/theme persist across a graceful native restart');
+}
+
 try {
   temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'threadshelf-release-gui-'));
   for (const directory of ['appdata', 'local-appdata', 'config', 'cache', 'reader-profile']) await fs.mkdir(path.join(temporary, directory));
-  if (application === 'alternative' && process.platform === 'win32') {
+  if (['analytics', 'alternative'].includes(application) && process.platform === 'win32') {
     // Some Windows known-folder implementations ignore APPDATA overrides.
     // Refuse an existing default profile before any native launch. A fresh
     // default is permitted only on the disposable GitHub Actions runner.
     assert.ok(process.env.APPDATA && path.isAbsolute(process.env.APPDATA), 'Windows APPDATA is required for safe profile preflight');
-    const fallback = path.join(process.env.APPDATA, 'ThreadShelf Local Alternative');
+    const product = 'ThreadShelf Local ' + application[0].toUpperCase() + application.slice(1);
+    const fallback = path.join(process.env.APPDATA, product);
     assert.equal(await fs.lstat(fallback).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; }), false,
-      'Refusing to launch Alternative while a default profile already exists');
+      `Refusing to launch ${product} while a default profile already exists`);
     if (process.env.GITHUB_ACTIONS === 'true' && inside(os.homedir(), fallback)) freshCiDefault = fallback;
   }
   const before = await fingerprint(runtime);
-  if (application === 'reader') await reader(); else await alternative();
+  if (application === 'reader') await reader();
+  else if (application === 'analytics') await analytics();
+  else await alternative();
   assert.deepEqual(report.errors, []); assert.deepEqual(report.observedRendererRequests, []);
   assert.deepEqual(await fingerprint(runtime), before, 'All shipped package bytes, modes and symlinks must remain unchanged');
   report.packageFingerprint = before;

@@ -2,9 +2,9 @@
 """Verify built archives and execute their native runtime on the matching host.
 
 Copyright (c) 2026 davoda1. MIT; see ../LICENSE.
-This is a development check, not an application launcher. Reader and Alternative
-exercise relocated release archives on both systems; Analytics additionally
-exercises its relocated TAR and extracted DEB graphical interface on Linux.
+This is a development check, not an application launcher. All applications
+exercise relocated release archives graphically on both systems; Analytics
+uses its deeper capture/reindex harness for Linux TAR and extracted DEB payloads.
 """
 from __future__ import annotations
 import argparse
@@ -332,7 +332,7 @@ def main():
             storage_report = reports / (prefix + '-storage.json')
             storage_report.write_text(json.dumps(storage, indent=2) + '\n', encoding='utf-8')
             summary['storageReport'] = storage_report.name
-        if args.app in ('reader', 'alternative'):
+        if args.app in ('reader', 'alternative') or (args.app == 'analytics' and args.platform == 'win32'):
             gui = packaged_gui(args.app, out, manifest, args.platform, env, replacements)
             gui_report = reports / (prefix + '-gui.json')
             gui_report.write_text(json.dumps(gui, indent=2) + '\n', encoding='utf-8')
