@@ -84,6 +84,18 @@ This repository contains the integration changes and patching tools. Configurati
 
 Start with [maintainer/BUILD.md](maintainer/BUILD.md). The suite pins Node.js **24.19.0** and npm **11.9.0** for development builds. Electron is pinned separately for each application; the embedded Node.js is part of that runtime.
 
+### Watch the build
+
+Watch the real terminal build of Reader **1.2.0**, Analytics **1.0.0**, and Alternative **1.2.0** from commit [`c1030b0f0143`](https://github.com/Davoda1/ThreadShelf-Local-Suite/commit/c1030b0f014332a9b746ed4e2d93cd672bcb2a09). The recording covers dependency installation, tests, all nine Windows/Linux packages, archive validation, and SHA-256 checks.
+
+https://github.com/user-attachments/assets/d106addb-9198-4d61-bad0-ac57cf7db4f5
+
+[Download the MP4](docs/extras/ThreadShelf-Local-Suite-Real-Build-125x30.mp4?raw=1) · [Interactive recording on asciinema](https://asciinema.org/a/1270177) · [Download the asciinema cast](docs/extras/ThreadShelf-Local-Suite-Real-Build-125x30.cast?raw=1)
+
+The 125×30 terminal capture preserves the original timing; the matching video is 1080p at 30 fps. The recorded run passed **951 tests**, skipped **4**, and verified all nine packages. Windows packages were cross-built on Linux; native Windows GUI execution is not shown. One public dependency-maintainer contact address is masked for publication.
+
+### Publishing
+
 For the repository owner, [maintainer/GITHUB-SETUP.md](maintainer/GITHUB-SETUP.md) explains the first upload, repository description/settings, private Git commit email, Pages, Actions and release assets. The included workflows build artifacts; publication is a separate maintainer action.
 
 ## Independence and attribution
