@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package the independent application. Python 3.10+; pinned Node.js 24.19.0 for Windows.
+"""Package the independent application. Python 3.10+; pinned Node.js 24.22.1 for Windows.
 
 The app uses Electron directly, without npm installation or launcher wrappers.
 All filesystem writes stay inside the explicitly selected work/output/cache paths.
@@ -21,11 +21,11 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCT = 'ThreadShelf Local Alternative'
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.2.0'
-ELECTRON = '44.9.1'
+PREFIX = 'ThreadShelf-Local-Alternative-1.3.0'
+ELECTRON = '45.1.0'
 HASHES = {
-    'linux': '994bc3664cc3ac55b50c21a58d345cf8322003d37f5439a81801e3267e6145e2',
-    'win32': '41bd7900bd42d0f49110a81617876137041fbbf473466920248ddb076349ef91',
+    'linux': '9dafab2c57ce209f8f716f8f3e4fddd8ffe0820e2455bfbbfc00b0fc13e03a3b',
+    'win32': '55eaba17abff7b5bba6c3bbc85068967379024fe742fe9c7fdba9118922ccbe2',
 }
 EXCLUDE_DIRS = {'.git', '.cache', '.build', 'dist', 'node_modules', '__pycache__', 'screenshots', '.verification'}
 APP_FILES = ['package.json', 'main.cjs', 'preload.cjs', 'core', 'renderer', 'assets', 'vendor', 'licenses', 'LICENSE', 'THIRD-PARTY-NOTICES.md']
@@ -64,7 +64,7 @@ def package_notices(runtime_prefix=''):
     app = runtime_prefix + 'resources/app/'
     return f'''# Distribution notices
 
-ThreadShelf Local Alternative 1.2.0 is an independent application by davoda1.
+ThreadShelf Local Alternative 1.3.0 is an independent application by davoda1.
 Original application code is MIT licensed: [application license]({runtime_prefix}APPLICATION-LICENSE).
 
 The complete component credits and terms are retained in the
@@ -219,7 +219,7 @@ def windows(args, work: Path, out: Path):
     exe = stage / f'{PRODUCT}.exe'
     subprocess.run([args.node, str(ROOT / 'scripts/rebrand-windows.mjs'), str(stage / 'electron.exe'), str(exe)], check=True)
     (stage / 'electron.exe').unlink()
-    (stage / 'version').write_text('1.2.0\n', encoding='utf-8')
+    (stage / 'version').write_text('1.3.0\n', encoding='utf-8')
     assert_runtime_tree(stage, manifest, 'Windows staging')
     if not args.stage_only:
         artifact = out / f'{PREFIX}-Windows-x64-Portable.zip'
@@ -239,7 +239,7 @@ def linux(args, work: Path, out: Path):
     (runtime_dir / SLUG).chmod(0o755)
     for name in ('chrome_crashpad_handler', 'chrome-sandbox'):
         (runtime_dir / name).chmod(0o755)
-    (runtime_dir / 'version').write_text('1.2.0\n', encoding='utf-8')
+    (runtime_dir / 'version').write_text('1.3.0\n', encoding='utf-8')
     (stage / 'bin').mkdir()
     (stage / 'bin' / SLUG).symlink_to(f'../lib/{SLUG}/{SLUG}')
     (stage / 'README.md').write_text(package_readme(f'lib/{SLUG}/'), encoding='utf-8', newline='\n')
@@ -294,7 +294,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     control.mkdir()
     installed_kib = sum((app / name).stat().st_size for name in manifest) // 1024
     (control / 'control').write_text(
-        f'Package: {SLUG}\nVersion: 1.2.0\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
+        f'Package: {SLUG}\nVersion: 1.3.0\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
         f'Maintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: {installed_kib}\n'
         'Depends: libasound2t64 | libasound2, libatk1.0-0t64 | libatk1.0-0, libatk-bridge2.0-0t64 | libatk-bridge2.0-0, '
         'libatspi2.0-0t64 | libatspi2.0-0, libc6 (>= 2.31), libcairo2, libcups2t64 | libcups2, libdbus-1-3, '
@@ -305,7 +305,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     if not args.stage_only:
         if not shutil.which('dpkg-deb'):
             raise SystemExit('dpkg-deb is required to build the Debian package. Use Linux or WSL.')
-        artifact = out / f'{SLUG}_1.2.0_amd64.deb'
+        artifact = out / f'{SLUG}_1.3.0_amd64.deb'
         expected = {f'opt/{SLUG}/' + name for name in manifest}
         expected.update({f'usr/bin/{SLUG}', f'usr/share/applications/{SLUG}.desktop', f'usr/share/icons/hicolor/512x512/apps/{SLUG}.png'})
         expected.update(f'usr/share/doc/{SLUG}/{name}' for name in ('README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / name).is_file())

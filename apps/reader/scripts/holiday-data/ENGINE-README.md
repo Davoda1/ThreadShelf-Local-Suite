@@ -34,7 +34,7 @@ Return value:
 
 ## Coverage and rules
 
-The data is derived reproducibly from **date-holidays 3.37.0**, data version **2026-09-20**, using **date-holidays-parser 3.4.7**. It contains **207 country/territory entries** and **3,286 national public rule entries**. The precise supported code list is in `metadata.supportedCountries`; each country's English name and rules are in `holidays`. Countries absent from this list are unsupported, and no national holiday data has been fabricated for them.
+The data is derived reproducibly from **date-holidays 3.38.0**, data version **2026-10-24**, using **date-holidays-parser 3.4.7**. It contains **207 country/territory entries** and **3,288 national public rule entries**. The precise supported code list is in `metadata.supportedCountries`; each country's English name and rules are in `holidays`. Countries absent from this list are unsupported, and no national holiday data has been fabricated for them.
 
 Only the upstream **country-level `public`** rules are retained. States, provinces, regions, and their distinct holidays are removed; shared country rule references are resolved first. Other upstream observance, bank, optional, and school categories are excluded. Dates, active periods, substitutions, multiday durations, and known one-off government dates are preserved. English names are retained to keep the JSON small. A federal holiday classification follows the upstream dataset; it does not assert that every worker or business is legally entitled to a day off.
 
@@ -61,12 +61,12 @@ A holiday lasting only part of a date still activates that entire date, matching
 
 ## Rebuild and tests
 
-Use Node.js and npm in `apps/reader/scripts/holiday-data`, from a complete suite source checkout/archive:
+Use Node.js 24.22.1 and the managed npm 12.2.1 profile with bundled Undici 6.29.1 in `apps/reader/scripts/holiday-data`, from a complete suite source checkout/archive. The parent script uses the same verified profile as the Reader source helper:
 
 ```sh
-npm ci
-npm run build
-npm test
+node ../npm-toolchain.mjs -- ci
+node ../npm-toolchain.mjs -- run build
+node ../npm-toolchain.mjs -- test
 ```
 
 `package-lock.json` pins the source data, parser, bundler, and transitive dependencies. The build writes these three generated files directly, relative to the Reader source root (`apps/reader/`):
@@ -77,7 +77,7 @@ npm test
 | `src/desktop/holiday/assets/data/holiday-rules.json` | The single shipped holiday-rule JSON |
 | `src/desktop/holiday/assets/data/HOLIDAY-LICENSES.txt` | Consolidated data and runtime dependency attribution |
 
-It does not generate duplicate runtime files or JSON in this tools directory. Output paths are anchored to the build script location, so `node /path/to/apps/reader/scripts/holiday-data/build.mjs` works from another working directory too. Tests import/read these exact generated GUI files, not a separate test copy. `npm run check` performs build and tests together. npm and dependencies are build-time tools only. No `node_modules` folder from this tools directory is needed in a delivered application; the prebuilt committed GUI engine and JSON support the normal GUI build without rebuilding holiday data.
+It does not generate duplicate runtime files or JSON in this tools directory. Output paths are anchored to the build script location, so `node /path/to/apps/reader/scripts/holiday-data/build.mjs` works from another working directory too. Tests import/read these exact generated GUI files, not a separate test copy. `node ../npm-toolchain.mjs -- run check` performs build and tests together. npm and dependencies are build-time tools only. No `node_modules` folder from this tools directory is needed in a delivered application; the prebuilt committed GUI engine and JSON support the normal GUI build without rebuilding holiday data.
 
 Tests cover Hungarian fixed holidays and ordinary days; Western and Orthodox Easter across years; Christmas profiles; Julian/Gregorian date drift; observed substitute days and New Year rollover; regional-only exclusion; Christian days outside public holidays; invalid/unknown country handling; local-date extraction; input immutability; and comparison of all derived national event dates with the full upstream dataset for **all 207 entries in 2025, 2026, and 2027**. The same tests can run with different `TZ` settings to catch host timezone dependence.
 

@@ -10,9 +10,9 @@ import { build } from 'esbuild';
 const root = fileURLToPath(new URL('.', import.meta.url));
 const suite = path.resolve(root, '../..');
 const checking = process.argv.includes('--check');
-assert.equal(process.version, 'v24.19.0', 'Use the pinned Node.js build version.');
+assert.equal(process.version, 'v24.22.1', 'Use the pinned Node.js build version.');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
-const versions = { mermaid: '11.17.2', dompurify: '3.4.17', katex: '0.18.2', esbuild: '0.25.12' };
+const versions = { mermaid: '12.2.0', dompurify: '3.4.17', katex: '0.19.1', esbuild: '0.28.2' };
 for (const [name, version] of Object.entries(versions)) {
   assert.equal(JSON.parse(await readFile(path.join(root, 'node_modules', name, 'package.json'))).version, version);
 }
@@ -22,7 +22,7 @@ const result = await build({
   bundle: true, format: 'iife', platform: 'browser', target: 'chrome144',
   minify: true, keepNames: true, sourcemap: false, write: false,
   legalComments: 'eof', metafile: true, logLevel: 'silent',
-  banner: { js: '/* ThreadShelf offline diagram renderer. Mermaid 11.17.2; DOMPurify 3.4.17; KaTeX 0.18.2. See accompanying Mermaid-BUNDLE-NOTICES.txt. */' },
+  banner: { js: '/* ThreadShelf offline diagram renderer. Mermaid 12.2.0; DOMPurify 3.4.17; KaTeX 0.19.1. See accompanying Mermaid-BUNDLE-NOTICES.txt. */' },
 });
 assert.equal(result.outputFiles.length, 1);
 const bundle = result.outputFiles[0].contents;
@@ -68,7 +68,7 @@ for (const name of ['mermaid', 'dompurify', 'katex']) {
 const manifest = {
   formatVersion: 1,
   description: 'Exact dependencies incorporated into the shared offline diagram renderer.',
-  toolchain: { node: '24.19.0', npm: '11.9.0', esbuild: versions.esbuild },
+  toolchain: { node: '24.22.1', npm: '12.2.1', esbuild: versions.esbuild },
   versions,
   bundle: { file: 'mermaid.min.js', bytes: bundle.length, sha256: hash(bundle), externalImports: 0 },
   packageLockSha256: hash(await readFile(path.join(root, 'package-lock.json'))),

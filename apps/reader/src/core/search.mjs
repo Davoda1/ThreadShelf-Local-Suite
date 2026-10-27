@@ -1,3 +1,4 @@
+import './onnx-privacy.cjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';

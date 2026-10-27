@@ -25,6 +25,8 @@ def skip(relative):
         return True
     if len(parts) > 2 and parts[:3] == ('tools', 'mermaid-bundle', 'node_modules'):
         return True
+    if parts[:5] == ('apps', 'reader', 'scripts', 'holiday-data', 'node_modules'):
+        return True
     return len(parts) > 2 and parts[0] == 'apps' and parts[1] in {'reader', 'analytics'} and parts[2] == 'node_modules'
 
 

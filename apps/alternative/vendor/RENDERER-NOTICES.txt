@@ -9,8 +9,8 @@ negative-value labels to prevent overlap.
 
 Marked 17.0.5: Markdown parser. MIT, see licenses/Marked-LICENSE.md.
 MathJax 3.2.1: local TeX to SVG. Apache 2.0, see licenses/MathJax-LICENSE.txt.
-Mermaid 11.17.2: local diagram renderer, shared with the Local Reader bundle.
-Includes DOMPurify 3.4.17 and KaTeX 0.18.2. MIT for Mermaid itself;
+Mermaid 12.2.0: local diagram renderer, shared with the Local Reader bundle.
+Includes DOMPurify 3.4.17 and KaTeX 0.19.1. MIT for Mermaid itself;
 see licenses/Mermaid-LICENSE.txt and the complete incorporated-component
 notices/versions in licenses/Mermaid-BUNDLE-NOTICES.txt and
 licenses/Mermaid-BUNDLE-MANIFEST.json. Reproducible source recipe and lockfile:

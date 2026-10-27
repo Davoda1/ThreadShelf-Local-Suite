@@ -21,9 +21,9 @@ if ((pinned)); then
  [[ "$(uname -s)" == Linux ]] || { echo 'This script targets GNU/Linux.' >&2; exit 1; }
  case "$(uname -m)" in x86_64|amd64) node_arch=x64 ;; *) echo 'Packages target GNU/Linux x86-64.' >&2; exit 1 ;; esac
  tooling_dir="$project_dir/.tooling"; mkdir -p "$tooling_dir/downloads"
- curl -fsSL --retry 2 'https://nodejs.org/dist/v24.19.0/SHASUMS256.txt' -o "$tooling_dir/downloads/SHASUMS256.txt"
+ curl -fsSL --retry 2 'https://nodejs.org/dist/v24.22.1/SHASUMS256.txt' -o "$tooling_dir/downloads/SHASUMS256.txt"
  node_archive="$(awk -v a="$node_arch" '$2 ~ ("^node-v[0-9.]+-linux-" a "\\.tar\\.xz$") {print $2; exit}' "$tooling_dir/downloads/SHASUMS256.txt")"
- [[ -n "$node_archive" ]] || { echo 'Cannot resolve pinned Node.js 24.19.0 LTS.' >&2; exit 1; }
+ [[ -n "$node_archive" ]] || { echo 'Cannot resolve pinned Node.js 24.22.1 LTS.' >&2; exit 1; }
  if [[ -f "$tooling_dir/downloads/$node_archive" ]] && ! (cd "$tooling_dir/downloads"; awk -v a="$node_archive" '$2 == a {print}' SHASUMS256.txt | sha256sum -c - >/dev/null 2>&1); then rm -f -- "$tooling_dir/downloads/$node_archive"; fi
  if [[ ! -f "$tooling_dir/downloads/$node_archive" ]]; then
   node_version="${node_archive%%-linux-*}"; node_version="${node_version#node-}"
@@ -35,15 +35,18 @@ if ((pinned)); then
  if [[ ! -x "$node_dir/bin/node" ]] || ! "$node_dir/bin/node" --version >/dev/null 2>&1; then tar --no-same-owner -xJf "$tooling_dir/downloads/$node_archive" -C "$tooling_dir"; fi
  export PATH="$node_dir/bin:$PATH"
 fi
-command -v node >/dev/null; command -v npm >/dev/null
+command -v node >/dev/null
 node -e 'if(Number(process.versions.node.split(".")[0])<24) throw Error("Node 24+ required; use default pinned LTS tooling")'
-echo "Node $(node --version); npm $(npm --version)"
-npm ci --ignore-scripts --no-audit --no-fund
+node scripts/npm-toolchain.mjs --report
+selected_node_version="$(node --version)"
+managed_npm_version="$(node scripts/npm-toolchain.mjs -- --version)"
+echo "Node $selected_node_version; npm $managed_npm_version"
+node scripts/npm-toolchain.mjs -- ci --ignore-scripts --no-audit --no-fund
 node scripts/ensure-electron.mjs
-npm run build
+node scripts/npm-toolchain.mjs -- run build
 case "$action" in
  build) ;;
- test) npm test ;;
- package) npm test; npm run package ;;
- run) npm start ;;
+ test) node scripts/npm-toolchain.mjs -- test ;;
+ package) node scripts/npm-toolchain.mjs -- test; node scripts/npm-toolchain.mjs -- run package ;;
+ run) node scripts/npm-toolchain.mjs -- start ;;
 esac

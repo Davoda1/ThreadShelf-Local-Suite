@@ -36,3 +36,9 @@ apps/reader/public/mermaid.min.js -text
 apps/alternative/vendor/mermaid.min.js -text
 apps/reader/licenses/Mermaid-BUNDLE-* -text
 apps/alternative/vendor/licenses/Mermaid-BUNDLE-* -text
+
+# Preserve retained upstream notices and checksum-covered provenance inputs.
+apps/analytics/licenses/npm/** -text
+apps/reader/licenses/ONNX-* -text
+maintainer/runtime-source-inputs/** -text
+maintainer/onnx-source-inputs/** -text

@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
-const input = path.resolve(process.argv[2] || 'release/ThreadShelf-Local-Reader-1.2.0-Preview.html');
+const input = path.resolve(process.argv[2] || 'release/ThreadShelf-Local-Reader-1.3.0-Preview.html');
 const output = path.resolve(process.argv[3] || 'docs/screenshots');
 await fs.mkdir(output, { recursive: true });
 const browser = await chromium.launch({ headless: true, ...(process.env.THREADSHELF_CHROMIUM ? { executablePath: process.env.THREADSHELF_CHROMIUM } : {}), args: ['--no-sandbox'] });
@@ -55,6 +55,6 @@ try {
   await page.locator('[data-action="about"]').click();
   await shot('reader-about');
   if (errors.length) throw Error('Renderer errors: ' + errors.join('; '));
-  await fs.writeFile(path.join(output, 'capture.json'), JSON.stringify({ application: 'ThreadShelf Local Reader', version: '1.2.0', method: 'Production renderer in synthetic offline browser preview; native storage, network and OS-region operations are not exercised.', viewport: { width: 1360, height: 900 }, holidayScenario: 'Synthetic 2026-01-01 Europe/London', captures, pageErrors: errors }, null, 2) + '\n');
+  await fs.writeFile(path.join(output, 'capture.json'), JSON.stringify({ application: 'ThreadShelf Local Reader', version: '1.3.0', method: 'Production renderer in synthetic offline browser preview; native storage, network and OS-region operations are not exercised.', viewport: { width: 1360, height: 900 }, holidayScenario: 'Synthetic 2026-01-01 Europe/London', captures, pageErrors: errors }, null, 2) + '\n');
   console.log(JSON.stringify({ captures, pageErrors: errors }));
 } finally { await browser.close(); }

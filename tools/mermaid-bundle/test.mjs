@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Copyright (c) 2026 davoda1. MIT.
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { chromium } from 'playwright-core';
+import { chromium, _electron } from 'playwright-core';
 import { buildMermaidRepairCandidates } from '../../apps/reader/src/reader/mermaid-repair.js';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
@@ -17,13 +18,39 @@ const testDependencies = await build({
   stdin: { contents: "import DOMPurify from 'dompurify'; import katex from 'katex'; globalThis.testDependencies = { DOMPurify, katex };", resolveDir: root },
   bundle: true, write: false, format: 'iife', platform: 'browser', target: 'chrome144', logLevel: 'silent',
 });
-const browser = await chromium.launch({ headless: true,
-  ...(process.env.THREADSHELF_CHROMIUM ? { executablePath: process.env.THREADSHELF_CHROMIUM } : {}),
-  args: ['--no-sandbox'],
-});
+let browser;
+let electron;
+let harness;
 const passed = [];
 try {
-  const page = await browser.newPage();
+  let page;
+  if (process.env.THREADSHELF_ELECTRON) {
+    harness = await mkdtemp(path.join(os.tmpdir(), 'threadshelf-diagram-runtime-'));
+    const main = path.join(harness, 'main.cjs');
+    await writeFile(main, `const { app, BrowserWindow } = require('electron');
+const profile = require('node:path').join(__dirname, 'profile');
+require('node:fs').mkdirSync(profile, { recursive: true });
+app.setPath('userData', profile);
+app.whenReady().then(() => {
+  const window = new BrowserWindow({ show: false, width: 1200, height: 900,
+    webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
+  window.loadURL('about:blank');
+});
+app.on('window-all-closed', () => app.quit());
+`);
+    const env = { ...process.env };
+    delete env.ELECTRON_RUN_AS_NODE;
+    delete env.NODE_OPTIONS;
+    electron = await _electron.launch({ executablePath: process.env.THREADSHELF_ELECTRON,
+      args: ['--no-sandbox', '--disable-gpu', main], env });
+    page = await electron.firstWindow();
+  } else {
+    browser = await chromium.launch({ headless: true,
+      ...(process.env.THREADSHELF_CHROMIUM ? { executablePath: process.env.THREADSHELF_CHROMIUM } : {}),
+      args: ['--no-sandbox'],
+    });
+    page = await browser.newPage();
+  }
   const requests = [];
   await page.route('**/*', route => { requests.push(route.request().url()); return route.abort(); });
   await page.setContent('<!doctype html><html><head><meta charset="utf-8"></head><body><main id="result"></main></body></html>');
@@ -47,8 +74,11 @@ try {
         // Mermaid's KaTeX path requires HTML labels. Product defaults remain
         // unchanged; other cases exercise the normal SVG-text label path.
         const htmlLabels = name === 'math';
+        const classic = { theme, look: 'classic' };
         mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', suppressErrorRendering: true, theme,
-          htmlLabels, flowchart: { htmlLabels } });
+          look: 'classic', layout: 'dagre', htmlLabels, flowchart: { ...classic, htmlLabels, wrappingWidth: 200, minNodeWidth: 0 },
+          sequence: classic, class: classic, state: { ...classic, layout: 'dagre', wrappingWidth: 200, minNodeWidth: 0 },
+          er: classic, requirement: classic, swimlane: classic, venn: classic });
         const { svg } = await mermaid.render(`diagram_${theme}_${name}`, source);
         const host = document.getElementById('result'); host.innerHTML = svg;
         return { svg: Boolean(host.querySelector('svg')), math: Boolean(host.querySelector('math')), text: host.textContent,
@@ -111,9 +141,13 @@ try {
     } finally { delete Object.prototype.trust; }
     return results;
   });
-  assert.deepEqual(security, { dompurify: '3.4.17', katex: '0.18.2', hookRemovedHandler: true, rawtextRejected: true, inheritedTrustRejected: true });
+  assert.deepEqual(security, { dompurify: '3.4.17', katex: '0.19.1', hookRemovedHandler: true, rawtextRejected: true, inheritedTrustRejected: true });
   passed.push('DOMPurify detached-hook regression', 'DOMPurify rawtext-root regression', 'KaTeX inherited-trust regression');
   assert.deepEqual(requests, [], 'All diagram rendering must remain offline');
   passed.push('No network requests', 'Reader and Alternative bundles identical');
-  console.log(JSON.stringify({ result: 'PASS', count: passed.length, passed }, null, 2));
-} finally { await browser.close(); }
+  console.log(JSON.stringify({ result: 'PASS', runtime: electron ? await electron.evaluate(() => process.versions) : { chromium: browser.version() }, count: passed.length, passed }, null, 2));
+} finally {
+  await electron?.close();
+  await browser?.close();
+  if (harness) await rm(harness, { recursive: true, force: true });
+}

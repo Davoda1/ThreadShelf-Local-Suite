@@ -1,6 +1,6 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.2.0 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.3.0 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
@@ -8,9 +8,9 @@ Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-S
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.2.0-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.2.0-Linux-amd64.tar.gz` and run `bin/threadshelf-local-reader`. It links directly to the native executable; preserve the directory structure and symlinks.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.2.0_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.2.0_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.3.0-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.3.0-Linux-amd64.tar.gz` and run `bin/threadshelf-local-reader`. It links directly to the native executable; preserve the directory structure and symlinks.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.3.0_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.3.0_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js or npm. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -59,12 +59,16 @@ Import and export actions use explicit file selection. Remote model setup and se
 
 ## Build from source
 
-Pinned release tools: **Node.js 24.19.0 LTS**, **npm 11.9.0**, **Electron 44.9.1**. See [Toolchain](docs/Toolchain.md).
+Pinned release tools: **Node.js 24.22.1 LTS**, **Electron 45.1.0**, and an isolated managed copy of **npm 12.2.1** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files before use. This is a documented local modification of npm, not an official patched npm release, and does not change global npm. See [Toolchain](docs/Toolchain.md).
+
+Reader pins `onnxruntime-web`, `onnxruntime-node` and `onnxruntime-common` to stable **1.31.1**. Transformers 4.3.2 uses its supplied source entry with those external dependencies. See [ONNX source and build details](licenses/ONNX-SOURCE-ACCESS.md).
+
+Run these commands from the Reader application directory in a source checkout or source archive. The build helper is included in source distributions; packaged desktop applications do not include it or require npm.
 
 ```sh
-npm ci --include=optional
-npm run build
-npm test
+node scripts/npm-toolchain.mjs -- ci --include=optional
+node scripts/npm-toolchain.mjs -- run build
+node scripts/npm-toolchain.mjs -- test
 node scripts/package.mjs --linux
 node scripts/package.mjs --win32
 ```

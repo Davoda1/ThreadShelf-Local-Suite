@@ -151,11 +151,13 @@ def verify_archive(archive, stage, prefix='', deb=False, approved_links=None):
     expected = snapshot(stage, approved_links)
     if deb:
         expected = {name: value for name, value in expected.items() if not name.startswith('DEBIAN/')}
-    # The packager intentionally excludes the original runtime executable after branding.
+    # The packager intentionally excludes the original executable and default app.
     # Managed filesystems may show an unlinked original in staging; its presence in
     # an archive is still rejected below as an unexpected file.
     excluded_originals = {'electron.exe'} if 'Windows' in archive.name else {'app/electron', 'opt/threadshelf-local-analytics/electron'}
-    expected = {name: value for name, value in expected.items() if name not in excluded_originals}
+    default_apps = {'resources/default_app.asar', 'app/resources/default_app.asar',
+                    'opt/threadshelf-local-analytics/resources/default_app.asar'}
+    expected = {name: value for name, value in expected.items() if name not in excluded_originals | default_apps}
     seen = set()
     total_bytes = 0
     mode_checks = 0
@@ -167,6 +169,8 @@ def verify_archive(archive, stage, prefix='', deb=False, approved_links=None):
             if not name.startswith(prefix + '/'):
                 raise ValueError(f'{archive.name}: missing top-level {prefix}: {name}')
             name = name[len(prefix) + 1:]
+        if name in default_apps:
+            raise ValueError(f'{archive.name}: Electron default application is included: {name}')
         return name
 
     def check_entry(name):
@@ -278,6 +282,7 @@ def verify_archive(archive, stage, prefix='', deb=False, approved_links=None):
             'stagingByteMatches': True, 'modeChecks': mode_checks,
             'nativeEntrypointSymlinkChecks': link_checks,
             'launcherScriptDirectoriesChecked': entry_directories,
+            'omittedDefaultApp': True,
             'zipCrcChecked': archive.suffix == '.zip'}
 
 
@@ -336,7 +341,7 @@ def verify_runtime(cache, platform, runtime, electron_version):
                     raise ValueError(f'Runtime mismatch: {platform}/{entry.filename}')
             compared += 1
     return {'platform': platform, 'electron': electron_version, 'officialFilesVerified': compared,
-            'omittedDefaultApp': True, 'windowsBrandingCheck': pe}
+            'windowsBrandingCheck': pe}
 
 
 def verify_license_inputs(app):
@@ -346,9 +351,11 @@ def verify_license_inputs(app):
     for name, value in expected.items():
         if actual.get(name) != value:
             raise ValueError(f'Packaged license input is stale or missing: licenses/{name}')
-    # Packaging adds licenses/DEPENDENCIES.json for the selected target. It is
-    # intentionally outside this source subset; archive/staging validation
-    # still verifies that generated file byte-for-byte.
+    # Packaging adds only this target-specific file; retained npm notices must
+    # not silently accumulate versions absent from the current source inputs.
+    unexpected = set(actual) - set(expected) - {'DEPENDENCIES.json'}
+    if unexpected:
+        raise ValueError(f'Unexpected packaged license inputs: {sorted(unexpected)}')
     return len(expected)
 
 

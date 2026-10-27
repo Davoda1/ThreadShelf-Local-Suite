@@ -1,4 +1,4 @@
-# ThreadShelf Local Analytics 1.0.0
+# ThreadShelf Local Analytics 1.3.0
 
 An offline Electron desktop companion for examining archived AI conversations. It reads ThreadShelf Local Reader storage and supported exported files without writing to the sources. Analytics owns the settings, captures, derived indexes, views and annotations it creates.
 
@@ -8,9 +8,9 @@ This application is part of [ThreadShelf Local Suite](https://github.com/Davoda1
 
 | Package | Start |
 | --- | --- |
-| `ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
-| `ThreadShelf-Local-Analytics-1.0.0-Linux-amd64.tar.gz` | Extract, then open `bin/threadshelf-local-analytics` or the root executable link. Both point directly to the native executable. |
-| `threadshelf-local-analytics_1.0.0_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.0.0_amd64.deb`, then open the desktop application. |
+| `ThreadShelf-Local-Analytics-1.3.0-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
+| `ThreadShelf-Local-Analytics-1.3.0-Linux-amd64.tar.gz` | Extract, then open `bin/threadshelf-local-analytics` or the root executable link. Both point directly to the native executable. |
+| `threadshelf-local-analytics_1.3.0_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.3.0_amd64.deb`, then open the desktop application. |
 
 Ordinary use needs no administrator privileges, separately installed Node, archiver, AI model or network connection. Source scripts are development tools.
 
@@ -35,18 +35,20 @@ Captures contain conversation text on your computer. Default reports exclude evi
 
 Capture history is disabled by default. When enabled, choose count and byte limits in Analytics settings. The active capture and protected recovery predecessor are independent of routine history eviction. Removing a source or clearing that source's cache deletes positively owned Analytics data only.
 
-The public application version is 1.0.0. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
+The candidate application version is 1.3.0. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
 
 ## Build from source
 
-The release toolchain is Node **24.19.0**, npm **11.9.0** and Electron **44.9.1**. Dependencies are locked in `package-lock.json`.
+The release toolchain is Node **24.22.1**, Electron **45.1.0**, and an isolated managed copy of npm **12.2.1** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files. This is a local toolchain modification, not an official patched npm release, and does not change global npm. Application dependencies are locked in `package-lock.json`.
+
+Run the following commands from the Analytics application directory in a source checkout/archive. Packaged desktop applications do not include or require the source build helpers.
 
 ```sh
 ./scripts/run.sh --build
 ./scripts/run.sh --test
 ```
 
-On Windows, use `scripts/run.ps1 -Build` and `scripts/run.ps1 -Test`, or the matching `run.cmd` wrapper. These scripts obtain the pinned isolated Node runtime by default. See [Packaging policy](docs/Packaging-Policy.md) for package creation and system-runtime options.
+On Windows, use `scripts/run.ps1 -Build` and `scripts/run.ps1 -Test`, or the matching `run.cmd` wrapper. These scripts obtain the pinned isolated Node runtime by default and use the managed npm profile. With Node 24.22.1 already selected, the direct source commands are `node scripts/npm-toolchain.mjs -- ci`, `node scripts/npm-toolchain.mjs -- run build` and `node scripts/npm-toolchain.mjs -- test`. See [Packaging policy](docs/Packaging-Policy.md) for package creation and system-runtime options.
 
 Tests use synthetic fixtures. Architecture, provider support, counting definitions and security contracts are documented in `docs/`. Third-party source offers and notices are included with the source and binaries.
 

@@ -1,6 +1,6 @@
 # Third-party notices
 
-ThreadShelf Local Alternative 1.2.0 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
+ThreadShelf Local Alternative 1.3.0 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
 
 The server protocol is derived from inspection of Chrystian Schutz's ThreadShelf 1.3.0 and the suite's Reader pagination extension. ThreadShelf is MIT licensed; the notice is retained in `licenses/ThreadShelf-MIT.txt`. The server is independently installed and is not included in this application.
 
@@ -8,32 +8,27 @@ Selected rich conversation parsers/renderers are derived from ThreadShelf Local 
 
 Browser rendering components and their licenses are listed in `vendor/RENDERER-NOTICES.txt` and `vendor/licenses/`. They are bundled for offline use. Build-only PE branding tools retain their licenses under `vendor/build/`. The highlight.js 11.12.0 browser bundle is BSD 3-Clause licensed; the license is retained in `vendor/licenses/highlight.js-LICENSE.txt`. The bundled highlighter source and deterministic rebuild script are under `vendor/highlight-source/`. The unchanged Reader Mermaid repair source and the adapter rebuild script are under `vendor/reader-source/`. These three source/build directories are excluded from portable/deb runtime resources.
 
-The shared Mermaid 11.17.2 bundle uses DOMPurify 3.4.17 and KaTeX 0.18.2. `vendor/licenses/Mermaid-BUNDLE-NOTICES.txt` preserves notices for every incorporated component; the adjacent `Mermaid-BUNDLE-MANIFEST.json` records exact versions and hashes. The reproducible recipe and npm lockfile are in `tools/mermaid-bundle/` at the suite repository root.
+The shared Mermaid 12.2.0 bundle uses DOMPurify 3.4.17 and KaTeX 0.19.1. `vendor/licenses/Mermaid-BUNDLE-NOTICES.txt` preserves notices for every incorporated component; the adjacent `Mermaid-BUNDLE-MANIFEST.json` records exact versions and hashes. The reproducible recipe and npm lockfile are in `tools/mermaid-bundle/` at the suite repository root.
 
-The desktop packages include Electron 44.9.1. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v44.9.1 and https://www.electronjs.org/.
+The desktop packages include Electron 45.1.0. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v45.1.0 and https://www.electronjs.org/.
 
 Windows executable branding produces an unsigned application executable. The package does not claim a publisher signature.
 
 ## Electron runtime source access
 
-All three suite applications use Electron **44.9.1** / Chromium
-**152.0.7977.167**. The release
-[native-source companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz)
-mirrors the matching FFmpeg fork, Blink renderer/interfaces/tools, selected
-Chromium-modified Mozilla sources, and the identified Electron patches and build
-inputs. [Runtime source access and rebuild instructions](licenses/ELECTRON-SOURCE-ACCESS.md)
-provide exact complete upstream source retrieval, relinking/replacement directions,
-license selections and availability-maintenance instructions.
+The 1.3.0 candidate uses Electron **45.1.0**, Chromium **156.0.8078.49** and
+embedded Node.js **24.22.1**. Original runtime notices remain intact.
+[Runtime source access and rebuilding](licenses/ELECTRON-SOURCE-ACCESS.md)
+records the exact upstream revisions and source preparation status.
 
-Original runtime notices remain intact. LGPLv3 is selected only where the
-original grant permits that later version; Blink
-`platform/wtf/text/base64.cc` retains the original LGPL version 2 grant. The
-companion includes that exact source and records the reviewed per-file selections.
-The separate **numbered Runtime-Sources parts**, available from the
-[v1.0.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0),
-mirror the complete pinned Electron/Chromium Git dependency trees selected for
-Linux x64 and Windows x64, plus the supplemental source and release build data
-recorded in the manifests. Normal compiler, SDK and build-tool prerequisites
-remain separate. Preserve the suite Source archive, Native-Sources companion
-and **every** Runtime-Sources part with the matching binary downloads; the
-runtime source-access document explains verification, assembly and rebuilding.
+The complete matching runtime source companion is still pending; publication
+of the new binaries is blocked until it is assembled, verified and supplied
+beside them. The historical v1.0.0 runtime mirror covers Electron 44.9.1 and
+must not be represented as matching source for 45.1.0. The unchanged Reader
+sharp/libvips source materials retain their separate versioned provenance.
+
+Original license grants continue to apply. Chromium's Blink
+`platform/wtf/text/base64.cc` retains its original LGPL version 2 grant without
+an “or later” option; the new source was checked and its hash retained. The
+old per-file license-selection index cannot be reused as evidence for the new
+Chromium source. Preserve original notices and complete corresponding sources.

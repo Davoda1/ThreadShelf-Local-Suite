@@ -8,6 +8,7 @@ import { validateSettings, validateCoreSettings, validateReaderAppearanceSetting
 import { EXTENDED_DEFAULTS, EXTENDED_PREFERENCES_FILE, LOCAL_SEARCH_PERIODS, validateExtendedPreferences, mergeExtendedPreferences } from '../src/core/extended-preferences.mjs';
 import * as legacy from './fixtures/compatibility-v3.2.0/core/state.mjs';
 
+const { version: applicationVersion } = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const envelope = data => JSON.stringify({ schemaVersion: 1, data }, null, 2) + '\n';
 const oldValues = {
   'settings.json': { ...legacy.DEFAULTS, mode: 'server', searchMode: 'exact', language: 'hu', theme: 'dark' },
@@ -28,7 +29,7 @@ async function fixture(t) {
 test('new analytics/search preferences default without rewriting any 3.2 or original 3.3 preference file', async t => {
   const { dataDir, open, files } = await fixture(t), before = await files(), app = await open();
   const boot = await app.handle('bootstrap');
-  assert.equal(boot.version, '1.2.0');
+  assert.equal(boot.version, applicationVersion);
   assert.equal(boot.settings.analyticsStyledBars, false);
   assert.deepEqual(boot.settings.searchPreferences, {
     local: { mode: 'exact', provider: '', role: '', period: 'all' },

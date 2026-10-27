@@ -1,9 +1,0 @@
-{
-  "name": "shebang-command",
-  "version": "2.0.0",
-  "license": "MIT",
-  "repository": "kevva/shebang-command",
-  "retainedNotices": [
-    "license"
-  ]
-}

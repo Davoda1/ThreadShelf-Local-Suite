@@ -29,3 +29,6 @@
 **/*.key
 **/.DS_Store
 **/Thumbs.db
+
+# Installed offline holiday build dependencies.
+/apps/reader/scripts/holiday-data/node_modules/

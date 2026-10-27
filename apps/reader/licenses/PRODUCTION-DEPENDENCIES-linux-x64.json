@@ -1,14 +1,5 @@
 [
   {
-    "name": "@emnapi/runtime",
-    "version": "1.11.3",
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/toyobayashi/emnapi.git"
-    }
-  },
-  {
     "name": "@huggingface/jinja",
     "version": "0.5.10",
     "license": "MIT",
@@ -25,7 +16,7 @@
   },
   {
     "name": "@huggingface/transformers",
-    "version": "4.3.0",
+    "version": "4.3.2",
     "license": "Apache-2.0",
     "repository": {
       "type": "git",
@@ -79,16 +70,6 @@
       "type": "git",
       "url": "git+https://github.com/lovell/sharp.git",
       "directory": "npm/linuxmusl-x64"
-    }
-  },
-  {
-    "name": "@img/sharp-wasm32",
-    "version": "0.35.5",
-    "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/lovell/sharp.git",
-      "directory": "npm/wasm32"
     }
   },
   {
@@ -184,7 +165,7 @@
   },
   {
     "name": "@zip.js/zip.js",
-    "version": "2.8.11",
+    "version": "2.24.0",
     "license": "BSD-3-Clause",
     "repository": {
       "type": "git",
@@ -229,11 +210,11 @@
   },
   {
     "name": "entities",
-    "version": "6.0.1",
+    "version": "8.1.0",
     "license": "BSD-2-Clause",
     "repository": {
       "type": "git",
-      "url": "git://github.com/fb55/entities.git"
+      "url": "https://github.com/fb55/entities.git"
     }
   },
   {
@@ -334,11 +315,11 @@
   },
   {
     "name": "marked",
-    "version": "16.4.2",
+    "version": "18.1.2",
     "license": "MIT",
     "repository": {
       "type": "git",
-      "url": "git://github.com/markedjs/marked.git"
+      "url": "git+https://github.com/markedjs/marked.git"
     }
   },
   {
@@ -358,16 +339,7 @@
   },
   {
     "name": "onnxruntime-common",
-    "version": "1.31.0-dev.20260911-2a43ec07e",
-    "license": "MIT",
-    "repository": {
-      "url": "https://github.com/Microsoft/onnxruntime.git",
-      "type": "git"
-    }
-  },
-  {
-    "name": "onnxruntime-common",
-    "version": "1.30.0",
+    "version": "1.31.1",
     "license": "MIT",
     "repository": {
       "url": "https://github.com/Microsoft/onnxruntime.git",
@@ -376,7 +348,7 @@
   },
   {
     "name": "onnxruntime-node",
-    "version": "1.30.0",
+    "version": "1.31.1",
     "license": "MIT",
     "repository": {
       "url": "https://github.com/Microsoft/onnxruntime.git",
@@ -385,7 +357,7 @@
   },
   {
     "name": "onnxruntime-web",
-    "version": "1.31.0-dev.20260914-8d85527a0",
+    "version": "1.31.1",
     "license": "MIT",
     "repository": {
       "url": "https://github.com/Microsoft/onnxruntime.git",
@@ -394,7 +366,7 @@
   },
   {
     "name": "parse5",
-    "version": "8.0.0",
+    "version": "8.0.1",
     "license": "MIT",
     "repository": {
       "type": "git",
@@ -435,15 +407,6 @@
     "repository": {
       "type": "git",
       "url": "git+https://github.com/lovell/sharp.git"
-    }
-  },
-  {
-    "name": "tslib",
-    "version": "2.8.1",
-    "license": "0BSD",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/Microsoft/tslib.git"
     }
   },
   {

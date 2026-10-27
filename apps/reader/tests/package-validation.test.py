@@ -133,12 +133,103 @@ class NativeEntrypointTests(unittest.TestCase):
         self.assertEqual(self.check(self.archive(prefix='ThreadShelf'), prefix='ThreadShelf')
                          ['nativeEntrypointSymlinkChecks'], 2)
 
+    def test_default_app_is_rejected_from_prefixed_tar_even_when_staging_matches(self):
+        default = self.stage / 'app/resources/default_app.asar'
+        default.parent.mkdir(parents=True)
+        default.write_bytes(b'unwanted Electron default application')
+        with self.assertRaisesRegex(ValueError, 'default application must be omitted'):
+            self.check(self.archive(prefix='ThreadShelf'), prefix='ThreadShelf')
+
+    def test_clean_archive_can_omit_a_default_app_retained_in_managed_staging(self):
+        default = self.stage / 'app/resources/default_app.asar'
+        default.parent.mkdir(parents=True)
+        default.write_bytes(b'stale managed staging entry')
+        archive = self.archive(lambda name, entry, data:
+                               None if name == 'app/resources/default_app.asar' else (entry, data))
+        self.assertTrue(self.check(archive)['omittedDefaultApp'])
+
+    def test_default_app_is_rejected_from_windows_zip_even_when_staging_matches(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        (self.stage / 'ThreadShelf Local Reader.exe').write_bytes(b'MZ fixture')
+        default = self.stage / 'resources/default_app.asar'
+        default.parent.mkdir()
+        default.write_bytes(b'unwanted Electron default application')
+        archive = self.root / 'Windows-fixture.zip'
+        with zipfile.ZipFile(archive, 'w') as stream:
+            for path in self.stage.rglob('*'):
+                if path.is_file():
+                    stream.write(path, path.relative_to(self.stage).as_posix())
+        with self.assertRaisesRegex(ValueError, 'default application must be omitted'):
+            VALIDATOR.verify_archive(archive, self.stage)
+
+    def test_default_app_is_rejected_from_actual_deb_stream_even_when_staging_matches(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        self.links = VALIDATOR.DEB_LINKS
+        self.make_layout(self.links)
+        default = self.stage / 'opt/threadshelf-local-reader/resources/default_app.asar'
+        default.parent.mkdir()
+        default.write_bytes(b'unwanted Electron default application')
+        archive = self.archive()
+        class Process:
+            stdout = archive.open('rb')
+            def wait(self): return 0
+        with patch.object(VALIDATOR.subprocess, 'Popen', return_value=Process()), \
+             self.assertRaisesRegex(ValueError, 'default application must be omitted'):
+            self.check(archive, deb=True)
+
     def test_deb_relative_link_stays_inside_installation_root(self):
         shutil.rmtree(self.stage)
         self.stage.mkdir()
         self.links = VALIDATOR.DEB_LINKS
         self.make_layout(self.links)
         self.assertEqual(self.check()['nativeEntrypointSymlinkChecks'], 1)
+
+    def test_transformers_prebuilt_runtime_is_rejected_from_prefixed_tar(self):
+        bundle = self.stage / 'app/resources/app/node_modules/@huggingface/transformers/dist/transformers.node.mjs'
+        bundle.parent.mkdir(parents=True)
+        bundle.write_bytes(b'Embedded obsolete ONNX Web runtime fixture')
+        with self.assertRaisesRegex(ValueError, 'Transformers prebuilt distributions must be omitted'):
+            self.check(self.archive(prefix='ThreadShelf'), prefix='ThreadShelf')
+
+    def test_transformers_source_and_license_are_preserved(self):
+        package = self.stage / 'app/resources/app/node_modules/@huggingface/transformers'
+        (package / 'src').mkdir(parents=True)
+        (package / 'src/transformers.js').write_bytes(b'export const sourceFixture = true;')
+        (package / 'LICENSE').write_bytes(b'Upstream license fixture')
+        self.assertTrue(self.check()['omittedTransformersPrebuiltDistributions'])
+
+    def test_transformers_prebuilt_runtime_is_rejected_from_windows_zip(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        (self.stage / 'ThreadShelf Local Reader.exe').write_bytes(b'MZ fixture')
+        bundle = self.stage / 'resources/app/node_modules/@huggingface/transformers/dist/transformers.web.js'
+        bundle.parent.mkdir(parents=True)
+        bundle.write_bytes(b'Embedded obsolete ONNX Web runtime fixture')
+        archive = self.root / 'Windows-fixture.zip'
+        with zipfile.ZipFile(archive, 'w') as stream:
+            for file in self.stage.rglob('*'):
+                if file.is_file():
+                    stream.write(file, file.relative_to(self.stage).as_posix())
+        with self.assertRaisesRegex(ValueError, 'Transformers prebuilt distributions must be omitted'):
+            VALIDATOR.verify_archive(archive, self.stage)
+
+    def test_transformers_prebuilt_runtime_is_rejected_from_actual_deb_stream(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        self.links = VALIDATOR.DEB_LINKS
+        self.make_layout(self.links)
+        bundle = self.stage / 'opt/threadshelf-local-reader/resources/app/node_modules/@huggingface/transformers/dist/transformers.node.mjs'
+        bundle.parent.mkdir(parents=True)
+        bundle.write_bytes(b'Embedded obsolete ONNX Web runtime fixture')
+        archive = self.archive()
+        class Process:
+            stdout = archive.open('rb')
+            def wait(self): return 0
+        with patch.object(VALIDATOR.subprocess, 'Popen', return_value=Process()), \
+             self.assertRaisesRegex(ValueError, 'Transformers prebuilt distributions must be omitted'):
+            self.check(archive, deb=True)
 
     def test_link_survives_relocation(self):
         relocated = self.root / 'arbitrary location' / 'reader'
@@ -526,11 +617,13 @@ class DebRuntimeArchiveTests(unittest.TestCase):
         (self.root / 'SHASUMS256.txt').write_text(
             VALIDATOR.file_digest(self.official)[1] + '  ' + self.official.name + '\n')
 
-    def check(self, binary=None, include_license=True):
+    def check(self, binary=None, include_license=True, include_default_app=False):
         data = io.BytesIO()
         members = [('threadshelf-local-reader', self.binary if binary is None else binary)]
         if include_license:
             members.append(('LICENSE', b'official runtime license'))
+        if include_default_app:
+            members.append(('resources/default_app.asar', b'intentionally omitted'))
         with tarfile.open(fileobj=data, mode='w') as archive:
             for name, contents in members:
                 entry = tarfile.TarInfo('./opt/threadshelf-local-reader/' + name)
@@ -559,6 +652,51 @@ class DebRuntimeArchiveTests(unittest.TestCase):
     def test_deb_archive_rejects_missing_official_runtime_member(self):
         with self.assertRaisesRegex(ValueError, 'DEB runtime members missing'):
             self.check(include_license=False)
+
+    def test_deb_runtime_report_cannot_claim_omission_when_default_app_is_archived(self):
+        with self.assertRaisesRegex(ValueError, 'default application must be omitted'):
+            self.check(include_default_app=True)
+
+
+class LicenseInputTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='threadshelf-license-inputs-')
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.source = self.root / 'source'
+        self.app = self.root / 'app'
+        for directory in (self.source, self.app):
+            license_file = directory / 'licenses/npm/current/LICENSE'
+            license_file.parent.mkdir(parents=True)
+            license_file.write_bytes(b'retained license input')
+
+    def check(self):
+        with patch.object(VALIDATOR, 'ROOT', self.source):
+            return VALIDATOR.verify_license_inputs(self.app)
+
+    def test_exact_retained_licenses_allow_only_generated_root_metadata(self):
+        self.assertEqual(self.check(), 1)
+        (self.app / 'licenses/DEPENDENCIES.json').write_text('{"platform":"fixture"}')
+        self.assertEqual(self.check(), 1)
+
+    def test_stale_dependency_directory_and_nested_generated_name_are_rejected(self):
+        for relative in ('npm/electron-previous/package-metadata.json', 'npm/DEPENDENCIES.json'):
+            with self.subTest(relative=relative):
+                extra = self.app / 'licenses' / relative
+                extra.parent.mkdir(parents=True, exist_ok=True)
+                extra.write_text('{}')
+                with self.assertRaisesRegex(ValueError, 'Unexpected packaged license inputs'):
+                    self.check()
+                extra.unlink()
+
+    def test_missing_or_changed_retained_license_is_rejected(self):
+        retained = self.app / 'licenses/npm/current/LICENSE'
+        retained.write_bytes(b'changed license')
+        with self.assertRaisesRegex(ValueError, 'stale or missing'):
+            self.check()
+        retained.unlink()
+        with self.assertRaisesRegex(ValueError, 'stale or missing'):
+            self.check()
 
 
 if __name__ == '__main__':

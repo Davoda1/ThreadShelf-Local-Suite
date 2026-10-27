@@ -2,14 +2,14 @@
 export const renderingPreview = {
   "id": "preview-rendering-4",
   "collection": "Reader examples",
-  "title": "1.2.0 rendering examples",
+  "title": "1.3.0 rendering examples",
   "provider": "openai",
   "sourceFile": "synthetic/rendering-examples.json",
   "conversationKey": "preview-rendering-4",
   "turnCount": 7,
   "turns": [
     {
-      "user": "Show how 1.2.0 handles embedded images and empty ChatGPT intermediate statuses.",
+      "user": "Show how 1.3.0 handles embedded images and empty ChatGPT intermediate statuses.",
       "turn_index": 1
     },
     {

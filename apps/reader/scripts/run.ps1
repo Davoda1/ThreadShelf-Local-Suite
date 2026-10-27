@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$Latest, [switch]$Build, [switch]$Test, [switch]$Package,
-    [switch]$ResolveOnly, [string]$NodeVersion = '24.19.0', [string]$ElectronVersion = '44.9.1'
+    [switch]$ResolveOnly, [string]$NodeVersion = '24.22.1', [string]$ElectronVersion = '45.1.0'
 )
 $ErrorActionPreference = 'Stop'
 $projectDir = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -88,28 +88,27 @@ try {
     $env:TSLR_NODE_VERSION = $NodeVersion
     $env:TSLR_NODE_SHA256 = $expectedHash.ToLowerInvariant()
     if ($env:HTTPS_PROXY -or $env:HTTP_PROXY) { $env:NODE_USE_ENV_PROXY = '1' }
+    Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--report')
     $resolveArgs = @('scripts/runtime-policy.mjs')
     if ($ElectronVersion) { $resolveArgs += @('--electron-version', $ElectronVersion) }
     $resolvedElectron = & $downloadedNode @resolveArgs
     if ($LASTEXITCODE -ne 0) { throw 'Electron release resolution failed.' }
     $env:TSLR_ELECTRON_VERSION = [string]$resolvedElectron
     $env:ELECTRON_OVERRIDE_DIST_PATH = Join-Path $toolingDir ('electron-' + $resolvedElectron + '-win32-' + $arch + '/dist')
-    # npm.cmd may redirect to a global npm prefix. Use the selected distribution
-    # directly so installation, packaging and the toolchain record agree.
-    $npmCLI = Join-Path $nodeDir 'node_modules/npm/bin/npm-cli.js'
-    $npmVersion = & $downloadedNode $npmCLI --version
-    if ($LASTEXITCODE -ne 0) { throw 'The selected Node distribution does not contain a working npm.' }
+    # The managed profile also guards nested npm/npx calls in lifecycle scripts.
+    $npmVersion = & $downloadedNode 'scripts/npm-toolchain.mjs' '--' '--version'
+    if ($LASTEXITCODE -ne 0) { throw 'The managed npm toolchain does not contain a working npm.' }
     Write-Host ('Selected Node ' + $NodeVersion + ' (' + $env:TSLR_NODE_CHANNEL + '); npm ' + $npmVersion + '; Electron ' + $resolvedElectron + ' (stable).')
     Write-Host 'Exact selections recorded in .tooling/toolchain.json.'
     if ($ResolveOnly) { return }
     $env:ONNXRUNTIME_NODE_INSTALL = 'skip'
     $env:ELECTRON_SKIP_BINARY_DOWNLOAD = '1'
-    Invoke-Checked $downloadedNode @($npmCLI, 'ci', '--include=optional')
+    Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--', 'ci', '--include=optional')
     Invoke-Checked $downloadedNode @('scripts/ensure-electron.mjs')
-    Invoke-Checked $downloadedNode @($npmCLI, 'run', 'build')
-    if ($Test) { Invoke-Checked $downloadedNode @($npmCLI, 'test') }
-    elseif ($Package) { Invoke-Checked $downloadedNode @($npmCLI, 'run', 'package', '--', '--win32') }
-    elseif (-not $Build) { Invoke-Checked $downloadedNode @($npmCLI, 'start') }
+    Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--', 'run', 'build')
+    if ($Test) { Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--', 'test') }
+    elseif ($Package) { Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--', 'run', 'package', '--', '--win32') }
+    elseif (-not $Build) { Invoke-Checked $downloadedNode @('scripts/npm-toolchain.mjs', '--', 'start') }
 } finally {
     foreach ($name in $preserve.Keys) { [Environment]::SetEnvironmentVariable($name, $preserve[$name], 'Process') }
     foreach ($file in @($sumPath, $indexPath)) { if (Test-Path -LiteralPath $file) { Remove-Item -LiteralPath $file -Force } }

@@ -1,13 +1,13 @@
 # Build and package
 
-Application version: **1.2.0**. This is an independent product.
+Application version: **1.3.0**. This is an independent product.
 
 ## Requirements
 
 - Python 3.10 or newer.
-- Node.js 24.19.0 LTS and npm 11.9.0 for Windows executable branding and the development tests.
+- Node.js 24.22.1 LTS and npm 12.2.1 for Windows executable branding and the development tests.
 - Debian/Ubuntu tooling (`dpkg-deb`) on Linux or WSL for the `.deb`.
-- The two official Electron 44.9.1 x64 runtime ZIPs. The packaging script verifies
+- The two official Electron 45.1.0 x64 runtime ZIPs. The packaging script verifies
   their pinned SHA-256 hashes before extraction. It never executes a downloaded
   Windows executable during the build.
 
@@ -43,8 +43,8 @@ python3 scripts/build.py --target all --runtime-cache /path/to/electron-cache
 That cache must contain:
 
 ```text
-electron-v44.9.1-linux-x64.zip
-electron-v44.9.1-win32-x64.zip
+electron-v45.1.0-linux-x64.zip
+electron-v45.1.0-win32-x64.zip
 ```
 
 ## Windows
@@ -91,7 +91,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.2.0.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.3.0.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 

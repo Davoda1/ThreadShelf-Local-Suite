@@ -16,6 +16,8 @@ const fixtures={
  legacy:'bar\ntitle A week\nDrafts 12\nRevisions -2\nPublished 0',
  invalid:'not-a-supported-diagram\nKeep this exact source <saved>',
  limited:'flowchart TD\n%% '+'.'.repeat(50001),
+ entity:'erDiagram\n ARCHIVE ||--o{ CONVERSATION : contains',
+ state:'stateDiagram-v2\n [*] --> Ready\n Ready --> Reading\n Reading --> Ready',
  hostile:'%%{init: {"securityLevel":"loose","htmlLabels":true}}%%\nflowchart TD\n A["<img src=x onerror=window.PWNED=1>"] --> B[Safe]\n click B "https://example.invalid/remote" "Remote"'
 };
 (async()=>{
@@ -61,6 +63,21 @@ const fixtures={
  const security=await page.evaluate(()=>({pwned:!!window.PWNED,active:document.querySelectorAll('#content script,#content iframe,#content foreignObject,#content img,#content [onload],#content [onerror]').length,links:[...document.querySelectorAll('.tsa-mermaid [href],.tsa-mermaid [xlink\\:href]')].map(x=>x.getAttribute('href')||x.getAttribute('xlink:href'))}));
  assert.equal(security.pwned,false);assert.equal(security.active,0);assert.ok(security.links.every(x=>x.startsWith('#')));assert.deepEqual(requests,[]);
  pass('Archive directives, HTML and external diagram links remain inert',{security});
+ // Mermaid 12 changed wrapping and minimum-node defaults. Verify the product
+ // configuration keeps ordinary labels whole and short state nodes compact.
+ const geometry=await page.evaluate(()=>{
+   const blocks=[...document.querySelectorAll('.tsa-code-block')];
+   const entity=blocks.find(b=>b.querySelector('.tsa-diagram-source code').textContent.startsWith('erDiagram'));
+   const state=blocks.find(b=>b.querySelector('.tsa-diagram-source code').textContent.startsWith('stateDiagram-v2'));
+   const word=[...entity.querySelectorAll('svg text')].find(t=>t.textContent==='CONVERSATION');
+   return {entityState:entity.dataset.mermaidState,stateState:state.dataset.mermaidState,
+     entityWordRows:word?.querySelectorAll('.text-outer-tspan.row').length,
+     stateWidth:state.querySelector('svg').viewBox.baseVal.width};
+ });
+ assert.equal(geometry.entityState,'rendered');assert.equal(geometry.stateState,'rendered');
+ assert.equal(geometry.entityWordRows,1,'Ordinary entity names must not split mid-word');
+ assert.ok(geometry.stateWidth<120,'Short state labels must retain content-sized nodes');
+ pass('Mermaid 12 preserves label wrapping and content-sized state geometry',{geometry});
  await page.evaluate(()=>cleanup());
  // Citation resolver accepts only recorded provenance; direct mappings now retain it.
  const citations=await page.evaluate(()=>{
@@ -113,7 +130,7 @@ const fixtures={
  assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
  pass('Disposal and completely offline rendering',{errors,requests});
  const modulePath=path.join(root,'vendor/reader-source/mermaid-repair.js');
- const report={project:'ThreadShelf Local Alternative',version:'1.2.0',passed:true,date:new Date().toISOString(),checks,provenance:{module:'ThreadShelf Local Reader Source/src/reader/mermaid-repair.js',sha256:crypto.createHash('sha256').update(fs.readFileSync(modulePath)).digest('hex'),includedSource:'vendor/reader-source/mermaid-repair.js',rebuild:'python vendor/reader-source/build-repair.py',license:'MIT; vendor/licenses/Reader-MIT.txt'},bounds:{mermaidCharacters:50000,repairCandidates:4,mermaidEdges:500},intentionalDifferences:['Alternative keeps long user prompts expanded; Reader folds prompts after 15 rendered lines and offers five fold-button styles. Reasoning, tool and system messages retain Alternative disclosure controls.','Chart tooltips clamp to the viewport; Alternative retains its own reading pane and typography.','Chart category labels are moved below negative value labels to avoid overlap.','Math and Mermaid output disable external links/HTML; available images load inside the renderer with click or automatic loading and no persistent image cache.','Mermaid repairs affect a reversible preview only. Default code Copy and exports preserve the archived original.']};
+ const report={project:'ThreadShelf Local Alternative',version:JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')).version,passed:true,date:new Date().toISOString(),checks,provenance:{module:'ThreadShelf Local Reader Source/src/reader/mermaid-repair.js',sha256:crypto.createHash('sha256').update(fs.readFileSync(modulePath)).digest('hex'),includedSource:'vendor/reader-source/mermaid-repair.js',rebuild:'python vendor/reader-source/build-repair.py',license:'MIT; vendor/licenses/Reader-MIT.txt'},bounds:{mermaidCharacters:50000,repairCandidates:4,mermaidEdges:500},intentionalDifferences:['Alternative keeps long user prompts expanded; Reader folds prompts after 15 rendered lines and offers five fold-button styles. Reasoning, tool and system messages retain Alternative disclosure controls.','Chart tooltips clamp to the viewport; Alternative retains its own reading pane and typography.','Chart category labels are moved below negative value labels to avoid overlap.','Math and Mermaid output disable external links/HTML; available images load inside the renderer with click or automatic loading and no persistent image cache.','Mermaid repairs affect a reversible preview only. Default code Copy and exports preserve the archived original.']};
  fs.writeFileSync(process.env.PARITY_REPORT||path.join(root,'docs/reader-parity.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({passed:true,checks:checks.length,report:'docs/reader-parity.json'},null,2));
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 — unreleased candidate
+
+- Align Reader, Analytics and Alternative application versions at 1.3.0 without changing persisted data/schema identifiers.
+- Upgrade Electron to 45.1.0, including its Node 24.22.1 runtime, and pin development Node 24.22.1/npm 12.2.1.
+- Use an isolated, integrity-verified npm 12.2.1 toolchain with its bundled Undici replaced by official 6.29.1. Source helpers, suite builds and CI select the same profile without changing global npm; see maintainer/NPM-TOOLCHAIN.md.
+- Update Markdown, diagrams, math, ZIP parsing, holiday data, build tools and browser test dependencies; refresh locked transitive dependencies including undici 7.30.1.
+- Pin Reader’s ONNX Runtime Web, Node and common packages to stable 1.31.1. Load Transformers 4.3.2 from its supplied source entry so it uses those external packages, and omit its unused prebuilt runtime bundles from desktop packages.
+- Disable ONNX native telemetry in the main process before starting inference workers; preserve the existing model, cache layout and explicit model-download flow.
+- Refresh CI action commit pins and retain all existing regression and package validation gates.
+- Publication remains gated on the matching runtime source mirror, packaged graphical checks, native Windows checks and final GitHub validation. See maintainer/REVIEW-1.3.0.md for actual evidence and limitations.
+
 ## Reader and Alternative 1.2.0
 
 - Useful JSON-only assistant and reasoning responses display as indented, syntax-highlighted JSON. Strings, large numbers and original lexical values remain intact; message copy and export retain the original source, while code-block copy uses the formatted display.

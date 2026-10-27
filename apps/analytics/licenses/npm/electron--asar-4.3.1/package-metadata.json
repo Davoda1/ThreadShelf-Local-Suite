@@ -1,0 +1,12 @@
+{
+  "name": "@electron/asar",
+  "version": "4.3.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electron/asar.git"
+  },
+  "retainedNotices": [
+    "LICENSE.md"
+  ]
+}

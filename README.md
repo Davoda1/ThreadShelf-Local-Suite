@@ -4,9 +4,9 @@
 
 Desktop readers, local archive analytics, and a search integration patch for [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
-**Reader 1.2.0 · Alternative 1.2.0 · Analytics 1.0.0 · Windows x64 · GNU/Linux amd64**
+**Reader 1.3.0 · Analytics 1.3.0 · Alternative 1.3.0 · Windows x64 · GNU/Linux amd64**
 
-Reader and Alternative **1.2.0** format useful JSON-only responses as highlighted, indented code while preserving the original text for copy and export. They also improve startup from paths containing special characters. Existing image controls and Reader’s independent image cache are retained. Analytics remains **1.0.0**, and the manual and server patch are unchanged. The download table below selects the current version of each component across the current and earlier releases. See the [1.2.0 changes](CHANGELOG.md), [validation scope](maintainer/REVIEW-1.2.0.md) and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml).
+Version **1.3.0 is an unreleased local candidate** updating the three desktop apps to Electron **45.1.0**, the pinned Node.js **24.22.1** / npm **12.2.1** build toolchain, stable **ONNX Runtime 1.31.1** for Reader’s native and portable inference paths, and reviewed rendering/archive dependencies. Application versions are aligned; persisted formats and existing package layouts retain their compatibility contracts. See the [1.3.0 changes](CHANGELOG.md), [candidate validation and outstanding gates](maintainer/REVIEW-1.3.0.md), and [GitHub checks](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/workflows/checks.yml). The published downloads below remain at their existing versions until the candidate passes its release gates.
 
 | Application | Choose it when you want… |
 | --- | --- |
@@ -82,7 +82,7 @@ This repository contains the integration changes and patching tools. Configurati
 
 ## Build or publish
 
-Start with [maintainer/BUILD.md](maintainer/BUILD.md). The suite pins Node.js **24.19.0** and npm **11.9.0** for development builds. Electron is pinned separately for each application; the embedded Node.js is part of that runtime.
+Start with [maintainer/BUILD.md](maintainer/BUILD.md). The suite pins Node.js **24.22.1** and a [managed npm **12.2.1** toolchain with bundled Undici **6.29.1**](maintainer/NPM-TOOLCHAIN.md) for development builds. Electron is pinned separately for each application; the embedded Node.js is part of that runtime.
 
 ### Watch the build
 
@@ -109,10 +109,10 @@ Original suite code is available under the [MIT license](LICENSE), `Copyright (c
 | Download | Version | Contents |
 | --- | --- | --- |
 | [Suite Source ZIP](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Suite-1.2.0-Source.zip) · [Source TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.2.0/ThreadShelf-Local-Suite-1.2.0-Source.tar.gz) | 1.2.0 | Current complete repository, including Analytics 1.0.0, build tools, tests, manual and the unchanged server patch |
-| [Native-Sources TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) | 1.0.0, reused | Sources and build recipes for the unchanged native dependencies |
-| Runtime-Sources: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-01.tar.gz) · [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-02.tar.gz) · [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-03.tar.gz) · [manifest](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/RUNTIME-SOURCES.json) | 1.0.0, reused | Complete source companion for the unchanged pinned runtime; all three parts are required |
+| [Native-Sources TAR.GZ](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) | 1.0.0, reused | Historical 1.0.0 dependency sources; coverage for the candidate is under review |
+| Runtime-Sources: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-01.tar.gz) · [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-02.tar.gz) · [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-03.tar.gz) · [manifest](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/RUNTIME-SOURCES.json) | 1.0.0, reused | Historical Electron 44.9.1 source companion; does not cover the 45.1.0 candidate |
 
-The runtime mirror contains the pinned Electron/Chromium Git dependency trees for Linux x64 and Windows x64, plus the source-bearing build material and release profiles described in its manifests. Preserve the current suite source, the shared source companions, notices and rebuild instructions alongside redistributed binaries. Normal installation needs only an application package; runtime rebuilding also needs the documented compiler, SDK and build utilities. See [runtime source access and rebuilding](apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md).
+The published 1.0.0 runtime mirror contains the Electron 44.9.1/Chromium Git dependency trees for Linux x64 and Windows x64, plus the source-bearing build material and release profiles described in its manifests. The 1.3.0 candidate requires a new matching runtime mirror before publication; [preparation status](maintainer/runtime-sources-1.3.0.json) is explicit about missing material. Preserve the matching suite source, shared source companions, notices and rebuild instructions alongside redistributed binaries. Normal installation needs only an application package; runtime rebuilding also needs the documented compiler, SDK and build utilities. See [runtime source access and rebuilding](apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md).
 
 ## Help and contributions
 

@@ -64,7 +64,7 @@ try {
 
   service = await new ApplicationService({ dataDir }).init();
   let boot = await service.handle('bootstrap');
-  assert.equal(boot.version, '1.2.0'); assert.equal(boot.settings.remoteImages, imagePreferencesExist ? 'click' : 'auto'); assert.equal(boot.resources.enabled, imagePreferencesExist);
+  assert.equal(boot.version, '1.3.0'); assert.equal(boot.settings.remoteImages, imagePreferencesExist ? 'click' : 'auto'); assert.equal(boot.resources.enabled, imagePreferencesExist);
   for (const [key,value] of Object.entries(before.settings)) assert.deepEqual(boot.settings[key], value, key);
   assert.deepEqual(boot.reading, before.reading); assert.deepEqual(await service.handle('thread', ref), original);
   const upgradedProfile = await treeHashes(dataDir);
@@ -92,12 +92,12 @@ try {
   boot = await service.handle('bootstrap'); assert.equal(boot.settings.remoteImages, candidateImageMode); assert.equal(boot.resources.enabled, candidateCacheEnabled);
   assert.deepEqual(await service.handle('thread', ref), original); assert.deepEqual(boot.reading, before.reading);
   await service.shutdown(); service = null;
-  const report = { passed: true, baselineVersion, candidateVersion: '1.2.0', checks: [
+  const report = { passed: true, baselineVersion, candidateVersion: '1.3.0', checks: [
     'Actual public baseline imports synthetic source and saves preferences, bookmark and reading position',
     'Upgrade preserves every original profile file byte before explicit preference changes, archive bytes, source identities, messages and reading records',
     'Image settings use independent sidecars; only explicit preference writes change them',
     `Public ${baselineVersion} reopens the profile and preserves image sidecars`,
-    'Public 1.2.0 reopens again with both old data and new image preferences intact',
+    'Public 1.3.0 reopens again with both old data and new image preferences intact',
   ] };
   if (process.env.READER_PUBLIC_UPGRADE_REPORT) await fs.writeFile(process.env.READER_PUBLIC_UPGRADE_REPORT, JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report));

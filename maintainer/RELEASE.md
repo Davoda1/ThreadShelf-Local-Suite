@@ -1,5 +1,7 @@
 # Release procedure
 
+The local **1.3.0 candidate** aligns all three apps at 1.3.0. Stage nine native packages, two HTML previews, the tested source ZIP/TAR.GZ, a verification report and one checksum manifest, plus refreshed dependency/runtime source companions. Do not publish until the [candidate gates](REVIEW-1.3.0.md) pass. Update the root download table from its historical published versions only when the matching new assets are ready.
+
 1. Review changes and ensure application version metadata agrees with the intended release.
 2. Build the affected components with the pinned toolchain; run tests and package validators.
 3. Rebuild the manual and check links, search and screenshots if its content changes; preserve the existing manual for application-only updates.
