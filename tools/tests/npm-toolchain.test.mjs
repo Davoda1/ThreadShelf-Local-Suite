@@ -296,8 +296,10 @@ console.log('MANAGED_NESTED_PROFILE_OK');\n`);
 test('upstream content-encoding advisory crashes original npm child but patched profile rejects safely', async () => {
   const original = path.join(temporary, 'original npm');
   await fs.mkdir(original);
+  // Feed the already integrity-checked pristine fixture through stdin. Native
+  // cwd owns the output path; GNU tar must never receive Windows drive paths.
   const unpack = spawnSync(process.platform === 'win32' ? 'tar.exe' : 'tar',
-    ['-xzf', path.join(cacheRoot, 'downloads', ARCHIVES.npm.name), '--strip-components=1', '-C', original], { encoding: 'utf8' });
+    ['-xzf', '-', '--strip-components=1'], { cwd: original, input: fixtures.get(ARCHIVES.npm.name), encoding: 'utf8' });
   assert.equal(unpack.error, undefined);
   assert.equal(unpack.status, 0, unpack.stderr);
   const child = path.join(temporary, 'encoding-child.cjs');

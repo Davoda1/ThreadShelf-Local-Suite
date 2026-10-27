@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import '../src/core/onnx-privacy.cjs';
 import { resolveTransformersSource } from '../src/core/transformers-runtime.mjs';
+import { wasmDirectoryUrl } from '../src/core/search-wasm.mjs';
 import { createSyntheticModelBytes, expectedSyntheticHiddenState, SYNTHETIC_DIMENSION } from './fixtures/synthetic-embedding-model.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -30,6 +31,28 @@ async function installedPackage(entry, name) {
   }
   throw new Error(`Could not locate installed package ${name}`);
 }
+
+test('ONNX local asset URLs preserve Windows drive/UNC and POSIX path identities', () => {
+  for (const { entry, windows, expected } of [
+    { entry: String.raw`D:\Thread Shelf # 50% árvíz\node_modules\onnxruntime-web\dist\ort.node.min.js`, windows: true,
+      expected: 'file:///D:/Thread%20Shelf%20%23%2050%25%20%C3%A1rv%C3%ADz/node_modules/onnxruntime-web/dist/' },
+    { entry: String.raw`\\server\share\Thread Shelf # 50% árvíz\dist\ort.node.min.js`, windows: true,
+      expected: 'file://server/share/Thread%20Shelf%20%23%2050%25%20%C3%A1rv%C3%ADz/dist/' },
+    { entry: '/opt/Thread Shelf # 50% árvíz/dist/ort.node.min.js', windows: false,
+      expected: 'file:///opt/Thread%20Shelf%20%23%2050%25%20%C3%A1rv%C3%ADz/dist/' },
+    { entry: String.raw`/opt/literal\backslash # 50%/dist/ort.node.min.js`, windows: false,
+      expected: 'file:///opt/literal%5Cbackslash%20%23%2050%25/dist/' },
+  ]) {
+    const prefix = wasmDirectoryUrl(entry, { windows });
+    assert.equal(prefix, expected);
+    const platformPath = windows ? path.win32 : path.posix;
+    for (const file of ['ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm']) {
+      const asset = new URL(file, prefix);
+      assert.equal(asset.protocol, 'file:'); assert.equal(asset.search, ''); assert.equal(asset.hash, '');
+      assert.equal(fileURLToPath(asset, { windows }), platformPath.join(platformPath.dirname(entry), file));
+    }
+  }
+});
 
 test('Reader and Transformers resolve one exact stable ONNX family with no nested lock copies', async () => {
   const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));

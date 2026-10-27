@@ -10,7 +10,7 @@ Updated candidates include Transformers 4.3.2, ZIP.js 2.24.0, marked 18.1.2, par
 
 ## Completed local checks
 
-- Reader: 597 passed; 4 existing optional tests skipped.
+- Reader: 601 passed; 4 existing optional tests skipped.
 - Analytics: 316 passed; no skips.
 - Alternative: 51 passed; no skips.
 - Reader and Analytics renderer builds passed; Transformers, ONNX Runtime Web and Sharp native imports succeeded.
@@ -41,9 +41,11 @@ These checks use synthetic data. Headless-shell renderer checks do not certify n
 
 ## Stable ONNX Runtime verification
 
-ONNX Web, native Node and common all resolve to **1.31.1**, with no nested prerelease package. Six new tests cover actual dependency resolution, quantized native CPU inference, source-adapter validation and both native telemetry suppression variables before desktop/worker initialization. Five production-worker tests cover native Transformers, automatic portable fallback, explicit WASM, pooling/normalization, batching, empty/Unicode/long inputs and offline failure paths.
+ONNX Web, native Node and common all resolve to **1.31.1**, with no nested prerelease package. Seven tests cover actual dependency resolution, quantized native CPU inference, source-adapter validation and both native telemetry suppression variables before desktop/worker initialization. Eight production-worker tests cover native Transformers, automatic portable fallback, explicit WASM, pooling/normalization, batching, empty/Unicode/long inputs and offline failure paths.
 
 Reader’s Windows ZIP and Linux TAR/DEB were rebuilt with the stable dependency family and validated against current source, runtime and retained-license inputs. The actual packaged Linux executable passed native ONNX inference, the real multilingual native/portable model test, storage workflows and Sharp decoding. Native Windows execution remains pending.
+
+Hosted Windows tests exposed a raw drive path passed to ONNX’s module loader. Portable inference now uses an encoded directory file URL for both module and WASM assets. Windows drive/UNC and POSIX path round trips pass, and real automatic fallback and explicit WASM inference pass from relocated paths containing spaces, `#`, `%` and Unicode with no fetch attempts. The regression failed before the correction. The full Reader suite passed again: 601 passed, four existing optional skips.
 
 The configured public q8 multilingual model was tested before and after the update. All five English/Hungarian test embeddings are exactly unchanged within each backend (maximum component difference 0). Search ranking passes; native-to-portable minimum cosine similarity remains 0.998955. The established long-input tokenization difference between the two backends is preserved and tested separately. Chromium WASM main-thread and module-worker compatibility checks also pass without external requests or UI CSP changes.
 
@@ -104,6 +106,6 @@ The npm toolchain gate has passed local verification. The user authorized the so
 
 Title: Prepare Suite 1.3.0 with Electron 45.1 and stable ONNX
 
-Description: Align Reader, Analytics and Alternative at 1.3.0 with Electron 45.1.0 and Node 24.22.1. Pin all ONNX runtime packages to stable 1.31.1, load Transformers from its supplied source, and disable both native network telemetry and Windows product-telemetry registration before workers initialize. Resolve npm’s bundled-Undici issue through the verified isolated npm 12.2.1/Undici 6.29.1 profile. Refresh dependency locks, notices, documentation and CI while preserving archive/profile compatibility and existing renderer presentation. Local verification includes 964 application passes, 122 packaging regressions, real-model native/WASM parity and toolchain security checks. Hosted platform checks and complete matching source companions remain publication gates.
+Description: Align Reader, Analytics and Alternative at 1.3.0 with Electron 45.1.0 and Node 24.22.1. Pin all ONNX runtime packages to stable 1.31.1, load Transformers from its supplied source, and disable both native network telemetry and Windows product-telemetry registration before workers initialize. Resolve npm’s bundled-Undici issue through the verified isolated npm 12.2.1/Undici 6.29.1 profile. Refresh dependency locks, notices, documentation and CI while preserving archive/profile compatibility and existing renderer presentation. Local verification includes 968 application passes, 122 packaging regressions, real-model native/WASM parity and toolchain security checks. Hosted platform checks and complete matching source companions remain publication gates.
 
 This text is a draft, not a claim that outstanding release gates have passed.

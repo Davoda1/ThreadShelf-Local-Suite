@@ -7,6 +7,7 @@
 - Use an isolated, integrity-verified npm 12.2.1 toolchain with its bundled Undici replaced by official 6.29.1. Source helpers, suite builds and CI select the same profile without changing global npm; see maintainer/NPM-TOOLCHAIN.md.
 - Update Markdown, diagrams, math, ZIP parsing, holiday data, build tools and browser test dependencies; refresh locked transitive dependencies including undici 7.30.1.
 - Pin Reader’s ONNX Runtime Web, Node and common packages to stable 1.31.1. Load Transformers 4.3.2 from its supplied source entry so it uses those external packages, and omit its unused prebuilt runtime bundles from desktop packages.
+- Load portable ONNX assets through encoded file URLs so Windows drive paths and installation paths containing spaces, `#`, `%` or Unicode work correctly. Native and automatic/explicit WASM paths are regression-tested.
 - Disable ONNX native telemetry in the main process before starting inference workers; preserve the existing model, cache layout and explicit model-download flow.
 - Refresh CI action commit pins and retain all existing regression and package validation gates.
 - Publication remains gated on the matching runtime source mirror, packaged graphical checks, native Windows checks and final GitHub validation. See maintainer/REVIEW-1.3.0.md for actual evidence and limitations.
