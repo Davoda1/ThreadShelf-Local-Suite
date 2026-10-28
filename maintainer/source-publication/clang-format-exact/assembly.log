@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "rootTree": "5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6",
+  "fileCount": 13,
+  "treeCount": 2,
+  "regularFileBytes": 100941,
+  "archive": {
+    "file": "/tmp/threadshelf-source-staging/clang-format-exact/clang-format-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "bytes": 28763,
+    "sha256": "aea58b9111cf181d0d0eec0c228a93c455a6cd058a30ff7e892ceecc6d3e233a",
+    "prefix": ""
+  }
+}

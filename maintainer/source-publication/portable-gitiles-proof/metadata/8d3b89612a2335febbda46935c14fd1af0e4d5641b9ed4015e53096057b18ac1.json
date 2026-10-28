@@ -1,0 +1,173 @@
+{
+  "id": "c32c4a66c2376aa0b32d6313346dd0e41dabe93d",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b1d86c16b3075f3ee4523da78430f335b651e875",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "352bc2659bc85960608909b1f9efebb9471f11d3",
+      "name": ".bcr"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b91bc7a74cbec12725677bb5163032335cfaca94",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "56f0a31539ea2344d2ed83a5e28044b53ef5fc0a",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c5c885964c49f0351fd767b875323c847081c8f9",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d6ae96286fc7174b069167b73a8baeb810cdf2b7",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "afe7652988a14151c5b6bd30c54a2c0e366e4c40",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "09e5ec1c74c187adc8fde6c74308c3492ef31f77",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c2530a955ea1231f9184e9c3e59819f27e79dd9c",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7e69a63509641c762547dc086f455e17552d332d",
+      "name": "Makefile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e9904b932e6ff9e71c4e157fed6710d1092b568f",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "39ba0e93f2df613b6aa3856ebd7f6bca6321d28c",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa514a8771deda327c3014e489b2e2d326521978",
+      "name": "WORKSPACE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa514a8771deda327c3014e489b2e2d326521978",
+      "name": "WORKSPACE.bzlmod"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "9a92ecefded2012bb773371aeaff45f9047885b3",
+      "name": "app"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "769f9980635473cae83a2267403f5d809d545492",
+      "name": "benchlog"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "965d20a46c4febafd32a5429652b5255326e9580",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "30786f1eff1d30990cdd04cf0d7c8439e2c2e035",
+      "name": "lib"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0cab3d94bd2f7502df0e88672e6aede9f5bb4ffd",
+      "name": "libre2.symbols"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "754f45cd2debfc6fd4f9833bae10d5d2e7a433c5",
+      "name": "libre2.symbols.darwin"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8fddf55944cccd1e0d6c760ee912fe3f587258c8",
+      "name": "python"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c6182d82816e4d7dafc4b575d700f94ffdc89229",
+      "name": "re2.pc.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ab513bef9b1b48bed8c0f3dfe2209fd7c9f67f35",
+      "name": "re2"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "be7b6bc643b50e72cd49fbc31667eadb73fe0eb1",
+      "name": "re2Config.cmake.in"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "94584a660df481773179052b250579aa3ef2c2b9",
+      "name": "runtests"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "19cc9003bf8decc18a7be4dacfb0bb4f181a39b0",
+      "name": "testinstall.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "57aec04a15cfd2fc93dd75468841076a7042fc97",
+      "name": "ucs2.diff"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b80957635ce4d2d3f3c7ada59d2298c60e0c2884",
+      "name": "util"
+    }
+  ]
+}

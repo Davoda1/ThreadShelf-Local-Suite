@@ -1,0 +1,100 @@
+{
+  "scope": "Read-only authoritative-input derivation plus a temporary tiny database containing only already accepted sidecar records. Live streaming inventory was not locked or copied; full finalization was not run.",
+  "expected_git_archives": 179,
+  "expected_supplemental_archives": 6,
+  "expected_profile_archives": 1,
+  "expected_total_archives": 186,
+  "source_bearing_non_git_mappings": [
+    {
+      "path": "src/third_party/dawn/third_party/agility-sdk/src",
+      "classification_row_sha256": "3f02a842754a9c92a1bbe16d1b9b1095fb1523c1fb0a7e1140b0c5a997d14a9b",
+      "archives": [
+        "agility-sdk-source-1.721.0-preview.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/llvm-build/Release+Asserts",
+      "classification_row_sha256": "4b972855ad2790d575f670944a8b9890966ba757c0d827cf9475ba7e66d1f077",
+      "archives": [
+        "llvm-toolchain-compiler-rt-62397f8b3c3986f54187ce08f00b3448ea1f8880.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/llvm-libclang",
+      "classification_row_sha256": "bb4803cdf364a59fcfc6b88cf1956b0ebcac1cf5410e779a1237a5f563233b96",
+      "archives": [
+        "llvm-toolchain-compiler-rt-62397f8b3c3986f54187ce08f00b3448ea1f8880.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/node/node_modules",
+      "classification_row_sha256": "b8bd8aaec13cbc8fb6dce0c865a4ce80562044bfae623ab80f8eaeedf8af0548",
+      "archives": [
+        "chromium-node-modules-44f845cd5bd9d805cb1c73a98d5726b38ed8662a.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/openscreen/src/third_party/llvm-build/Release+Asserts",
+      "classification_row_sha256": "fa318deeb1b915027cc53c22405a7aeebde3714f761f25d3caa7d9a81652aa3e",
+      "archives": [
+        "llvm-toolchain-compiler-rt-62397f8b3c3986f54187ce08f00b3448ea1f8880.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/rust-toolchain",
+      "classification_row_sha256": "47937828267d741ec55687b5e37d2933ba229b9dbb112d06f108056fc107cc4f",
+      "archives": [
+        "rust-stdlib-1edd55dcfcd573872c727fa3e086369a71661ee0.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/webview2",
+      "classification_row_sha256": "7c47babcffc8f9328529e6f52a726a43caa729faaaee70822e86c58039388630",
+      "archives": [
+        "webview2-sdk-source-1.0.3856.49.tar.gz"
+      ]
+    },
+    {
+      "path": "src/third_party/wtl",
+      "classification_row_sha256": "b52e40febec402174835d4e834d13340589508733063a0e4b5067766dc26db72",
+      "archives": [
+        "wtl-10.1.0.tar.gz"
+      ]
+    }
+  ],
+  "sidecars": [
+    {
+      "file": "accepted-parts/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.json",
+      "sha256": "ac44e4f0658a94b97c5a8444f49c693aa95b23d624e5b025dee80bdee98d77bd",
+      "sources": 1
+    },
+    {
+      "file": "accepted-parts/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.json",
+      "sha256": "8681f62c9d0ec6c0e4d7c2d98ccdd8727c92504ab3c985e490b940e92706a7c8",
+      "sources": 11
+    },
+    {
+      "file": "accepted-parts/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.json",
+      "sha256": "fdbb6c1b0b5fb4ac4c491a642deb5d95dd0c381b112e1e24d2b704b0cf0b6819",
+      "sources": 3
+    },
+    {
+      "file": "accepted-parts/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.json",
+      "sha256": "e414190333fc8153b47ae88c7c252da67a425e4925d798bd528680c7861a8083",
+      "sources": 8
+    }
+  ],
+  "input_sha256": {
+    "seed": "9335ef7e88f12833079d286a0372ef37e323a4c0ee59d33cd23b4f9c1b848bad",
+    "deps_inventory": "952f477352f94cfae89bc39fe8ad747f19289616a27faca7ee5f4c0a177e7456",
+    "git_plan": "968d707f0432a7e4494bdadb33f9383f52ef610eb55fbc2bc0269e9c5ac95744",
+    "non_git_classification": "1de69b08c49c58e014e6f669bb3c14beb56b836553ec14026222ecc48a2388e2",
+    "supplemental_manifest": "ede260b1dcb18be74797c1336ada0d697f1c39061858357219d682c280110106",
+    "supplemental_validation": "e677299cb1d609b03804cd4082f1bcc3271b7b30a9c804af7cfb3ac6e3c2b5f2",
+    "profiles": "68e5a54e74542f5eb615e12d81a454c9389e9c260132b635e2255278563eee61"
+  },
+  "passed": true,
+  "partial_collection_rejected": true,
+  "error": "Complete accepted archive coverage: missing=['agility-sdk-source-1.721.0-preview.tar.gz', 'chromium-node-modules-44f845cd5bd9d805cb1c73a98d5726b38ed8662a.tar.gz', 'electron-45.1.0-release-profiles.tar.gz', 'llvm-toolchain-compiler-rt-62397f8b3c3986f54187ce08f00b3448ea1f8880.tar.gz', 'rust-stdlib-1edd55dcfcd573872c727fa3e086369a71661ee0.tar.gz'], extra=[]",
+  "accepted_archives": 23
+}

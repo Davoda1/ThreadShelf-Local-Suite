@@ -2,8 +2,8 @@
   "schema_version": 1,
   "suite_version": "1.3.0",
   "onnxruntime_version": "1.31.1",
-  "scope": "Source preparation inventory for the Reader native, Web/WASM and common ONNX packages. This is not a complete source companion.",
-  "complete_source_companion_prepared": false,
+  "scope": "Pinned source/provenance inventory for the complete Reader native, Web/WASM and common ONNX 1.31.1 source companion; final canonical manifest and full indexes are supplied separately.",
+  "complete_source_companion_prepared": true,
   "source": {
     "repository": "https://github.com/microsoft/onnxruntime",
     "tag": "v1.31.1",
@@ -11,14 +11,14 @@
     "release_url": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.1",
     "source_archive_url": "https://codeload.github.com/microsoft/onnxruntime/tar.gz/6af1a932e2286d5c58166085d24c68783033edee",
     "source_archive_downloaded": true,
-    "complete_source_companion_prepared": false,
-    "source_archive_retained": false,
+    "complete_source_companion_prepared": true,
+    "source_archive_retained": true,
     "source_archive_inspection": {
       "archiveBytes": 280385122,
       "archiveSha256": "ca15bee9ccf04f17da55d78834cce95168e3e2178edf402bd38d2e5eb95b1e26",
       "regularFilesScanned": 11379,
       "regularFileBytes": 584026306,
-      "scope": "Full stream scanned for privacy flag references; no complete companion retained or assembled."
+      "scope": "Initial full source stream scanned for privacy flag references. The exact source archive is now retained in the separately verified complete source companion."
     }
   },
   "package_provenance": "../apps/reader/licenses/ONNX-PROVENANCE.json",
@@ -127,10 +127,25 @@
     "Record the three exact npm package tarballs and registry integrity values separately from source-tag provenance; keep native CPU binaries and Web/WASM assets matched to 1.31.1.",
     "Preserve unchanged Transformers 4.3.2 source/license and the suite adapter/packaging recipe that omits unused dist bundles while selecting external ONNX 1.31.1.",
     "Record runtime build flags, both main-process telemetry suppression flags and the version-specific internal-flag review, plus external compiler/SDK prerequisites. Verify archive safety, source assembly and any local changes before advertising a completed companion.",
-    "Include completed source artifacts and provenance under the existing release-level checksum manifest; retain the separate incomplete Electron 45.1.0 companion gate."
+    "Include completed source artifacts and provenance under the existing release-level checksum manifest; also verify the separately supplied Electron 45.1.0 source collection."
   ],
   "limits": [
-    "No full ONNX source archive/submodule/dependency mirror or native rebuild was completed by this preparation.",
+    "The complete original-source companion is verified; ONNX itself was not rebuilt and binary reproducibility is not claimed.",
     "MIT license and root ThirdPartyNotices match 1.30.0 byte-for-byte; this does not imply unchanged dependencies or binary equivalence."
-  ]
+  ],
+  "source_companion": {
+    "status": "complete-original-source-collection-verified",
+    "source_archives": 96,
+    "indexed_entries": 260922,
+    "active_vcpkg_ports": 33,
+    "version_constraints_checked": 28,
+    "ordered_patch_applications": 60,
+    "manifest": "source-publication/onnx/ONNX-COLLECTION-MANIFEST.json",
+    "source_parts": [
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-01.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-02.zip"
+    ],
+    "metadata": "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-Metadata.zip",
+    "scope": "Matching original native/Web/common source closure and retained recipes; no full native rebuild or byte-identical binary reproduction claimed. Historical preparation snapshots inside immutable parts remain explicitly scoped to their earlier phases."
+  }
 }

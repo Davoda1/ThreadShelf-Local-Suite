@@ -1,0 +1,35 @@
+{
+  "id": "6ae5f4f4c0e264616e807bbbf00f0d0c23627d5a",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7a4a3ea2424c09fbe48d455aed1eaa94d9124835",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b1cc629e16bcc4969ef82144ba81f3e77491dae8",
+      "name": "OWNERS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f9cd9e2907ee18f5f000a44a38c6242bb1dfac57",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d74edfd5cd8ad7f7473100532f7236bbd875dbb8",
+      "name": "build"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4f9849c0bd205c3a95538cdd54ce2225fffdadfb",
+      "name": "proto"
+    }
+  ]
+}

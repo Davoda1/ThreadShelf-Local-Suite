@@ -1,0 +1,935 @@
+{
+  "passed": true,
+  "scope": "Chromium/Electron Linux+Windows GN graph only; standalone upstream builds not claimed",
+  "method": "Literal GN src paths, including fixed proto_in_dir=src expansion; all local include candidates recursively inspected. Unknown C/C++ conditions retain both branches. Only the explicitly applied NEARBY_CHROMIUM=1 definition excludes its guarded branch. This is static selection evidence, not a full GN generation, compiler run or all-system-header dependency closure.",
+  "owner_path": "src/third_party/securemessage/src",
+  "source_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+  "source_archive_bytes": 50928,
+  "source_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f",
+  "source_revision": "fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84",
+  "gn_wrapper": {
+    "file": "chromium-third_party__securemessage__BUILD.gn",
+    "bytes": 2397,
+    "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+    "source_path": "src/third_party/securemessage/BUILD.gn",
+    "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+    "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+  },
+  "gn_selected_source_count": 18,
+  "selected_and_local_include_file_count": 18,
+  "local_include_roots_from_gn": [
+    "",
+    "cpp/include"
+  ],
+  "nearby_chromium_defined_source_targets": [],
+  "files": [
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/byte_buffer.h",
+      "bytes": 4805,
+      "sha256": "35c2f87639b867b90b7ef54d5079e7d88027ebee1dd46efe00134c1245abd699",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/common.h",
+      "bytes": 789,
+      "sha256": "2a90fff2e02302009a5313460ac9ebd995211d2c4d1cd19ad357c51c14cf1c4f",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/crypto_ops.h",
+      "bytes": 16657,
+      "sha256": "36f69539188fff78bb867b39616ebd915699726be233de56701912c80e36a13c",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/public_key_proto_util.h",
+      "bytes": 2219,
+      "sha256": "a591d542d2e560e1c16ac82d68c0b7aa06deaa44537c6f0f1de9b9edd06eac19",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/raw_secure_message_parser.h",
+      "bytes": 3243,
+      "sha256": "669d2d1ccc422a3545b35359373b381d4a0af76c6a3b8e4f584cd84ed7e40c91",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/secure_message_builder.h",
+      "bytes": 7161,
+      "sha256": "3140cd05cc0ecee4a89ab64616c0b722fe3375243b118e4c0c2c84e50deb9b45",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/secure_message_parser.h",
+      "bytes": 3991,
+      "sha256": "0c378cae5ab7bb459b1f79185387159f5c518472e5900ab54ae0d78528b0a301",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/secure_message_wrapper.h",
+      "bytes": 3866,
+      "sha256": "863ca9012f9df667eb76833528876fd6767473cba9a44ab455a0d62686c3614f",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/include/securemessage/util.h",
+      "bytes": 1972,
+      "sha256": "99431685c8d111b619fdfecbf5cadad6f22289f4b517a8ba178b3c3238e5b8a3",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/byte_buffer.cc",
+      "bytes": 5229,
+      "sha256": "f10e402dc8d15dcc110a61f5b8c41fbc7f2689795c75e3b223c5480426c0ce86",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/crypto_ops.cc",
+      "bytes": 15091,
+      "sha256": "ecd489bf532918f459f9ab7f09daa962c1c26bc0a48203c48d21dfd5797b192b",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/crypto_ops_openssl.cc",
+      "bytes": 35644,
+      "sha256": "9907889f720fbec334f8f683434573b798081acbf0f6f72d0ac1dd49005fd60d",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/public_key_proto_util.cc",
+      "bytes": 3206,
+      "sha256": "7dcfcedc52ab4aa5e99affd81f8906666ea4d6790cbd9e61746a38ea3a508264",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/raw_secure_message_parser.cc",
+      "bytes": 6421,
+      "sha256": "c96a121955e0d95e387f6d10d1789739d476433c4f057dedb4c863acca8e39be",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/secure_message_builder.cc",
+      "bytes": 7873,
+      "sha256": "d2acd60890ae854364906a0f96baf0d8149650a7e925b5cb170f89ffed51861e",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/secure_message_parser.cc",
+      "bytes": 4449,
+      "sha256": "3c6a355537de431f72f9c3edee00357f703d559355ef134c04b4bb8fcd14b545",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/secure_message_wrapper.cc",
+      "bytes": 4776,
+      "sha256": "e31fc154538970aa2a97e815bf1d7074415bc8806e5d4b58ba1b8028dcb14c95",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/securemessage/src/cpp/src/securemessage/util.cc",
+      "bytes": 1132,
+      "sha256": "b0b53dc0d479b8279d47febcda2e2aec515e984d0d724be12ab93bcfa504a918",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    }
+  ],
+  "includes": [
+    {
+      "path": "cpp/include/securemessage/byte_buffer.h",
+      "line": 27,
+      "include": "stddef.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_BYTE_BUFFER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/byte_buffer.h",
+      "line": 28,
+      "include": "cstdint",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_BYTE_BUFFER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/byte_buffer.h",
+      "line": 29,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_BYTE_BUFFER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/byte_buffer.h",
+      "line": 30,
+      "include": "vector",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_BYTE_BUFFER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/byte_buffer.h",
+      "line": 32,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_BYTE_BUFFER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/common.h",
+      "line": 20,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_COMMON_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/crypto_ops.h",
+      "line": 20,
+      "include": "cstdint",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/crypto_ops.h",
+      "line": 21,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/crypto_ops.h",
+      "line": 22,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/crypto_ops.h",
+      "line": 24,
+      "include": "securemessage/byte_buffer.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/byte_buffer.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/crypto_ops.h",
+      "line": 25,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/public_key_proto_util.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_PUBLIC_KEY_PROTO_UTIL_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/public_key_proto_util.h",
+      "line": 21,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_PUBLIC_KEY_PROTO_UTIL_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/public_key_proto_util.h",
+      "line": 22,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_PUBLIC_KEY_PROTO_UTIL_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/public_key_proto_util.h",
+      "line": 23,
+      "include": "proto/securemessage.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_PUBLIC_KEY_PROTO_UTIL_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/raw_secure_message_parser.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_RAW_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/raw_secure_message_parser.h",
+      "line": 22,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_RAW_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/raw_secure_message_parser.h",
+      "line": 23,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_RAW_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_builder.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_BUILDER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_builder.h",
+      "line": 22,
+      "include": "proto/securemessage.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_BUILDER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_builder.h",
+      "line": 24,
+      "include": "securemessage/byte_buffer.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_BUILDER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/byte_buffer.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_builder.h",
+      "line": 25,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_BUILDER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_builder.h",
+      "line": 26,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_BUILDER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_parser.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_parser.h",
+      "line": 22,
+      "include": "proto/securemessage.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_parser.h",
+      "line": 24,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_parser.h",
+      "line": 25,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_PARSER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_wrapper.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_WRAPPER_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_wrapper.h",
+      "line": 22,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_WRAPPER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/secure_message_wrapper.h",
+      "line": 23,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_SECURE_MESSAGE_WRAPPER_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/include/securemessage/util.h",
+      "line": 20,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_UTIL_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/util.h",
+      "line": 21,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_UTIL_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/include/securemessage/util.h",
+      "line": 23,
+      "include": "securemessage/common.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECUREMESSAGE_UTIL_H_"
+      ],
+      "local_candidates": [
+        "cpp/include/securemessage/common.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/byte_buffer.cc",
+      "line": 17,
+      "include": "securemessage/byte_buffer.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/byte_buffer.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/byte_buffer.cc",
+      "line": 19,
+      "include": "climits",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/byte_buffer.cc",
+      "line": 20,
+      "include": "cstring",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/byte_buffer.cc",
+      "line": 22,
+      "include": "iomanip",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/byte_buffer.cc",
+      "line": 23,
+      "include": "sstream",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops.cc",
+      "line": 23,
+      "include": "stddef.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops.cc",
+      "line": 25,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops.cc",
+      "line": 26,
+      "include": "securemessage/secure_message_wrapper.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_wrapper.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops.cc",
+      "line": 27,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 17,
+      "include": "openssl/aes.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 18,
+      "include": "openssl/bn.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 19,
+      "include": "openssl/ec.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 20,
+      "include": "openssl/ecdsa.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 21,
+      "include": "openssl/evp.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 22,
+      "include": "openssl/hmac.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 23,
+      "include": "openssl/obj_mac.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 24,
+      "include": "openssl/ossl_typ.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 25,
+      "include": "openssl/rand.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 26,
+      "include": "openssl/rsa.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 27,
+      "include": "openssl/sha.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 28,
+      "include": "openssl/x509.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 30,
+      "include": "stddef.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 31,
+      "include": "climits",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 32,
+      "include": "cstdint",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 33,
+      "include": "cstdlib",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 34,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 35,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 37,
+      "include": "securemessage/byte_buffer.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/byte_buffer.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 38,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/crypto_ops.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 39,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 42,
+      "include": "openssl/bytestring.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "if defined(OPENSSL_IS_BORINGSSL)"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/crypto_ops_openssl.cc",
+      "line": 43,
+      "include": "openssl/mem.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "if defined(OPENSSL_IS_BORINGSSL)"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/public_key_proto_util.cc",
+      "line": 17,
+      "include": "securemessage/public_key_proto_util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/public_key_proto_util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/raw_secure_message_parser.cc",
+      "line": 23,
+      "include": "securemessage/raw_secure_message_parser.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/raw_secure_message_parser.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/raw_secure_message_parser.cc",
+      "line": 25,
+      "include": "securemessage/secure_message_wrapper.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_wrapper.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/raw_secure_message_parser.cc",
+      "line": 26,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_builder.cc",
+      "line": 17,
+      "include": "securemessage/secure_message_builder.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_builder.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_builder.cc",
+      "line": 19,
+      "include": "securemessage/secure_message_wrapper.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_wrapper.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_builder.cc",
+      "line": 20,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_parser.cc",
+      "line": 23,
+      "include": "securemessage/secure_message_parser.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_parser.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_parser.cc",
+      "line": 25,
+      "include": "securemessage/raw_secure_message_parser.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/raw_secure_message_parser.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_parser.cc",
+      "line": 26,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_wrapper.cc",
+      "line": 17,
+      "include": "securemessage/secure_message_wrapper.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/secure_message_wrapper.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_wrapper.cc",
+      "line": 19,
+      "include": "proto/securemessage.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/secure_message_wrapper.cc",
+      "line": 20,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    },
+    {
+      "path": "cpp/src/securemessage/util.cc",
+      "line": 17,
+      "include": "iostream",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "cpp/src/securemessage/util.cc",
+      "line": 19,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "cpp/include/securemessage/util.h"
+      ]
+    }
+  ]
+}

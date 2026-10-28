@@ -1,0 +1,83 @@
+{
+  "id": "176383f02746d0248e7b04409367f691cc231cef",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3785927385bd6a495f17ac4ba905ecdec2691967",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "048761a22706a7a98a8275d3d59a12b141543d90",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3716ca18dda9d9d596d0462abac83a7daade8729",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4cbc6971545d9950131b38c9770b9a64a8d79ebb",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "561d14f3377e7ecc3fad26d5158212f837eab431",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bd8b243dfa02d4e7080150180520f742d2861d15",
+      "name": "LICENSE-Apache2-LLVM"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "36b7cd93cdfbac762f5be4c6ce276df2ea6305c2",
+      "name": "LICENSE-Boost"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cf618f0ca62055dd2e75c31e76ab260f3db208dd",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2e4fb77ff75a055995a3d37fee60b41eaa553ef7",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "39bc7a238879bc347f1d771df3cc00c9c02ff9c1",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1482a8a5e93fcac76e61dcfa341f84b16836fc15",
+      "name": "other_files"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "04280e8493c93c759e762458e6c652fee235eddf",
+      "name": "source"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "72211a3d1ff51f4764385aebb01aea42b891e49d",
+      "name": "subproject"
+    }
+  ]
+}

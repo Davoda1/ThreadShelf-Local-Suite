@@ -1,0 +1,30 @@
+test_changed_revision_is_rejected (__main__.FinalizerTests.test_changed_revision_is_rejected) ... ok
+test_changed_sidecar_identity_rejected (__main__.FinalizerTests.test_changed_sidecar_identity_rejected) ... ok
+test_complete_owner_proves_initial_absence (__main__.FinalizerTests.test_complete_owner_proves_initial_absence) ... ok
+test_complete_real_collection_and_patch_chain (__main__.FinalizerTests.test_complete_real_collection_and_patch_chain) ... ok
+test_existing_output_never_overwritten (__main__.FinalizerTests.test_existing_output_never_overwritten) ... ok
+test_expanded_symlink_escape_rejected (__main__.FinalizerTests.test_expanded_symlink_escape_rejected) ... ok
+test_failed_or_missing_patch_execution_rejected (__main__.FinalizerTests.test_failed_or_missing_patch_execution_rejected) ... ok
+test_initial_source_hash_and_owner_must_match (__main__.FinalizerTests.test_initial_source_hash_and_owner_must_match) ... ok
+test_inventory_nondirectory_ancestor_rejected (__main__.FinalizerTests.test_inventory_nondirectory_ancestor_rejected) ... ok
+test_inventory_windows_drive_path_rejected (__main__.FinalizerTests.test_inventory_windows_drive_path_rejected) ... ok
+test_lost_regular_file_inventory_row_rejected (__main__.FinalizerTests.test_lost_regular_file_inventory_row_rejected) ... ok
+test_missing_part_rejected (__main__.FinalizerTests.test_missing_part_rejected) ... ok
+test_non_git_classification_coverage_rejected (__main__.FinalizerTests.test_non_git_classification_coverage_rejected) ... ok
+test_partial_database_never_emits_final_files (__main__.FinalizerTests.test_partial_database_never_emits_final_files) ... ok
+test_patch_recipe_must_match_full_electron_archive (__main__.FinalizerTests.test_patch_recipe_must_match_full_electron_archive) ... ok
+test_pinned_accepted_archive_hash_cannot_change (__main__.FinalizerTests.test_pinned_accepted_archive_hash_cannot_change) ... ok
+test_reordered_patch_result_rejected (__main__.FinalizerTests.test_reordered_patch_result_rejected) ... ok
+test_required_notice_and_profile_hashes_are_verified (__main__.FinalizerTests.test_required_notice_and_profile_hashes_are_verified) ... ok
+test_selected_table_cannot_omit_enabled_dependency (__main__.FinalizerTests.test_selected_table_cannot_omit_enabled_dependency) ... ok
+test_self_consistent_plan_subset_is_rejected_against_deps (__main__.FinalizerTests.test_self_consistent_plan_subset_is_rejected_against_deps) ... ok
+test_source_bearing_non_git_mapping_cannot_disappear (__main__.FinalizerTests.test_source_bearing_non_git_mapping_cannot_disappear) ... ok
+test_stale_patch_plan_binding_rejected (__main__.FinalizerTests.test_stale_patch_plan_binding_rejected) ... ok
+test_substituted_accepted_identity_rejected (__main__.FinalizerTests.test_substituted_accepted_identity_rejected) ... ok
+test_unexpected_archive_rejected (__main__.FinalizerTests.test_unexpected_archive_rejected) ... ok
+test_unknown_non_git_disposition_rejected (__main__.FinalizerTests.test_unknown_non_git_disposition_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.539s
+
+OK

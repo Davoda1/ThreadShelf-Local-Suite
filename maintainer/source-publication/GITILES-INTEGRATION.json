@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "scope": "Completed Gitiles archive representation proof and standalone-Gitlink source classification work only. Overall runtime186archive coverage, patch assembly and remoteasset reconciliation remain separate parent-owned gates.",
+  "source_representations": 71,
+  "full_inventory_bytes": 10548986,
+  "upstream_metadata_files_including_receipts": 170,
+  "exact_gitlink_dispositions": 27,
+  "canonical_candidate_plan": {
+    "file": "source-companion-review/complete-git-source-plan.final-candidate.json",
+    "bytes": 63403,
+    "sha256": "613b405e349ae609d6e88aac76a742de5f945863901bc3481679a0f842c9abcb"
+  },
+  "portable_source_overrides": {
+    "file": "source-companion-review/gitiles-portable-source-overrides.json",
+    "bytes": 96787,
+    "sha256": "785537e858659a467ec30d5a3c8b0fa85dbca0dcc19e2f172599df2ca162104f"
+  },
+  "portable_proof_index": {
+    "file": "source-companion-review/gitiles-portable-proof-index.json",
+    "bytes": 117325,
+    "sha256": "1f08e93c9b8126a47b6b1ee19ee5f8af00a79d710432c4b3912bbf5cc0f0eb10"
+  },
+  "gitlink_dispositions": {
+    "file": "source-companion-review/gitlink-classification/GITLINK-DISPOSITIONS.json",
+    "bytes": 91917,
+    "sha256": "3b7bce4da0aed394c4ec5f5092c3d77245aa63ba059c20d2546ef9c7a53b940e"
+  },
+  "identity_tooling_validation": {
+    "file": "source-companion-review/gitiles-tooling-validation.json",
+    "bytes": 1665,
+    "sha256": "ff75aa6918bd1ecbbe372a1c1d641549b2d94dc0aab31c6e4cc3a643b5495e80"
+  },
+  "tracked_candidates": [
+    "portable-gitiles-proof/*.json",
+    "portable-gitiles-proof/metadata/*.json excluding descriptor storage:metadata",
+    "gitlink-classification/GITLINK-DISPOSITIONS.json",
+    "gitlink-classification/evidence/* excluding descriptor storage:metadata"
+  ],
+  "companion_metadata_candidates": [
+    "portable-gitiles-proof/inventories/*.jsonl.gz",
+    "portable-gitiles-proof/metadata/9b5b599569c94d710500a3cd8860a29ce7499cbc55c0988a2f031909716d7026.json",
+    "gitlink-classification/evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json"
+  ],
+  "namespace_rule": "The metadata directory mirrors the full bundle-relative proof/report directory. Nested descriptor paths stay relative to their proof/report; no parent traversal is used.",
+  "scripts": [
+    {
+      "file": "source-companion-review/verify-gitiles-representation.py",
+      "bytes": 18562,
+      "sha256": "55a65322d2bde993fbfd7f6ae1a7636a45582891ff66a3f839889c6a98352b58"
+    },
+    {
+      "file": "source-companion-review/prefetch-gitiles-verified.py",
+      "bytes": 6373,
+      "sha256": "c73d35687f0ed9472931bf35b92090e0e522c2fbc757f8995de4af2b6530b3e8"
+    },
+    {
+      "file": "source-companion-review/upgrade-gitiles-inventories.py",
+      "bytes": 2807,
+      "sha256": "b91e82d5855a55ae24d045eca168efd38d6722d11f3c36b666ea3ef682f36547"
+    },
+    {
+      "file": "source-companion-review/package-gitiles-proofs.py",
+      "bytes": 5648,
+      "sha256": "80ce85df686d9f5f2e5decebef6a30c3fa701f3e66267e49ca22732909983340"
+    },
+    {
+      "file": "source-companion-review/merge-gitiles-overrides.py",
+      "bytes": 3977,
+      "sha256": "2c0eb1b8427ed01e269000749a936860b6e07e8d3c57852f8ebd499d8b5e7633"
+    },
+    {
+      "file": "source-companion-review/classify-additional-gitlinks.py",
+      "bytes": 7360,
+      "sha256": "877a12a3a31cbd6fe799586d5e1f5d14e92d59e66b0f2b609cf0c07f91d1e756"
+    },
+    {
+      "file": "source-companion-review/finalize-gitlink-dispositions.py",
+      "bytes": 5912,
+      "sha256": "7c6240d50946078a089367a81608f06e1ef19cbc569dc486eb09a56ea5e08fb9"
+    },
+    {
+      "file": "source-companion-review/test-gitiles-representation.py",
+      "bytes": 11872,
+      "sha256": "bdf1c1a3fe9a8a8284ae6e449bc64ed1c418ba4eec47a4c196bb857a5993305f"
+    },
+    {
+      "file": "source-companion-review/test-gitiles-overrides.py",
+      "bytes": 2825,
+      "sha256": "68c0d739132600d9a1b176db0a55ab8d5428ffa2ba9b1fcca9f9a612bbd4306f"
+    }
+  ],
+  "large_upstream_metadata_bytes": 7825578,
+  "canonical_candidate_scope": "The saved candidate merges the71 Gitiles representation proofs only; retain the parent current canonical plan when it includes later exact Git-transport fallbacks.",
+  "additional_exact_git_transport_input": {
+    "path": "src/third_party/search_engines_data/resources",
+    "repository": "https://chromium.googlesource.com/external/search_engines_data.git",
+    "revision": "5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c",
+    "archive": "src__third_party__search_engines_data__resources-5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c.tar.gz",
+    "archive_sha256": "3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727",
+    "archive_bytes": 7961,
+    "local_row": {
+      "file": "source-companion-review/search-engines-git-local-row.json",
+      "bytes": 1484,
+      "sha256": "1e157398c306d6c11c27db96951fd42a57ecdcc174060506b4aeee38d37ae625"
+    },
+    "source_identity_proof": {
+      "file": "/workspace/scratch/7f980e25f779/source-companion-review/source-git-transport/search-engines/3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727.verified.json",
+      "bytes": 1912,
+      "sha256": "0ac8ab7c173893ce846550f1d7427f1857b3c65de502f29e870eef1834a6b897",
+      "root_git_tree": "d730002eeda3425fe70c59aedffa9942888128d8"
+    },
+    "gitlinks": [],
+    "scripts": [
+      {
+        "file": "source-companion-review/fetch-search-engine-git.py",
+        "bytes": 2390,
+        "sha256": "6d99df500646ffa1513bc39022a21a4446e3b084f85c4a06e5ea1e8ebb077dc5"
+      },
+      {
+        "file": "source-companion-review/prepare-search-engine-archive.py",
+        "bytes": 6466,
+        "sha256": "f3e70310e56d5025ef344139c0d42efe4a3e43e615f1ff7bf3f25b2d72171228"
+      }
+    ]
+  },
+  "independent_review_results": {
+    "gitiles_identity": "71 full source inventories,100612 blobs,5525trees,27gitlinks and85 pinned metadata records+receipts independently passed.",
+    "gitlink_dispositions": "Exact27tuple union and34actualreviewinput filehashes independently passed; fullassembly vendored_path existence remains part of parent whole-bundle gate.",
+    "search_engines_transport": "Exact rawcommit SHA1/fulltree reconstruction and verified same-repository Git retrieval receipt independently passed."
+  }
+}

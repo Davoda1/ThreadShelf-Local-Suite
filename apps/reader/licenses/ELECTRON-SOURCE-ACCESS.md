@@ -1,34 +1,41 @@
 # Electron runtime source access and rebuilding
 
-The ThreadShelf Local Suite **1.3.0 candidate** targets **Electron 45.1.0**,
+The ThreadShelf Local Suite **1.3.0** uses **Electron 45.1.0**,
 **Chromium 156.0.8078.49**, and embedded **Node.js 24.22.1**. Electron's embedded
 Node version is independent of the Node/npm installation used to build the apps.
 The suite's MIT license covers its original application code and does not
 replace the licenses of Electron, Chromium, or other bundled components.
 
-## Source preparation status
+## Matching source downloads
 
-**The complete matching runtime source companion has not yet been assembled
-and verified. Publication of the 1.3.0 binaries remains blocked on this work.**
-The prepared source seeds and provenance documents are not a complete runtime
-mirror and must not be described as one.
+The complete selected Linux x64 and Windows x64 source collection is supplied
+with the 1.3.0 release:
 
-The historical [v1.0.0 source companions](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0)
-cover Electron **44.9.1** and Chromium **152.0.7977.167**. They do not supply
-matching source for the new runtime. The unchanged sharp/libvips materials in
-the old Native-Sources companion may still be reused for those exact Reader
-native dependencies; the old Electron-specific FFmpeg/Blink/Mozilla materials
-must be refreshed. See the Reader's `SOURCE-AND-REBUILD.md` for its native scope.
+- Runtime source ZIPs: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip) · [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip) · [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip) · [part 04](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip) · [part 05](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip) · [part 06](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip).
+- [Runtime source metadata and offline assembler](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-Metadata.zip).
+- [Release SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt), covering these assets and the application packages.
 
-The suite source checkout includes the machine-readable preparation inventory
-at `maintainer/runtime-sources-1.3.0.json`, with exact source revisions, retained
-provenance hashes, release profile pins, and unresolved requirements. Its
-`complete_runtime_mirror` and `publication_ready` fields are deliberately false.
-`maintainer/prepare-runtime-sources.py` verifies these retained inputs and can
-download explicitly selected source seeds into a separate work directory.
-Its publication check fails until a complete successor workflow has assembled
-and validated the matching source companions. No release download link for
-uncreated 1.3.0 companions is advertised here.
+Keep **all six numbered ZIPs** together. Extract only the metadata ZIP, which
+creates `source-publication/`; the assembler reads the numbered ZIPs directly.
+Do not extract their repeated `PART-MANIFEST.json` files over one another.
+With Python 3.10+:
+
+```sh
+python source-publication/assemble-runtime-sources.py --manifest source-publication/final-runtime/SOURCE-MANIFEST.json --parts-dir /path/to/source-parts
+```
+
+To assemble a new source tree and apply the retained Electron patches, add
+`--destination /path/to/new-source-tree --apply-patches`. This additionally
+requires Git, symlink support and sufficient space for the expanded sources.
+The helper performs no downloads, upstream hooks or compilation.
+
+The suite source retains the pinned provenance inventory and source-verifier
+at `maintainer/runtime-sources-1.3.0.json` and
+`maintainer/verify-release-sources.py`. The complete manifests and compressed
+per-file inventories are in the metadata companion. The historical Electron
+44.9.1 mirror remains associated with its earlier release. Reader reuses only
+the unchanged sharp/libvips scope of the original Native-Sources companion;
+see its [native source references](../../reader/licenses/SOURCE-AND-REBUILD.md).
 
 ## Exact upstream inputs
 
@@ -42,34 +49,29 @@ uncreated 1.3.0 companions is advertised here.
 | Electron modifications | [Ordered patches](https://github.com/electron/electron/tree/v45.1.0/patches), [patch configuration](https://github.com/electron/electron/blob/v45.1.0/patches/config.json) |
 | Build procedure | [Versioned build instructions](https://github.com/electron/electron/blob/v45.1.0/docs/development/build-instructions-gn.md) |
 
-These upstream references establish provenance and support preparation. They do
-not replace the complete accompanying source mirror required by this release's
-distribution procedure. A source seed archive does not include separate Git
-repositories selected by recursive DEPS, supplemental source/build inputs, or
-all release optimization data.
+## Coverage and verification
 
-## Complete matching source requirements
+The collection contains **179 selected Git source trees**, **six supplemental
+source archives**, and **one archive of the three exact release optimization
+profiles and their version marker**: 186 archives in total. It preserves the
+Linux x64/Windows x64 union of recursive DEPS, runtime JavaScript source,
+source-bearing build packages, Rust library/vendor source and exact
+compiler-runtime source references. Non-Git conditions, external compilers,
+platform SDKs and build utilities are classified explicitly in the metadata.
+It is a source collection, not an offline SDK or an attested compiler image.
 
-Before publication, preserve all selected Git source trees for the union of
-separate Linux x64 and Windows x64 configurations, including Electron, Chromium,
-Node.js, V8 and recursive dependencies. Preserve the ordered Electron patches,
-source-bearing build packages, runtime JavaScript sources, Rust standard-library
-sources and vendored dependencies, exact compiler-runtime sources, and the
-matching Linux/Windows/V8 release optimization profiles. Classify excluded
-platforms and separately required compilers, platform SDKs, and normal build
-utilities in the manifest rather than claiming an offline SDK.
+Validation binds outer and inner hashes, every logical file/link entry,
+archive destinations and source identities. It checks collisions, expanded
+symlink targets, original notice bytes and all **257 ordered Electron patch
+applications**. New files introduced by patches are distinguished from missing
+original inputs. Gitiles archives whose tar metadata varied were additionally
+checked against their pinned Git blob/tree identities.
 
-Verify archive hashes, content safety, complete assembly and patch application.
-Record source URLs, immutable revisions, archive destinations and hashes,
-license-selection evidence and limitations. Publish the suite application
-source, updated native/runtime source companions, all numbered parts if split,
-and a single release-level `SHA256SUM.txt` alongside the corresponding binaries.
-Maintain these downloads for as long as the matching binaries are offered.
-
-The previous runtime mirror contained 208 source archives and approximately
-16.09 GB of unpacked source-file contents, before filesystem overhead. Its
-three compressed distribution parts totalled approximately 4.46 GB. These are
-capacity baselines for preparation, not measured sizes of the new mirror.
+The ordinary suite packagers use official Electron binaries. The source
+collection was not used for a complete Electron rebuild, and no byte-identical
+binary reproducibility claim is made. Preserve the suite source, all matching
+source companions, original notices and rebuild instructions alongside the
+corresponding binaries for as long as those binaries are offered.
 
 ## Retained original licenses
 
@@ -83,18 +85,18 @@ selection must retain the original grant and exact source/build configurations.
 Do not carry the old Blink per-file selection index forward as evidence for a
 new Chromium revision; regenerate and review it against the new source.
 
-The newly retrieved Chromium 156.0.8078.49 production file
+The pinned Chromium 156.0.8078.49 production file
 `third_party/blink/renderer/platform/wtf/text/base64.cc` still carries its
 original LGPL version 2 grant without an “or later” option. That source and its
 original terms must be preserved. Its retained source hash is recorded in the
-preparation inventory. Mozilla-derived files retain their original multi-license
+source inventory. Mozilla-derived files retain their original multi-license
 choices. No blanket LGPLv3-only claim is made for these runtime sources.
 
 The full GNU Library GPL version 2, GNU LGPLv3 and GNU GPLv3 texts remain in
 `GNU-LGPL-2.0.txt`, `GNU-LGPL-3.0.txt`, and `GNU-GPL-3.0.txt` in this directory.
 The distribution retains its equivalent-source-access procedure for the LGPL
-version 2 component; complete matching source/relink material is a publication
-requirement, not fulfilled by this preparation inventory alone.
+version 2 component; the matching source and build/relink inputs are supplied through the complete
+source collection described above.
 
 ## Obtain and rebuild from upstream
 
@@ -144,4 +146,4 @@ ThreadShelf imposes no restriction on replacing these components or on reverse
 engineering to debug those modifications. The application binaries are unsigned
 and do not require a publisher signing key to run a compatible rebuilt runtime.
 These are upstream rebuild directions; no complete native runtime rebuild or
-bit-for-bit reproduction is claimed by this local source preparation.
+bit-for-bit reproduction is claimed by this source collection.

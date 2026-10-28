@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__vulkan_memory_allocator-82a9d47e4f9d91f0e32d2b6acd9714fcee1933a0.tar.gz",
+  "archive_bytes": 892207,
+  "archive_sha256": "ff03dab65c04591daa87a79262d41727007e37a2eb0c6281749f865c26c9b30b",
+  "revision": "82a9d47e4f9d91f0e32d2b6acd9714fcee1933a0",
+  "repository": "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git",
+  "root_git_tree": "9668073a3157a4b4a3fbf21170365ed461fdf80d",
+  "blob_count": 300,
+  "git_tree_count": 13,
+  "member_count": 312,
+  "regular_file_bytes": 3776932,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 300
+  },
+  "source_blob_inventory_sha256": "c966a0a6cd9ee686a5b541c386e9cd81c84b1c33f3bf79ea6054ea82cedaefa9",
+  "archive_mtime_range": [
+    1793146195.087,
+    1793146195.278
+  ],
+  "metadata": [
+    {
+      "file": "metadata/772f355cf8b004f91fc258bb1906792600d994ee6b82a500698aecd239659213.json",
+      "url": "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git/+/82a9d47e4f9d91f0e32d2b6acd9714fcee1933a0/?format=JSON",
+      "bytes": 2850,
+      "sha256": "b7d022292ccbbb7e52dc45fd751bc57a27ce186d9c8355d3333c9ac5d6a526f6",
+      "git_tree": "9668073a3157a4b4a3fbf21170365ed461fdf80d",
+      "receipt": {
+        "file": "metadata/772f355cf8b004f91fc258bb1906792600d994ee6b82a500698aecd239659213.receipt.json",
+        "bytes": 273,
+        "sha256": "c52c76606f263142e93747303a9196350ec49fd9893eaaf104fad48866789dce"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/ff03dab65c04591daa87a79262d41727007e37a2eb0c6281749f865c26c9b30b.jsonl.gz",
+    "bytes": 30906,
+    "sha256": "045287707352d5f68e2809dc056de6e37640e2374c2e1096d344756d75e127c2",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 94404,
+    "jsonl_sha256": "73b4226afda6770ed45c7a1d365b101dfd85bc5ab756d3afaba265686549424f",
+    "records": 314,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "5cb7d40295eb0edb0dcde60919ea15dad81ad09af60f481cb87be8b6429f273a",
+    "bytes": 892137,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

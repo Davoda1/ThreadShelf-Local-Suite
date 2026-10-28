@@ -1,0 +1,221 @@
+{
+  "id": "5ac7da504f1b2bc42b134301c3e731fb9e7ec293",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "13fd0fbd44e0b4247d1d4b0805e264f0b93763a1",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "025c6c9c02baafd944168d411e98b1d6fbf283cb",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "59dc2e6fec346994dba507e94515a781b8976d75",
+      "name": ".gitlab-ci.yml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e0fe92049ff0eb30679ba3a8498b2163f5fe3309",
+      "name": ".gitlab-ci"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f282822867519f86a93c33bd7a2fa419d8bc4a80",
+      "name": ".gitlab"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "62b6bd989c8b2fe1f89695057ea38029c2c5f3b1",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "80be9420fcc55505be63b6e294b586d6b97947ed",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5bc8fb2c8f757e34a0d8f4644f589d57609e213f",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4a525139e621776ebb1bfd0765fa206f86600761",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "da865b5d1722d5dd1ba85440cbe1236018d92d15",
+      "name": "NEWS.pre-1.0"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "433b042d810b97fe18490765f6475a61eae20b7c",
+      "name": "NEWS.pre-2.0"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "37f34a7807794224d38419df626b56d0bb601e37",
+      "name": "NEWS.pre-3.0"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e4eba1fb9b51cd35897ec1a1c06bc35ca54c2b71",
+      "name": "NEWS.pre-4.0"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e136f8a890c50ea105abef512b7384f497159ed3",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "99de61730e720c7f450d37e173f606b6c60ef7b6",
+      "name": "build-aux"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bc1d778f2ce4aa8211b58a68d8b48a294bd43d8c",
+      "name": "config.h.meson"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c69071da5d6161c473073143baaf734940fd5071",
+      "name": "demos"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "57b6c19b16d730c14d93e9abc95de16f232df016",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "57dd77fbba08088dd1ed86aa41aeced1bca4dc41",
+      "name": "examples"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "52592babab9037c67e376b2262ade36925d2105e",
+      "name": "gdk"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "60a3e5188834987955bc7f4aed5f67336376b442",
+      "name": "gsk"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "63f7a7683740db8d2d1d8dfbb75ad16b2a119042",
+      "name": "gtk.doap"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "927d6f102be5a8243585f060da9e1b8fd350dde2",
+      "name": "gtk.supp"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f047e25a3e284e440ad85f7eb26b898362cf4603",
+      "name": "gtk"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "32185fc61a92ca42bf5825bfbcdfcedb83d3c3a9",
+      "name": "lsan.supp"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "ad3c3ad97a06cfe5333ad4e4b6e55aac902a0be6",
+      "name": "make-pot"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "b0876bbaf6e8ae0069a20315d21e8bf6b7238a56",
+      "name": "make-release.sh"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d8660cbe85a09e5bc6c228ea74886105b5312a4a",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4193415151a8e1053787ab270601a0ffb5307385",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4b625683250931cbeab084c4b0d16534e8886b3e",
+      "name": "modules"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "45787f3d58ad920d9415cd732e7d5a9675c62a20",
+      "name": "po-properties"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b4dadea352c8b0735a6d782d43c419cf2bf6aa2a",
+      "name": "po"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4ee1ea07eaf7a4c9b56ae3a38d1ab7aa610e79b7",
+      "name": "subprojects"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "db55aa1fc28679de4192b9cffb8c0ccc1ef5c951",
+      "name": "tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "130d9df9f3d21d85622fd97b7ae697467b6c68ae",
+      "name": "testsuite"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "abc32a75dc4bb065c83e32e5368fa78fea35cb54",
+      "name": "tools"
+    }
+  ]
+}

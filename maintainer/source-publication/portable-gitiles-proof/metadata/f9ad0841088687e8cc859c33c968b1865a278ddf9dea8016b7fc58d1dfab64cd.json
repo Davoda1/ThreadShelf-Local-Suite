@@ -1,0 +1,149 @@
+{
+  "id": "c624d80dca3991dceaebb120b9659c73e273baaa",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0da4296b9575e7084fd9c9f93e9e20e45dac49a9",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f8e618227e1a28d72bb4463a52358149dd5d7c97",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "996e1044e11318ec6a494f5f012c53d3b2239545",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5e6bb28c1c21bfaac25906f7729fe8aef122d318",
+      "name": "BUILD"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d6d63bc7ad1a56bda0675eb09c7266527d6a6a96",
+      "name": "CONTRIBUTING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3740e0e8a2c010aa201667751f196a8c7906efa8",
+      "name": "CONTRIBUTORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6b63a8cbe839c45635f93d2ea82bc739345749e4",
+      "name": "Makefile.travis"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9ee8d1b9ec84ca53d1dc1675b44f54a67fded515",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ca35287c66f42ad9b648d0b7bbcb502796c085c6",
+      "name": "contrib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "08c1232072ebaddac3dcaf5c039ba247216569dd",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a0324ebd5779021e0b418a500f8b14ea2cf498e5",
+      "name": "eight_bit_int_gemm"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a06eb1a2e93906c7193f4da5c83d7698820e3ffe",
+      "name": "fixedpoint"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e35fe9ec91cdb948463343137463498945611b02",
+      "name": "flags.bzl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fd435e74943d12e9a3e95bbeb4a8b07acf99db42",
+      "name": "internal"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "31e95b70c9d487000226940683a1b034d50c1ab9",
+      "name": "jni"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ff537b20b4e949df8ac499fc5010536bf00c20fc",
+      "name": "meta"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "46f1d21585e3f335cf598f2cb67402c220144772",
+      "name": "profiling"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "99329b413c05665f2720fd52246e0afb45f96f69",
+      "name": "public"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a08b8cda0f67db48da043ba01b98ca434817dc6a",
+      "name": "scripts"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "651ec5cc6191b40b580e05d2e131384506c47225",
+      "name": "standalone"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a41134d0675cf35ff05e677f3184efe3f030ab36",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7819258bc47c94626d9d0d786f0faac940b94770",
+      "name": "todo"
+    }
+  ]
+}

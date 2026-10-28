@@ -1,0 +1,119 @@
+{
+  "id": "7ca32ff7f4352b337a08135d735fa2e273ed7a43",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "603cba77c1b573ca4af82dcd15b9e480040d087e",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c2eaf2356edc7dcf8ad68ac0969b8b67bcf96073",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "926dbe07c39ad1ccece411cff47192355b9fcbc3",
+      "name": "CHANGES"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "eec85e8aef381ca6634d997c0be7d45986496dc1",
+      "name": "DIR_METADATA"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c779ed70f35050980612c93e6eba90850ea1fa3c",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "872e667abcad274a534ebdae93c9ce011c783ea3",
+      "name": "MANIFEST.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d39c14f69700db7c4f66b0a09ea1b3518eb0f473",
+      "name": "OWNERS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f2d8f0203b1b5f16ac0497340961f1c91ceb88ad",
+      "name": "PRESUBMIT.cfg"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e89f3c6008c117c80000dad6a6272db429c519f0",
+      "name": "README.chromium"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d668f3b35f98667565bad88d4ec5bce626ce1ccb",
+      "name": "README.rst"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "902804471604813490ca5e0f2dadf3e3dcbcd080",
+      "name": "TODO"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e502bc500fc1dab9bdb73a71077433151063ab96",
+      "name": "elftools"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "79a9f304b385871107fc2d8983f50d17e23a970c",
+      "name": "examples"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a92140cdf398ea3f2d28523231b6cd212443cc3b",
+      "name": "pyelftools.sublime-project"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "220d17c1a67d0be5d30c5d08ade9c6c052504a13",
+      "name": "scripts"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3fed12d749d366341e68eeec796d7659a965cd12",
+      "name": "setup.py"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b8962e61cb053306e9a61c4d9af1795b694b786c",
+      "name": "test"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "600ca1c9a6008718ae95085022f266575722201e",
+      "name": "tox.ini"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "18f7d35b844d2585e3905c8e21ca03e95d4952d3",
+      "name": "z.py"
+    }
+  ]
+}

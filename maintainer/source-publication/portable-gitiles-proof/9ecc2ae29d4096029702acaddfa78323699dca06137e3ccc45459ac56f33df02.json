@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__perl-a2bd4470d3485e6eda532eee416a71d16db2d7ba.tar.gz",
+  "archive_bytes": 143547465,
+  "archive_sha256": "9ecc2ae29d4096029702acaddfa78323699dca06137e3ccc45459ac56f33df02",
+  "revision": "a2bd4470d3485e6eda532eee416a71d16db2d7ba",
+  "repository": "https://chromium.googlesource.com/chromium/deps/perl.git",
+  "root_git_tree": "2a0d4c1d986981217e5aecc66882e528ef40fe7b",
+  "blob_count": 12015,
+  "git_tree_count": 1813,
+  "member_count": 13827,
+  "regular_file_bytes": 507873948,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 11618,
+    "100755": 397
+  },
+  "source_blob_inventory_sha256": "a7c0187dbcdb49c3615360fe2941d77d20e680a97df32e43e1bf727d406d7903",
+  "archive_mtime_range": [
+    1793144743.54,
+    1793144776.548
+  ],
+  "metadata": [
+    {
+      "file": "metadata/4e5d3ec72e02ffb4a2e1edd87c6be39c8fccbbd867a74a6f92411ff6f253160b.json",
+      "url": "https://chromium.googlesource.com/chromium/deps/perl.git/+/a2bd4470d3485e6eda532eee416a71d16db2d7ba/?format=JSON",
+      "bytes": 1624,
+      "sha256": "6f9fc8ad789f9fea3e3788f9bbe104821a725e9653859af44780c5896ad2a498",
+      "git_tree": "2a0d4c1d986981217e5aecc66882e528ef40fe7b",
+      "receipt": {
+        "file": "metadata/4e5d3ec72e02ffb4a2e1edd87c6be39c8fccbbd867a74a6f92411ff6f253160b.receipt.json",
+        "bytes": 225,
+        "sha256": "ad91f1c2ec56ba06184d5383c4fe9763b4fccb1822559b194302730cc77bdfc1"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/9ecc2ae29d4096029702acaddfa78323699dca06137e3ccc45459ac56f33df02.jsonl.gz",
+    "bytes": 1374491,
+    "sha256": "eac9244542796239cd1507759f4d897167dd4c8e057027fc01478e8faed7cea1",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 4098951,
+    "jsonl_sha256": "55c03574857656ae3365c45d44858e50ae0ce14deeba0766787dd2e83d9aabb3",
+    "records": 13829,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "06feca5f29bbd0c61699eecfc269b2d65bb4472986df47fc3c5dd0e3277da930",
+    "bytes": 143553835,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

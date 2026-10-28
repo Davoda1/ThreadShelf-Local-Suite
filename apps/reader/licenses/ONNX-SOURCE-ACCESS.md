@@ -20,8 +20,9 @@ The three JavaScript packages share this named upstream release and its native
 core, `js/node`, `js/web` and `js/common` source trees. A commit-pinned
 [source archive](https://codeload.github.com/microsoft/onnxruntime/tar.gz/6af1a932e2286d5c58166085d24c68783033edee)
 was streamed in full for the telemetry source review, with its SHA-256 and
-member counts recorded. The complete archive was not retained, and this review
-does not constitute a complete source companion.
+member counts recorded. That initial privacy scan was a separate verification phase. The exact root
+archive and its required dependency sources are now retained in the matching
+source companion described below.
 
 The published npm metadata omits `gitHead`. The verified release tag and the
 npm integrity pins are therefore recorded separately; they do not establish
@@ -103,9 +104,29 @@ dependency archives. Compiler/SDK prerequisites and build flags also need to
 be preserved or recorded. No full native rebuild or binary equivalence check
 has been completed by this source preparation.
 
-The suite source includes an ONNX preparation inventory at
-`maintainer/onnx-sources-1.3.0.json`; it records submodule revisions and changed
-build-input pins without claiming a complete mirror. The historical 1.0.0
-source companions do not establish ONNX 1.31.1 coverage. Matching source
-companion preparation and the separate Electron runtime source gate remain
-incomplete. No unpublished companion asset is advertised here.
+The matching source collection contains **96 source archives**, including the
+pinned root/submodules, CMake sources, the active Linux/Windows vcpkg source
+closure, Dawn and Emscripten source. It retains all original recipes, notices
+and patches. Verification covers 260,922 source file/link entries, 33 active
+ports, 28 version constraints and 60 actual ordered patch applications.
+Conservative extra source material from the initial collection remains
+explicitly identified; it does not substitute for the active closure.
+
+- [ONNX source part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-01.zip)
+- [ONNX source part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-02.zip)
+- [ONNX source metadata and offline assembler](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-Metadata.zip)
+- [Release SHA256SUM.txt](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt)
+
+Keep both numbered ZIPs together and extract the metadata ZIP. With Python
+3.10+, verify the complete original source layout offline:
+
+```sh
+python source-publication/onnx/assemble-onnx-sources.py --manifest source-publication/onnx/ONNX-COLLECTION-MANIFEST.json --parts-dir /path/to/source-parts
+```
+
+Add `--destination /path/to/new-source-tree` to extract the original sources.
+Extraction needs symlink support and space for the expanded files. The
+upstream build recipes apply the selected platform-specific patches; the
+helper does not run those recipes or install compilers/SDKs. The suite source
+retains `maintainer/onnx-sources-1.3.0.json` and the shared final-source verifier.
+The historical 1.0.0 companions do not establish ONNX 1.31.1 coverage.

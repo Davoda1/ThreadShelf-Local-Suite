@@ -42,3 +42,7 @@ apps/analytics/licenses/npm/** -text
 apps/reader/licenses/ONNX-* -text
 maintainer/runtime-source-inputs/** -text
 maintainer/onnx-source-inputs/** -text
+
+# Preserve exact source-publication proof and retained upstream input bytes.
+maintainer/source-publication/** -text
+maintainer/PUBLICATION-SOURCE-INPUTS.json -text

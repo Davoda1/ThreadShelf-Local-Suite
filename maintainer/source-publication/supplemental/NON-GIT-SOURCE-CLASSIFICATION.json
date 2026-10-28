@@ -1,0 +1,3640 @@
+{
+  "status": "classified-inputs-not-complete-mirror",
+  "electron": "45.1.0",
+  "enabled_non_git_rows": 82,
+  "nested_object_evaluations": 197,
+  "unknown_classifications": 0,
+  "scope": "Every enabled Linux/Windows x64 row is classified; source-bearing rows require verified supplemental archives before publication. Nested GCS object conditions are evaluated per target using the effective parent-variable environment. Compiler/tool/SDK prerequisites are distinguished from preferred runtime source.",
+  "rows": [
+    {
+      "path": "src/third_party/js_code_coverage/node_modules",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-nodejs",
+      "objects": [
+        {
+          "object_name": "js_code_coverage/e932c86d2d4f250416970dc270002a9cb6acecbec034998cdadf9a394d0f1abc",
+          "sha256sum": "e932c86d2d4f250416970dc270002a9cb6acecbec034998cdadf9a394d0f1abc",
+          "size_bytes": 1557200,
+          "generation": 1742338539536352
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-or-automation-tool",
+      "source_access_disposition": "Coverage processing / ChromeDriver WebDriver BiDi automation package; not source compiled into the Electron runtime. Original source-side scripts and exact package pins are retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "js_code_coverage/e932c86d2d4f250416970dc270002a9cb6acecbec034998cdadf9a394d0f1abc",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "js_code_coverage/e932c86d2d4f250416970dc270002a9cb6acecbec034998cdadf9a394d0f1abc",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/build/linux/debian_bullseye_amd64-sysroot",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and checkout_x64 and non_git_source",
+      "bucket": "chrome-linux-sysroot",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "generation": 1770327973518330,
+          "object_name": "52d61d4446ffebfaa3dda2cd02da4ab4876ff237853f46d273e7f9b666652e1d",
+          "sha256sum": "52d61d4446ffebfaa3dda2cd02da4ab4876ff237853f46d273e7f9b666652e1d",
+          "size_bytes": 19727236
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "platform-sysroot",
+      "source_access_disposition": "Separate operating-system build SDK/sysroot prerequisite; pinned archive and source-side setup retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "52d61d4446ffebfaa3dda2cd02da4ab4876ff237853f46d273e7f9b666652e1d",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/build/linux/debian_bullseye_i386-sysroot",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and (checkout_x86 or checkout_x64) and non_git_source",
+      "bucket": "chrome-linux-sysroot",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "generation": 1770327987132454,
+          "object_name": "3de724b0d63478e1ae35f07b95d02261581a66e05c19aebe4e443d76179a565e",
+          "sha256sum": "3de724b0d63478e1ae35f07b95d02261581a66e05c19aebe4e443d76179a565e",
+          "size_bytes": 19768196
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "platform-sysroot",
+      "source_access_disposition": "Separate operating-system build SDK/sysroot prerequisite; pinned archive and source-side setup retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "3de724b0d63478e1ae35f07b95d02261581a66e05c19aebe4e443d76179a565e",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/buildtools/linux64-format",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"linux\" and non_git_source",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "f5485c39451137ee943021a0fb63738b306c5026",
+          "sha256sum": "5d384f2a3e72f01c5c61dd07e3a2577723cfa20c8c019131467f00fb6da8a75c",
+          "size_bytes": 3764032,
+          "generation": 1779297360709713,
+          "output_file": "clang-format"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "f5485c39451137ee943021a0fb63738b306c5026",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/buildtools/third_party/mold/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"linux\" and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/buildtools/third_party/mold/mold",
+          "version": "w9QqZ-oP3GovA-zjOawYzb5yca-t47GbT-ejPa0BQmYC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/node/linux",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-nodejs",
+      "objects": [
+        {
+          "object_name": "744e6926ffdd4a4fb2080ae2b9ce4575490261e7",
+          "sha256sum": "bdea62a6857735d62165ec97242d79a693564c72d551890c4d009d2355abf14c",
+          "size_bytes": 53566970,
+          "generation": 1767604834866657,
+          "output_file": "node-linux-x64.tar.gz"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "744e6926ffdd4a4fb2080ae2b9ce4575490261e7",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "744e6926ffdd4a4fb2080ae2b9ce4575490261e7",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/node/node_modules",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "bucket": "chromium-nodejs",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "44f845cd5bd9d805cb1c73a98d5726b38ed8662a",
+          "sha256sum": "146cb2af600aa8cf80635592b65219fc94ff3deb384a46a41261405feb46c228",
+          "size_bytes": 11312049,
+          "generation": 1789349489677960,
+          "output_file": "node_modules.tar.gz"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "required-build-javascript-source",
+      "source_access_disposition": "Preserve complete pinned build JavaScript archive and its original licenses.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "44f845cd5bd9d805cb1c73a98d5726b38ed8662a",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "44f845cd5bd9d805cb1c73a98d5726b38ed8662a",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__node__README.chromium",
+          "sha256": "7da11e43023b1e27b644297d89c69784c8504e6a77c4707fea4169b0cb0878db"
+        },
+        {
+          "file": "inputs/chromium-third_party__node__node_modules.py",
+          "sha256": "ea173da3702749cc21fecaa9edddaad4ed8f6209b603553f223a9a5d7f4b61a1"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/chromium-bidi/node_modules",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-nodejs",
+      "objects": [
+        {
+          "object_name": "chromium-bidi/028c7baf9de02f6ae103b1911ab13d1aeb48f0ddd8fa702f9c150cdaf8cb5f5b",
+          "sha256sum": "028c7baf9de02f6ae103b1911ab13d1aeb48f0ddd8fa702f9c150cdaf8cb5f5b",
+          "size_bytes": 20652261,
+          "generation": 1790318403990383,
+          "output_file": "node_modules.tar.gz"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-or-automation-tool",
+      "source_access_disposition": "Coverage processing / ChromeDriver WebDriver BiDi automation package; not source compiled into the Electron runtime. Original source-side scripts and exact package pins are retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "chromium-bidi/028c7baf9de02f6ae103b1911ab13d1aeb48f0ddd8fa702f9c150cdaf8cb5f5b",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "chromium-bidi/028c7baf9de02f6ae103b1911ab13d1aeb48f0ddd8fa702f9c150cdaf8cb5f5b",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__chromium-bidi__README.chromium",
+          "sha256": "bc5088bce94c55c3e87d6e9287a18300afc8dd01efe7c7184ba3880739b33766"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/llvm-build/Release+Asserts",
+      "deps_file": "src/DEPS",
+      "condition": "not llvm_force_head_revision",
+      "dep_type": "gcs",
+      "bucket": "chromium-browser-clang",
+      "objects": [
+        {
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "b8a6fb4d3a1cb5afef558581ea0bd519993987d758750414a1295b4601f3b1b8",
+          "size_bytes": 6205144,
+          "generation": 1790402682067996,
+          "condition": "checkout_android and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clang-linux-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "09da4a44b7ec643372202946111c7f07d50756f2fc5c27062614f17c7b01b37c",
+          "size_bytes": 3110596,
+          "generation": 1790402687179835,
+          "condition": "checkout_linux and not host_os == \"linux\""
+        },
+        {
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "53c3bfd12b5d01378c6277bbebcacec595ef9d9fc4ec54f155c03a1b2cae4dbf",
+          "size_bytes": 57249280,
+          "generation": 1790402679227229,
+          "condition": "host_os == \"linux\" and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "ac1f77b2a68f1d12effa9609be394b83ead2c7d22e08410c3d56bea8ea07c4fa",
+          "size_bytes": 14943680,
+          "generation": 1790402679459683,
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "f23a67d09d585436547f6e533acd948d08c4a7575dc989ca8be0312e6b60b87b",
+          "size_bytes": 15096824,
+          "generation": 1790402679477336,
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "e7ca58ec67280c75adfc1204ffbaef0583f5e10ab7aa2d013ad7c3ad108ba265",
+          "size_bytes": 2374572,
+          "generation": 1790402679605280,
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "b4bf61667037a9f62ed23d6df55e9245f01855d0ea944fbd23255b5d5e1c5208",
+          "size_bytes": 5934388,
+          "generation": 1790402679525190,
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source"
+        },
+        {
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "695492d1345108a5df22c3fe9f41cc3d4dbf0a8ab4f3ad8bcae91f9995c2dc59",
+          "size_bytes": 53874992,
+          "generation": 1790402688586555,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "b64c87e96d4943891993441f8a98521d07f3dd7532bb14aa7494c68a45f21cf2",
+          "size_bytes": 980664,
+          "generation": 1790402695796218,
+          "condition": "checkout_mac and not host_os == \"mac\""
+        },
+        {
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "94998003c3ee607296963efe3844d37ef5da8c2b824d472e66e28591f152db75",
+          "size_bytes": 14225936,
+          "generation": 1790402688706091,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "83a057fdaf071858d9ef74a7238afb9784f47f8e28bc128f9da4453cb9d182ed",
+          "size_bytes": 15129768,
+          "generation": 1790402688745654,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd"
+        },
+        {
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "3e53c8b48b5dedf861a70af8edf7b27fe5ceccdf6f4c2afb6f96f920d3c64ec4",
+          "size_bytes": 2261144,
+          "generation": 1790402688884018,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "466924342ea4ea3f412b58055b437f76ef42a3e1f4298b97f8e1a6299a039133",
+          "size_bytes": 5534640,
+          "generation": 1790402688759551,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "7ce015cde974fc32bb80e1f48aa7dddbdcbe44fd6f8614de5e63cae4733960d5",
+          "size_bytes": 44452152,
+          "generation": 1790402697155562,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "2ceae9e75cb49181c7e493a420171ceafc0266b7853ee3d3892805fd8f38eb77",
+          "size_bytes": 12223460,
+          "generation": 1790402697231304,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "76e6f992dbb7eb96fb84f3ffae0eaebb13e1bc7962bec9f9b8481cb7cc98da6b",
+          "size_bytes": 12228968,
+          "generation": 1790402697385900,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd"
+        },
+        {
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "8b35d4c9a66066b4859a00d86d1d0649137e7766073da9eb844d474165530e89",
+          "size_bytes": 1863132,
+          "generation": 1790402697504829,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "f93f89580341f51b80c713776a2f9645f090a971d82e459abbcc11fdd21b2ae4",
+          "size_bytes": 5202064,
+          "generation": 1790402697359142,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "a0264f61a74f891cc9f55299ae41df080a7091f579a41b5563b35c3dd1ff9b8e",
+          "size_bytes": 51791080,
+          "generation": 1790402706540634,
+          "condition": "host_os == \"win\""
+        },
+        {
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "e1dd4d4d9ab7d3bafc64518510662ea1cde576337886994d2d80d41c84aaa386",
+          "size_bytes": 15141196,
+          "generation": 1790402706623014,
+          "condition": "host_os == \"win\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "05f0a2a36109c14cefd4a05d9ce74625909b2755f820380589a7069da9e720d7",
+          "size_bytes": 2649844,
+          "generation": 1790402714164664,
+          "condition": "checkout_win and not host_os == \"win\""
+        },
+        {
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "f0afc1c09529c81f9cf3af34ba3707c2bc744b0a8cc146fe25e7b7fad1db54d4",
+          "size_bytes": 15447336,
+          "generation": 1790402706729376,
+          "condition": "host_os == \"win\" and checkout_clangd"
+        },
+        {
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "dc906ed3e5d829796a1e5497529999bdf7e0caa5ad78d3cc7859e884e04759d3",
+          "size_bytes": 2526708,
+          "generation": 1790402706855895,
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "sha256sum": "2111b53a808af0d5693f5c9a97ba91f9bb038368174af81cd03267a74b92835e",
+          "size_bytes": 6027052,
+          "generation": 1790402706782847,
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\""
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "compiler-and-runtime-source",
+      "source_access_disposition": "Compiler/libclang executables are external build prerequisites. Preserve exact Clang revision compiler-rt source separately; DEPS compiler-rt tree is also mirrored.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_android and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-linux-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_linux and not host_os == \"linux\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_mac and not host_os == \"mac\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_win and not host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_android and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-linux-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_linux and not host_os == \"linux\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_mac and not host_os == \"mac\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_tidy",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "checkout_win and not host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-53.tar.xz",
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\"",
+          "enabled": false
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-tools__clang__scripts__update.py",
+          "sha256": "6e312c7d70aad61cce3e91d6ae2b2f2657dae1572c3b7d60f9f702a56abc31c3"
+        },
+        {
+          "file": "inputs/llvm-compiler-revision.json",
+          "sha256": "d0bb3f7b9edfcdd1371eaafcf21cdfc869ec4bb821d29bcaaef7dd862ccb8bfd"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/rust-toolchain",
+      "deps_file": "src/DEPS",
+      "condition": "not rust_force_head_revision",
+      "dep_type": "gcs",
+      "bucket": "chromium-browser-clang",
+      "objects": [
+        {
+          "object_name": "Linux_x64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "5a56edc35db24efbbe0373c724457c31a1febd75cbef6ac7fc9a1c5bca6fc697",
+          "size_bytes": 276524576,
+          "generation": 1789143384016025,
+          "condition": "host_os == \"linux\" and non_git_source"
+        },
+        {
+          "object_name": "Mac/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "62530251d7e7d3741840289a45a3e4950ad0023857e03bf0e9d57f2d723a8624",
+          "size_bytes": 264337576,
+          "generation": 1789143387895737,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac_arm64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "5db21ffd4909ce82c0832df9d1eb06b01b15a54176b7341e39f7181f4b483dbc",
+          "size_bytes": 248304876,
+          "generation": 1789143391575553,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Win/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "487387d6c7cfec69b06d613eb0f68331a3b56b1081f73bc673a1b26299865379",
+          "size_bytes": 416611108,
+          "generation": 1789143395284107,
+          "condition": "host_os == \"win\""
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "compiler-and-runtime-source",
+      "source_access_disposition": "Compiler programs are external build prerequisites; preserve the complete matching stdlib/vendor source subtree. Linux/Windows source-subtree byte parity is checked separately.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-tools__rust__update_rust.py",
+          "sha256": "9d1f411734073dbd6e5d9ccd30ee31fb9300b3145686c6ed75f218d558177dc0"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/llvm-libclang",
+      "deps_file": "src/DEPS",
+      "condition": "True",
+      "dep_type": "gcs",
+      "bucket": "chromium-browser-clang",
+      "objects": [
+        {
+          "object_name": "Linux_x64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "59c2086dabf6494fb7cc4690910d4dfddd9a598a1ecaf19d8408197445bbf7c3",
+          "size_bytes": 22899948,
+          "generation": 1789143385954506,
+          "condition": "host_os == \"linux\" and non_git_source"
+        },
+        {
+          "object_name": "Mac/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "6fa15d9cf2ff55b5ae1e4276369cfbde1f4f770e60ccb133e1fc7446c5ce607e",
+          "size_bytes": 23309500,
+          "generation": 1789143389794597,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac_arm64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "d330fd41100be52b4e804c9252b3f3bb34cfed16d2973934de0930b297f7201e",
+          "size_bytes": 20689276,
+          "generation": 1789143393459608,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Win/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "sha256sum": "fbe9978289a35ca45da1c1393ed6ef8adc86907d36a4ce81fcf590f56b07a096",
+          "size_bytes": 21677148,
+          "generation": 1789143397092006,
+          "condition": "host_os == \"win\""
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "compiler-and-runtime-source",
+      "source_access_disposition": "Compiler/libclang executables are external build prerequisites. Preserve exact Clang revision compiler-rt source separately; DEPS compiler-rt tree is also mirrored.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-tools__clang__scripts__update.py",
+          "sha256": "6e312c7d70aad61cce3e91d6ae2b2f2657dae1572c3b7d60f9f702a56abc31c3"
+        },
+        {
+          "file": "inputs/llvm-compiler-revision.json",
+          "sha256": "d0bb3f7b9edfcdd1371eaafcf21cdfc869ec4bb821d29bcaaef7dd862ccb8bfd"
+        }
+      ]
+    },
+    {
+      "path": "src/buildtools/linux64",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"linux\" and non_git_source",
+      "packages": [
+        {
+          "package": "gn/gn/linux-${arch}",
+          "version": "git_revision:510ec7992c30f172205792f190e96111a896ba8f"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/content/test/data/gpu/meet_effects_videos",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_gpu_meet_effects and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/testing/meet-effects-videos",
+          "version": "I5ME8r-BP_A2lRn-c5E-9POZkrJwGS8BNnRdREhYbs8C"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/content/test/data/gpu/meet_effects",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_gpu_meet_effects and non_git_source",
+      "dep_type": "gcs",
+      "bucket": "meet-bundles",
+      "objects": [
+        {
+          "object_name": "meet-gpu-tests/989382331.tar.gz",
+          "sha256sum": "be3da8cf0ccaca852bfa465c6c9903b53d5ad89d39bec611a30a1b6ecc651301",
+          "size_bytes": 321597675,
+          "generation": 1790585496253598
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "meet-gpu-tests/989382331.tar.gz",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "meet-gpu-tests/989382331.tar.gz",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/apache-linux",
+      "deps_file": "src/DEPS",
+      "condition": "(host_os == \"linux\") and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/httpd-php/linux-amd64",
+          "version": "version:2@httpd2.4.38.php7.3.31.chromium.3"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_linux64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_linux64",
+          "version": "version:2@156.0.8067.0"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_linux64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_linux64",
+          "version": "ytJ0UbU9gMLUMLRQlmqQpGpOy1dYswI3rOJ0ILnIFbUC"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_linux64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_linux64",
+          "version": "version:2@1701057"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_linux64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_linux64",
+          "version": "OLbfeePAbqPnFqcPmkFtR-GK8dN3T3NeH2AChZwBHjgC"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/enterprise_companion/chromium_linux64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/enterprise_companion/chromium_linux64",
+          "version": "OrLT3wXBT0DtQD-8Rj5_-Cm5EgyxDZH8l7AgI8UkK3AC"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/components/variations/test_data/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "chromium/chrome/test/data/variations/cipd",
+          "version": "Voe8CwQHmgZRogp7bLS2Vd5XUPeVJzjJKNS_kxQJ5ZoC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/tools/luci-go",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/tools/luci/cas/${platform}",
+          "version": "git_revision:b5ab8c6e7688d99a5702022cfaa95e9f8ce464f2"
+        },
+        {
+          "package": "infra/tools/luci/isolate/${platform}",
+          "version": "git_revision:b5ab8c6e7688d99a5702022cfaa95e9f8ce464f2"
+        },
+        {
+          "package": "infra/tools/luci/swarming/${platform}",
+          "version": "git_revision:b5ab8c6e7688d99a5702022cfaa95e9f8ce464f2"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/blink/renderer/core/css/perftest_data",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-style-perftest",
+      "objects": [
+        {
+          "object_name": "e9ce994346c62f8c9fd6d0cecb2b2b0b93b4c2d8",
+          "sha256sum": "519019df16c628c6c0893df18928faeaa3150a9d8f26a787a16ce7c6b2cec2ad",
+          "size_bytes": 601672,
+          "generation": 1664794185950162,
+          "output_file": "ecommerce.json"
+        },
+        {
+          "object_name": "756068da5e551516b23b0ba133e55c144f623d38",
+          "sha256sum": "84ef87a8163335a95111d9709306596f96742539da0b34fbe7397f799946a168",
+          "size_bytes": 2156935,
+          "generation": 1664794188995509,
+          "output_file": "encyclopedia.json"
+        },
+        {
+          "object_name": "314e4e0d5e89ea9e9e9a234c617b4413adf48aa9",
+          "sha256sum": "a721ada40011a286631baae6d76878f2023ff000151792228c83b1958ea8a197",
+          "size_bytes": 608840,
+          "generation": 1664794191929032,
+          "output_file": "extension.json"
+        },
+        {
+          "object_name": "3a19b42a7c46257b716d55d6733f070c87180b1e",
+          "sha256sum": "f203ff9e8c8a6a3b714f0a26db38cc940544a907435c62c79b21f4bd3f8bee8e",
+          "size_bytes": 1750837,
+          "generation": 1664794194891567,
+          "output_file": "news.json"
+        },
+        {
+          "object_name": "fdc43ee18cbd65487249441849f58aa13484aaef",
+          "sha256sum": "0e92de92f49abc9a521f7175106c80744196f8cefc0263bc0f4a6b4f724a7d10",
+          "size_bytes": 1310798,
+          "generation": 1664794197855470,
+          "output_file": "search.json"
+        },
+        {
+          "object_name": "7fc9338af75b7d9d185c91ddf262a356def5623d",
+          "sha256sum": "34e92acae8aade2a186abe79ed1f379c266f04f72f1eb54bd3a912e889bc5cc0",
+          "size_bytes": 2280846,
+          "generation": 1664794200867034,
+          "output_file": "social1.json"
+        },
+        {
+          "object_name": "c2d7e9ce67522dad138c7feb0a6911b828bfb130",
+          "sha256sum": "95c6b148577b891310c024b2daa5d68faf644a37707ac0cb21501eefe8a399a3",
+          "size_bytes": 411708,
+          "generation": 1664794203829582,
+          "output_file": "social2.json"
+        },
+        {
+          "object_name": "031d5599c8a21118754e30dbea141be66104f556",
+          "sha256sum": "8e7b765d72bb8e7742f5bf955f4bf64d5469f61197dad8b632304095a52322d7",
+          "size_bytes": 3203922,
+          "generation": 1664794206824773,
+          "output_file": "sports.json"
+        },
+        {
+          "object_name": "8aac3db2a8c9e44babec81e539a3d60aeab4985c",
+          "sha256sum": "6aeb0036dfafaf5e905abdb0ffe515a3952ffe35a7c59afb0fc8b233b27c6ce4",
+          "size_bytes": 5902660,
+          "generation": 1664794209886788,
+          "output_file": "video.json"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "e9ce994346c62f8c9fd6d0cecb2b2b0b93b4c2d8",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "756068da5e551516b23b0ba133e55c144f623d38",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "314e4e0d5e89ea9e9e9a234c617b4413adf48aa9",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "3a19b42a7c46257b716d55d6733f070c87180b1e",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "fdc43ee18cbd65487249441849f58aa13484aaef",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "7fc9338af75b7d9d185c91ddf262a356def5623d",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "c2d7e9ce67522dad138c7feb0a6911b828bfb130",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "031d5599c8a21118754e30dbea141be66104f556",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "8aac3db2a8c9e44babec81e539a3d60aeab4985c",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "e9ce994346c62f8c9fd6d0cecb2b2b0b93b4c2d8",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "756068da5e551516b23b0ba133e55c144f623d38",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "314e4e0d5e89ea9e9e9a234c617b4413adf48aa9",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "3a19b42a7c46257b716d55d6733f070c87180b1e",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "fdc43ee18cbd65487249441849f58aa13484aaef",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "7fc9338af75b7d9d185c91ddf262a356def5623d",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "c2d7e9ce67522dad138c7feb0a6911b828bfb130",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "031d5599c8a21118754e30dbea141be66104f556",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "8aac3db2a8c9e44babec81e539a3d60aeab4985c",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/tools/perf/page_sets/maps_perf_test/dataset",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-telemetry",
+      "objects": [
+        {
+          "object_name": "e6bf26977c2fd80c18789d1f279d474096a7b0d1",
+          "sha256sum": "f5f7fe360ad2b9c3d9dda2612f17336c0541bac15b4e4992f2c167e059a190fa",
+          "size_bytes": 3285237,
+          "generation": 1513305740113238,
+          "output_file": "load_dataset"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "e6bf26977c2fd80c18789d1f279d474096a7b0d1",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "e6bf26977c2fd80c18789d1f279d474096a7b0d1",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/checkstyle/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/third_party/checkstyle",
+          "version": "vnbLn0H_kr5nVeziAzIlGqjH1LhxEslL7O0w-UKTHh4C"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/gperf/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"linux\" and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/gperf/${platform}",
+          "version": "version:3@3.2"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/cpython3/linux-amd64",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/cpython3/linux-amd64",
+          "version": "version:3@3.11.9.chromium.38"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/cpython3/host",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/cpython3/${platform}",
+          "version": "version:3@3.11.9.chromium.38"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/google-java-format/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/third_party/google-java-format",
+          "version": "vwy9yNEcAztEM-pQboJifH7_IPdxc5LkhQZMp2XKQ-UC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/jdk/current",
+      "deps_file": "src/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source and ((host_os == \"linux\" and host_cpu == \"x64\") or (host_os == \"mac\" and host_cpu == \"arm64\"))",
+      "packages": [
+        {
+          "package": "chromium/third_party/jdk/${platform}",
+          "version": "version:2@jdk-25.0.4.1+1.d0eb1c0366.cr0"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/ktfmt/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/third_party/ktfmt",
+          "version": "sTkE6WR0B2Wmkvp6QinHRFm1AUtZBKBom1haRKkV_rMC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/ninja",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/ninja/${platform}",
+          "version": "version:3@1.12.1.chromium.4"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/siso/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "build/siso/${platform}",
+          "version": "git_revision:c574896b272b40aac6e44c228ee0b471ea7e3d7d"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/opus/tests/resources",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-webrtc-resources",
+      "objects": [
+        {
+          "object_name": "009a3ee778767c2402b1d2c920bc2449265f5a2c",
+          "sha256sum": "34de3161f242895a682d9cdcbbf4ad50246742b6db46873386104cfde8a24332",
+          "size_bytes": 26889600,
+          "generation": 1392811661954000,
+          "output_file": "speech_mono_32_48kHz.pcm"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "009a3ee778767c2402b1d2c920bc2449265f5a2c",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "009a3ee778767c2402b1d2c920bc2449265f5a2c",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/base/tracing/test/data",
+      "deps_file": "src/DEPS",
+      "condition": "True",
+      "bucket": "perfetto",
+      "objects": [
+        {
+          "object_name": "test_data/chrome_fcp_lcp_navigations.pftrace-ae01d849fbd75a98be1b7ddd5a8873217c377b393a1d5bbd788ed3364f7fefc3",
+          "sha256sum": "ae01d849fbd75a98be1b7ddd5a8873217c377b393a1d5bbd788ed3364f7fefc3",
+          "size_bytes": 2398645,
+          "generation": 1697714434866488,
+          "output_file": "chrome_fcp_lcp_navigations.pftrace"
+        },
+        {
+          "object_name": "test_data/chrome_input_with_frame_view.pftrace-a93548822e481508c728ccc5da3ad34afcd0aec02ca7a7a4dad84ff340ee5975",
+          "sha256sum": "a93548822e481508c728ccc5da3ad34afcd0aec02ca7a7a4dad84ff340ee5975",
+          "size_bytes": 6392331,
+          "generation": 1711402389089075,
+          "output_file": "chrome_input_with_frame_view.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_offsets_trace_2.pftrace-2ddd9f78d91d51e39c72c520bb54fdc9dbf1333ae722e87633fc345159296289",
+          "sha256sum": "2ddd9f78d91d51e39c72c520bb54fdc9dbf1333ae722e87633fc345159296289",
+          "size_bytes": 1496388,
+          "generation": 1712592637141461,
+          "output_file": "scroll_offsets_trace_2.pftrace"
+        },
+        {
+          "object_name": "test_data/top_level_java_choreographer_slices-8001e73b2458e94f65a606bb558a645ba5bca553b57fe416001f6c2175675a8a",
+          "sha256sum": "8001e73b2458e94f65a606bb558a645ba5bca553b57fe416001f6c2175675a8a",
+          "size_bytes": 5323017,
+          "generation": 1671708979893186,
+          "output_file": "top_level_java_choreographer_slices"
+        },
+        {
+          "object_name": "test_data/chrome_page_load_all_categories_not_extended.pftrace.gz-6586e9e2bbc0c996caddb321a0374328654983733e6ffd7f4635ac07db32a493",
+          "sha256sum": "6586e9e2bbc0c996caddb321a0374328654983733e6ffd7f4635ac07db32a493",
+          "size_bytes": 1277750,
+          "generation": 1652442088902445,
+          "output_file": "chrome_page_load_all_categories_not_extended.pftrace.gz"
+        },
+        {
+          "object_name": "test_data/jetstream_3.pftrace.gz-8b5915cdf7f4182a74345cc080c34ce190835e5b46c30e921ce81433119acfda",
+          "sha256sum": "8b5915cdf7f4182a74345cc080c34ce190835e5b46c30e921ce81433119acfda",
+          "size_bytes": 78162,
+          "generation": 1771505932279144,
+          "output_file": "jetstream_3.pftrace.gz"
+        },
+        {
+          "object_name": "test_data/speedometer_21.perfetto_trace.gz-8a159b354d74a3ca0d38ce9cd071ef47de322db4261ee266bfafe04d70310529",
+          "sha256sum": "8a159b354d74a3ca0d38ce9cd071ef47de322db4261ee266bfafe04d70310529",
+          "size_bytes": 891088,
+          "generation": 1716566741068306,
+          "output_file": "speedometer_21.perfetto_trace.gz"
+        },
+        {
+          "object_name": "test_data/speedometer_3.perfetto_trace.gz-b2c77fbe2c17363432a1ad0c05c1c1c20d3ebc62bda92c041d39918011af6f02",
+          "sha256sum": "b2c77fbe2c17363432a1ad0c05c1c1c20d3ebc62bda92c041d39918011af6f02",
+          "size_bytes": 1301036,
+          "generation": 1716566914245446,
+          "output_file": "speedometer_3.perfetto_trace.gz"
+        },
+        {
+          "object_name": "test_data/scroll_jank_with_pinch.pftrace-8587d2016fdb5d39b5f852704b6e3925e9e6527af01696396be767bed04d4a45",
+          "sha256sum": "8587d2016fdb5d39b5f852704b6e3925e9e6527af01696396be767bed04d4a45",
+          "size_bytes": 3914720,
+          "generation": 1717497788778335,
+          "output_file": "scroll_jank_with_pinch.pftrace"
+        },
+        {
+          "object_name": "test_data/cpu_powerups_1.pb-70f5511ba0cd6ce1359e3cadb4d1d9301fb6e26be85158e3384b06f41418d386",
+          "sha256sum": "70f5511ba0cd6ce1359e3cadb4d1d9301fb6e26be85158e3384b06f41418d386",
+          "size_bytes": 2033064,
+          "generation": 1669652389509708,
+          "output_file": "cpu_powerups_1.pb"
+        },
+        {
+          "object_name": "test_data/chrome_5672_histograms.pftrace.gz-a09bd44078ac71bcfbc901b0544750e8344d0d0f6f96e220f700a5a53fa932ee",
+          "sha256sum": "a09bd44078ac71bcfbc901b0544750e8344d0d0f6f96e220f700a5a53fa932ee",
+          "size_bytes": 1127472,
+          "generation": 1684946598804577,
+          "output_file": "chrome_5672_histograms.pftrace.gz"
+        },
+        {
+          "object_name": "test_data/chrome_custom_navigation_trace.gz-ff68279e3cec94076b69259d756eed181a63eaf834d8b956a7f4ba665fabf939",
+          "sha256sum": "ff68279e3cec94076b69259d756eed181a63eaf834d8b956a7f4ba665fabf939",
+          "size_bytes": 7572484,
+          "generation": 1666713705258900,
+          "output_file": "chrome_custom_navigation_trace.gz"
+        },
+        {
+          "object_name": "test_data/scroll_offsets.pftrace-62101edb5204fec8bea30124f65d4e49bda0808d7b036e95f89445aaad6d8d98",
+          "sha256sum": "62101edb5204fec8bea30124f65d4e49bda0808d7b036e95f89445aaad6d8d98",
+          "size_bytes": 769741,
+          "generation": 1693402148909129,
+          "output_file": "scroll_offsets.pftrace"
+        },
+        {
+          "object_name": "test_data/chrome_input_with_frame_view_new.pftrace-e901ad9577088e62c921dd8bfcb43d652ecf49fa69b5b57f81bb3d27dbe94e12",
+          "sha256sum": "e901ad9577088e62c921dd8bfcb43d652ecf49fa69b5b57f81bb3d27dbe94e12",
+          "size_bytes": 1967821,
+          "generation": 1719520814352733,
+          "output_file": "chrome_input_with_frame_view_new.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_m131.pftrace-14171c9e502a65a454f39fe14fce8b313c7012a2c14394bed496fc93b1644b0d",
+          "sha256sum": "14171c9e502a65a454f39fe14fce8b313c7012a2c14394bed496fc93b1644b0d",
+          "size_bytes": 1247290,
+          "generation": 1729619115836875,
+          "output_file": "scroll_m131.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_m132.pftrace-779e1fa6cab1abc0ab2dcafa4bbbf826ea8fc052878886ab168c783ca32f3bbe",
+          "sha256sum": "779e1fa6cab1abc0ab2dcafa4bbbf826ea8fc052878886ab168c783ca32f3bbe",
+          "size_bytes": 1854184,
+          "generation": 1732117381568969,
+          "output_file": "scroll_m132.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_m132_with_atrace.pftrace-b1fe189738a4a714cef7dd13b12318c89d6c4345fbe65096b4680ffa79f2872a",
+          "sha256sum": "b1fe189738a4a714cef7dd13b12318c89d6c4345fbe65096b4680ffa79f2872a",
+          "size_bytes": 18887098,
+          "generation": 1730148514067154,
+          "output_file": "scroll_m132_with_atrace.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_m133beta.pftrace-2acc70545be1caeb3fb43218ab52872c2c749b49577b973cb8400057c680fc19",
+          "sha256sum": "2acc70545be1caeb3fb43218ab52872c2c749b49577b973cb8400057c680fc19",
+          "size_bytes": 1448694,
+          "generation": 1738338471679054,
+          "output_file": "scroll_m133beta.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_with_input_not_forwarded_to_renderer.pftrace-ceb2ff3cb64c99ddb28a29867bc82f1491c4b413bfacd8638551b80936240faf",
+          "sha256sum": "ceb2ff3cb64c99ddb28a29867bc82f1491c4b413bfacd8638551b80936240faf",
+          "size_bytes": 729606,
+          "generation": 1732902685002882,
+          "output_file": "scroll_with_input_not_forwarded_to_renderer.pftrace"
+        },
+        {
+          "object_name": "test_data/scroll_m144.pftrace-6a3426ee6a441cf71ec8b634b662fe800700b8c3d2d1e9f247feaba890315843",
+          "sha256sum": "6a3426ee6a441cf71ec8b634b662fe800700b8c3d2d1e9f247feaba890315843",
+          "size_bytes": 4384532,
+          "generation": 1769534965677794,
+          "output_file": "scroll_m144.pftrace"
+        },
+        {
+          "object_name": "test_data/loadline2_phone_perfetto_trace.pb.gz-446e12518282e078360cb1ab55ebb3e3788c3863b269601d2392c9e5d058a92c",
+          "sha256sum": "446e12518282e078360cb1ab55ebb3e3788c3863b269601d2392c9e5d058a92c",
+          "size_bytes": 1214995,
+          "generation": 1763134487216405,
+          "output_file": "loadline2_phone_perfetto_trace.pb.gz"
+        }
+      ],
+      "dep_type": "gcs",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_fcp_lcp_navigations.pftrace-ae01d849fbd75a98be1b7ddd5a8873217c377b393a1d5bbd788ed3364f7fefc3",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_input_with_frame_view.pftrace-a93548822e481508c728ccc5da3ad34afcd0aec02ca7a7a4dad84ff340ee5975",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_offsets_trace_2.pftrace-2ddd9f78d91d51e39c72c520bb54fdc9dbf1333ae722e87633fc345159296289",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/top_level_java_choreographer_slices-8001e73b2458e94f65a606bb558a645ba5bca553b57fe416001f6c2175675a8a",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_page_load_all_categories_not_extended.pftrace.gz-6586e9e2bbc0c996caddb321a0374328654983733e6ffd7f4635ac07db32a493",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/jetstream_3.pftrace.gz-8b5915cdf7f4182a74345cc080c34ce190835e5b46c30e921ce81433119acfda",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/speedometer_21.perfetto_trace.gz-8a159b354d74a3ca0d38ce9cd071ef47de322db4261ee266bfafe04d70310529",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/speedometer_3.perfetto_trace.gz-b2c77fbe2c17363432a1ad0c05c1c1c20d3ebc62bda92c041d39918011af6f02",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_jank_with_pinch.pftrace-8587d2016fdb5d39b5f852704b6e3925e9e6527af01696396be767bed04d4a45",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/cpu_powerups_1.pb-70f5511ba0cd6ce1359e3cadb4d1d9301fb6e26be85158e3384b06f41418d386",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_5672_histograms.pftrace.gz-a09bd44078ac71bcfbc901b0544750e8344d0d0f6f96e220f700a5a53fa932ee",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_custom_navigation_trace.gz-ff68279e3cec94076b69259d756eed181a63eaf834d8b956a7f4ba665fabf939",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_offsets.pftrace-62101edb5204fec8bea30124f65d4e49bda0808d7b036e95f89445aaad6d8d98",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/chrome_input_with_frame_view_new.pftrace-e901ad9577088e62c921dd8bfcb43d652ecf49fa69b5b57f81bb3d27dbe94e12",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_m131.pftrace-14171c9e502a65a454f39fe14fce8b313c7012a2c14394bed496fc93b1644b0d",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_m132.pftrace-779e1fa6cab1abc0ab2dcafa4bbbf826ea8fc052878886ab168c783ca32f3bbe",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_m132_with_atrace.pftrace-b1fe189738a4a714cef7dd13b12318c89d6c4345fbe65096b4680ffa79f2872a",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_m133beta.pftrace-2acc70545be1caeb3fb43218ab52872c2c749b49577b973cb8400057c680fc19",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_with_input_not_forwarded_to_renderer.pftrace-ceb2ff3cb64c99ddb28a29867bc82f1491c4b413bfacd8638551b80936240faf",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/scroll_m144.pftrace-6a3426ee6a441cf71ec8b634b662fe800700b8c3d2d1e9f247feaba890315843",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "test_data/loadline2_phone_perfetto_trace.pb.gz-446e12518282e078360cb1ab55ebb3e3788c3863b269601d2392c9e5d058a92c",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_fcp_lcp_navigations.pftrace-ae01d849fbd75a98be1b7ddd5a8873217c377b393a1d5bbd788ed3364f7fefc3",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_input_with_frame_view.pftrace-a93548822e481508c728ccc5da3ad34afcd0aec02ca7a7a4dad84ff340ee5975",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_offsets_trace_2.pftrace-2ddd9f78d91d51e39c72c520bb54fdc9dbf1333ae722e87633fc345159296289",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/top_level_java_choreographer_slices-8001e73b2458e94f65a606bb558a645ba5bca553b57fe416001f6c2175675a8a",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_page_load_all_categories_not_extended.pftrace.gz-6586e9e2bbc0c996caddb321a0374328654983733e6ffd7f4635ac07db32a493",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/jetstream_3.pftrace.gz-8b5915cdf7f4182a74345cc080c34ce190835e5b46c30e921ce81433119acfda",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/speedometer_21.perfetto_trace.gz-8a159b354d74a3ca0d38ce9cd071ef47de322db4261ee266bfafe04d70310529",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/speedometer_3.perfetto_trace.gz-b2c77fbe2c17363432a1ad0c05c1c1c20d3ebc62bda92c041d39918011af6f02",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_jank_with_pinch.pftrace-8587d2016fdb5d39b5f852704b6e3925e9e6527af01696396be767bed04d4a45",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/cpu_powerups_1.pb-70f5511ba0cd6ce1359e3cadb4d1d9301fb6e26be85158e3384b06f41418d386",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_5672_histograms.pftrace.gz-a09bd44078ac71bcfbc901b0544750e8344d0d0f6f96e220f700a5a53fa932ee",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_custom_navigation_trace.gz-ff68279e3cec94076b69259d756eed181a63eaf834d8b956a7f4ba665fabf939",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_offsets.pftrace-62101edb5204fec8bea30124f65d4e49bda0808d7b036e95f89445aaad6d8d98",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/chrome_input_with_frame_view_new.pftrace-e901ad9577088e62c921dd8bfcb43d652ecf49fa69b5b57f81bb3d27dbe94e12",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_m131.pftrace-14171c9e502a65a454f39fe14fce8b313c7012a2c14394bed496fc93b1644b0d",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_m132.pftrace-779e1fa6cab1abc0ab2dcafa4bbbf826ea8fc052878886ab168c783ca32f3bbe",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_m132_with_atrace.pftrace-b1fe189738a4a714cef7dd13b12318c89d6c4345fbe65096b4680ffa79f2872a",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_m133beta.pftrace-2acc70545be1caeb3fb43218ab52872c2c749b49577b973cb8400057c680fc19",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_with_input_not_forwarded_to_renderer.pftrace-ceb2ff3cb64c99ddb28a29867bc82f1491c4b413bfacd8638551b80936240faf",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/scroll_m144.pftrace-6a3426ee6a441cf71ec8b634b662fe800700b8c3d2d1e9f247feaba890315843",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "test_data/loadline2_phone_perfetto_trace.pb.gz-446e12518282e078360cb1ab55ebb3e3788c3863b269601d2392c9e5d058a92c",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/subresource-filter-ruleset/data",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-ads-detection",
+      "objects": [
+        {
+          "object_name": "22a0a5fc9e38d0de4e68eaf7e961dbbd2bebf234bebffbcd21bd496c0813fcde",
+          "sha256sum": "22a0a5fc9e38d0de4e68eaf7e961dbbd2bebf234bebffbcd21bd496c0813fcde",
+          "size_bytes": 158519,
+          "generation": 1789431671005402,
+          "output_file": "UnindexedRules"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "22a0a5fc9e38d0de4e68eaf7e961dbbd2bebf234bebffbcd21bd496c0813fcde",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "22a0a5fc9e38d0de4e68eaf7e961dbbd2bebf234bebffbcd21bd496c0813fcde",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/test_fonts/test_fonts",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-fonts",
+      "objects": [
+        {
+          "object_name": "9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9",
+          "sha256sum": "f0e9628f9e43e3f3476cde06a1849058de460e0e037b7449ce0d42b9a73c37d5",
+          "size_bytes": 33413117,
+          "generation": 1775663926405386
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9",
+          "condition": "True",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "9c07d19d9c5ee1ff94f717e6fb17e0c8c354e6f9",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/typescript/linux-amd64/src",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/typescript/linux-amd64",
+          "version": "version:2@7.0.2"
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__typescript__README.chromium",
+          "sha256": "1706c0359742d1af650ef4ffbd19373071f4d4eaff29e1155274ac4a5c69f31d"
+        }
+      ]
+    },
+    {
+      "path": "src/tools/skia_goldctl/linux",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "packages": [
+        {
+          "package": "skia/tools/goldctl/linux-amd64",
+          "version": "OcWSpxWqJY06fpCTu6BOYdQ_Np_-d6GQJtPXmQhLxTIC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/tools/resultdb",
+      "deps_file": "src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/tools/result_adapter/${platform}",
+          "version": "git_revision:5fb3ca203842fd691cab615453f8e5a14302a1d8"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/screen-ai/linux",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_linux and non_git_source",
+      "packages": [
+        {
+          "package": "chromium/third_party/screen-ai/linux",
+          "version": "version:153.03"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "optional-test-binary",
+      "source_access_disposition": "The exact Chromium third_party/screen-ai/BUILD.gn marks the package data group testonly=true. It is an optional external binary, not preferred source for an Electron target; original pins and integration are retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__screen-ai__README.chromium",
+          "sha256": "f41581ebd5f02b109db3e8d5ebed2226f95c73c5f32a27d5756775456964ca91"
+        },
+        {
+          "file": "inputs/chromium-third_party__screen-ai__BUILD.gn",
+          "sha256": "9ed475a07d316f152d7ed0e081ef44c283f8515a8e0cd3222fd8c849891c67fe"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/dawn/tools/golang/linux-amd64",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/linux-amd64",
+          "version": "version:3@1.26.6"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/dawn/tools/golang/linux-arm64",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "(checkout_android or checkout_linux) and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/linux-arm64",
+          "version": "version:3@1.26.6"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/dawn/third_party/ninja",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "True",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/ninja/${platform}",
+          "version": "version:3@1.12.1.chromium.4"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/openscreen/src/third_party/llvm-build/Release+Asserts",
+      "deps_file": "src/third_party/openscreen/src/DEPS",
+      "condition": "not llvm_force_head_revision",
+      "dep_type": "gcs",
+      "bucket": "chromium-browser-clang",
+      "objects": [
+        {
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "9f3076dcb74c53198ccc5cb2db52d548f8c8edce382e4b499f66d5024f34fb11",
+          "size_bytes": 6203280,
+          "generation": 1789127816319422,
+          "condition": "checkout_android and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "83f4a4ea3292bfc236d85575fa7af27d39180d88534bc3117b73ad1df34bb959",
+          "size_bytes": 57243988,
+          "generation": 1789127809113314,
+          "condition": "host_os == \"linux\" and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "a3a717113cbcdfdbdce6f8f178efe9dbd4352b69b28858cafe9dd12144b4d8b4",
+          "size_bytes": 14947636,
+          "generation": 1789127808973657,
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "fe21bb9e363dad5cbf3c0e6eff3e38f14eb45b2c61a2642d8ed405f04fc8da1a",
+          "size_bytes": 15091424,
+          "generation": 1789127808995417,
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "8d4396305ff89df80d64ae5073c9aa0c62e587a17411e3fd900b4f2f502d8e17",
+          "size_bytes": 2371104,
+          "generation": 1789127809277865,
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source"
+        },
+        {
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "4747ad1ae530a94d3d9ae1de3a0533bd82e4afaf588905500bcb65ad3626344e",
+          "size_bytes": 5919816,
+          "generation": 1789127809398773,
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source"
+        },
+        {
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "5b893eb0dc07cb151fee5a19b40f159dd697ba21ca99d0f59e60a80e99acf278",
+          "size_bytes": 56729348,
+          "generation": 1789127818277683,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "dd5c1da410296c96792bae2c3b79127ae1e53a853521e241088a229fa9a20b3b",
+          "size_bytes": 981676,
+          "generation": 1789127825117200,
+          "condition": "checkout_mac and not host_os == \"mac\""
+        },
+        {
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "d6ddd8ae0c92e46466964936812695cf9020b55dae38a96ba9ab73a49b54af3d",
+          "size_bytes": 14927288,
+          "generation": 1789127817821775,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "fc78380523c4a1712e38dd54b2fa2e1c5d30af1abd14deaba44b9f7d11c6b5cc",
+          "size_bytes": 16813268,
+          "generation": 1789127817785803,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd"
+        },
+        {
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "69ef58d4655f5df294b3526aef7384568c2a169eeb80ec415aa7265ab4154058",
+          "size_bytes": 2419748,
+          "generation": 1789127818078978,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "839275989dcef1f956ade1e49e93d78e378e57bc272bbdad3694ba28a3d83d9f",
+          "size_bytes": 5902912,
+          "generation": 1789127818020417,
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\""
+        },
+        {
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "b1d5d53f8dba60834fc3287ff53276fbed4273eee6a8f31a1ff7825f91db77c1",
+          "size_bytes": 47539924,
+          "generation": 1789127826521173,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "26ed86e035feb6a3085969aec14b6d8f58fa7db1630aa4315e907c85cdce688f",
+          "size_bytes": 12996816,
+          "generation": 1789127826637982,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "dbea6965c94b6afeec10e07843a10011e37bcd0d380552740425ead52e6260ba",
+          "size_bytes": 13314464,
+          "generation": 1789127826581533,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd"
+        },
+        {
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "0280149cffa39f09823e21a2a5e3fc53b1d0e83e043647429d69f1547f42db31",
+          "size_bytes": 2043396,
+          "generation": 1789127826942850,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "f2ea6f562955bbaca69358e83a194ee967886d36f8b5cf18fbae79d99450c4bd",
+          "size_bytes": 5641596,
+          "generation": 1789127826597258,
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\""
+        },
+        {
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "57e6aaa0edf5b34a8ac51603112ef346cb11059ccf3e3c91553abb9a7544f619",
+          "size_bytes": 51840184,
+          "generation": 1789127835497655,
+          "condition": "host_os == \"win\""
+        },
+        {
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "8e2f3fa72b5c63c711083e9c528c9679842864c92e557b866b064364dbdbd95f",
+          "size_bytes": 15132748,
+          "generation": 1789127835458038,
+          "condition": "host_os == \"win\" and checkout_clang_tidy"
+        },
+        {
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "9f09d592579f262cfd4b57fe5cd9e17b071ec8f80fc9d6bb26c90612e476bdef",
+          "size_bytes": 2645936,
+          "generation": 1789127842749891,
+          "condition": "checkout_win and not host_os == \"win\""
+        },
+        {
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "05936ceb04719b8f117113dfd0914d863f9187bf7bf1fb2ddb6cda13aac15f4e",
+          "size_bytes": 15431860,
+          "generation": 1789127835571711,
+          "condition": "host_os == \"win\" and checkout_clangd"
+        },
+        {
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "9968f504eed6e4cb4b9d46d05ef742448107532c4f3811c79ff26fd20defd995",
+          "size_bytes": 2523680,
+          "generation": 1789127835702447,
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools"
+        },
+        {
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "sha256sum": "bac327770909f1a87080a3d82b54ad3857c9f037e77a2078aadcdbc294f18862",
+          "size_bytes": 6005628,
+          "generation": 1789127835514996,
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\""
+        }
+      ],
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "compiler-and-runtime-source",
+      "source_access_disposition": "Compiler/libclang executables are external build prerequisites. Preserve exact Clang revision compiler-rt source separately; DEPS compiler-rt tree is also mirrored.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_android and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source",
+          "enabled": true
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_mac and not host_os == \"mac\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_win and not host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "linux",
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-android-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_android and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_tidy and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clangd and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"linux\" and checkout_clang_coverage_tools and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Linux_x64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "((checkout_linux or checkout_mac or checkout_android) and host_os == \"linux\") and non_git_source",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-mac-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_mac and not host_os == \"mac\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"x64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_tidy",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Mac_arm64/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"mac\" and host_cpu == \"arm64\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\"",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-tidy-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_tidy",
+          "enabled": true
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clang-win-runtime-library-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "checkout_win and not host_os == \"win\"",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/clangd-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clangd",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/llvm-code-coverage-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "host_os == \"win\" and checkout_clang_coverage_tools",
+          "enabled": false
+        },
+        {
+          "target": "win",
+          "object_name": "Win/llvmobjdump-llvmorg-24-init-7747-g62397f8b-27.tar.xz",
+          "condition": "(checkout_linux or checkout_mac or checkout_android) and host_os == \"win\"",
+          "enabled": false
+        }
+      ],
+      "deps_file_sha256": "dd64fd1d57c2b7e34e11f93418c7812a18f2d667ced66dfebe53242c1bc0a233",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-tools__clang__scripts__update.py",
+          "sha256": "6e312c7d70aad61cce3e91d6ae2b2f2657dae1572c3b7d60f9f702a56abc31c3"
+        },
+        {
+          "file": "inputs/llvm-compiler-revision.json",
+          "sha256": "d0bb3f7b9edfcdd1371eaafcf21cdfc869ec4bb821d29bcaaef7dd862ccb8bfd"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/devtools-frontend/src/third_party/esbuild",
+      "deps_file": "src/third_party/devtools-frontend/src/DEPS",
+      "condition": "non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/esbuild/${platform}",
+          "version": "version:3@0.28.2.chromium.2"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "5027da92ac3086d2a2b66784fca1975da5bcfee8a6911de9990ae49853575c6c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/webpagereplay/buildtools/linux64-format",
+      "deps_file": "src/third_party/webpagereplay/DEPS",
+      "condition": "host_os == \"linux\"",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "79a7b4e5336339c17b828de10d80611ff0f85961",
+          "sha256sum": "889266a51681d55bd4b9e02c9a104fa6ee22ecdfa7e8253532e5ea47e2e4cb4a",
+          "size_bytes": 3899440,
+          "generation": 1738622384130717,
+          "output_file": "clang-format"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "79a7b4e5336339c17b828de10d80611ff0f85961",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "731decee03fee6cb3168a35c5d56e55908c442fd5a381a23620fbba970f0083e",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/webpagereplay/third_party/golang/linux/x64",
+      "deps_file": "src/third_party/webpagereplay/DEPS",
+      "condition": "host_os == \"linux\"",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/${platform}",
+          "version": "version:3@1.26.2"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "731decee03fee6cb3168a35c5d56e55908c442fd5a381a23620fbba970f0083e",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/openscreen/src/buildtools/linux64-format",
+      "deps_file": "src/third_party/openscreen/src/buildtools/DEPS",
+      "condition": "host_os == \"linux\"",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "f5485c39451137ee943021a0fb63738b306c5026",
+          "sha256sum": "5d384f2a3e72f01c5c61dd07e3a2577723cfa20c8c019131467f00fb6da8a75c",
+          "size_bytes": 3764032,
+          "generation": 1779297360709713,
+          "output_file": "clang-format"
+        }
+      ],
+      "targets": [
+        "linux"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "linux",
+          "object_name": "f5485c39451137ee943021a0fb63738b306c5026",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "4dcba4832a9144fab0e68de9d04c7e1ae9dbaee96edf7edba1dbc18d1f5431ae",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/buildtools/win-format",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"win\" and non_git_source",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "fb0bcaf406ad6f0bd6b4a6347d2abe78a94fb13e",
+          "sha256sum": "ee7a1f89733de23daf8ee035f8aebafa52410c9f4dd1f05ee12a95ce517a0953",
+          "size_bytes": 3799552,
+          "generation": 1779297371701340,
+          "output_file": "clang-format.exe"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "win",
+          "object_name": "fb0bcaf406ad6f0bd6b4a6347d2abe78a94fb13e",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/node/win",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"win\" and non_git_source",
+      "dep_type": "gcs",
+      "bucket": "chromium-nodejs",
+      "objects": [
+        {
+          "object_name": "2f710ced2db2beb7c3debf6097196c35ee5adb74",
+          "sha256sum": "2ffe3acc0458fdde999f50d11809bbe7c9b7ef204dcf17094e325d26ace101d8",
+          "size_bytes": 89935872,
+          "generation": 1767604839180114,
+          "output_file": "node.exe"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "win",
+          "object_name": "2f710ced2db2beb7c3debf6097196c35ee5adb74",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/buildtools/win",
+      "deps_file": "src/DEPS",
+      "condition": "host_os == \"win\"",
+      "packages": [
+        {
+          "package": "gn/gn/windows-amd64",
+          "version": "git_revision:510ec7992c30f172205792f190e96111a896ba8f"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/apache-windows-arm64",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/httpd-php/windows-arm64",
+          "version": "version:3@httpd2.4.55-php8.2.5.chromium.6"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_arm64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_arm64",
+          "version": "version:2@156.0.8067.0"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_x86/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_x86",
+          "version": "version:2@156.0.8067.0"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_x86_64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_x86_64",
+          "version": "version:2@156.0.8067.0"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_arm64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_arm64",
+          "version": "OoGMyCUHah7D_AOVm4RpVoPOdkGqjFHuSMcoKTZ0rlsC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_x86_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_x86",
+          "version": "gqhcrVQFtXAKUu7yEISTlbrBpPaBUnQZ6FdOo5E4HLQC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chrome_win_x86_64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chrome_win_x86_64",
+          "version": "koo1i4cAVdOK2-re2VGbx-crCcbTz9h0qumUk1hyEt0C"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_arm64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_arm64",
+          "version": "version:2@1700001"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_x86/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_x86",
+          "version": "version:2@1700043"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_x86_64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_x86_64",
+          "version": "version:2@1700069"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_arm64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_arm64",
+          "version": "ksRzLnqewvz7P-YMX2e8mxZuDI1hgPtLNCuAXIisXhoC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_x86_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_x86",
+          "version": "tcFWGGE3wmwKDhT_s-9mzPiQVYxMOI1U9sRAhm1_5QcC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/updater/chromium_win_x86_64_sans_iid/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/updater/chromium_win_x86_64",
+          "version": "iXamEEmbStVBV_c-vEG4Xtrda8tTqSRCZ-tmE7VRHb0C"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/webview2",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/webview2",
+          "version": "version:2@1.0.3856.49.r1"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "platform-sdk-with-source-headers",
+      "source_access_disposition": "Microsoft WebView2 SDK is a separate platform prerequisite. Preserve pinned SDK header/license source; source-side build integration and original exact package pin remain in full Chromium tree. Loader binaries are not represented as preferred source.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__webview2__README.chromium",
+          "sha256": "d740a5df10b9ba8a2e3e88df73f71fc91a1a325c9363bd36c56c51cc33ed96f6"
+        },
+        {
+          "file": "inputs/chromium-third_party__webview2__BUILD.gn",
+          "sha256": "51efb4fdcfce91c3188e1adcead082e2513baf0ce28bc037aa286e550f83776e"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/wtl",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/wtl",
+          "version": "version:2@10.1.0"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "required-source-headers",
+      "source_access_disposition": "Preserve complete pinned WTL headers and original MS-PL notice.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__wtl__README.chromium",
+          "sha256": "beab9c5a774cb172263943954e70b93e3176955fdf609b1831358b9b29ab46fa"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/enterprise_companion/chromium_win_x86/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/enterprise_companion/chromium_win_x86",
+          "version": "PKeKJSOFzg021xxy7OPEW3SnRLgUy3dvfkMC9-wFFSMC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/enterprise_companion/chromium_win_x86_64/cipd",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/enterprise_companion/chromium_win_x86_64",
+          "version": "QDHY490Z6GwdYDKPjOPyx1m9FscyeHUvVPidpOCElCYC"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "separate-test-data-or-product-binary",
+      "source_access_disposition": "Test/benchmark data or prebuilt separate Chromium product; not preferred source compiled into Electron runtime. Exact upstream pins retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/lzma_sdk/bin/host_platform",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/7z/${platform}",
+          "version": "version:3@26.03"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/lzma_sdk/bin/win64",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/7z/windows-amd64",
+          "version": "version:3@26.03"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/typescript/windows-amd64/src",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win and non_git_source",
+      "dep_type": "cipd",
+      "packages": [
+        {
+          "package": "chromium/third_party/typescript/windows-amd64",
+          "version": "version:2@7.0.2"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__typescript__README.chromium",
+          "sha256": "1706c0359742d1af650ef4ffbd19373071f4d4eaff29e1155274ac4a5c69f31d"
+        }
+      ]
+    },
+    {
+      "path": "src/tools/skia_goldctl/win",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "skia/tools/goldctl/windows-amd64",
+          "version": "ZKEOg8f9xTYtUE5AlXPwofDuQRRDPWeFQd2FdvLjQDEC"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/screen-ai/windows_amd64",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "chromium/third_party/screen-ai/windows-amd64",
+          "version": "version:153.03"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "optional-test-binary",
+      "source_access_disposition": "The exact Chromium third_party/screen-ai/BUILD.gn marks the package data group testonly=true. It is an optional external binary, not preferred source for an Electron target; original pins and integration are retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__screen-ai__README.chromium",
+          "sha256": "f41581ebd5f02b109db3e8d5ebed2226f95c73c5f32a27d5756775456964ca91"
+        },
+        {
+          "file": "inputs/chromium-third_party__screen-ai__BUILD.gn",
+          "sha256": "9ed475a07d316f152d7ed0e081ef44c283f8515a8e0cd3222fd8c849891c67fe"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/screen-ai/windows_386",
+      "deps_file": "src/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "chromium/third_party/screen-ai/windows-386",
+          "version": "version:153.03"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "optional-test-binary",
+      "source_access_disposition": "The exact Chromium third_party/screen-ai/BUILD.gn marks the package data group testonly=true. It is an optional external binary, not preferred source for an Electron target; original pins and integration are retained.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/chromium-third_party__screen-ai__README.chromium",
+          "sha256": "f41581ebd5f02b109db3e8d5ebed2226f95c73c5f32a27d5756775456964ca91"
+        },
+        {
+          "file": "inputs/chromium-third_party__screen-ai__BUILD.gn",
+          "sha256": "9ed475a07d316f152d7ed0e081ef44c283f8515a8e0cd3222fd8c849891c67fe"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/dawn/third_party/agility-sdk/src",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "checkout_win",
+      "packages": [
+        {
+          "package": "chromium/third_party/agility-sdk",
+          "version": "version:2@1.721.0-preview"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "platform-sdk-with-source-headers",
+      "source_access_disposition": "Microsoft Direct3D Agility SDK is a separate platform prerequisite. Preserve pinned package source/header/license material; runtime binaries are not represented as preferred source. Exact SDK pin and Dawn integration remain in mirrored source.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": [
+        {
+          "file": "inputs/dawn-agility-README.chromium",
+          "sha256": "7b0355a72b02b17fca38b2bf78166c49553b1427209448247d187b6f3af96373"
+        },
+        {
+          "file": "inputs/dawn-agility-BUILD.gn",
+          "sha256": "7762119831cb7d1ed41a81ac636a9679452bee833878166b4222c2a5a77a69ea"
+        }
+      ]
+    },
+    {
+      "path": "src/third_party/dawn/tools/golang/windows-amd64",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "checkout_win and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/windows-amd64",
+          "version": "version:3@1.26.6"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/dawn/tools/golang/windows-arm64",
+      "deps_file": "src/third_party/dawn/DEPS",
+      "condition": "checkout_win and non_git_source",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/windows-arm64",
+          "version": "version:3@1.26.6"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/openscreen/src/buildtools/win",
+      "deps_file": "src/third_party/openscreen/src/DEPS",
+      "condition": "host_os == \"win\"",
+      "packages": [
+        {
+          "package": "gn/gn/windows-amd64",
+          "version": "git_revision:510ec7992c30f172205792f190e96111a896ba8f"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "dd64fd1d57c2b7e34e11f93418c7812a18f2d667ced66dfebe53242c1bc0a233",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/webpagereplay/buildtools/win-format",
+      "deps_file": "src/third_party/webpagereplay/DEPS",
+      "condition": "host_os == \"win\"",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "565cab9c66d61360c27c7d4df5defe1a78ab56d3",
+          "sha256sum": "5557943a174e3b67cdc389c10b0ceea2195f318c5c665dd77a427ed01a094557",
+          "size_bytes": 3784704,
+          "generation": 1738622386314064,
+          "output_file": "clang-format.exe"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "win",
+          "object_name": "565cab9c66d61360c27c7d4df5defe1a78ab56d3",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "731decee03fee6cb3168a35c5d56e55908c442fd5a381a23620fbba970f0083e",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/webpagereplay/third_party/golang/win/x64",
+      "deps_file": "src/third_party/webpagereplay/DEPS",
+      "condition": "host_os == \"win\"",
+      "packages": [
+        {
+          "package": "infra/3pp/tools/go/${platform}",
+          "version": "version:3@1.26.2"
+        }
+      ],
+      "dep_type": "cipd",
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [],
+      "deps_file_sha256": "731decee03fee6cb3168a35c5d56e55908c442fd5a381a23620fbba970f0083e",
+      "retained_source_review_inputs": []
+    },
+    {
+      "path": "src/third_party/openscreen/src/buildtools/win-format",
+      "deps_file": "src/third_party/openscreen/src/buildtools/DEPS",
+      "condition": "host_os == \"win\"",
+      "bucket": "chromium-clang-format",
+      "dep_type": "gcs",
+      "objects": [
+        {
+          "object_name": "fb0bcaf406ad6f0bd6b4a6347d2abe78a94fb13e",
+          "sha256sum": "ee7a1f89733de23daf8ee035f8aebafa52410c9f4dd1f05ee12a95ce517a0953",
+          "size_bytes": 3799552,
+          "generation": 1779297371701340,
+          "output_file": "clang-format.exe"
+        }
+      ],
+      "targets": [
+        "win"
+      ],
+      "classification": "build-or-test-tool",
+      "source_access_disposition": "Separate compiler, interpreter, linker, formatter or test/build utility. Exact pinned package and source-side setup retained; this mirror does not supply an offline SDK/tool installation.",
+      "objects_evaluation": [
+        {
+          "target": "win",
+          "object_name": "fb0bcaf406ad6f0bd6b4a6347d2abe78a94fb13e",
+          "condition": "True",
+          "enabled": true
+        }
+      ],
+      "deps_file_sha256": "4dcba4832a9144fab0e68de9d04c7e1ae9dbaee96edf7edba1dbc18d1f5431ae",
+      "retained_source_review_inputs": []
+    }
+  ]
+}

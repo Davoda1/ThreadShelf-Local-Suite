@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "scope": "Accepted part integrity and database consistency only. Expected Git/non-Git source completeness, logical symlink safety, ordered patch application and publication are separate gates.",
+  "part_count": 2,
+  "parts": [
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 1482655137,
+      "sha256": "8c35cf6499376237a00e1eaafbd0a884be4d284bf25633dc741c6e406e4fa81d",
+      "source_count": 1,
+      "database_archive_records_sha256": "e0cfcfe56a0918667e7160f1415a582855998fe87d00daf44f83c0104f567bd8",
+      "asset_id": 683172441,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683172441",
+      "local_verification_sha256": "e9f6f81241cab99c39526eed6bde8b13725b83fe168bea23b0fc801962034600",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 340803503,
+      "sha256": "e5df0c28f8a204c1fe262075f583de648ad7c367cfbf2eb7893a113b540194dc",
+      "source_count": 11,
+      "database_archive_records_sha256": "170de7ec40ef34084768a46f36ed0889d56132c52cbb7605c0a7319cb625e85e",
+      "asset_id": 683205244,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683205244",
+      "local_verification_sha256": "e33f7165081d0dddd2982a0ce3d56e9aeb4335e957733573e614674b6dc5fb6a",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    }
+  ],
+  "sparse_source": {
+    "phase": "before-patch-application",
+    "known_touched_source_files_verified": 822
+  },
+  "required_paths_not_yet_in_inventory": 60
+}

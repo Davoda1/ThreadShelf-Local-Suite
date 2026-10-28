@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "revision": "81eb9628382b07d371d8ea0b11badf7de3857fd5",
+  "root_git_tree": "1351c2638167158e4d2c856be300c276a07725fa",
+  "source_archive_url": "https://chromium.googlesource.com/external/libaddressinput.git/+archive/81eb9628382b07d371d8ea0b11badf7de3857fd5.tar.gz",
+  "gitiles_root_metadata_url": "https://chromium.googlesource.com/external/libaddressinput.git/+/81eb9628382b07d371d8ea0b11badf7de3857fd5/?format=JSON",
+  "recursive_upstream_metadata_url": "https://api.github.com/repos/google/libaddressinput/git/trees/81eb9628382b07d371d8ea0b11badf7de3857fd5?recursive=1",
+  "source_tree_repeat_stable": true,
+  "archive_bytes_repeat_stable": false,
+  "timestamp_only_metadata_differences": 283,
+  "explanation": "Fresh Gitiles TARs assign request-time PAX mtime values. All source paths, all226 blobs, executable modes, two gitlinks and all56 reconstructed Git tree objects remain identical. The reconstructed root matches the exact mirror revision independently of archive timestamps.",
+  "historical_archive_representation": {
+    "bytes": 865459,
+    "sha256": "0f94d0b19bef01fe8a3f6dc45837401446203bddc57df3482ead1e9c1ac15ae2",
+    "member_count": 283,
+    "regular_file_bytes": 4488605,
+    "basis": "Previously published v1.0.0 SOURCE-MANIFEST.json; historical compressed archive was not re-downloaded for this comparison."
+  },
+  "representations": [
+    {
+      "file": "libaddressinput-attempt-1.tar.gz",
+      "bytes": 865440,
+      "sha256": "7e47bb1cdf9848c057a23495656e7600148e92922a1dd940f48c91fad625908b",
+      "member_count": 283,
+      "regular_file_bytes": 4488605,
+      "blob_count": 226,
+      "git_tree_count_including_root": 56,
+      "root_git_tree": "1351c2638167158e4d2c856be300c276a07725fa"
+    },
+    {
+      "file": "libaddressinput-attempt-2.tar.gz",
+      "bytes": 865471,
+      "sha256": "357b76fc87b7bdfca2392be389ac7a2248e9dc9809140a6ad4aaa4f8e758a922",
+      "member_count": 283,
+      "regular_file_bytes": 4488605,
+      "blob_count": 226,
+      "git_tree_count_including_root": 56,
+      "root_git_tree": "1351c2638167158e4d2c856be300c276a07725fa"
+    }
+  ],
+  "selected_representation": {
+    "file": "libaddressinput-attempt-1.tar.gz",
+    "bytes": 865440,
+    "sha256": "7e47bb1cdf9848c057a23495656e7600148e92922a1dd940f48c91fad625908b",
+    "member_count": 283,
+    "regular_file_bytes": 4488605,
+    "blob_count": 226,
+    "git_tree_count_including_root": 56,
+    "root_git_tree": "1351c2638167158e4d2c856be300c276a07725fa"
+  },
+  "gitlinks": [
+    {
+      "path": "externals/grit",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "196aa4862969ddb8391969e3d483909c92d56dae"
+    },
+    {
+      "path": "externals/rapidjson",
+      "mode": "160000",
+      "type": "commit",
+      "sha": "a98e99992bd633a2736cc41f96ec85ef0c50e44d"
+    }
+  ],
+  "scope_limit": "Gitlink revisions are preserved as metadata and empty archive placeholders; their source trees are not contained in this repository archive. Actual Electron GN dependency use is classified separately.",
+  "metadata_sha256": {
+    "github-git-tree.json": "a46284db928f7db68abb862e03c92e35c7c911e28b86a2ddd010d58dfb1f0f1d",
+    "gitiles-root-tree.json": "b041ca6efc809e90450c557d71bccbcc85453b04187f2525ba228909339214f6"
+  }
+}

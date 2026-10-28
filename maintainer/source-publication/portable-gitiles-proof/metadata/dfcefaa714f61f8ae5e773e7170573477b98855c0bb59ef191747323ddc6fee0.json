@@ -1,0 +1,137 @@
+{
+  "id": "8e77d955ceb10a10a17a840d52bbb17ca9d37e6b",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6567f69a6b451f1a744ef594d257cd546253db4a",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "06ea346a1067b3be65359323067de98211a27851",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5169bae8bf4b034cb0db73331e10414851fccb3a",
+      "name": ".dockerignore"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "606f3870665c2315f52daa760690f9a60a1f88bc",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f7f06b97c9992f72be1e9b9961d487bff747c5bc",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "77dd7553209e7634b0c70f266f3f935ec36d9b13",
+      "name": ".grenrc.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2842f3aadaf7e6dadb1630ce156dcf28e99bd292",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a5d86eeaa6b3ae9b9e7f66ff6f0f0ad2e640f3ee",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c980350f8fc35cbde435c83412fb225335af7638",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a7043c6fdedacc991803384333201058ea1a8865",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "17f69f1cadddd39ac5922b438c980304407dddc7",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ddaa53592fe7cb0b2334a4178dbc93b16a6d5959",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "925c1e398b9811b78d44e408589bc2ece023bdc4",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "155015a7f0e8ef8d6ed9bf67f36169a8888b3bf8",
+      "name": "bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dae78c4885e01cf2256feed04672dcc50449e3db",
+      "name": "build.zig"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0aa0a98da36b8a6ba1a5f1a5a6be4d292a7d56f0",
+      "name": "build.zig.zon"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b3673162d081da23153540c5854a2e522123eacb",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8bfda5d73b73c58d92538ed866049e9577a66482",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fc4ae349a03e4b10d05182457f4d5eebcfb06056",
+      "name": "ndk_compat"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "333685cecc32e7da5f364ab31f44547a5b056686",
+      "name": "scripts"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f1762b1ed2ffc34f8911fa4a1cce42edacc30ba4",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "eba1faea14589d4eb2f30af50fa0798a64f625e1",
+      "name": "test"
+    }
+  ]
+}

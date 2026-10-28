@@ -1,0 +1,29 @@
+{
+  "id": "6a9ab045777655522e24de8323d1a90725f8e855",
+  "entries": [
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "62f05b1f57ad660e9c09e02ce7d591dcc4d0ca08",
+      "name": "absl"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "703bd9caab50b139428cea1aaff9974ebee5742e",
+      "name": "gtest"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "d0bfd5221182da1a7cc280f3337b5e41a89539cf",
+      "name": "protobuf"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "e7b6988454bc94601616fbbf0db3559f73a1ebdf",
+      "name": "secure_message"
+    }
+  ]
+}

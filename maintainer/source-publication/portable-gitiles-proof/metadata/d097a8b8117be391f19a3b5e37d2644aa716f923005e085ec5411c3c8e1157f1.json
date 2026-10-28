@@ -1,0 +1,65 @@
+{
+  "id": "cdf69003748758f7799b64e7a6725de6314d0873",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e1a64a0fb4860a5d04976403086512190e972188",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "df5119ec64e603aecde9bc15b7e392a204b9667c",
+      "name": ".bazelversion"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "08025f33a49d1b05b5c30c2b67f232da37a8ddfe",
+      "name": "CONTRIBUTING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f4e7bd565059ff2389c292fb36b8e9635cb013a0",
+      "name": "GETTING_STARTED.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "be3dfb72c7f85aa3919642f7829b6e0fe6914117",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cfdfffaefbc6ef2e3c23c7330dcce974607dadc5",
+      "name": "MODULE.bazel.lock"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "baec43570c8f4a1693d9672b9e44cf0e2c012d23",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cca30c42f42ea80010672f12d94452d67100f1c1",
+      "name": "fcp"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "104212d700f07faf80718d2764e39d0edd00438a",
+      "name": "third_party"
+    }
+  ]
+}

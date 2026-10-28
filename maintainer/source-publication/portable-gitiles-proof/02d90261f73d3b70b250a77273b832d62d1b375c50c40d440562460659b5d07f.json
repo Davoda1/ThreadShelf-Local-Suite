@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__pipewire__src-b741e0c74f5436f0c925f7741140db0efd32cf4e.tar.gz",
+  "archive_bytes": 2810680,
+  "archive_sha256": "02d90261f73d3b70b250a77273b832d62d1b375c50c40d440562460659b5d07f",
+  "revision": "b741e0c74f5436f0c925f7741140db0efd32cf4e",
+  "repository": "https://chromium.googlesource.com/external/gitlab.freedesktop.org/pipewire/pipewire.git",
+  "root_git_tree": "03a8890bb53e87ea3fc494796d4b10cf38d767cc",
+  "blob_count": 1348,
+  "git_tree_count": 120,
+  "member_count": 1467,
+  "regular_file_bytes": 14575168,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 1338,
+    "100755": 10
+  },
+  "source_blob_inventory_sha256": "a802c3c5fbdd78efb77eca125cfaa4cefe6f337af94d210cca5a492d151ac5c2",
+  "archive_mtime_range": [
+    1793146045.049,
+    1793146045.617
+  ],
+  "metadata": [
+    {
+      "file": "metadata/53bedd2a69187ec6fac2e4218517fa4fbc00d0972a1e2ac0750060750517a346.json",
+      "url": "https://chromium.googlesource.com/external/gitlab.freedesktop.org/pipewire/pipewire.git/+/b741e0c74f5436f0c925f7741140db0efd32cf4e/?format=JSON",
+      "bytes": 3970,
+      "sha256": "4c5559e0700e6bfe5cd3fa2d570107d4b02888adda2b992d1e92db69dffa4002",
+      "git_tree": "03a8890bb53e87ea3fc494796d4b10cf38d767cc",
+      "receipt": {
+        "file": "metadata/53bedd2a69187ec6fac2e4218517fa4fbc00d0972a1e2ac0750060750517a346.receipt.json",
+        "bytes": 256,
+        "sha256": "b0ceec5bcc31042e3f4bad34d75db17f2ed2f40e1a92ac6e4a002d053fff1247"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/02d90261f73d3b70b250a77273b832d62d1b375c50c40d440562460659b5d07f.jsonl.gz",
+    "bytes": 152495,
+    "sha256": "6f8c4170765f88f15372ea5b6d4709c11eca5a20c9deff70c5bf9ba670a1a139",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 436014,
+    "jsonl_sha256": "9a337a8a61f40256dbf4b9b92d4399a1262f9f46655e69b853741dca6b98bef7",
+    "records": 1469,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "e20967b0a65eb12ec82c3e156b70acb50e8e521899edf3124c06b27c76c072f9",
+    "bytes": 2810702,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

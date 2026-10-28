@@ -1,0 +1,59 @@
+{
+  "id": "d6e0c9d9cefb12afd48a534352b7ea8f5dbad95d",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3330ae3847e4d5e156fa3744a3a9d400f4a5e5e3",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "35017b3adccab2b2586149626b109602f76dc84b",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2d2d780e6014b850ca3b8437452e24eba5f96508",
+      "name": "COPYING.LIB"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ad69bd0bab5ccd9515778e362d9315e4d061a9ae",
+      "name": "LICENSES"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1cddd9cacc569aa083a442b777d7b81ffc27a3d1",
+      "name": "PlasmaWaylandProtocolsConfig.cmake.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ec9431d9ceff266d6742d6983daeace940f035b3",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "296db557e2fba3d6bd4a7cbd6bd8047329280aec",
+      "name": "cmake"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6f56855a8963206142a36d139b33fe5cf03ff36f",
+      "name": "metainfo.yaml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8c6c2cc676b4d3f949ff4bfdd5aac590d4121a21",
+      "name": "src"
+    }
+  ]
+}

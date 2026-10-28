@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "chromium_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+  "chromium_source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+  "regular_blink_files_scanned": 21338,
+  "regular_mozilla_files_scanned": 16,
+  "explicit_permission_template_matches": 1110,
+  "original_mozilla_notice_headers_reviewed": 23,
+  "manual_original_notice_reviews": 3,
+  "unreviewed_candidates": 0,
+  "original_version2_only_base64_preserved": true,
+  "index_sha256": "952dfe3d5ed82585d3619e31035a786555ec89d49375ca7aedd722f9563fd733",
+  "regression_evidence": {
+    "file": "grant-index-regression-checks.json",
+    "sha256": "87f562e7e2d1387a115b0a5c3abb916edbd5429b94ddca851bb289757270ccb4"
+  },
+  "scope": "Exact original header/notice text review for the scoped source index. Full original source and notices remain unchanged in the complete runtime mirror. This is not a legal-compliance certification, native rebuild or binary reproducibility claim."
+}

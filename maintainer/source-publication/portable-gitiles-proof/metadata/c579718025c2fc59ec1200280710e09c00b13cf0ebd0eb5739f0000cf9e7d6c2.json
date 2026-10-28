@@ -1,0 +1,83 @@
+{
+  "id": "f2bd58038b22308a37aaa253a4bfd892722242ff",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f65519e3cc871db114c7544d227c5d739bc580bc",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b23cbe73aa1ce2aa254465b312af71fbc4eb1f8e",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7d62eb33b0e05544cbfaf25075df600a80f49140",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "939e5341e74dc2371c8b47f0e27b50581bed5f63",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "da0b57aeec412530dd98546d523021fbeaec34fc",
+      "name": "CONTRIBUTORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bb4a653511e7be616d166622f21cbfedb106d97e",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "794f1d54f8d8f6a9c1790bc60fbb07a88ea57a55",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "592892dd65029ee7ab49ceef7758123a2f8a6ddb",
+      "name": "cpp"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6cde9f4d85d727f06a083449316552920eeffb1b",
+      "name": "java"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6cde9f4d85d727f06a083449316552920eeffb1b",
+      "name": "js"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "473db0bc4e802ce902d43bccde855108c66516b3",
+      "name": "proto"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "df6fe67bb8599b2a109297412fffe10febdd1b54",
+      "name": "third_party"
+    }
+  ]
+}

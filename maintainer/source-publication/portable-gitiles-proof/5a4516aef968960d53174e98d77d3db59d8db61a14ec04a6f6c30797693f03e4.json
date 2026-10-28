@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__speedometer__v3.0-8d67f28d0281ac4330f283495b7f48286654ad7d.tar.gz",
+  "archive_bytes": 12382687,
+  "archive_sha256": "5a4516aef968960d53174e98d77d3db59d8db61a14ec04a6f6c30797693f03e4",
+  "revision": "8d67f28d0281ac4330f283495b7f48286654ad7d",
+  "repository": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git",
+  "root_git_tree": "32bc885fc0b2e36018ff660bdca34e53a72e1b95",
+  "blob_count": 1118,
+  "git_tree_count": 260,
+  "member_count": 1377,
+  "regular_file_bytes": 61013581,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 1115,
+    "100755": 3
+  },
+  "source_blob_inventory_sha256": "73642f097f6b3e914d9a2ef4f14a831b0a5bd629249a54708afedbc5e33dd074",
+  "archive_mtime_range": [
+    1793145284.769,
+    1793145287.104
+  ],
+  "metadata": [
+    {
+      "file": "metadata/c16bcb5c41de55dfaf83c6bc48894dcac3a2975d119f5965d3dac73835f548df.json",
+      "url": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git/+/8d67f28d0281ac4330f283495b7f48286654ad7d/?format=JSON",
+      "bytes": 3026,
+      "sha256": "dd6006b76f387a47b28de2c0eac017d093b313602cf9f341ff0a7b7c780205ed",
+      "git_tree": "32bc885fc0b2e36018ff660bdca34e53a72e1b95",
+      "receipt": {
+        "file": "metadata/c16bcb5c41de55dfaf83c6bc48894dcac3a2975d119f5965d3dac73835f548df.receipt.json",
+        "bytes": 245,
+        "sha256": "6d9f4666cb4b1ca922c6c668bbe210364a2b1c68435980724eba246317995c12"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/5a4516aef968960d53174e98d77d3db59d8db61a14ec04a6f6c30797693f03e4.jsonl.gz",
+    "bytes": 106788,
+    "sha256": "3b27ed96d1790c0dad26f67fbd5e5c1e8edb30d7e897034111ae49a327a8ff0a",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 434137,
+    "jsonl_sha256": "f9a9fffbd933e6e0bf599cbfc76d1cbecc9f21908db6b879587e96febe5a7742",
+    "records": 1379,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "ff574f39aad3942bfbf8d208965616d1fbd2c779db02826d580d597b7fad0183",
+    "bytes": 12382641,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

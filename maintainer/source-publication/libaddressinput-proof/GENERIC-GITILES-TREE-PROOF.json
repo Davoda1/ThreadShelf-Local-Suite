@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "libaddressinput-attempt-1.tar.gz",
+  "archive_bytes": 865440,
+  "archive_sha256": "7e47bb1cdf9848c057a23495656e7600148e92922a1dd940f48c91fad625908b",
+  "revision": "81eb9628382b07d371d8ea0b11badf7de3857fd5",
+  "repository": "https://chromium.googlesource.com/external/libaddressinput.git",
+  "root_git_tree": "1351c2638167158e4d2c856be300c276a07725fa",
+  "blob_count": 226,
+  "git_tree_count": 56,
+  "member_count": 283,
+  "regular_file_bytes": 4488605,
+  "symlinks": 0,
+  "gitlinks": [
+    {
+      "path": "externals/grit",
+      "revision": "196aa4862969ddb8391969e3d483909c92d56dae"
+    },
+    {
+      "path": "externals/rapidjson",
+      "revision": "a98e99992bd633a2736cc41f96ec85ef0c50e44d"
+    }
+  ],
+  "git_file_modes": {
+    "100644": 225,
+    "100755": 1
+  },
+  "source_blob_inventory_sha256": "3e4a5ae4e8533a7582f3f5508bbf455dae6cee8e56c8477815d6c96d593285b1",
+  "archive_mtime_range": [
+    1793143254.252,
+    1793143254.356
+  ],
+  "metadata": [
+    {
+      "file": "772643bde6531a509fa7104614af905169c1965d37479c0681393937fea664dd.json",
+      "url": "https://chromium.googlesource.com/external/libaddressinput.git/+/81eb9628382b07d371d8ea0b11badf7de3857fd5/?format=JSON",
+      "bytes": 2418,
+      "sha256": "0183e8809403b98bc342b6766d2c6583a14bd82a968e1dad80c23ee3d18edc7d",
+      "git_tree": "1351c2638167158e4d2c856be300c276a07725fa"
+    },
+    {
+      "file": "aa1b636c1d30c7fa05565913870af8a141d6d52e93d85aaf2fc0c711c0d4a1ab.json",
+      "url": "https://chromium.googlesource.com/external/libaddressinput.git/+/81eb9628382b07d371d8ea0b11badf7de3857fd5/externals?format=JSON",
+      "bytes": 349,
+      "sha256": "c0cdecbc8439d057d54485146f5ee71b3d374c46a818ad5248c086c0c2a6f075",
+      "git_tree": "b4edb8a7b0191f644023c554ac75e10e9b4e34ca"
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "historical_archive_representation": {
+    "sha256": "0f94d0b19bef01fe8a3f6dc45837401446203bddc57df3482ead1e9c1ac15ae2",
+    "bytes": 865459,
+    "matches_current_bytes": false,
+    "scope": "Prior locally retained archive digest; not a publisher signature or a requirement that timestamp-varying TAR representations retain identical compressed bytes."
+  }
+}

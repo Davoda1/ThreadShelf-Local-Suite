@@ -1,0 +1,17 @@
+{
+  "id": "3c8edf1e2abf84f3524b79310d945833673cee2f",
+  "entries": [
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "1b2da5e6e6b5edb1fa1427cc77e23f04069c04ad",
+      "name": "google-toolbox-for-mac"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2fa35b61163af08488c2f3e9723dade65ba7097e",
+      "name": "include"
+    }
+  ]
+}

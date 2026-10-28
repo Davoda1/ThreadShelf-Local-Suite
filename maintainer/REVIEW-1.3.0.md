@@ -1,6 +1,6 @@
-# ThreadShelf Local Suite 1.3.0 — local candidate review
+# ThreadShelf Local Suite 1.3.0 — verification record
 
-Status: unreleased candidate, approved for a source commit and GitHub validation on 27 October 2026 after the telemetry review. This document records local and hosted candidate evidence. Final source companion, merged/tagged validation and publication checks remain outstanding. Base: d45446351d04ae51c3532eb55485823dac6a6802.
+This record describes local and hosted candidate evidence collected during the 1.3.0 update, based on d45446351d04ae51c3532eb55485823dac6a6802. The release's separate `ThreadShelf-Local-Suite-1.3.0-Verification.md` and evidence ZIP identify the final merged/tagged commit, its workflow runs, exact packaged files and publication checks. Earlier candidate results below do not substitute for those final checks.
 
 ## Scope
 
@@ -53,7 +53,7 @@ ONNX 1.31.1's native binaries include telemetry. Reader sets both `ORT_DISABLE_T
 
 The earlier local Linux package, before the later file-URL correction, also passed a calibrated native libc observation with real native and automatic-WASM inference before and after a 120-second idle interval (128.429 seconds total). Both incoming suppression flags were 0 and became 1; the native library read the upstream hard-suppression flag. No network API calls, JavaScript fetch attempts, device-ID files or telemetry databases were observed. Kernel tracing was unavailable, so this is finite-window libc observation, not a kernel trace or a claim about native Windows/desktop GUI execution. Calibration and reproduction sources are retained with the release evidence. Repeat this observation on the exact tagged CI package before publication.
 
-Exact upstream source/npm provenance and retained notices are in `apps/reader/licenses/ONNX-SOURCE-ACCESS.md` and `ONNX-PROVENANCE.json`. The source preparation inventory is `maintainer/onnx-sources-1.3.0.json`; complete ONNX source companions remain part of the existing publication gate.
+Exact upstream source/npm provenance and retained notices are in `apps/reader/licenses/ONNX-SOURCE-ACCESS.md` and `ONNX-PROVENANCE.json`. The source preparation inventory is `maintainer/onnx-sources-1.3.0.json`. The complete ONNX collection contains 96 source archives and 260,922 indexed file/link entries; verification covers 33 active vcpkg ports, 28 version constraints and 60 actual ordered patch applications. Its two numbered source ZIPs and metadata/assembler ZIP retain the original inputs and explicit provenance limits. This is source verification, not a complete native rebuild.
 
 ## Packaging notes
 
@@ -97,19 +97,52 @@ These results cover the application changes at that head. Final source/notices
 and GUI-coverage additions still require candidate and merged/tagged validation.
 The original failures remain in the run history.
 
-## Publication gates
+The additional GUI-coverage head `5c57b64f7a0083af4c51351d918d983ca6517721`
+passed all three [Checks jobs](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/runs/40604444085)
+and both [Analytics package jobs](https://github.com/Davoda1/ThreadShelf-Local-Suite/actions/runs/40604465778).
+The Windows package now opens the actual shipped Analytics entry point and
+checks settings IPC, visible language/theme changes, graceful writer-lease
+release and persistence across restart. Runtime versions, sandbox,
+context isolation, disabled renderer Node integration and unchanged packaged
+bytes remain verified. The existing deeper Analytics Linux GUI checks remain.
 
-The npm toolchain gate has passed local verification. The user authorized the source commit and GitHub upload on 27 October 2026, conditional on the telemetry review. That authorization permits running the hosted validation; it does not make incomplete publication gates pass.
+## Source and publication verification
 
-1. Complete the matching Electron 45.1.0 runtime/native source companions, recursive sources and supplemental material, then assembly/patch verification. The historical 44.9.1 mirror does not cover this candidate. Completing the mirror needs a larger preparation workspace plus recursive dependency resolution, retrieval and verification; current free storage is below the historical distribution size alone. See RUNTIME-SOURCE-PREPARATION.md and runtime-sources-1.3.0.json. Publication-check intentionally fails until this is complete.
-2. Pass existing packaged GUI gates on ordinary Linux and native Windows runners. The previous green candidate covered Analytics Windows archive/native runtime checks. A focused shared-harness GUI gate now checks production startup, settings IPC, visible language/theme, graceful writer-lease release and persisted restart; native Windows execution of this added gate is pending.
-3. Run GitHub Checks and all desktop package matrix jobs for the exact approved candidate, then the merged commit. Investigate failures and rerun transient failures on the same run; retain failure history.
-4. Finish privacy/asset review, tagged source snapshots, matching previews, notices, source companions and one release-level SHA256SUM.txt covering every attached asset. Only then switch root README download links to the new release and publish.
+The matching runtime collection and its full source verification are described
+in [RUNTIME-SOURCE-PREPARATION.md](RUNTIME-SOURCE-PREPARATION.md).
+The completed runtime collection contains 186 source archives across six
+numbered parts, with 1,169,803 logical file/link entries. All 257 Electron
+patches were freshly checked and applied in their original order against the
+verified touched source paths. Complete logical assembly found no collisions
+or unsafe links; this does not claim simultaneous extraction of the full
+17.55 GB source tree or a native runtime rebuild.
+The tracked source-input bundle binds the exact recursive dependency union,
+supplemental sources, release profiles, original notices and patch inputs to
+the canonical manifests and complete indexes in the metadata companions.
+Unchanged sharp/libvips source coverage is separately bound to the original
+Native-Sources asset. The old Electron mirror is not used for Electron 45.1.0.
 
-## Proposed commit and merge text
+The native source check compares current package pins and component versions,
+retained historical provenance, original FFmpeg/Blink/Mozilla notice bytes,
+and patch effects. Its classifications are hash-bound reviewed inputs, not a
+fresh independent legal classification of all source bytes. No full runtime
+rebuild, compiler attestation or byte-identical binary reproduction is claimed.
 
-Title: Prepare Suite 1.3.0 with Electron 45.1 and stable ONNX
+Publication requires all of the following evidence for the final selection:
 
-Description: Align Reader, Analytics and Alternative at 1.3.0 with Electron 45.1.0 and Node 24.22.1. Pin all ONNX runtime packages to stable 1.31.1, load Transformers from its supplied source, and disable both native network telemetry and Windows product-telemetry registration before workers initialize. Resolve npm’s bundled-Undici issue through the verified isolated npm 12.2.1/Undici 6.29.1 profile. Refresh dependency locks, notices, documentation and CI while preserving archive/profile compatibility and existing renderer presentation. Local verification includes 968 application passes, 122 packaging regressions, real-model native/WASM parity and toolchain security checks. Hosted platform checks and complete matching source companions remain publication gates.
+1. Complete source collection verification, including exact file/link indexes,
+   source identities, archive mappings and ordered patch application.
+2. Successful Checks and all six native package jobs after final source/notices
+   integration, followed by successful merged-commit Checks and tagged builds.
+3. Exact tagged CI package hashes, source snapshots, matching previews,
+   notices and version inventory; repeat the bounded Reader privacy/model
+   observation on the actual final Linux package.
+4. A complete external asset ledger and one `SHA256SUM.txt` for every release
+   attachment except itself, reconciled against fresh GitHub asset metadata.
+   Check the separately linked historical native source asset as well.
 
-This text is a draft, not a claim that outstanding release gates have passed.
+The source verifier's collection-only mode always reports
+`publication_ready: false`. Publication mode additionally requires the exact
+tagged commit, external final asset ledger and fresh release/historical API
+snapshots. Failed historical CI runs remain visible; corrected candidate and
+final runs are identified explicitly in the release evidence.

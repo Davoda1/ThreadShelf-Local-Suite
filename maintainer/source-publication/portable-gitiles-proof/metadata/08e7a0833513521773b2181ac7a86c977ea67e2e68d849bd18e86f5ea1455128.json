@@ -1,0 +1,47 @@
+{
+  "id": "119f3d5193c0eac99995ed6a55038e0d42bebd7c",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "db177d4ac70f76c2172ce65ca33c830d6cbd3ac5",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6cf7a13519973111a4c59f4fbece138c42af2823",
+      "name": "Makefile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bf94d5da9fe256e13a52cd21e23dd5d3ee4d6811",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "571a1a45159b4c0eaca4f90b75021dab77001787",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "56e2e78033421b8993760675a35228e57ca331e0",
+      "name": "emoji_presentation_scanner.c"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e639814bb96365c57e44c97bf6258167b84d2c26",
+      "name": "emoji_presentation_scanner.rl"
+    }
+  ]
+}

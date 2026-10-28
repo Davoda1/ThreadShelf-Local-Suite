@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__wayland-protocols__gtk-40ebed3a03aef096addc0af09fec4ec529d882a0.tar.gz",
+  "archive_bytes": 29573468,
+  "archive_sha256": "6f87dd5ef3a69023c3c9eb91839debfecdd9c87126a75bff6c45fd6c736f5d60",
+  "revision": "40ebed3a03aef096addc0af09fec4ec529d882a0",
+  "repository": "https://chromium.googlesource.com/external/github.com/GNOME/gtk.git",
+  "root_git_tree": "5ac7da504f1b2bc42b134301c3e731fb9e7ec293",
+  "blob_count": 5488,
+  "git_tree_count": 185,
+  "member_count": 5672,
+  "regular_file_bytes": 107635327,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 5468,
+    "100755": 20
+  },
+  "source_blob_inventory_sha256": "640b7152edec9226d69d5b308eae77181a0d11e192ca201fb37647c8eeaffcd8",
+  "archive_mtime_range": [
+    1793145206.138,
+    1793145213.284
+  ],
+  "metadata": [
+    {
+      "file": "metadata/3d62e0fb123a13676cc76f73198a88178ba7e3e45a24276927fa02482c1d82a9.json",
+      "url": "https://chromium.googlesource.com/external/github.com/GNOME/gtk.git/+/40ebed3a03aef096addc0af09fec4ec529d882a0/?format=JSON",
+      "bytes": 5039,
+      "sha256": "f61a74d8209c8e9c73e91e8f44024b8bed19c3e37b51ea38f34f7755ea3868d4",
+      "git_tree": "5ac7da504f1b2bc42b134301c3e731fb9e7ec293",
+      "receipt": {
+        "file": "metadata/3d62e0fb123a13676cc76f73198a88178ba7e3e45a24276927fa02482c1d82a9.receipt.json",
+        "bytes": 236,
+        "sha256": "c3012188cd190e6d466aecc2dcdd1ab97febaf5618bceb951a4dff90a144673a"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/6f87dd5ef3a69023c3c9eb91839debfecdd9c87126a75bff6c45fd6c736f5d60.jsonl.gz",
+    "bytes": 567126,
+    "sha256": "7d7da93326806c9f4053d5106d1b97c004fbf433aed6fe5c8590fef77e0af3ba",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 1743993,
+    "jsonl_sha256": "40b644eb08a5f0abd25177ade1079064bedc48af078e95f3742550f99efbd59c",
+    "records": 5674,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "bcc4631becb7cb64fec2a7ca24b6bc338305243a125fd581ebf5a7cd25b738db",
+    "bytes": 29573377,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

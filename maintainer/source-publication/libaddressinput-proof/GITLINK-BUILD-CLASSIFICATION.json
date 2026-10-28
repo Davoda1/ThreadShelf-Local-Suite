@@ -1,0 +1,51 @@
+{
+  "scope": "Source selection for Electron45.1.0 / Chromium156.0.8078.49, Linux x64 and Windows x64 GN builds. Does not claim the standalone upstream libaddressinput build is fully mirrored.",
+  "chromium_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+  "libaddressinput_revision": "81eb9628382b07d371d8ea0b11badf7de3857fd5",
+  "gitlinks": [
+    {
+      "path": "externals/grit",
+      "revision": "196aa4862969ddb8391969e3d483909c92d56dae",
+      "selected_for_electron_gn": false,
+      "reason": "The exact Chromium BUILD.gn imports //tools/grit/grit_rule.gni and builds its own strings target from Chromium resource inputs. The 261 logical entries under src/tools/grit are retained in the full, verified Chromium source archive, rather than using libaddressinput externals/grit."
+    },
+    {
+      "path": "externals/rapidjson",
+      "revision": "a98e99992bd633a2736cc41f96ec85ef0c50e44d",
+      "selected_for_electron_gn": false,
+      "reason": "The util target compiles Chromium chromium/json.cc instead of upstream cpp/src/util/json.cc. The Chromium implementation uses base::JSONReader; the upstream file that includes rapidjson/document.h is not in the GN source list."
+    }
+  ],
+  "supporting_inputs": [
+    {
+      "file": "chromium-libaddressinput-BUILD.gn",
+      "bytes": 9129,
+      "sha256": "9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02"
+    },
+    {
+      "file": "chromium-libaddressinput-json.cc",
+      "bytes": 2934,
+      "sha256": "9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0"
+    },
+    {
+      "file": "chromium-grit-inventory.json",
+      "bytes": 62067,
+      "sha256": "0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a"
+    },
+    {
+      "file": "upstream-gitmodules",
+      "bytes": 228,
+      "sha256": "24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a"
+    },
+    {
+      "file": "upstream-cpp__src__util__json.cc",
+      "bytes": 3536,
+      "sha256": "5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d"
+    }
+  ],
+  "urls": {
+    "build_gn": "https://chromium.googlesource.com/chromium/src/+/29eb03535d5f2f4f899b95f22a92413ffde5284e/third_party/libaddressinput/BUILD.gn?format=TEXT",
+    "chromium_json": "https://chromium.googlesource.com/chromium/src/+/29eb03535d5f2f4f899b95f22a92413ffde5284e/third_party/libaddressinput/chromium/json.cc?format=TEXT"
+  },
+  "provenance": "The two gitlink pins are preserved in the reconstructed Git-tree proof. Their empty directories in the repository archive are not represented as included submodule source code."
+}

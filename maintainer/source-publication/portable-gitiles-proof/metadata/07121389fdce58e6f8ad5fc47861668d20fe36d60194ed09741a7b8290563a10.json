@@ -1,0 +1,53 @@
+{
+  "id": "5d68c9cc6c711940710d72462ced8817fcc56334",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3e759b75bf455ac809d0987d369aab89137b5689",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "21071075c24599ee98254f702bcfc504cdc275a6",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "08775bf24c60008ffb83aeaa68991f5208904b58",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e138ec5d6a77c5e6e09346a69cbdc90c85a3806f",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "edb3ffd4f004e0834d0677330ad48496c13c6d5d",
+      "name": "pluginauthenticator.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b33ca0615a277fdb45b9ab3ab660cf3bd9d5090d",
+      "name": "pluginauthenticator.idl"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b5eaca30f1ca71050d0df945148069695b650948",
+      "name": "webauthn.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "64f02788f5126db03a9db06f5624a59e3e3d3a4f",
+      "name": "webauthnplugin.h"
+    }
+  ]
+}

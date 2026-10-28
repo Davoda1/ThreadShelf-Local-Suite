@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "nestedObjectConditionsChecked": 197,
+  "upstreamParserRevision": "c61f9e27ffddc07c383f71f05d733fe326b8e216",
+  "classificationSha256": "1de69b08c49c58e014e6f669bb3c14beb56b836553ec14026222ecc48a2388e2",
+  "scope": "Every nested object condition checked against pinned official depot_tools AST evaluator using exact target variables; classifications are separate source review."
+}

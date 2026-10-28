@@ -1,0 +1,83 @@
+{
+  "id": "cd07b0747b2a2676b6762b3d866024d4c000a383",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5ae82c3d346d70f87d3e8dd56df2a195e538f9b8",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "378eac25d311703f3f2cd456d8036da525cd0366",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2fa3908799c2cef538013ffe1deedaa1f7b0e7ee",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ade29dbfc344f5405e43aea448f5b2f013978f89",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c5899b26febde1d80fadd24c32254e70c68544ae",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9fb3e4859cd624888f59f61f73fa66e418eaeb18",
+      "name": "MANIFEST.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "462dd8e60e3c01dfaf886fa520b7288fc70513a8",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4e71b470ed2c6fef5b1a06601ad7f3c7d69e5a61",
+      "name": "gcld3"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f60b17195e9114c587f471e3d599175c6a0b0a51",
+      "name": "misc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "87f0f14db0bfd58c23189de070ed03285c8c17bf",
+      "name": "model.png"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8d0ba11fa121536ddb656bc29a9d7c93ed6983f7",
+      "name": "requirements.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "385189fc99e881b6a9fd5ff32549e09505507104",
+      "name": "setup.py"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1bcda023354ce16dc40b1efbda4635ede1681ccb",
+      "name": "src"
+    }
+  ]
+}

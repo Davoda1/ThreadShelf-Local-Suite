@@ -1,0 +1,95 @@
+{
+  "id": "cddb1ba751aa8a0d082f552d5dbb9779d2bd614b",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3c372867dd7d89acd8d0ac09f5e2c963ff14150d",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ac133dbbf0a34d5f70a73ead15d9bc105661ec4f",
+      "name": "BUILD.gn"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cd0aa0b7ace8e2e91523c1ff03f8b91b948bddd5",
+      "name": "CHANGELOG.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4c6ae799cc64987ec026bbc5d8429b264283ecbd",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4a0fe1c8deeb9861435d0aafa0c2096a6d624d2b",
+      "name": "COPYING.FDL"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+      "name": "COPYING.GPL"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5ab7695ab8cabe0c5c8a814bb0ab1e8066578fbb",
+      "name": "COPYING.LGPL"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "edd24f719d23710d9e0ff7d75e99480ca5e77ecf",
+      "name": "COPYING.Xiph"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "41829ba541bcba19193c9828f6ec04b6ff49c987",
+      "name": "OWNERS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1d76272f63c3008a51e7f5b6a6707b5952f28c17",
+      "name": "README.chromium"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "89029e1de678ac689985d85b6c1316086e3de95c",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bf79ca3bfe113b34d1cc786d5593bd1d14aee98a",
+      "name": "codereview.settings"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ae6291004f809350c604f282953a30387f55d85e",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "df5fd87184f24111979b28379d5bf73a6b5f880b",
+      "name": "oss-fuzz"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e5590929faa46043d58a8fdd827f807faa49c015",
+      "name": "src"
+    }
+  ]
+}

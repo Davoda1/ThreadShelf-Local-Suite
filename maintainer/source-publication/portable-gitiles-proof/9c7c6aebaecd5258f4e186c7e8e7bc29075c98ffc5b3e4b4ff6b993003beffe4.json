@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__fp16__src-782eea126dc5c755827be751a099eb01826175cf.tar.gz",
+  "archive_bytes": 65396,
+  "archive_sha256": "9c7c6aebaecd5258f4e186c7e8e7bc29075c98ffc5b3e4b4ff6b993003beffe4",
+  "revision": "782eea126dc5c755827be751a099eb01826175cf",
+  "repository": "https://chromium.googlesource.com/external/github.com/Maratyszcza/FP16.git",
+  "root_git_tree": "e27b4cdd20d6f95e62ccb2fe446fc3a566943105",
+  "blob_count": 31,
+  "git_tree_count": 9,
+  "member_count": 39,
+  "regular_file_bytes": 398275,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 31
+  },
+  "source_blob_inventory_sha256": "0a6c446cb40f5843b9aa327c396f4bb479f78e128e1c03333498559b80418638",
+  "archive_mtime_range": [
+    1793146525.95,
+    1793146525.964
+  ],
+  "metadata": [
+    {
+      "file": "metadata/691eed05d601dc320113ed2f5fd47e56b08430d9680ee29ebabe33631744a9f1.json",
+      "url": "https://chromium.googlesource.com/external/github.com/Maratyszcza/FP16.git/+/782eea126dc5c755827be751a099eb01826175cf/?format=JSON",
+      "bytes": 1443,
+      "sha256": "b8b5555841cdc508981e5bdc2f08028baa297269d031b5c0cdf24d9ddf2dd74a",
+      "git_tree": "e27b4cdd20d6f95e62ccb2fe446fc3a566943105",
+      "receipt": {
+        "file": "metadata/691eed05d601dc320113ed2f5fd47e56b08430d9680ee29ebabe33631744a9f1.receipt.json",
+        "bytes": 243,
+        "sha256": "7cc1cb554d564b5a051c66ca4f976f0a1b9c4bd307f08e9180e69478e916328d"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/9c7c6aebaecd5258f4e186c7e8e7bc29075c98ffc5b3e4b4ff6b993003beffe4.jsonl.gz",
+    "bytes": 3360,
+    "sha256": "5b9aa3dab5ef7656f01c0ebe655a1a6dc45604bfb5041a90f35b42e8037bcd11",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 10981,
+    "jsonl_sha256": "d61078ebe533ea58438d97f131062150cd54b559703c1a1a070c2eb0b24fc02e",
+    "records": 41,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "e28ac536af5e133b818bd4f3406e01c8b4116d44323ae76acc32275ea49b51c6",
+    "bytes": 65394,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

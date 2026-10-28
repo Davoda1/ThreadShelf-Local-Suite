@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.0 — unreleased candidate
+## 1.3.0 — 2026-10-28
 
 - Align Reader, Analytics and Alternative application versions at 1.3.0 without changing persisted data/schema identifiers.
 - Upgrade Electron to 45.1.0, including its Node 24.22.1 runtime, and pin development Node 24.22.1/npm 12.2.1.
@@ -10,7 +10,9 @@
 - Load portable ONNX assets through encoded file URLs so Windows drive paths and installation paths containing spaces, `#`, `%` or Unicode work correctly. Native and automatic/explicit WASM paths are regression-tested.
 - Disable ONNX native telemetry in the main process before starting inference workers; preserve the existing model, cache layout and explicit model-download flow.
 - Refresh CI action commit pins and retain all existing regression and package validation gates.
-- Publication remains gated on the matching runtime source mirror, packaged graphical checks, native Windows checks and final GitHub validation. See maintainer/REVIEW-1.3.0.md for actual evidence and limitations.
+- Add native Windows Analytics GUI checks for production startup, settings changes, graceful close and persisted restart, retaining sandbox and package-integrity checks.
+- Supply matching Electron/ONNX source companions, exact inventories, offline assemblers and source integrity/patch regressions. Retain the verified unchanged sharp/libvips source offer and original provenance limits.
+- Refresh release links, source-access notices and the complete version inventory. See maintainer/REVIEW-1.3.0.md and the release verification report for evidence and limits.
 
 ## Reader and Alternative 1.2.0
 

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__weston__src-b65be9e699847c975440108a42f05412cc7fddac.tar.gz",
+  "archive_bytes": 2404378,
+  "archive_sha256": "89c1adfa9f709c4601920cb89daad12b5a56d15d8d3e4bdc32192af41983b9f3",
+  "revision": "b65be9e699847c975440108a42f05412cc7fddac",
+  "repository": "https://chromium.googlesource.com/external/anongit.freedesktop.org/git/wayland/weston.git",
+  "root_git_tree": "b4dcae4b0dd13df800d5ad5a0778e048867bf409",
+  "blob_count": 582,
+  "git_tree_count": 53,
+  "member_count": 634,
+  "regular_file_bytes": 6903781,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 575,
+    "100755": 7
+  },
+  "source_blob_inventory_sha256": "48eb1f40d5eb6c9905a140ce7daa655bce4a071a1c78b61301e8ea2d7db8e05d",
+  "archive_mtime_range": [
+    1793146095.222,
+    1793146095.537
+  ],
+  "metadata": [
+    {
+      "file": "metadata/592c48277d37db0798dd95ba1dbf69c10df0df47757fc78794bf65419bc861d8.json",
+      "url": "https://chromium.googlesource.com/external/anongit.freedesktop.org/git/wayland/weston.git/+/b65be9e699847c975440108a42f05412cc7fddac/?format=JSON",
+      "bytes": 4906,
+      "sha256": "629dcaebffede4364a69e16113be95f674bccfcaeff1fcc9672008369383125a",
+      "git_tree": "b4dcae4b0dd13df800d5ad5a0778e048867bf409",
+      "receipt": {
+        "file": "metadata/592c48277d37db0798dd95ba1dbf69c10df0df47757fc78794bf65419bc861d8.receipt.json",
+        "bytes": 258,
+        "sha256": "d100468380d4f46cf67d64b54a444fe60d83dff737ac078acdcc910c67cf1ae5"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/89c1adfa9f709c4601920cb89daad12b5a56d15d8d3e4bdc32192af41983b9f3.jsonl.gz",
+    "bytes": 66073,
+    "sha256": "72b717dc4c8745065960d7bb8363ac29702f9669412696195aac7c0ecde9d3ab",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 188670,
+    "jsonl_sha256": "d5dc1153b8534ff7af8d29b135821bf28274f0455fc5ffaaf05db84c3ad70e42",
+    "records": 636,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "c36e33d6d3baa591a1d8b10b20e468b0eebe011a235191005db5fab271af5702",
+    "bytes": 2404459,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

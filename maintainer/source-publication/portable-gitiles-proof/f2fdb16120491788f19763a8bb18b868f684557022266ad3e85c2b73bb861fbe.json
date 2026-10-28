@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__highway__src-2607d3b5b0113992fe84d3848859eae13b3b52c1.tar.gz",
+  "archive_bytes": 3704459,
+  "archive_sha256": "f2fdb16120491788f19763a8bb18b868f684557022266ad3e85c2b73bb861fbe",
+  "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/highway.git",
+  "root_git_tree": "e240dc0bc54afd953256adbe67eb2f267beb9d86",
+  "blob_count": 278,
+  "git_tree_count": 32,
+  "member_count": 309,
+  "regular_file_bytes": 9489471,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 274,
+    "100755": 4
+  },
+  "source_blob_inventory_sha256": "4b2cc37f7497b572fd0102b6ef80fdebd8a870dd1bad1208c6dfcb31bc145a5e",
+  "archive_mtime_range": [
+    1793146013.136,
+    1793146013.807
+  ],
+  "metadata": [
+    {
+      "file": "metadata/56b5069491dbab4d263c737211bacf4a6248b4dd25bea07a811aa46fb3d7906e.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/highway.git/+/2607d3b5b0113992fe84d3848859eae13b3b52c1/?format=JSON",
+      "bytes": 4113,
+      "sha256": "479c0f207a4cc57e3cf0d604df7999c585e2405d66f514c0c36f6cda79c25056",
+      "git_tree": "e240dc0bc54afd953256adbe67eb2f267beb9d86",
+      "receipt": {
+        "file": "metadata/56b5069491dbab4d263c737211bacf4a6248b4dd25bea07a811aa46fb3d7906e.receipt.json",
+        "bytes": 241,
+        "sha256": "f4fe31b84b486dcb8671fccf4e358110d29bbdc580f2a99effd40f42c9b2232c"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/f2fdb16120491788f19763a8bb18b868f684557022266ad3e85c2b73bb861fbe.jsonl.gz",
+    "bytes": 31923,
+    "sha256": "ca7060c206312a970e8f1ce6257583daff1c93d2837e31e3526b8e1af2388d62",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 88641,
+    "jsonl_sha256": "90db821e768b24573515abfdda5fc69a8f7f75aa8d2abda373f87eb7318451ea",
+    "records": 311,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "2176954a1453095ce26325cdedc14ededee0571b56de5c5fc68031b880597826",
+    "bytes": 3704414,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

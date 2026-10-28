@@ -1,0 +1,113 @@
+{
+  "id": "feafbf9cf5deeb64dbe983f5574cb50f96fc330b",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5b9bfe6d224232981ada90cee232c716afbdf09d",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4f9c2714e789071a9fd06b56f1b8e75f9b293e3f",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f0df39db1d7e1ba7e13f258195c461b7b94e24cd",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5ab4e114f6300c849d24b3a3e20744eedbe69da9",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c784f3c7cd3f0a24e377b3c8521f854dde8fdbab",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ab5a47bf5530dfd052150095eb321f1dab4ca625",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ccea41ea810b2631405f9e304aaecb0e50d98d42",
+      "name": "CONTRIBUTORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1941a11f8ce94389160b458927a29ba217542818",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5b32557fc89ddabdf657dbce6c23648c594ac7e0",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1584c793d010e3b48dc198e191ddf409fda62156",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f004f565d306750fbfabd4b5a90b1eb63c8fa9b3",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "381432c5d0cbf9d7db7449d6950877758f73bdb0",
+      "name": "WORKSPACE.bzlmod"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1b1379fcfeaf9175f1efa1c24599d5b14720b153",
+      "name": "ci"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a0c44ffa7d6d0dcd300574a444cd1d6cc6ec37da",
+      "name": "docs"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bc5b92734708eadee227212ccabab0c06ad27a8d",
+      "name": "fake_fuchsia_sdk.bzl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "351d7cb6a6554866ee505dd799bf6cca154d5a97",
+      "name": "googlemock"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d29d0636221a7bd65b88c0ae59c17e5555a96b47",
+      "name": "googletest"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9b5c041eaa5eae2236d48df857313e873e87c721",
+      "name": "googletest_deps.bzl"
+    }
+  ]
+}

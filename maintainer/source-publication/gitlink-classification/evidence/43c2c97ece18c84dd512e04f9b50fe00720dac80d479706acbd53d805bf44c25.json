@@ -1,0 +1,426 @@
+{
+  "passed": true,
+  "scope": "Chromium/Electron Linux+Windows GN graph only; standalone upstream builds not claimed",
+  "method": "Literal GN src paths, including fixed proto_in_dir=src expansion; all local include candidates recursively inspected. Unknown C/C++ conditions retain both branches. Only the explicitly applied NEARBY_CHROMIUM=1 definition excludes its guarded branch. This is static selection evidence, not a full GN generation, compiler run or all-system-header dependency closure.",
+  "owner_path": "src/third_party/ukey2/src",
+  "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+  "source_archive_bytes": 112057,
+  "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07",
+  "source_revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+  "gn_wrapper": {
+    "file": "chromium-third_party__ukey2__BUILD.gn",
+    "bytes": 1693,
+    "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+    "source_path": "src/third_party/ukey2/BUILD.gn",
+    "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+    "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+  },
+  "gn_selected_source_count": 13,
+  "selected_and_local_include_file_count": 13,
+  "local_include_roots_from_gn": [
+    "",
+    "src/main/cpp/include"
+  ],
+  "nearby_chromium_defined_source_targets": [],
+  "files": [
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/include/securegcm/d2d_connection_context_v1.h",
+      "bytes": 3365,
+      "sha256": "7e02e564e7fd85b697d6dcb03fca6982e7eeaa75139fed5b5db9a2428be9ec81",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/include/securegcm/d2d_crypto_ops.h",
+      "bytes": 2612,
+      "sha256": "6fbb9958a3c5ac36c17274da235df55ebfbc23d9700b4d3ee34df02da91b7770",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/include/securegcm/java_util.h",
+      "bytes": 2349,
+      "sha256": "ea39e52c2c2c452ca79149436d06dce9988b480bde5d34f78f89f3b609c2c1c4",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "bytes": 10097,
+      "sha256": "94c2f9a8f6d0e5fe23de5e309ec414e6b40008b54b8f101e4c1eb0f138302ca5",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "bytes": 8760,
+      "sha256": "22c8ca60c2d71d793ec723d4901cf683c1cf13586018c0e897d96bdb8d63816c",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "bytes": 4960,
+      "sha256": "4d1469d9015cf4895dc625e2c496712056d502b0fc4214057394003d715b3466",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/src/securegcm/java_util.cc",
+      "bytes": 1996,
+      "sha256": "e2f63e08f9d04d54bc4e4ad01c1fadbe0915c5453eea0b6e18b780f6a854085f",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/cpp/src/securegcm/ukey2_handshake.cc",
+      "bytes": 24909,
+      "sha256": "f153af1f1397a7f7edf15683f0d819b704bdcc9090873f26188313fb3b436d5c",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/proto/device_to_device_messages.proto",
+      "bytes": 2612,
+      "sha256": "e111fcfa7bad453221e5e9163b6c74bd60bfdc10d5607cd3722b49f07ea6f6a4",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/proto/passwordless_auth_payloads.proto",
+      "bytes": 1327,
+      "sha256": "d576090414304d3e8650a14b46e192b329a336605b8b2ed60180e97e3032908e",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/proto/proximity_payloads.proto",
+      "bytes": 2313,
+      "sha256": "2bb0e37d96b5e48557dd68ac73dd86d984148550d26657229142aa190ac63f7f",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/proto/securegcm.proto",
+      "bytes": 11453,
+      "sha256": "2e7c6b57141a25448f9a014297b38c5da596f1e5aaf207b14fd2a90e0d21a1f1",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    },
+    {
+      "path": "src/third_party/ukey2/src/src/main/proto/ukey.proto",
+      "bytes": 3847,
+      "sha256": "51afa615ebc1e31e92afcb23c333abd480aefecb7593da0b5c65f451f7d18613",
+      "direct_gn_selection": true,
+      "accepted_inventory_match": false
+    }
+  ],
+  "includes": [
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_connection_context_v1.h",
+      "line": 18,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CONNECTION_CONTEXT_V1_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_connection_context_v1.h",
+      "line": 19,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CONNECTION_CONTEXT_V1_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_connection_context_v1.h",
+      "line": 21,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CONNECTION_CONTEXT_V1_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_crypto_ops.h",
+      "line": 18,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_crypto_ops.h",
+      "line": 19,
+      "include": "string",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_crypto_ops.h",
+      "line": 21,
+      "include": "proto/securegcm.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/d2d_crypto_ops.h",
+      "line": 22,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_D2D_CRYPTO_OPS_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/java_util.h",
+      "line": 19,
+      "include": "securemessage/byte_buffer.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_JAVA_UTIL_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "line": 18,
+      "include": "map",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_UKEY2_HANDSHAKE_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "line": 19,
+      "include": "memory",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_UKEY2_HANDSHAKE_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "line": 21,
+      "include": "proto/ukey.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_UKEY2_HANDSHAKE_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "line": 22,
+      "include": "securegcm/d2d_connection_context_v1.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_UKEY2_HANDSHAKE_H_"
+      ],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/d2d_connection_context_v1.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/include/securegcm/ukey2_handshake.h",
+      "line": 23,
+      "include": "securemessage/crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [
+        "ifndef SECURITY_CRYPTAUTH_LIB_SECUREGCM_UKEY2_HANDSHAKE_H_"
+      ],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 15,
+      "include": "securegcm/d2d_connection_context_v1.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/d2d_connection_context_v1.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 17,
+      "include": "limits",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 18,
+      "include": "sstream",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 20,
+      "include": "proto/device_to_device_messages.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 21,
+      "include": "proto/securegcm.pb.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 22,
+      "include": "securegcm/d2d_crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/d2d_crypto_ops.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 23,
+      "include": "securegcm/java_util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/java_util.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 24,
+      "include": "securemessage/secure_message_builder.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_connection_context_v1.cc",
+      "line": 25,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "line": 15,
+      "include": "securegcm/d2d_crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/d2d_crypto_ops.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "line": 17,
+      "include": "sstream",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "line": 19,
+      "include": "securemessage/secure_message_builder.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "line": 20,
+      "include": "securemessage/secure_message_parser.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/d2d_crypto_ops.cc",
+      "line": 21,
+      "include": "securemessage/util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/java_util.cc",
+      "line": 15,
+      "include": "securegcm/java_util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/java_util.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/java_util.cc",
+      "line": 17,
+      "include": "cstring",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/ukey2_handshake.cc",
+      "line": 15,
+      "include": "securegcm/ukey2_handshake.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/ukey2_handshake.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/ukey2_handshake.cc",
+      "line": 17,
+      "include": "sstream",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/ukey2_handshake.cc",
+      "line": 19,
+      "include": "securegcm/d2d_crypto_ops.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": [
+        "src/main/cpp/include/securegcm/d2d_crypto_ops.h"
+      ]
+    },
+    {
+      "path": "src/main/cpp/src/securegcm/ukey2_handshake.cc",
+      "line": 20,
+      "include": "securemessage/public_key_proto_util.h",
+      "excluded_by_known_definition": false,
+      "conditions": [],
+      "local_candidates": []
+    }
+  ]
+}

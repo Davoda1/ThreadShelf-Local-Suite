@@ -1,0 +1,1568 @@
+[
+  {
+    "path": "src/tools/grit/.gitignore",
+    "kind": "file",
+    "sha256": "094c25031dcfe5c288666671bc2012866293b3797ea53c796af798bda4c32f01",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/BUILD.gn",
+    "kind": "file",
+    "sha256": "1f825445ed88ce4e0af8c5eea6984ac0ddb85a0205ce091c2258ecd535d6ff61",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/MANIFEST.in",
+    "kind": "file",
+    "sha256": "5eaf3e723551f95a0da4389ec5cf8c9847ef85dffacdd50351aaee15622ec602",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/OWNERS",
+    "kind": "file",
+    "sha256": "087764daaa626002cc036799615c38e98993f869f348bcc5bc1dbd133bfe4616",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/PRESUBMIT.py",
+    "kind": "file",
+    "sha256": "6b5891cc8d7d8553cdaa9638613fc582c25e8a6fd09bf82184c9d51e2138acf5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/README.md",
+    "kind": "file",
+    "sha256": "4c63f10cabaff697e188882f03df596f88c1edcf9780fb372cfbc5baba496b4a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit.py",
+    "kind": "file",
+    "sha256": "ca303f1f094c9f9fad9b5df539e8f7f5d282bbe04459af47bbc886a755b3f715",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit.pydeps",
+    "kind": "file",
+    "sha256": "331ddd9f36510eb43413b3229bef544220e48eee454be6342882734193b290fa",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/__init__.py",
+    "kind": "file",
+    "sha256": "3a91b818cdd1b2d0cedc0e2c9dc01561db6cad2b8f052366e2e462df246ed59e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/clique.py",
+    "kind": "file",
+    "sha256": "29be7a5783108981f33db5884f9baa0614110fe0ffb1c5b8f31abd663e8f0abb",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/clique_unittest.py",
+    "kind": "file",
+    "sha256": "e2f409cfdb0deecf13a9726ac2fa5e2d29a23496caafbba659114a375b0b7ad6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/constants.py",
+    "kind": "file",
+    "sha256": "143062b300d5a64b0ba9f8bebc1b3e88ef880fe1e9298edd3b80f786a451d443",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/exception.py",
+    "kind": "file",
+    "sha256": "45c716751358c9bf0f22731719a54f51159978fa10296fb34ad2f1719e9b99d1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/extern",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/extern/BogoFP.py",
+    "kind": "file",
+    "sha256": "6e69c098dffe1a6d65da0d40fcda40191f3c375a06f71be7586aa2c6aef4d8c5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/extern/FP.py",
+    "kind": "file",
+    "sha256": "78124965f0510b7ad66b98098eaf54fd8f52f37e198571e00be069b2e6388a97",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/extern/__init__.py",
+    "kind": "file",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/extern/tclib.py",
+    "kind": "file",
+    "sha256": "165a085c1ea48d1db56a6a782f119287f3dd234d5f357a76f41f6c6af57fe356",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/__init__.py",
+    "kind": "file",
+    "sha256": "744a8d778f6fbfb5367bea50b047c228f8ae11398b94ede4c836dfa613266f28",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/android_xml.py",
+    "kind": "file",
+    "sha256": "afba1f7168403b2990eafbdbcc2563e0c7457ebd74c2f944c331db9f8470b57d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/android_xml_unittest.py",
+    "kind": "file",
+    "sha256": "628e4250f2fc75c7930e67e60a08f17612fba3dabada4d9139d160b7b4a961a1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/c_format.py",
+    "kind": "file",
+    "sha256": "adc488bd15f1a36e3d5e63250735cc2b71dcef120daa02d050330312c60d7c56",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/c_format_unittest.py",
+    "kind": "file",
+    "sha256": "3a5cedc71516acec9af89b4790e9c1f5b225b6c2d6aa29a366c6a5282908e29c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/chrome_messages_json.py",
+    "kind": "file",
+    "sha256": "cf43fbbac7eecf98e6b827bc1769d2ca44e4a8c77b9c81e8a642bab138eb1fab",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/chrome_messages_json_unittest.py",
+    "kind": "file",
+    "sha256": "eee919bc55c6b483818ba8dd4da92ad5c5217967cac1b1975f9b3243f25c3ef3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/data_pack.py",
+    "kind": "file",
+    "sha256": "323cc5492ec6037a65408f0ea0413bd9d098a06b7c0216067e8abf7b64f09d4e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/data_pack_unittest.py",
+    "kind": "file",
+    "sha256": "25e31326c586575fd36e3dc844f7fe655409dde6be5de3aba2e909d2a4165fa5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/gen_predetermined_ids.py",
+    "kind": "file",
+    "sha256": "9e997f8e8b6b8869b8c41409dd18a9612e76daa89fb38c50c52ec1269a00ed53",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/gen_predetermined_ids_unittest.py",
+    "kind": "file",
+    "sha256": "f6cbf6a0a3ff23a781316aa54a24c13c88d20ffeaf30c3cfc1622894ce6c28d7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/gzip_string.py",
+    "kind": "file",
+    "sha256": "f1a000e7f62326a1e65a57b8cdd1474bc65edadfa28b678668fed760c835fa03",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/gzip_string_unittest.py",
+    "kind": "file",
+    "sha256": "2aa9cb7dbb02a9a4247a47b2ddfec4221093c5b9387727b7e0c9d8554a916dea",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/html_inline.py",
+    "kind": "file",
+    "sha256": "3286d572e9a7dfe21ea3db1fede9d43a448e80f3b05f135a1dff2b4cdb52a315",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/html_inline_unittest.py",
+    "kind": "file",
+    "sha256": "f8c8dbe82efdcf5ec30cac62efc64f3ec1cb4cfb078497e48ec66dc44f690937",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/minifier.py",
+    "kind": "file",
+    "sha256": "78c759cee42eaf55861255d4dbaee9f9e1db5552c1edaac38fcfe5a56d521d9d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/policy_templates_json.py",
+    "kind": "file",
+    "sha256": "675f1ec2b104545559e622422da2450f8854bdcfe751698a2730f8761117fc0e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/policy_templates_json_unittest.py",
+    "kind": "file",
+    "sha256": "fbf373daa2268decc45ec398d0a1633554709e40388a4990d7af30ec1a1fbf08",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/rc.py",
+    "kind": "file",
+    "sha256": "c6295d7ebd5db108cb62dd301f80ade59af97ab744bc990cf58db342cb5a0028",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/rc_header.py",
+    "kind": "file",
+    "sha256": "409666360965eb84b39ec4ef8439ad7bf7e1a35d6ed4d42850e46e04dd07e918",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/rc_header_unittest.py",
+    "kind": "file",
+    "sha256": "30e9ca91bfd9fe807eabbd0ded37e4013d0e8ace32fa710c671c0a75a0e892cf",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/rc_unittest.py",
+    "kind": "file",
+    "sha256": "2f532786d7c1a169b53bd889577d9a4dd901408c91481bec078fcc1b8a632a2e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/resource_map.py",
+    "kind": "file",
+    "sha256": "6e94a288c74ce58398ecbae72381a0839232e8cab3d04525151cbcfd1e6046aa",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/format/resource_map_unittest.py",
+    "kind": "file",
+    "sha256": "c63ca61277363171c6a5b4e7f608ade0313f64412e955dcbbd162eb4c0b929a5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/__init__.py",
+    "kind": "file",
+    "sha256": "9454aa9920a592bd58ed12fa9ec5f315e272df5485503747fbc62d094d681bd7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/admin_template.py",
+    "kind": "file",
+    "sha256": "492d0ab48949e2756c60cd2f5579f0a343bb4f62a26c83ce508c9db3c4f9b861",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/admin_template_unittest.py",
+    "kind": "file",
+    "sha256": "f79461180e69f8694a66bfdc8926b735c5052fc1aa2eaec75c6d46b7e0b86fce",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/chrome_html.py",
+    "kind": "file",
+    "sha256": "8fc1cbef227aa0e4faeab3c92c6b8bed342e393a95dde0ab58f6710389a13d6d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/chrome_html_unittest.py",
+    "kind": "file",
+    "sha256": "bf6c1338199e4824a5bb8e09dd9fff92cd48297d19ec884eaf16cb1a57e92ffd",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/chrome_scaled_image.py",
+    "kind": "file",
+    "sha256": "2aaa6439a8d8472a4ac79b6640352f6ac83dacd57664b7badcccbec1b198358c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/chrome_scaled_image_unittest.py",
+    "kind": "file",
+    "sha256": "0dd735bbabd2569f1b70f2afeb7fad8cae04188585342fe6f4280f85fc47231e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/interface.py",
+    "kind": "file",
+    "sha256": "31c8876f5551cce89ac7d54d9399fd4cd18d66d073f0c7cc2d5c9be7eb2aa2ce",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/json_loader.py",
+    "kind": "file",
+    "sha256": "7ac877a3146d9d7f9b032b97acc939f2d701c78759a068d89ec6de18a4becc82",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/policy_json.py",
+    "kind": "file",
+    "sha256": "ed842aca63c9a80bfdcae42789d68031591aca90b24966cb7f9746ae887e69c7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/policy_json_unittest.py",
+    "kind": "file",
+    "sha256": "c5a092d36eb5399ed44aa7c64b45a1f93c48c9d49c7bf6c03727a814e942531f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/rc.py",
+    "kind": "file",
+    "sha256": "dbb45b51215357993242a68d827ad2b1a44c89e49f89a817b87f989420b46ea4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/rc_unittest.py",
+    "kind": "file",
+    "sha256": "5a98efb5246a65ac9a86654429f1c49acbb02a95da4780dbe08e95530bdae274",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/regexp.py",
+    "kind": "file",
+    "sha256": "7250aaca79d639236c9a68bf284d187e71c065d9868a9111e230eb50293c1578",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/skeleton_gatherer.py",
+    "kind": "file",
+    "sha256": "4498b87a4b6af548408e60427cbaea29123d6b20a34b6ba116de5b70131b30bd",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/tr_html.py",
+    "kind": "file",
+    "sha256": "f1285c4f024b71bf0f5205defe8037f235c7299eb5ce541a6540b9252f4d0fa3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/tr_html_unittest.py",
+    "kind": "file",
+    "sha256": "16c01388910132557516e4426808437f51d4578a6faf574bfcc849ea689a5010",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/txt.py",
+    "kind": "file",
+    "sha256": "39889918f1dbff47f3b9714b0c4d929ed4b5076f24c237a11daba47c0c356db6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/gather/txt_unittest.py",
+    "kind": "file",
+    "sha256": "209001c74b3b4cd0b5dd16c7d7dc34c615142ad211a8da78c432b8ea85ef2b74",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/grd_reader.py",
+    "kind": "file",
+    "sha256": "fee8d3a8f4b2cbaa5d2664844c0c99aee7037f93b3c3b1005cfca4dc0a9cc58f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/grd_reader_unittest.py",
+    "kind": "file",
+    "sha256": "914d502d9c98fb93e3f4474bf4f29d63a2493f4d9169f6846b09321539bd790e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/grit_runner.py",
+    "kind": "file",
+    "sha256": "83d0d90319e683ec301caf56a3f6aab0f355e92d5b5f752172121cf6a9fc5524",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/grit_runner_unittest.py",
+    "kind": "file",
+    "sha256": "ebe344d72b83dbdc5e29974e90676a0a53a7c06df13d913f9a842a3492ddd31e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/__init__.py",
+    "kind": "file",
+    "sha256": "30e5db0e9c142d5d8254fc8dd0f7a9ca9f3a5eb48fc6667f6c51b56ecab54ec4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/base.py",
+    "kind": "file",
+    "sha256": "7aa20d2fe8e428d1a29cf47db321a157771a173f2f92ff6c09d44c2968157f59",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/base_unittest.py",
+    "kind": "file",
+    "sha256": "901724760db5187d1176791eadee2942c8101cb815b22d3cfa95cc6ae79c4406",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/brotli_util.py",
+    "kind": "file",
+    "sha256": "a4cf78c877e62b0e758f2b3c808b01aa945e9b77032ddec3006da6f7cbf36433",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/custom",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/custom/__init__.py",
+    "kind": "file",
+    "sha256": "1de8e6e5faf3609832cc2ef00a21be3e225ab590369488da6104c4ac46f00b2e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/custom/filename.py",
+    "kind": "file",
+    "sha256": "17121c011e6d9b715a1ab0018581abe0fc4921be35c0cdc3092e59de93db201b",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/custom/filename_unittest.py",
+    "kind": "file",
+    "sha256": "951b5a15999ca84cab63bfeaeaf6b55b20fdfa99af5651f15240e04e028eb5e6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/empty.py",
+    "kind": "file",
+    "sha256": "21d15d9a2a4f3af506bb5228bed8de6356c85cf331b6931401e7984e9761f797",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/include.py",
+    "kind": "file",
+    "sha256": "117a0a7b494dc945f6e542a4df1e5e26f2cd83064105079686bc458bff95aa0e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/include_unittest.py",
+    "kind": "file",
+    "sha256": "a1d0b1fb98cf8e0ec9b9d65cf7d04fd2851a7f562f94c919f80d1f2073261f53",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/mapping.py",
+    "kind": "file",
+    "sha256": "33acfc9bd3f39a32fe72e12994789d0a67c698b55f9e2db0eeda4d22ce16c132",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/message.py",
+    "kind": "file",
+    "sha256": "1a6ffe8f4619b502ac58fdd27ab5635548ce63636d7d1a6aa10bc9d013605dec",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/message_unittest.py",
+    "kind": "file",
+    "sha256": "09b3a5661b4d74ae57128d10c2c4928030b1fb2694ebe147bb479fe6c95a84eb",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/misc.py",
+    "kind": "file",
+    "sha256": "1d79036ecda8827a5dc7436bbefa5a5e255356596b08a61b7ebc079421e71b4a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/misc_unittest.py",
+    "kind": "file",
+    "sha256": "63fd4b304509a98aff542c61cc6f2c76c43ccf410f81fe959e0641faecb6abd9",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/mock_brotli.py",
+    "kind": "file",
+    "sha256": "10ef40d078809d27f1f0f1a5937eea5688d3cb6897db7bba1e7a06b5b0a482a0",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/node_io.py",
+    "kind": "file",
+    "sha256": "9991aac522256b553e0388bfea23463e213be8166e4a6ac1ea3b59c644d78cb5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/node_io_unittest.py",
+    "kind": "file",
+    "sha256": "a6fa59739dc488d39a0693686f7c9516b570ad98a3d8bf0401e1889f49250a75",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/structure.py",
+    "kind": "file",
+    "sha256": "f66bfd4eb28de826c82c5b7170816ef594f85dae89037fcc4c7acb187a34582c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/structure_unittest.py",
+    "kind": "file",
+    "sha256": "5b8ab6bd9c16f0acabf6f07f01e6445c4d72aed8bafb824fb3c0c4470833da4d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/node/variant.py",
+    "kind": "file",
+    "sha256": "202be864c18e1172d7ee64bef665b320b9d2414f30635b805045d551e3431a93",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/pseudo.py",
+    "kind": "file",
+    "sha256": "f7dfec891811e936772dd604f2f604ef5e775e83229c086cd426d715dc35ab71",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/pseudo_unittest.py",
+    "kind": "file",
+    "sha256": "3bc503c4bca1f55b72b80fd5456ec772ef205e42dfb312412e26879f94303402",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/pseudolocales.py",
+    "kind": "file",
+    "sha256": "24d1dc43c5fe1bf49a5109557c2c1514edc712519b3fc1a699602568b88d8256",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/pseudolocales_unittest.py",
+    "kind": "file",
+    "sha256": "eca6b0d88414c327c9fd11fcc5d16cd07b0f8b2ac979aa34e6e652bf1f605c14",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/shortcuts.py",
+    "kind": "file",
+    "sha256": "e5348197d62db87020a1690be21f6571f3a862b898f9cd89d36033e9de442dc5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/shortcuts_unittest.py",
+    "kind": "file",
+    "sha256": "894b36e1e27b12916002333c03949047470ea6a44948d208e88e21f7240b8b6a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tclib.py",
+    "kind": "file",
+    "sha256": "1b98b338b88c26236ddd31ea63e03746690b3a926a2b7537540e0086fe855719",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tclib_unittest.py",
+    "kind": "file",
+    "sha256": "d97d81f46d5486f044559fcd954baf1f3fbc8d28e35784bcedc8352208f7ed5c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/test_suite_all.py",
+    "kind": "file",
+    "sha256": "00bda87a6b2ecc2889b0596ca7f5a0b10d1a30d403b3bb018ab53462e507e36d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/GoogleDesktop.adm",
+    "kind": "file",
+    "sha256": "24edf63aa9314e5b5be828c23f41548017c0a284d77708b99fe923af515d7411",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/README.txt",
+    "kind": "file",
+    "sha256": "4fa8d34a6097bd15d79a6670b63e7e9db31b2257e2d0f04034b4c854934d3dcc",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/about.html",
+    "kind": "file",
+    "sha256": "77f030e8a99abdc358f950dc2a1fe0a4a34fc954e6b551a178c535948e9ae4eb",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/allowlist.txt",
+    "kind": "file",
+    "sha256": "2bc15a7dfbedcd08d5f20c094fa062b31336f6226db0745aec685035c5aab472",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/allowlist_resources.grd",
+    "kind": "file",
+    "sha256": "6ce4882c3594c1d6c095c41f41ec63aacf0d60697040f2da664ac84e14301a28",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/allowlist_strings.grd",
+    "kind": "file",
+    "sha256": "d5ca5edf457065a7aac6859051d7d2e60f55bd831ade7134506da631028dd733",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/android.xml",
+    "kind": "file",
+    "sha256": "f67c5281853c9fc9d7a59d11d3fdc1f2c52361c6c4abb369349f70aa4e8733a7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/bad_browser.html",
+    "kind": "file",
+    "sha256": "85c03cd0a10ccda8a974685caac337d879d3e826cf595d41de3fcf560302444e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/browser.html",
+    "kind": "file",
+    "sha256": "dde0a3a0607fbec7c197f9890da035d20df773f8b3b79df445de1ca59f89c9b5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/buildinfo.grd",
+    "kind": "file",
+    "sha256": "f5e1be74b49c3e2f382cb7a286e70eb88e501faab6844bc26afafa969ad2705d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/cache_prefix.html",
+    "kind": "file",
+    "sha256": "cabc74adf0890efee648b9a62dea6c7caac16db4392c04199137801ffa4feaa3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/cache_prefix_file.html",
+    "kind": "file",
+    "sha256": "e05460cd715aea44ddcc7bc019d721a666be66fcdbf2f83fdd7f8ae835f66385",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/chat_result.html",
+    "kind": "file",
+    "sha256": "3c1632430aca7eef5c8c048986bc2ca75638ea85e7a4e199fd41c9d66783cf20",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/chrome",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/chrome/app",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/chrome/app/generated_resources.grd",
+    "kind": "file",
+    "sha256": "4849348b113db57fe53fc3466292aacd6dcde6c83b18a8a7045ecec87709c84f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/chrome_html.html",
+    "kind": "file",
+    "sha256": "457bd494ea2e2535a45ed0095d4526b11a3c47413e4151e80c6dbfb2b778e7c2",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/default_100_percent",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/default_100_percent/a.png",
+    "kind": "file",
+    "sha256": "03c3cd33649172c11bc862577924e63b04ab91971e30c7fe92820d005d64e00d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/default_100_percent/b.png",
+    "kind": "file",
+    "sha256": "0263829989b6fd954f72baaf2fc64bc2e2f01d692d4de72986ea808f6e99813f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/del_footer.html",
+    "kind": "file",
+    "sha256": "c0a0c9456b30cbcd23e1caece518490ab4635d1134a07fc2234c06f3be58addd",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/del_header.html",
+    "kind": "file",
+    "sha256": "00c745f7498b1c378ae39b677f302b061e15bbd5b3fbeb4ec623f904654193eb",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/deleted.html",
+    "kind": "file",
+    "sha256": "afef70017fdbc420cad8270e766380504af91eb9172450b9dfa6d0d4865f3c44",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/depfile.grd",
+    "kind": "file",
+    "sha256": "1bbf57f03884feb454d0684585cb7113017fa0f80de207151065547d811ba0cd",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/details.html",
+    "kind": "file",
+    "sha256": "ef87ff2c82ca7fb5bbb13176a2e45d7f13acac43ed586a1584fbfa0938225a43",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/duplicate-name-input.xml",
+    "kind": "file",
+    "sha256": "38b32c23841d9459874b092eaaee32dd4a02df5b4cf47d4f16cc4c00913ae2d2",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/email_result.html",
+    "kind": "file",
+    "sha256": "8d3336e44aea7cca07d97439905f3684919b4f4d4c06575233e34ce94a868d89",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/email_thread.html",
+    "kind": "file",
+    "sha256": "18987ce4c1f85eb671261ce82e2cdf262f555d44966e5de368584689067d1603",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/error.html",
+    "kind": "file",
+    "sha256": "1edc791807e0620927ee1106d870584d2ffc863370da9b401f8fcf5c50af10db",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/explicit_web.html",
+    "kind": "file",
+    "sha256": "829f266d86644fc2a8de3497cf174c303271dcf2e9f834f227aad441d730ef8a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/footer.html",
+    "kind": "file",
+    "sha256": "265be96d36f4ea7631b5ce6b06d264cdc268d5d22f5a83653df8a596102b155e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/generated_resources_fr.xtb",
+    "kind": "file",
+    "sha256": "9f14ccb54839aac71efe595773f5cc0627e7997ed6a698f5340bef596ef9258c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/generated_resources_iw.xtb",
+    "kind": "file",
+    "sha256": "ec20054d3a6b76e6f76ac7474719975e9c227a854b6195205685a8262dfaee7a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/generated_resources_no.xtb",
+    "kind": "file",
+    "sha256": "8f942b166e1a3cde1f004b229bf9200b5a67ce93f2c44c9b57098c22e0a78124",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/grit_part.grdp",
+    "kind": "file",
+    "sha256": "17ce4940746016c501c4eba169208a25974ff5fd73d39146305008463b1fe856",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/header.html",
+    "kind": "file",
+    "sha256": "908bede8097f65d5c6826744bd2508438cff33be2b057cdee511367440b22e36",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/homepage.html",
+    "kind": "file",
+    "sha256": "58eb46a3e19fa1b51557d22c783d7f07d5e17238cf8c831ad15fc0b2eaf51470",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/hover.html",
+    "kind": "file",
+    "sha256": "0e9e90b4f9b513769efe648318761ade07f102805438928487594f64226e23b6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/include_test.html",
+    "kind": "file",
+    "sha256": "0fd7c24002bd431a79a99f140a2785d530c2d342de2486a9953dc6d96b240398",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/included_sample.html",
+    "kind": "file",
+    "sha256": "152fc5850de72d89131f01be524c109dbf3833ee196a4484c9eff6d525fa961c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/indexing_speed.html",
+    "kind": "file",
+    "sha256": "14d10646b075f7a229bbab067d8f31144f9f149e576014ae2e6f7beb22924ba5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/install_prefs.html",
+    "kind": "file",
+    "sha256": "c44dd840fda6b17294c4795302312cac6db9f91218ed609f953457c72ff443db",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/install_prefs2.html",
+    "kind": "file",
+    "sha256": "f6e3408a9e1bdc4c3a0db65b7f7a5788eaf02e1b6b8ba0a8feace903112c3458",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/klonk-alternate-skeleton.rc",
+    "kind": "file",
+    "sha256": "8aeb3d08911025449e249bd0eb6a8e8ddbef47741b38ce7d539b591af28d6c03",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/klonk.ico",
+    "kind": "file",
+    "sha256": "e058adce7207bbaebfd9b0fa12fb410afd13f473d12c02c827a5373b2a42070b",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/klonk.rc",
+    "kind": "file",
+    "sha256": "a7491ea3ac374e9162a58633de2bb8dbd852650f5f3650151e0c12a808ea3623",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/ko_oem_enable_bug.html",
+    "kind": "file",
+    "sha256": "ed2d76554e7d1d3da62fa97fb687d5207b9828dc9e56e93fa34ba89ce1b28d17",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/ko_oem_non_admin_bug.html",
+    "kind": "file",
+    "sha256": "3bc092f7b735002cf031def637dd10031b6a78da1c45681b28dd53a38f23adc2",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/mini.html",
+    "kind": "file",
+    "sha256": "7a8a6b553c0b546a292aa654ca6ec68b6075f0eff47dffff74f85660bf8ed061",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/oem_enable.html",
+    "kind": "file",
+    "sha256": "8d4c68d165d81a69e7bff1014878b4ed39733b5309d4386520e332f3c8013bd7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/oem_non_admin.html",
+    "kind": "file",
+    "sha256": "5784494a49954e0184520db97bd6f535b06de1a0ad9f8051ef3baaf07a368890",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/onebox.html",
+    "kind": "file",
+    "sha256": "ab737ef3ce6c47b72f9f44931fccdc36f85104c15601dbf15f830148367db4d9",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/oneclick.html",
+    "kind": "file",
+    "sha256": "155015d926c6f59ec85f61f1cf547864bc915aeea8a30fa7e94b6fe1ea388217",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/password.html",
+    "kind": "file",
+    "sha256": "656a3643324874ae40c484c3a3e8a9286261216271c0440fea23b31d219837a3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/preferences.html",
+    "kind": "file",
+    "sha256": "969ba797dae9ff64210c3a65337c4edb16a9a9c09af68ab80ab29e1026ed65b8",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/preprocess_test.html",
+    "kind": "file",
+    "sha256": "ad6503b254f93cff9f47493b310322b245960d8c3cdf715df463ba2c97af11a9",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/privacy.html",
+    "kind": "file",
+    "sha256": "8997b86525de67cd6a65a3ccd2462c416a96388a8999dd454822072ed5473da8",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/quit_apps.html",
+    "kind": "file",
+    "sha256": "f7141b09191ae78d3dbcc50884cb7fe39b503c9a7295d01f8894da350fefc746",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/recrawl.html",
+    "kind": "file",
+    "sha256": "01079688bbb1d1e1b9a1bbaea49b530c4517d86d0a58119b3010ac585b4f9f5a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/resource_ids",
+    "kind": "file",
+    "sha256": "b472ef25f1e7a1e3f002f912c730510c8fb4f74e41000c7910d05e6574b6b150",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/resources.pak",
+    "kind": "file",
+    "sha256": "d80767225b699477499f4492f57d019552596b1c8166e8a90b71151fc5bc02b4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/script.html",
+    "kind": "file",
+    "sha256": "487559cd966cf522683c9a6059babd3f163fc8f7c25ef9eb49df77e59b8e0a16",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/searchbox.html",
+    "kind": "file",
+    "sha256": "f46c7e95dd988f1564270a76ae7727f92970a89eebdfcf3449a5887d169b4d1d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/sidebar_h.html",
+    "kind": "file",
+    "sha256": "59c820fe27ed182fbd7aea444dcbfe43a2dd551a5fe088814a04c4ae70b98c01",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/sidebar_v.html",
+    "kind": "file",
+    "sha256": "f71a329514c879a5fb1ae3cd284d717aae03558ec4f829ab71dc8e7f3f2aa2fa",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/simple-input.xml",
+    "kind": "file",
+    "sha256": "248b93d7c7f8f84f96ceddd8d3ad847877b2db6e72024794ff91210448178024",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/simple.html",
+    "kind": "file",
+    "sha256": "e08535ed11df1b606d075bbb146542829c6c0cce0d7323d6a516a3f62ab9eb4f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/source.rc",
+    "kind": "file",
+    "sha256": "a26b01d55329ef8b367316e6118ea72696576285f13790a7826f8063593e09a1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/special_100_percent",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/special_100_percent/a.png",
+    "kind": "file",
+    "sha256": "03c3cd33649172c11bc862577924e63b04ab91971e30c7fe92820d005d64e00d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/status.html",
+    "kind": "file",
+    "sha256": "77c12f1b63bc30b562ceb1c86e8dc8b87957ec52f06ecbe83f8e96b9da945fc1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/structure_variables.html",
+    "kind": "file",
+    "sha256": "ae5b3e6e7752c9a54a9cc57aa369e77ff5a3eb040468c30b641654be6c56874d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/substitute.grd",
+    "kind": "file",
+    "sha256": "c5cbbb1998a4e0a76ed0048f4e415419a315f0d122ebf1f71aba90c63d5d2181",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/substitute.xmb",
+    "kind": "file",
+    "sha256": "363e5d8941808ba0d1d5290ace29a36fdf9cebd123cdd1d7f9ca809d5b3a59a4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/substitute_android.grd",
+    "kind": "file",
+    "sha256": "729f4768831f19b11a4103af03ce0f1f51721d021675c20333d15ccc1cb5a267",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/substitute_no_ids.grd",
+    "kind": "file",
+    "sha256": "fc3b971e1cdf16da8d51038dc48f60eea8d9e53f00adf3b77b3e0bb959c10ab5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/substitute_tmpl.grd",
+    "kind": "file",
+    "sha256": "8c7f3c4426ac24fd574624b4b957fc898d252fb9d9cd6ab0e084d06134095c88",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_css.css",
+    "kind": "file",
+    "sha256": "c21f3ac6b5f6e45b1c0b292bcd5cc806298ecb033bc7030a6071e3c894d73054",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_html.html",
+    "kind": "file",
+    "sha256": "c21f3ac6b5f6e45b1c0b292bcd5cc806298ecb033bc7030a6071e3c894d73054",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_js.js",
+    "kind": "file",
+    "sha256": "c21f3ac6b5f6e45b1c0b292bcd5cc806298ecb033bc7030a6071e3c894d73054",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_json.json",
+    "kind": "file",
+    "sha256": "4ecd56c202288e4bac663bc2417613b82264f97097163a8daed1ef3b4143aafd",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_svg.svg",
+    "kind": "file",
+    "sha256": "c21f3ac6b5f6e45b1c0b292bcd5cc806298ecb033bc7030a6071e3c894d73054",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/test_text.txt",
+    "kind": "file",
+    "sha256": "c21f3ac6b5f6e45b1c0b292bcd5cc806298ecb033bc7030a6071e3c894d73054",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/time_related.html",
+    "kind": "file",
+    "sha256": "e47543cdbae504fd128915af48d675d19bbf569ab3ed43ad538cac83405c41fe",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/toolbar_about.html",
+    "kind": "file",
+    "sha256": "0bb7c5994cb777d487e44d30defec7ed5400cc205cdec42dd0e8ee7597bf07e6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/tools",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/tools/grit",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/tools/grit/resource_ids",
+    "kind": "file",
+    "sha256": "6c43d64047dc174e5cf85ce1bd84f49a7f0b789b135fe3ada8d0cd0d5458916f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/tools/grit/resource_ids_for_overflow_test",
+    "kind": "file",
+    "sha256": "34a209d40c6ef57991dff4fb882b367f367d92c7f4d8375a3f56067dce7db333",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/transl.rc",
+    "kind": "file",
+    "sha256": "f130c034575186fab2948ef49de3c7ffd85385f5f81f7e58e803c568ea67d862",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/testdata/versions.html",
+    "kind": "file",
+    "sha256": "ca7cf106511bc4b5c735781dd844b51288f6f8c125b7c612a2d9a3f1abd66b7f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/__init__.py",
+    "kind": "file",
+    "sha256": "7ad077bb8d94ccc4f3a7f2b7546532aac1841dac9688cda63427538150233548",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/android2grd.py",
+    "kind": "file",
+    "sha256": "a6147b8d13fc04b1635d226433948dc14b578d5003657a87f337161415bb48f6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/android2grd_unittest.py",
+    "kind": "file",
+    "sha256": "550865361b65bb31432fbf45780a89fcf3151b35613bf943008b21925a9e0672",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/build.py",
+    "kind": "file",
+    "sha256": "bb29b97316d6a8232a694475cf53f4d503e9622c4f9db7164c5b63b222f21f46",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/build_unittest.py",
+    "kind": "file",
+    "sha256": "f0ff2dcd61aad7389fd0f42af7fd9af9036cc33359bd75c899d692674979eb95",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/buildinfo.py",
+    "kind": "file",
+    "sha256": "2e3c0efd620d28ddf7838f3f024293402a61ef8a73c8225a7725a53f62b4548f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/buildinfo_unittest.py",
+    "kind": "file",
+    "sha256": "4c1e0a3fcd7ae529ce2d2bab9d47036a6aaacc0aac7bb42cec2057e0f5bafa10",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/count.py",
+    "kind": "file",
+    "sha256": "93d7839604b90b754d4d155158c8eedeb2e8efec1bc69c10bbef3bdb28a62ae4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/diff_structures.py",
+    "kind": "file",
+    "sha256": "63b4b733e56aaa4c9b060366083e0148e187b13a8a52552517e3bebc5c4c5636",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/diff_structures_unittest.py",
+    "kind": "file",
+    "sha256": "eef53105acf1b329c1357250ecafff9c7b06d40350eb8969b2992353727126f4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/interface.py",
+    "kind": "file",
+    "sha256": "6dcfc2fabb6eb7f5d816edd58657c1ac6f83f5300f9fce9a393222408dd74780",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/menu_from_parts.py",
+    "kind": "file",
+    "sha256": "3422aa2011634d2c56e24f6de96e9764da3e702a78630e0f9d1770c7126ca380",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/newgrd.py",
+    "kind": "file",
+    "sha256": "fd2a1f428d7121bda11ae16aef05f56fd7668fae8452473a9e4e7b30dab780bf",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/newgrd_unittest.py",
+    "kind": "file",
+    "sha256": "9a013ed1f2e36abf641501636e74da6d3162acd3d1b8f00572b9e4746d9bd137",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/postprocess_interface.py",
+    "kind": "file",
+    "sha256": "54d553ed3628c3c239d367cac93ac34bd4620ed544da427a5e582ee78f16fa7f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/postprocess_unittest.py",
+    "kind": "file",
+    "sha256": "4bae14e703454417c7458600404880886f520abe43a23786a1188912c927ced5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/preprocess_interface.py",
+    "kind": "file",
+    "sha256": "5afaa20c6cfc9cd0d825744afb3bcb3552fb3cbab3ed3d355fc770e75536e5f5",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/preprocess_unittest.py",
+    "kind": "file",
+    "sha256": "7857650a40fddc9bd44a4471ebaf0d646589f03ccad76e0c643fd1cd1957513a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/rc2grd.py",
+    "kind": "file",
+    "sha256": "c70e95336d996329130ae31cd1b1e45328a5a4377c0b19f8156087ba51bf7c71",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/rc2grd_unittest.py",
+    "kind": "file",
+    "sha256": "4b72623de4128debd7b0d74d097c1e1cfbc6abe0fee5abdacf9c95217b31f76e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/resize.py",
+    "kind": "file",
+    "sha256": "86bfb2006079bc8189533ec2947572271e83a18560e722186ba9fd86d31d790f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/test.py",
+    "kind": "file",
+    "sha256": "f2c9e1338b524d5c3842c2b21160ef62d5fb792fdcb42105cf94117c25c505e4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/transl2tc.py",
+    "kind": "file",
+    "sha256": "87578ef116a8b944efb42f70782ef10931b2788171c1bdbc28377e8d84354232",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/transl2tc_unittest.py",
+    "kind": "file",
+    "sha256": "584f2e7122ee1dbb7a3573b2b50208fe6d1d0cc6e21aca9a344287df7f27f6a4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/unit.py",
+    "kind": "file",
+    "sha256": "e14625d169b7020104a2cc61b00c27b0c0f3033ff376954b80eeb21b23773eac",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/__init__.py",
+    "kind": "file",
+    "sha256": "fe202e3c86e4b86165ace407a17829da9927da0593aba21c80e298bcf5796300",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/assigner.py",
+    "kind": "file",
+    "sha256": "b3bb31e9d91cda351ef6e79f52a970678fe40d94aa8699421c73104cda331ead",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/assigner_unittest.py",
+    "kind": "file",
+    "sha256": "dbb545b48a57a9d9315adb72aadd2677a07170981cd92bdc4ad68668cfdbff93",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/common.py",
+    "kind": "file",
+    "sha256": "484589d87c4eeabcc76146b26a7b7720ce9825085bf3a95c7a02624b5b6a406c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/parser.py",
+    "kind": "file",
+    "sha256": "259ce5f50e20ff9485776fd56a8187cdd5a16ef750af36f8a1dd1a0971ac87d6",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/update_resource_ids/reader.py",
+    "kind": "file",
+    "sha256": "05917750d4de825754b8670941548ee736eecf2c80a4b985a39449ecb9d7e265",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/xmb.py",
+    "kind": "file",
+    "sha256": "9788634940a97d1d64d33a48a892cb36f96205276f124f58357e9844e55b2b82",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/tool/xmb_unittest.py",
+    "kind": "file",
+    "sha256": "f91297bce8869dfe28dfc34bf763e3924cb206cb11955d3d914535994ab60180",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/util.py",
+    "kind": "file",
+    "sha256": "d42918ecaa11d6d60f6f885abf3e2ab4bb54961b635eab33e4d8d11be0e3768d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/util_unittest.py",
+    "kind": "file",
+    "sha256": "9812723c509a03b42d24ecb1950a47d73c24ef205fb8af0d078d9556274ce3c4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/xtb_reader.py",
+    "kind": "file",
+    "sha256": "423607d8efa8339e1f9e9485054f8b42e15247276a77984c2090762aa01177ed",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/xtb_reader_unittest.py",
+    "kind": "file",
+    "sha256": "2dcd1bd6c51ac898ddd621be6e821adf52fbe784301f69e1e9db12da19c333e7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit/zip_helpers.py",
+    "kind": "file",
+    "sha256": "14bfdf24eae87d7fc9d0c001945acbbba172fb8bf012a267a561db06908cc475",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit_args.gni",
+    "kind": "file",
+    "sha256": "e3e7b4cf51aea6caa044d59ddacf6b164c56eefe279e637e0712aa9fec318900",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit_info.py",
+    "kind": "file",
+    "sha256": "71e5cbdcf8a88b4ea1555005d155f8b6a03f94476bf897eb602a4147580e98f8",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit_info.pydeps",
+    "kind": "file",
+    "sha256": "fc8219237fc1f02be4671693d2b4fe788a97dca3c22cffee853a90fa645b596d",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/grit_rule.gni",
+    "kind": "file",
+    "sha256": "7b342e060e8274a8ee750238b1e105737684eda26f9d22d249fad4f34be41b2e",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/minimize_css.py",
+    "kind": "file",
+    "sha256": "d28729f41d857a6f40306c5fa9e5d4a054059ce2a2bd4f96fcefc27e1aa83d86",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/minimize_css_unittest.py",
+    "kind": "file",
+    "sha256": "ebfeb4eeb3bf9bef314df6a10e0e5bd4601621e40d4ca359beae38ef25188d85",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/pak_util.py",
+    "kind": "file",
+    "sha256": "45071a62d5e2d346842b3cef2297a0e9e2062d334d2e2941ed05bfeafb636fb1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/pak_util.pydeps",
+    "kind": "file",
+    "sha256": "2b1e2f7255817a88ca26859ab3fdbaced006a7c994787e73124dcc4a7b0f7934",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/pak_util_unittest.py",
+    "kind": "file",
+    "sha256": "146ef1b0be3ff1cdfec5dde81a0138be4bf3a9519ead2088355f5a634747ddf4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_if_expr.gni",
+    "kind": "file",
+    "sha256": "ad280a31f6a651130a314f5471775f522b3c409da2df8df2c54e6cec1268dcb8",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_if_expr.py",
+    "kind": "file",
+    "sha256": "bca22df81095d658ec32df8ab2470caa95b95db605f028f694b6f00210e41b13",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_if_expr.pydeps",
+    "kind": "file",
+    "sha256": "93f7f5a74005b2815b603ae69d621f7e78d81d9e22cd7eb2a99070de7da8a8f0",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_if_expr_test.py",
+    "kind": "file",
+    "sha256": "de746b3d64a826dc8db5d5fd0b84fc4a806914cc0350b0b8d1c58693fdd1943c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests",
+    "kind": "dir",
+    "sha256": null,
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr.html",
+    "kind": "file",
+    "sha256": "73652d0850591898049095de02217dc8b650a7ae249eb84e67053a87fdc92afe",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr.html.js",
+    "kind": "file",
+    "sha256": "8b57e002d792fe75b631c100e14f14065e60e09190fd7d88070ac2705e1d062a",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr.html.ts",
+    "kind": "file",
+    "sha256": "c949e8049220c57a3974a97d041206ee1415a6a3fcdc67167fdc5aa7a5ded822",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr.js",
+    "kind": "file",
+    "sha256": "36413ddded6228de6bb4c09500de7c990798dc85e81050b30ffd3762472cecee",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr.ts",
+    "kind": "file",
+    "sha256": "f2cf34f1613992ad0cfb411d6398c1d0d74f6aa7fff6fc6b5a62d33bb44dbec2",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected.html",
+    "kind": "file",
+    "sha256": "79c9e113e0e23ddd2bebe6948f15b6029d5e38562b7d1e54734e1a44821510f4",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected.html.js",
+    "kind": "file",
+    "sha256": "8f6762e830e152b55bc99e16fa6e76dac1aeada6025bfd4d1cbe95c278e32fb1",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected.html.ts",
+    "kind": "file",
+    "sha256": "da33fcc71c049079c27bccaa214a2a2740d5cc5be5c84ac3f82ceb674f444c1c",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected.js",
+    "kind": "file",
+    "sha256": "a93e22650dad198e63582adec695ba897bc2a8f85d4d43eb86e41777ea8f3ce3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected.ts",
+    "kind": "file",
+    "sha256": "7ea07f16190d62a9a8d8eb61f101392713d1a013f91d839c3f2af5273ec4592f",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/preprocess_tests/test_with_ifexpr_expected_comments.js",
+    "kind": "file",
+    "sha256": "62daf46d2cb1c0ce5657176ade31f78fa6fa0511e3f44f61fc6b36d6ec90d598",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/repack.gni",
+    "kind": "file",
+    "sha256": "e92bbc18957bd828cf431d2807d0225b05f6be0fc884005cfb53e1bfd37b89b7",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/setup.py",
+    "kind": "file",
+    "sha256": "0c52315c6afd6ac5994d19c97eadfc03eefbc7482ec83956bfc0831976601ed3",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/stamp_grit_sources.py",
+    "kind": "file",
+    "sha256": "135c89674a244db0cbb57d5c4724a1cd9ff873972efbcbe40805220a926a3358",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  },
+  {
+    "path": "src/tools/grit/xtb_util.py",
+    "kind": "file",
+    "sha256": "304606be397a3d57cc2c0a1ebf42dc9a17925151256c6cc249fead1d338dc6fa",
+    "source": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz"
+  }
+]

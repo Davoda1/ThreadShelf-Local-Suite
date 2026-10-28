@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "checks": 11,
+  "scope": "Explicit-or-later, fixed-version, Mozilla alternatives, non-header references, SPDX handling, real pinned base64.cc exception, and end-to-end archive filtering of wrapped grants versus quoted code references."
+}

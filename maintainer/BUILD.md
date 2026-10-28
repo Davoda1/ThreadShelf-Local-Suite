@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds unreleased **1.3.0 candidates** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds **1.3.0 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -86,28 +86,25 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [current release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.2.0) supplies the suite Source archive. The historical [shared source downloads](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) supply `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz`, and **every numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` part. These 1.0.0 companions do not cover the Electron 45.1.0 candidate. See [candidate source preparation](runtime-sources-1.3.0.json); a complete matching mirror must pass verification before publication. The ordinary application packagers use the official pinned Electron binaries; rebuilding the runtime is a separate workflow.
+The [1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0) supplies the exact tagged suite source, six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
 
-The runtime parts mirror the complete pinned Electron/Chromium Git dependency trees selected for Linux x64 and Windows x64, including recursive dependencies, runtime JavaScript package sources, source-bearing build packages, Rust standard-library and vendored sources, and exact Linux, Windows and V8 optimization profiles. The source manifest and dependency-condition audit record coverage and separately obtained build tools and SDKs. A compiler, platform SDK, normal build utilities and package-manager installation remain necessary.
+Verify all downloaded assets against their original release's `SHA256SUM.txt`. Keep numbered source ZIPs together and extract only the metadata ZIPs into a separate directory. Both use the `source-publication/` namespace. The ordinary application packagers use official pinned Electron/ONNX binaries; rebuilding those dependencies is separate.
 
-Verify each downloaded part against the release's `SHA256SUM.txt`, then extract every part into the same parent directory. They merge into `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources/`. From that directory, use Python 3 to verify the inner archives:
-
-```sh
-python assemble-runtime-sources.py
-```
-
-To assemble an inspectable tree and apply Electron's original ordered patches, choose a new, empty destination:
+Verify the original source collections without downloading or executing upstream build hooks:
 
 ```sh
-python assemble-runtime-sources.py --destination ../electron-source --apply-patches
+python source-publication/assemble-runtime-sources.py --manifest source-publication/final-runtime/SOURCE-MANIFEST.json --parts-dir /path/to/source-parts
+python source-publication/onnx/assemble-onnx-sources.py --manifest source-publication/onnx/ONNX-COLLECTION-MANIFEST.json --parts-dir /path/to/source-parts
 ```
 
-Assembly also requires Git and considerable disk space. The helper verifies and extracts sources; it does not download, execute or compile them. Read the mirror's `README.md` and `SOURCE-MANIFEST.json`, then follow [runtime source access and rebuilding](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md). Preserve both companions and the suite Source archive with redistributed binaries.
+To extract runtime source and apply Electron's ordered patches, add `--destination /path/to/new-runtime-tree --apply-patches` to the first command. For original ONNX source extraction, add `--destination /path/to/new-onnx-tree` to the second; its upstream recipes apply the appropriate platform-specific patches. Python 3.10+, original symlink support and substantial free space are required; runtime patch application also needs Git.
+
+The manifests preserve the selected Linux/Windows Git dependency union, source-bearing supplemental material, Rust library/vendor sources, compiler-runtime source references, exact optimization profiles, ONNX active CMake/vcpkg dependencies, and source/configuration provenance. Compilers, platform SDKs and normal build utilities remain external prerequisites. Read [source verification](RUNTIME-SOURCE-PREPARATION.md), [runtime source access](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) and [ONNX source access](../apps/reader/licenses/ONNX-SOURCE-ACCESS.md) for precise scope and limits. No complete runtime rebuild or byte-identical binary reproduction is claimed.
 
 ## What to preserve
 
 - `package-lock.json`, runtime pins and official runtime checksum verification.
-- Bundled fonts, renderer libraries, codecs, notices, the suite Source archive, the Native-Sources companion and every Runtime-Sources part.
+- Bundled fonts, renderer libraries, codecs, notices, the suite Source archive, the scoped Native-Sources companion, every Runtime/ONNX source part and both metadata ZIPs.
 - Windows EXE at the portable ZIP root.
 - Linux `bin/` or `/usr/bin/` links resolving directly to the native executable.
 - Correct native executable permissions and DEB sandbox-helper mode.

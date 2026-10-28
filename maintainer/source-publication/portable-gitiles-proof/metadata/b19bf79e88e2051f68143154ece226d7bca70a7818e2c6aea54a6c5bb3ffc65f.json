@@ -1,0 +1,131 @@
+{
+  "id": "7f36618f5faf1150e9fdd9c0022da902718744e8",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e127a1effd1ab328ea8b17f1f70760c55ad1c4fc",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a9bddf9836f2603e87218e2a5300810675687d9f",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8f3a41fa07d7bd53af02b7de73808570a481ceeb",
+      "name": ".npmignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "44b8e90381a1601e31ab8f9058fff48f721c97f3",
+      "name": ".prettierrc.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f5c879aab8fef6025dde3f33d705748bb31e52cb",
+      "name": ".release-it.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "80eb285783fcea5141c5f222e359e2b428d944af",
+      "name": ".taskcluster.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "57ebee35a688447320bc95378682ede6f71d3e5f",
+      "name": "CHANGELOG.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "498baa3fb0f09a2042d2c8657b67fc7832cc2c30",
+      "name": "CODE_OF_CONDUCT.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9f190b443dbf34b1b9a41aa551fa0bea6a6d2712",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e93c020259f3c06ce618b5f765c269c1d50544a1",
+      "name": "JSDOMParser.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ca8e58b203b6d96bca8a838b1104496e32dab70d",
+      "name": "LICENSE.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c1fbc833212f6da0144576d0411aae58ca499fd3",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa24803c0b10843638f436b49ee1c2fb4e258d9d",
+      "name": "Readability-readerable.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5cff4540c63fa2dd1471804ac7c919bd988638ce",
+      "name": "Readability.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d68d74d0c329768a400ccb9b20751a541c176cf5",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b3d8b216cca90502bad58dc4f017e513953aca1c",
+      "name": "eslint.config.mjs"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7ad8dd5816a93c5e75bc141aba6c71249c75bb9e",
+      "name": "index.d.ts"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9d2c528a285fa25281e7c85b50885e529087a860",
+      "name": "index.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3321aa7dcdd025a0571ddf404547945456df0bbc",
+      "name": "package-lock.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f4f86c932637d6148c31588e16f52660bbc5dda1",
+      "name": "package.json"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3b81ecc2cbd99bf5668c836d34767326ef4cb048",
+      "name": "test"
+    }
+  ]
+}

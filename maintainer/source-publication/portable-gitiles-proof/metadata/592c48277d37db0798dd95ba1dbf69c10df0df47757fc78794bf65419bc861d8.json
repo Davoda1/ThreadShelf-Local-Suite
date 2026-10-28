@@ -1,0 +1,215 @@
+{
+  "id": "b4dcae4b0dd13df800d5ad5a0778e048867bf409",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e0fc85315d53bab013e88f58134b29075da6393d",
+      "name": ".editorconfig"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "703111435ec39f2e4c372a703eb6de64cbb2c7ea",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f1dad315ea0c8e9c04cca3ab06d81cce2071818d",
+      "name": ".gitlab-ci.yml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b99061568c6da3a4552b16f5e7966a96f04266e1",
+      "name": ".gitlab-ci"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bdb791e72a11b2715f0b02257e505e9e57ba3115",
+      "name": ".mailmap"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dc58f1c0be8be0b259660b14eb07f3bc01d1da4e",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "faefd8f496e1062d793df4acfd9b08c4661c6328",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8201f992154a14a7fcd95a5937d5c40c610990c9",
+      "name": "DCO-1.1.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9a93434e20f64324bcaf66bee3bde5b918910cf4",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e0305ffd7148193dc544537357cce353f792ef35",
+      "name": "clients"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4150bd24d20ec7d0344adbed2e5b71883a4c1040",
+      "name": "compositor"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a711c19a685259e018d2597412f0011f7677ce19",
+      "name": "data"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cce25c8d012ce634c8a508a3de6ad54051634eed",
+      "name": "desktop-shell"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0cd47cba79a2be493f2ec3376da446f25be3112e",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6633ff1618045ee8ed3ee11115f6662bee3a949f",
+      "name": "fullscreen-shell"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3f42678a2ddc04d9f3389b0fab460ff160f0723e",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e7435861ae2a2e94ec05ae5f8d7028a2acb6a44b",
+      "name": "ivi-shell"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a3afa98af64eb8b8c7b7fda0215b5b6f7cce5d74",
+      "name": "kiosk-shell"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f54624d60cb4a5864758160c8f4507b99a1062a7",
+      "name": "libweston"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ce0602a10217823b43ce5a7546a849d760457435",
+      "name": "man"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "132185e0aab849789e67eacbda2178f93b968a4e",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e132be9eede5418d380ce069ea5f6052db5bc03f",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7a755f5ece8a617115b4edae98d95e963cd2c852",
+      "name": "notes.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b29877d9a8e1f9dc629b0e8f8772ceb4856c52dc",
+      "name": "pam"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "47b1ce2a5a20453fe317ce0f214d29f3506de059",
+      "name": "pipewire"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cb610831953062ab0340c09160335fc5295c0e42",
+      "name": "protocol"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "deae784f459e3d08a4195a79bf83c5ade5477dbd",
+      "name": "releasing.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6bf0bb6ef10cb1b9f519274f021fdf047bb6c1a3",
+      "name": "remoting"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "30cb1d5478d8cec6ae4fe1a21ea1ef51917ea7c0",
+      "name": "shared"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "90488be387417be588fb1bde852918f11d8bfd3f",
+      "name": "subprojects"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cdd4c67ccfeb691e5413cf686a0bb97001796d29",
+      "name": "tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8f5ded50c4af86707cec677c0339d0207fd44582",
+      "name": "tools"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ebb2c8b8887fe233c3dc0664bf5662b1387ec12c",
+      "name": "wcap"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d3180ccec90d2a74d48012b111f525e879203226",
+      "name": "weston.ini.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "09760edb604218e346f167dfe8793d8937cd58ee",
+      "name": "xwayland"
+    }
+  ]
+}

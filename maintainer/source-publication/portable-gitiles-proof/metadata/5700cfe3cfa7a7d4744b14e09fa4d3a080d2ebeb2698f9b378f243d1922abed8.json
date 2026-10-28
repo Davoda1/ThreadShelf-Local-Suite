@@ -1,0 +1,101 @@
+{
+  "id": "ce521686cebf9ad1a078f3a8afe81f431a858354",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0f9c8d957144998c1db116da12c7bffdd7329c66",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3fdd4a9d46f25655bf9923aa2c91aa52edbb2bc9",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "849ddff3b7ec917b5f4563e9a6d3ea63ea512a70",
+      "name": ".prettierignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "024ebd62b531cf67ffceb8bc1c9dd2b05726a078",
+      "name": ".prettierrc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3b65e1493d819728f4ccf2f08f608f7ee6a69f8d",
+      "name": "CODE_OF_CONDUCT.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "22b241cb732cc4ff325263263cd603784d580eb7",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "23843782780f91fbd73b5947d47adc7f3b8170be",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a7c3ab9db8302c2fa363de98bb4f6c31ebe61852",
+      "name": "demo"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "58cb8eb8641fe9c1151b0e234eeb505b8b5a9898",
+      "name": "eslint.config.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e902f8decfcf3a57ab2642430eed2e3785c8402d",
+      "name": "karma.conf.cjs"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b38fbee1c8cc123beee0fc3489c2d5548c12e32a",
+      "name": "package-lock.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1469e91dbd1d7445207071c8a46f0979bef5811f",
+      "name": "package.json"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a04ad68045d835f2dd2445abe9979261429c9586",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "88b5ac9fbb682391fbe750b4ed4b8d2a12d1d69d",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7cdaed83c89d215021e636a4bd3e10680978681c",
+      "name": "tools"
+    }
+  ]
+}

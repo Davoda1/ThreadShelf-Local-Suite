@@ -1,0 +1,95 @@
+{
+  "id": "8de2c11aa592e981680c7474f9e858814020acae",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "be9b80799fa0244e283f8e0a072498dc373a43de",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa6757c6f36413b987db6af737b140e0360030c1",
+      "name": ".clang_complete"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ab5382921b51658b31a22d643ae254e21a83d939",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c1cb671e1a5bf8c3d14d8bed6ee4f67eac718f4d",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "888541f40767c5ba60c12f214c940544e98364d8",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "62daa8a4acf6d31d1e605360cc5996b875cc35e1",
+      "name": ".ycm_extra_conf.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ef9b4ea933e05e51decd7bb721e392256a5cf487",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e75211ff7b44779c80347f17b8e6bf492b7cd29d",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ae319c70aca8c8b148045aa1fd0c3ecfae85cb8a",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c6b8fc791348f95e7f37b5120cc85aa0ea4de17c",
+      "name": "Crc32cConfig.cmake.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8c8735cf123cee0e410583fe9af785cb424b835b",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bb64baed2e0f430033a71fdced60d503ed9e3791",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b0e59f8c1d772a4ce8ca6411449a9c38e7173337",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ca7269f1ff316f44b9b4d0a7ac1dd6650cc55936",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0a6e525c8ba9a24e769e4c11aaf80cde9db81e9a",
+      "name": "third_party"
+    }
+  ]
+}

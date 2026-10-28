@@ -1,0 +1,24 @@
+{
+  "repository": "https://chromium.googlesource.com/external/search_engines_data.git",
+  "revision": "5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c",
+  "transport": "Git smart HTTPS via official same repository URL",
+  "depth": 1,
+  "tags": false,
+  "recurse_submodules": false,
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "elapsed_seconds": 5.251,
+  "fetched_revision": "5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c",
+  "retrieval_method": "git-smart-http",
+  "fsck": {
+    "exit_code": 0,
+    "stdout": "dangling commit 5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c\n",
+    "stderr": "notice: HEAD points to an unborn branch (master)\nnotice: No default references\n",
+    "object_store_bytes": 10453
+  },
+  "source_archive_sha256": "3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727",
+  "source_archive_bytes": 7961,
+  "archive_method": "Deterministic tar.gz of every full Git tree entry and exact cat-file blob byte sequence; executable modes and symlink targets preserved; no export-ignore filtering or upstream code execution.",
+  "root_git_tree": "d730002eeda3425fe70c59aedffa9942888128d8"
+}

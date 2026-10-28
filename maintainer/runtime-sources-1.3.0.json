@@ -4,9 +4,9 @@
   "electron_version": "45.1.0",
   "chromium_version": "156.0.8078.49",
   "embedded_node_version": "24.22.1",
-  "complete_runtime_mirror": false,
+  "complete_runtime_mirror": true,
   "publication_ready": false,
-  "scope": "Pinned source seeds and source-provenance inputs only; NOT a replacement for the complete matching runtime/native source companions.",
+  "scope": "Complete selected Electron 45.1.0 Linux x64/Windows x64 source collection. This committed inventory records collection verification; final tagged asset availability is checked separately in the external release verification report.",
   "source_seeds": [
     {
       "id": "electron",
@@ -121,14 +121,8 @@
     }
   ],
   "outstanding_requirements": [
-    "Resolve and classify the complete recursive DEPS graph for separate Linux x64 and Windows x64 configurations.",
-    "Mirror and hash every enabled Git source tree, including V8 and all recursively selected dependencies.",
-    "Preserve source-bearing CIPD/build inputs, runtime JavaScript sources, Rust standard-library sources and exact compiler-runtime sources.",
-    "Download and verify matching release optimization profiles and any remaining release build data.",
-    "Refresh FFmpeg/Blink/Mozilla scoped source materials and review the per-file license-selection index for this exact Chromium revision.",
-    "Verify archive contents, complete assembly and ordered patch application; record evidence and limitations.",
-    "Create complete source companions, independent numbered parts if needed, manifests and one release-level SHA256SUM.txt.",
-    "Validate equivalent source availability beside the matching binary downloads before publication."
+    "Run the complete source publication verifier against the exact tagged commit, external final asset ledger and fresh release/historical GitHub API snapshots.",
+    "Require final merged/tagged application and native package checks, exact tagged source snapshots, privacy/artifact review and the release-wide checksum before publishing."
   ],
   "historical_mirror_reference": {
     "electron_version": "44.9.1",
@@ -140,5 +134,36 @@
     "native_companion_bytes": 625292648,
     "source_archive_count": 208,
     "note": "Measured from existing v1.0.0 release manifests; a capacity baseline, not a size claim or matching source set for45.1.0."
+  },
+  "source_companion": {
+    "status": "complete-original-source-collection-verified",
+    "source_archives": 186,
+    "selected_git_trees": 179,
+    "supplemental_archives": 6,
+    "release_profile_archives": 1,
+    "indexed_entries": 1169803,
+    "regular_source_bytes": 17550756264,
+    "ordered_patch_applications": 257,
+    "logical_inventory_sha256": "e931d591d3338266fb310d60aa507fb56a1b424500f37a1fec838d4f21926740",
+    "manifest": {
+      "file": "source-publication/final-runtime/SOURCE-MANIFEST.json",
+      "bytes": 305289,
+      "sha256": "3e02f341f5407a414f30625a828f7832ce8b02f7eb90ae3ec31e7f38a0721e9e"
+    },
+    "assembly": {
+      "file": "source-publication/final-runtime/RUNTIME-ASSEMBLY.json",
+      "bytes": 294766,
+      "sha256": "ede471296d65d77d5d3b91c9bd7fefa571e09fb659824b435809657a21f8251a"
+    },
+    "source_parts": [
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip"
+    ],
+    "metadata": "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-Metadata.zip",
+    "scope": "Exact original source identities, complete logical assembly and ordered patches checked on all touched source paths. Full simultaneous source extraction, native compilation and byte-identical binary reproduction are not claimed; compilers and platform SDKs remain external. Historical incomplete part snapshots are superseded only by the complete canonical manifest."
   }
 }

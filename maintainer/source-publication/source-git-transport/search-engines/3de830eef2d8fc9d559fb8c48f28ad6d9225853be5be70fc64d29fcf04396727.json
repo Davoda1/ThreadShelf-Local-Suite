@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "archive": "src__third_party__search_engines_data__resources-5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c.tar.gz",
+  "archive_bytes": 7961,
+  "archive_sha256": "3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727",
+  "revision": "5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c",
+  "repository": "https://chromium.googlesource.com/external/search_engines_data.git",
+  "root_git_tree": "d730002eeda3425fe70c59aedffa9942888128d8",
+  "blob_count": 2,
+  "git_tree_count": 2,
+  "member_count": 3,
+  "regular_file_bytes": 70185,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 2
+  },
+  "source_blob_inventory_sha256": "4e197988cfd6ae04701ed7dc1c985a445fa58f8e8b93bbf16ccbeb3e5f2d3b0e",
+  "archive_mtime_range": [
+    0,
+    0
+  ],
+  "metadata": [],
+  "scope": "Exact same-repository pinned Git commit object plus complete independently reconstructed source blob/tree inventory. Git smart HTTPS used because Gitiles archive export did not serve the required commit; no historical revision substitution.",
+  "source_inventory": {
+    "file": "inventories/3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727.jsonl.gz",
+    "bytes": 563,
+    "sha256": "4e8fd0314f1b50ffd6878c2c66ba9b480cc6a214287a6a9912c979f68ca78693",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 1248,
+    "jsonl_sha256": "13cc402f3a38b558709a0e013b10582a057c80fa0f60261e5e64b9f4f97efced",
+    "records": 5,
+    "storage": "metadata"
+  },
+  "source_identity_method": "git-commit-object",
+  "commit_object": {
+    "file": "metadata/5dc9f1afd38a8ac2b26b1972eb4fc1bbd5754e8c.commit",
+    "bytes": 329,
+    "sha256": "932720e8da8e4e787630de9f2bd9abc8e04c291726f93a847498feeb2f59cf30"
+  },
+  "retrieval_receipt": {
+    "file": "metadata/retrieval.json",
+    "bytes": 1003,
+    "sha256": "b0297c4acee64a5579756ecf2c4a0fc5976d89eb7f584716c538499f22d10ebb"
+  }
+}

@@ -21,6 +21,17 @@ jobs:
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Repository hygiene
         run: python3 tools/check-public-tree.py
+      - name: Source companion integrity and assembly regressions
+        run: |
+          python3 maintainer/test-verify-release-sources.py
+          python3 maintainer/test-verify-native-source-scope.py
+          python3 maintainer/source-publication/test-source-parts.py
+          python3 maintainer/source-publication/test-ordered-patches.py
+          python3 maintainer/source-publication/test-offline-assembler.py
+          python3 maintainer/source-publication/test-stream-runtime-sources.py
+          python3 maintainer/source-publication/test-source-symlinks.py
+          python3 maintainer/source-publication/test-patch-inputs.py
+          python3 maintainer/source-publication/test-release-profiles.py
       - name: Managed npm integrity and security regressions
         run: node --test tools/tests/npm-toolchain.test.mjs
       - name: Offline diagram dependency and security regressions

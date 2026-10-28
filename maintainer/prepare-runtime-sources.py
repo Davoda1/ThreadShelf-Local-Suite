@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify pinned provenance and prepare source seeds; never claim a complete mirror.
+"""Verify pinned seed provenance or delegate complete source/publication checks.
 
 This downloader does not evaluate upstream DEPS, execute hooks, extract archives,
 or infer that four top-level repositories cover the recursive runtime graph.
@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import shutil
+import subprocess
 import sys
 import tarfile
 import urllib.parse
@@ -124,12 +125,35 @@ def main():
     parser.add_argument('--output', type=Path, help='Required with --download; keep source archives outside the checkout')
     parser.add_argument('--reserve-gib', type=float, default=4, help='Free disk space to preserve during downloads')
     parser.add_argument('--max-archive-gib', type=float, default=2, help='Maximum compressed bytes per archive')
-    parser.add_argument('--publication-check', action='store_true', help='Fail while the complete matching mirror is pending')
+    parser.add_argument('--publication-check', action='store_true', help='Run the complete source/publication verifier with explicit final evidence')
+    parser.add_argument('--metadata-dir', type=Path)
+    parser.add_argument('--parts-dir', type=Path)
+    parser.add_argument('--asset-ledger', type=Path)
+    parser.add_argument('--remote-snapshot', type=Path)
+    parser.add_argument('--historical-snapshot', type=Path)
+    parser.add_argument('--release-id', type=int)
+    parser.add_argument('--tag')
+    parser.add_argument('--commit')
     args = parser.parse_args()
+    if args.publication_check:
+        required = ('metadata_dir', 'asset_ledger', 'remote_snapshot', 'historical_snapshot',
+                    'release_id', 'tag', 'commit')
+        if args.download or any(getattr(args, name) is None for name in required):
+            parser.error('--publication-check requires --metadata-dir, --asset-ledger, --remote-snapshot, '
+                         '--historical-snapshot, --release-id, --tag and --commit; do not combine with --download')
+        command = [sys.executable, str(Path(__file__).with_name('verify-release-sources.py')),
+                   '--bundle', str(Path(__file__).with_name('PUBLICATION-SOURCE-INPUTS.json'))]
+        for name in (*required, 'parts_dir'):
+            value = getattr(args, name)
+            if value is not None:
+                command.extend(['--' + name.replace('_', '-'), str(value)])
+        return subprocess.run(command, check=False).returncode
     manifest = json.loads(args.manifest.read_text())
     verify_inputs(args.manifest, manifest)
     report = {'electron': manifest['electron_version'], 'provenance_inputs_verified': True,
-              'complete_runtime_mirror': False, 'publication_ready': False,
+              'scope': 'Pinned seed provenance only; use verify-release-sources.py for complete collection verification.',
+              'complete_runtime_mirror_recorded': manifest.get('complete_runtime_mirror', False),
+              'publication_ready': False,
               'outstanding': manifest['outstanding_requirements']}
     if args.download:
         if args.output is None:
@@ -145,8 +169,6 @@ def main():
                                             int(args.max_archive_gib * 1024**3)) for item in seeds]
         (args.output / 'PREPARATION-STATUS.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2))
-    if args.publication_check:
-        return 1
     return 0
 
 

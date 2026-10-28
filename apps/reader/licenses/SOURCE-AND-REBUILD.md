@@ -8,10 +8,10 @@ as the separate release asset
 The release `SHA256SUM.txt` verifies this download. Preserve that asset and the
 source-access link when redistributing the Reader binaries.
 
-For the 1.3.0 candidate, reuse of this historical companion is limited to the
+For 1.3.0, verified reuse of this historical companion is limited to the
 unchanged sharp/libvips sources described here. Its Electron-specific source
 materials cover the old runtime and do not satisfy Electron 45.1.0 source
-availability. See `ELECTRON-SOURCE-ACCESS.md` for the pending matching mirror.
+availability. See `ELECTRON-SOURCE-ACCESS.md` for the matching 45.1.0 source collection.
 
 ONNX Runtime native, Web/WASM and common packages are now 1.31.1. Their
 separate [source and provenance record](ONNX-SOURCE-ACCESS.md) identifies the

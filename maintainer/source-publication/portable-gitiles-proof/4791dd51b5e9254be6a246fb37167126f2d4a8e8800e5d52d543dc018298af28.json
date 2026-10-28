@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "archive": "src__third_party__liblouis__src-9700847afb92cb35969bdfcbbfbbb74b9c7b3376.tar.gz",
+  "archive_bytes": 15684257,
+  "archive_sha256": "4791dd51b5e9254be6a246fb37167126f2d4a8e8800e5d52d543dc018298af28",
+  "revision": "9700847afb92cb35969bdfcbbfbbb74b9c7b3376",
+  "repository": "https://chromium.googlesource.com/external/liblouis-github.git",
+  "root_git_tree": "aa3bb4e2d715fbd071aa62b00655511342cb0d9e",
+  "blob_count": 1000,
+  "git_tree_count": 41,
+  "member_count": 1040,
+  "regular_file_bytes": 81498171,
+  "symlinks": 1,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 962,
+    "120000": 1,
+    "100755": 37
+  },
+  "source_blob_inventory_sha256": "adf5cf91c07a5c1ccb877f7f7eb2e740ca695c2397baeb9e7a4d27086bdc7fc2",
+  "archive_mtime_range": [
+    1793145258.513,
+    1793145263.503
+  ],
+  "metadata": [
+    {
+      "file": "metadata/254d4c61e392935483a4b6b1be817220c6d1db12c6a3be43ff785197ad6f7990.json",
+      "url": "https://chromium.googlesource.com/external/liblouis-github.git/+/9700847afb92cb35969bdfcbbfbbb74b9c7b3376/?format=JSON",
+      "bytes": 5454,
+      "sha256": "bff530b82ef17f9df890b5f30381830a174f37505c4b17aa4a596247a72c58e0",
+      "git_tree": "aa3bb4e2d715fbd071aa62b00655511342cb0d9e",
+      "receipt": {
+        "file": "metadata/254d4c61e392935483a4b6b1be817220c6d1db12c6a3be43ff785197ad6f7990.receipt.json",
+        "bytes": 231,
+        "sha256": "f901085638b91c8c672d5bb50b7ed1d90712f2a98185d15c980504b794404fc6"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/4791dd51b5e9254be6a246fb37167126f2d4a8e8800e5d52d543dc018298af28.jsonl.gz",
+    "bytes": 110775,
+    "sha256": "212c3196c2e84b28be6d07ba5c89f9abaae27c68e2cd4301e89879b100082286",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 304741,
+    "jsonl_sha256": "81f220c411a7879872cc092d63ac3a1e5d7b6a62a1ed5d51eb8742d6902be2b4",
+    "records": 1042,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "f86b05edfc720447c2c4aa22e94d05fb7946cbc5bf9ee4f14b21ace562c35dfc",
+    "bytes": 15684474,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

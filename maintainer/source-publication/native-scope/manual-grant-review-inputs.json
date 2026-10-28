@@ -1,0 +1,23 @@
+[
+  {
+    "path": "third_party/blink/public/strings/blink_strings.grd",
+    "file": "grant-review-inputs/third_party__blink__public__strings__blink_strings.grd",
+    "url": "https://chromium.googlesource.com/chromium/src/+/29eb03535d5f2f4f899b95f22a92413ffde5284e/third_party/blink/public/strings/blink_strings.grd?format=TEXT",
+    "bytes": 46618,
+    "sha256": "a93303aa9137facf37b92cc0653f120a78af555b4a5c8063da89d3911a28f059"
+  },
+  {
+    "path": "third_party/blink/renderer/core/xml/xpath_grammar_generated.cc",
+    "file": "grant-review-inputs/third_party__blink__renderer__core__xml__xpath_grammar_generated.cc",
+    "url": "https://chromium.googlesource.com/chromium/src/+/29eb03535d5f2f4f899b95f22a92413ffde5284e/third_party/blink/renderer/core/xml/xpath_grammar_generated.cc?format=TEXT",
+    "bytes": 81111,
+    "sha256": "c92a12d6458f840b049415d2fd6d0ec42e7287aeb3ca442d850a223a7cf25a18"
+  },
+  {
+    "path": "third_party/blink/renderer/core/xml/xpath_grammar_generated.h",
+    "file": "grant-review-inputs/third_party__blink__renderer__core__xml__xpath_grammar_generated.h",
+    "url": "https://chromium.googlesource.com/chromium/src/+/29eb03535d5f2f4f899b95f22a92413ffde5284e/third_party/blink/renderer/core/xml/xpath_grammar_generated.h?format=TEXT",
+    "bytes": 49594,
+    "sha256": "78f60fb767dc8a62f26b474070975808d269eb6f90bec6468283b57095116105"
+  }
+]

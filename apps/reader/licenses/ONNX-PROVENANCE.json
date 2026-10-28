@@ -10,14 +10,14 @@
     "release_url": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.1",
     "source_archive_url": "https://codeload.github.com/microsoft/onnxruntime/tar.gz/6af1a932e2286d5c58166085d24c68783033edee",
     "source_archive_downloaded": true,
-    "complete_source_companion_prepared": false,
-    "source_archive_retained": false,
+    "complete_source_companion_prepared": true,
+    "source_archive_retained": true,
     "source_archive_inspection": {
       "archiveBytes": 280385122,
       "archiveSha256": "ca15bee9ccf04f17da55d78834cce95168e3e2178edf402bd38d2e5eb95b1e26",
       "regularFilesScanned": 11379,
       "regularFileBytes": 584026306,
-      "scope": "Full stream scanned for privacy flag references; no complete companion retained or assembled."
+      "scope": "Initial full source stream scanned for privacy flag references. The exact source archive is now retained in the separately verified complete source companion."
     }
   },
   "npm_packages": [
@@ -144,7 +144,22 @@
   "limits": [
     "npm metadata omits gitHead. The official source release and npm integrity pins are separate evidence; source-to-binary reproducibility has not been proved.",
     "The GitHub source archive alone omits separate submodule contents and CMake-fetched dependencies.",
-    "The historical native/runtime source companions do not establish ONNX 1.31.1 source coverage; the complete matching source preparation remains pending.",
+    "The historical 1.0.0 native/runtime source companions do not establish ONNX 1.31.1 coverage; the separately published 1.3.0 ONNX source companion supplies the matching source closure.",
     "Root ThirdPartyNotices is retained verbatim and is not a claim that every listed component is enabled in every target."
-  ]
+  ],
+  "source_companion": {
+    "status": "complete-original-source-collection-verified",
+    "source_archives": 96,
+    "indexed_entries": 260922,
+    "active_vcpkg_ports": 33,
+    "version_constraints_checked": 28,
+    "ordered_patch_applications": 60,
+    "manifest": "source-publication/onnx/ONNX-COLLECTION-MANIFEST.json",
+    "source_parts": [
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-01.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-02.zip"
+    ],
+    "metadata": "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-Metadata.zip",
+    "scope": "Matching original native/Web/common source closure and retained recipes; no full native rebuild or byte-identical binary reproduction claimed. Historical preparation snapshots inside immutable parts remain explicitly scoped to their earlier phases."
+  }
 }

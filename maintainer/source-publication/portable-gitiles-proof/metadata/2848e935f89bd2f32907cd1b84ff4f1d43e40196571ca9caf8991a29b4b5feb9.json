@@ -1,0 +1,137 @@
+{
+  "id": "bdd866e24e88a86213d49138890f9d2b48f73bbd",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7d2abee69f3708a1ba426986c3689f60cf2cc0b7",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8bf1050c802589ece986739c2b250e5857b2cbeb",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a614f9fac155918188d52ebf06ad148ba5b7b4f4",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "98e1f7f661ef927d27324aeb63fd143156075c60",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f8b12cb550a3ea803a9caf83648f827dfe1a6d70",
+      "name": "CODE_OF_CONDUCT.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "654a071648d6c1647f845136cf9805de41c34916",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d9a10c0d8e868ebf8da0b3dc95bb0be634c34bfe",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "757096d1469984390aa9dd14623fc51111e1f417",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ca2dc0b506ae23b4f27e7c8140b2f39fb8dc4203",
+      "name": "MODULE.bazel.lock"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f763a7cf9ac5ddaf3436edcf5f6957c2b0f19205",
+      "name": "Package.resolved"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d8a83f24958afa134ae43c148a23f6a9d4375101",
+      "name": "Package.swift"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "859c34838ab399d1d74492af929a96206bd3fb83",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1f206fecb20015601896d618882f1af950337c81",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cf1c6e580f260cf9df508e6af478aaa4dfc9834a",
+      "name": "compiled_proto"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1cdbc627df8429c42868ff58ca80ef89381df5d5",
+      "name": "connections"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "09a33ed5010e9d9841e262c9dd210482500b4518",
+      "name": "gen_proto.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c9b4da2f01da138a33c3e9fd0286efcf8881d50c",
+      "name": "internal"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c7ad06b637b0d479e6925830909c42f4af97c8ea",
+      "name": "minimum_os.bzl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "458c08377137ea7ff70e675006c92ef8bf21a313",
+      "name": "presence"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "efa55f8ee9886905297653ec4e5f572d40e18a0d",
+      "name": "proto"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "69c6aa2398e876fbf1646b9e8738a4abdaa0dc27",
+      "name": "sharing"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c3e2955448bbd81f2e304e7d91a0c57342902e48",
+      "name": "third_party"
+    }
+  ]
+}

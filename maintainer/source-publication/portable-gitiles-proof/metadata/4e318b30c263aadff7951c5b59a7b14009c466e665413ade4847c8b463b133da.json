@@ -1,0 +1,185 @@
+{
+  "id": "690d67cf043f30e8931ad205811d693ea84aac76",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2b0aa21219df8fcc057961e80a1c8cd5dfaa7708",
+      "name": ".bazelversion"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e7d00feaa08a95073ddce4101383715098496154",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d6cd768f6ddf9ff347838c6ceaee1d9c5775234d",
+      "name": ".clang-tidy"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dba559d6cac05bdfbe159939e02777c81b48d2d9",
+      "name": ".clang-tidy.ignore"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "421d1de94e37bbe38a3fdcdae54fac7baed9d843",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8f6ce84efe6f347872a9d49da34f04011ac01bee",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "57af012f7aefa0d860db43c65b42d2debf437cd0",
+      "name": ".pre-commit-config.yaml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ffef1b4daf9d919ca450b1d4ed81c7d339bd28a8",
+      "name": ".ycm_extra_conf.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bea19b3056cb2d4cd8ae8cbc6030ac1a9c7e4da0",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8cad9d6ce3271e5925a7190c7f2ac162fd1957b1",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ae02e772c77a2278c1798706d341e5f44445e77f",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "43de4c9d4709ad4a9162e68f2ba19c9d1b7e1834",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c3f6789affb9365de3e13a513c6bb4a50c540cd6",
+      "name": "CONTRIBUTORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ad3df4a4f5559cd7ad4c36b0fbca2b95747ae2d5",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ab08e1f11e08565ed933cf697437a714e2ef46ee",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dca48509304ca411fa91247bacd4dc48ad39bfdc",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9526376d77c411cc21b1af6041356d3bb96cba2c",
+      "name": "WORKSPACE.bzlmod"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1fa5ff852bda86353382dd83595909f2c48d4cf2",
+      "name": "_config.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "81da955f028154bd241ffccd1ed56dc18edf545e",
+      "name": "appveyor.yml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "607206bfce29105672ecc3bfbc65f0af0a71d5fa",
+      "name": "bazel"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0dee0f7e9e5234b0c77c5881402aadef4a6fad6a",
+      "name": "bindings"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3662f37dae35200ce556a49cdc482b715b2e47bf",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7a8b057bc94e39d5f15afd6f34829187b7c0e41f",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7e3c67b7c1712a56789fe2b8143bffb33fa6931e",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "24b4f7407bfd9959d174ced1e0a9b4dafdeef467",
+      "name": "pyproject.toml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d7807b49943961f407aee1888c2bc4d4e43c6613",
+      "name": "setup.py"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2b99618dfe6c81f6b45c61877f87a5b36c2993e5",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b923e686e40654c4e8be12ba6af870716ca23bfd",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0480d957c592ce90ff0ffadbfe04ace5c41dec83",
+      "name": "tools"
+    }
+  ]
+}

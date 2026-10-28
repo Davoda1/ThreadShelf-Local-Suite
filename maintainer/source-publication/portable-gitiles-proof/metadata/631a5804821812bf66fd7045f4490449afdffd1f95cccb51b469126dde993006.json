@@ -1,0 +1,17 @@
+{
+  "id": "fb0b8ca6c6333cae92a333e33efd5d59e912d547",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "78af42fab7565d982d0bf9ed33690442957f4dab",
+      "name": "EmptySwiftPackageManagerFile.cpp"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d",
+      "name": "json"
+    }
+  ]
+}

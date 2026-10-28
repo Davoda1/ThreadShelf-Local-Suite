@@ -1,0 +1,59 @@
+[
+  {
+    "path": "src/third_party/webview2",
+    "request": {
+      "url": "https://chrome-infra-packages.appspot.com/prpc/cipd.Repository/ResolveVersion",
+      "body": {
+        "package": "chromium/third_party/webview2",
+        "version": "version:2@1.0.3856.49.r1"
+      }
+    },
+    "response": {
+      "package": "chromium/third_party/webview2",
+      "instance": {
+        "hashAlgo": "SHA256",
+        "hexDigest": "c5640cd6c2c3754170c8d83eaf7ab810d7faca1062ee7328bb77d3947de7df21"
+      },
+      "registeredBy": "user:chromium-cipd-builder@chops-service-accounts.iam.gserviceaccount.com",
+      "registeredTs": "2026-03-25T23:08:30.538997Z"
+    }
+  },
+  {
+    "path": "src/third_party/wtl",
+    "request": {
+      "url": "https://chrome-infra-packages.appspot.com/prpc/cipd.Repository/ResolveVersion",
+      "body": {
+        "package": "chromium/third_party/wtl",
+        "version": "version:2@10.1.0"
+      }
+    },
+    "response": {
+      "package": "chromium/third_party/wtl",
+      "instance": {
+        "hashAlgo": "SHA256",
+        "hexDigest": "49fd0e78d8bf1ab8e6c1da36164554b70652894719e286364fa1cf402c6909da"
+      },
+      "registeredBy": "user:chromium-cipd-builder@chops-service-accounts.iam.gserviceaccount.com",
+      "registeredTs": "2026-04-21T11:29:40.924633Z"
+    }
+  },
+  {
+    "path": "src/third_party/dawn/third_party/agility-sdk/src",
+    "request": {
+      "url": "https://chrome-infra-packages.appspot.com/prpc/cipd.Repository/ResolveVersion",
+      "body": {
+        "package": "chromium/third_party/agility-sdk",
+        "version": "version:2@1.721.0-preview"
+      }
+    },
+    "response": {
+      "package": "chromium/third_party/agility-sdk",
+      "instance": {
+        "hashAlgo": "SHA256",
+        "hexDigest": "7a1ee0b84dd994c5536c1c5308bafce122854e24196c8b46e26a8b383339e054"
+      },
+      "registeredBy": "user:chromium-cipd-builder@chops-service-accounts.iam.gserviceaccount.com",
+      "registeredTs": "2026-05-28T00:13:00.153001Z"
+    }
+  }
+]

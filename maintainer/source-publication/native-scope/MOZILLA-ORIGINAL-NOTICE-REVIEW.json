@@ -1,0 +1,242 @@
+{
+  "passed": true,
+  "chromium_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+  "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+  "reviews": [
+    {
+      "path": "base/third_party/nspr/prtime.cc",
+      "sha256": "d1fa4caf8b6d4514fe90dabc280ed53ed6a57bcd92fe877a33b92f01643e8724",
+      "header_sha256": "7f4e0cf2817e9239019264392312a85239512037841c38115a3cfc5aaa6920d7",
+      "kind": "original-mpl-2.0-notice",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "base/third_party/nspr/prtime.h",
+      "sha256": "055c06756741bb054882d9b0f5f415fa183bfaf774f69067799ace62b5162023",
+      "header_sha256": "ad8e1867e57f05c4714be9b574e30e50bec53abca166b3b84cb06007e40c89e0",
+      "kind": "original-mpl-2.0-notice",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsNSSCertificateDB.cpp",
+      "sha256": "4f70bb7db7f3545af1460f8e07b202a5fc485f8fc7856722ebf1f13f418ffdde",
+      "header_sha256": "8aef80425f32bce5b5ab8be27928c6705da6e451ab42084c243cffa9853ed35f",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsNSSCertificateDB.h",
+      "sha256": "ae065175d3cab338dcd36f638d0360901261c3b53219d6e57a01cf227adfa961",
+      "header_sha256": "cddc7d669695693bbd4750cf1898a030036f30c8717aa3e247d0545eb4328b16",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsPKCS12Blob.cpp",
+      "sha256": "cc9946814be9220215317f2fa6ea2697b4ae0d4fbbf009e0a5c126fbfeb28871",
+      "header_sha256": "57d738a084879202ca604d454e0d7e464d6830acd6826bcf897572245efb70ad",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsPKCS12Blob.h",
+      "sha256": "1b8d8f690a4dd1c4b1a0a260a077732b9b79d853dd13273a2cd1fc14e50e4df2",
+      "header_sha256": "57d738a084879202ca604d454e0d7e464d6830acd6826bcf897572245efb70ad",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/html/html_document.cc",
+      "sha256": "c8fbc678b2b9b9c6383f31cb9687f08fceec862c1eab32f56a0ae59c6ed87577",
+      "header_sha256": "7b67ab785a08cb0ab0c265436969b6172c6388abf86d0a9af0395a9b127190cb",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Library General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version",
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/loader/resource/multipart_image_resource_parser.h",
+      "sha256": "112d05de3f19482c0c3c7d05fd1091cd7d779270f70d785519fbdf319c2f2c69",
+      "header_sha256": "f5615567da59085b410b1ab0aed0339fc5206811a75d6d020742fd71eaa1e89e",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer.cc",
+      "sha256": "65c0fe9ffec3dbb96ced32f80ca81ac9a1317f6b840241c996f756d8fa83923a",
+      "header_sha256": "b283bd7a54d2ab5d3760e41ff8c1238e378c237a4682f481beb35894a32aea38",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer.h",
+      "sha256": "112849d77f165e039a727a8ca2d134ff2d4612054192cc56226395ce8d8def2d",
+      "header_sha256": "92a6b964d2e344f8791fb0a4a8b0d7cdaf48a594e66c26f5051a343b360c95e1",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_clipper.cc",
+      "sha256": "fd024ad8257db048539fe5102f61dfe4ce9cb02facd61c3916c18800ffefc8d5",
+      "header_sha256": "b283bd7a54d2ab5d3760e41ff8c1238e378c237a4682f481beb35894a32aea38",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_clipper.h",
+      "sha256": "a5bde1bf784bfcedcb20b6f62e0d9b44259351a131236f2e80cc0add30429e53",
+      "header_sha256": "92a6b964d2e344f8791fb0a4a8b0d7cdaf48a594e66c26f5051a343b360c95e1",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_scrollable_area.cc",
+      "sha256": "953214031b8b39826b36bf5f0e1dfa650967e11f852950b52894da368a40876d",
+      "header_sha256": "8448fa35f240a3570cb7beb446145607e03b759fad8e12bff2536c3666160098",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h",
+      "sha256": "f689f3ff3f3337c7cfdd162092cb196a241069c024951486f77ac1b8ec6f64ba",
+      "header_sha256": "287aca86ea8d71f2cf3ae32ad69287fd495446a019a6be36a173eb063edd217c",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_stacking_node.cc",
+      "sha256": "72088de0b6e6d813b2e2aa12e61c65be76d457f00b34d73662e9cebc5264d416",
+      "header_sha256": "b283bd7a54d2ab5d3760e41ff8c1238e378c237a4682f481beb35894a32aea38",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/paint_layer_stacking_node.h",
+      "sha256": "6738c9578a9264f581402c0a73401e50e9693e6ae77f4a5b57b771dc0418c640",
+      "header_sha256": "92a6b964d2e344f8791fb0a4a8b0d7cdaf48a594e66c26f5051a343b360c95e1",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/scroll/scroll_alignment.cc",
+      "sha256": "009ecd7326c139c06f47b8684d0c7a804d818b948f8752acb598a2245d1a438d",
+      "header_sha256": "11922df4cdcc584f1873af63797f63bc1a87b35c2ac71067f30dc103850cb5e6",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/core/scroll/scroll_alignment.h",
+      "sha256": "debc912c08d5335cb493b2a73a918b0a8cabe392a6dab2937b43ee5a91b40f82",
+      "header_sha256": "1d111e254ce60ff8e59a1e7a1c89b10a71b0d0602f160e74f074ff419cc15ada",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/platform/fonts/opentype/open_type_caps_support_mpl.cc",
+      "sha256": "0ea5c968e4f609b7222013c16f26386059abcb4d682f82bdef93ccf98264ea2e",
+      "header_sha256": "193675c16c995232b153cacbb5fabf37c1eb2696f924edce5312415f92a3de41",
+      "kind": "original-mpl-2.0-notice",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/platform/image-decoders/jpeg/jpeg_image_decoder.cc",
+      "sha256": "e5ebb233331938c184d3c8ad6e86c746c86b2a70af5d503dc30d4b5409b34130",
+      "header_sha256": "95adf496e5d7e6eb30e61574160f340888299f126230e9e72b935e61f0b1c55a",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/date_math.cc",
+      "sha256": "d1e5ed29807fc2ff6a5ac31e8b44e408e116edf4dce2a82f66728f25457dbf0d",
+      "header_sha256": "66f116c264070a24e1bac6f47cbbc83edcd2d555dbd3064a7f89165fe196de1d",
+      "kind": "original-lgpl-or-later-and-mozilla-gpl-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [
+        "GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version"
+      ],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/date_math.h",
+      "sha256": "7b284a4f30bcdf2e5b76fc10ee13731ac339ffc5036663e5d62eebcff0ceebce",
+      "header_sha256": "0f35d0a0e6ddb5846d597ba835436356567fccaa6dd5289aa821b2f00d592a52",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    },
+    {
+      "path": "url/third_party/mozilla/url_parse.cc",
+      "sha256": "c1a4ab27f34fac3c5b8c15441cbdbd55a5f7cef6ffff67d787851854b0318a6f",
+      "header_sha256": "1c4a77fdc6a43e942b4cc2c8c71837e5ef44a4edeb255b7c88be756ed0282fbd",
+      "kind": "original-mpl-1.1-gpl-2-lgpl-2.1-alternatives",
+      "selected_later_version": null,
+      "explicit_original_lgpl_permission_clauses": [],
+      "scope": "Original complete notice text and alternatives preserved. No new election is made for this mixed or Mozilla source."
+    }
+  ],
+  "scope": "Exact original header text review only; full original source and all choices preserved, without a blanket licensing conclusion."
+}

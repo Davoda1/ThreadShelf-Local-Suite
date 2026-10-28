@@ -1,0 +1,50 @@
+[
+  {
+    "path": "src/third_party/webpagereplay/third_party/clang-format/script",
+    "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+    "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+    "targets": [
+      "linux",
+      "win"
+    ],
+    "archive": "src__third_party__webpagereplay__third_party__clang-format__script-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "archive_url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git/+archive/9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "archive_prefix": "",
+    "planning_estimate_bytes": 29554,
+    "local_file": "/tmp/threadshelf-source-staging/clang-format-exact/clang-format-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "expected_sha256": "aea58b9111cf181d0d0eec0c228a93c455a6cd058a30ff7e892ceecc6d3e233a",
+    "archive_representation": {
+      "kind": "git-tree-derived-tar",
+      "retrieval_method": "git-smart-http",
+      "proof": {
+        "file": "clang-format-webpagereplay-proof.json",
+        "bytes": 1878,
+        "sha256": "09bdd1aacc5b396cb7ebcf8325d5b5becb917c8be94160f0ffb0a05cbea3a8df"
+      }
+    }
+  },
+  {
+    "path": "src/third_party/clang-format/script",
+    "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+    "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+    "targets": [
+      "linux",
+      "win"
+    ],
+    "archive": "src__third_party__clang-format__script-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "archive_url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git/+archive/9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "archive_prefix": "",
+    "planning_estimate_bytes": 29552,
+    "local_file": "/tmp/threadshelf-source-staging/clang-format-exact/clang-format-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "expected_sha256": "aea58b9111cf181d0d0eec0c228a93c455a6cd058a30ff7e892ceecc6d3e233a",
+    "archive_representation": {
+      "kind": "git-tree-derived-tar",
+      "retrieval_method": "git-smart-http",
+      "proof": {
+        "file": "clang-format-direct-proof.json",
+        "bytes": 1850,
+        "sha256": "7555edd60db921db27c19e7cba729c63bf734983be2374027593fda337fa579d"
+      }
+    }
+  }
+]

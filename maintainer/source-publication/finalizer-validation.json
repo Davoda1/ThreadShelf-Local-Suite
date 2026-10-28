@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "fixture_tests": 25,
+  "actual_full_finalization_run": false,
+  "scope": "Finalizer independently derives the exact expected archive union, verifies an accepted database/part evidence snapshot, emits a bounded canonical compressed logical inventory, and validates original recipe/source bytes and ordered patch proof. Real-source readiness verified only against the current partial accepted sidecar snapshot; no full runtime extraction/native compilation/publication claimed.",
+  "files": [
+    {
+      "file": "finalize-runtime-collection.py",
+      "bytes": 30273,
+      "sha256": "76185c2e9f0b52f78f79586b48d2802f89f680e4727f48d7d1fae26ac67e7a85"
+    },
+    {
+      "file": "test-finalize-runtime-collection.py",
+      "bytes": 17627,
+      "sha256": "c6a1bf5e2a9569500eca4ce67e6bd986bbbe28cfc847cc5a9e9e48ee5d596994"
+    },
+    {
+      "file": "finalize-runtime-tests.log",
+      "bytes": 3116,
+      "sha256": "82d00a269a531d14684413a3bd79759797a7da4b7b67b63d4234c96d6dfc5487"
+    },
+    {
+      "file": "finalizer-partial-readiness.json",
+      "bytes": 4467,
+      "sha256": "c3047d8fc4014645e9749045cda3193cebae4ad5accbed4e469ed99364a00518"
+    },
+    {
+      "file": "README-RUNTIME-SOURCES.txt",
+      "bytes": 2902,
+      "sha256": "7da023178784d8f4688d1e3a3ca4a2d0d558df72dbd6c4cf402483d5db53ea80"
+    }
+  ],
+  "subsequent_documentation_change": "README only: actual metadata ZIP extraction layout and source-publication/final-runtime command paths updated; implementation unchanged."
+}

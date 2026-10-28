@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__text-fragments-polyfill__src-abc6ed408b3f20e91d9cbda9977748459f5e3877.tar.gz",
+  "archive_bytes": 99740,
+  "archive_sha256": "84f51d0362170e46b65b0bc637d736a11c0ddb351bbe0434e6a21bbb165e8dbf",
+  "revision": "abc6ed408b3f20e91d9cbda9977748459f5e3877",
+  "repository": "https://chromium.googlesource.com/external/github.com/GoogleChromeLabs/text-fragments-polyfill.git",
+  "root_git_tree": "ce521686cebf9ad1a078f3a8afe81f431a858354",
+  "blob_count": 58,
+  "git_tree_count": 14,
+  "member_count": 71,
+  "regular_file_bytes": 412248,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 58
+  },
+  "source_blob_inventory_sha256": "c8c35ba76a34d8adc7666229e8ffb3251a5a67217bdf98701c378cd3abb3411c",
+  "archive_mtime_range": [
+    1793146514.579,
+    1793146514.594
+  ],
+  "metadata": [
+    {
+      "file": "metadata/5700cfe3cfa7a7d4744b14e09fa4d3a080d2ebeb2698f9b378f243d1922abed8.json",
+      "url": "https://chromium.googlesource.com/external/github.com/GoogleChromeLabs/text-fragments-polyfill.git/+/abc6ed408b3f20e91d9cbda9977748459f5e3877/?format=JSON",
+      "bytes": 2305,
+      "sha256": "6be7229c0f18ec6b402e3f2e771bf34b68a9cc8ebbd0e3cece0133f48907bd0e",
+      "git_tree": "ce521686cebf9ad1a078f3a8afe81f431a858354",
+      "receipt": {
+        "file": "metadata/5700cfe3cfa7a7d4744b14e09fa4d3a080d2ebeb2698f9b378f243d1922abed8.receipt.json",
+        "bytes": 267,
+        "sha256": "8c03c1bdac12194c13a9f4e15bd6b35647a543502ddba7fcc8a577a2d3d81c09"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/84f51d0362170e46b65b0bc637d736a11c0ddb351bbe0434e6a21bbb165e8dbf.jsonl.gz",
+    "bytes": 5936,
+    "sha256": "46008a664f95352db2ab97ed4b9877a7f10c84b9208965a58dc600fd6215293c",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 20637,
+    "jsonl_sha256": "6a4dbbebafc23d133030016adf0c99714faccbe94f2c7f3dcb8d0f3938f7f201",
+    "records": 73,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "6912da18be0e5cb162e02ae3ce5c6f88f4e7e28b2e3efb867d91287934aad35c",
+    "bytes": 99754,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

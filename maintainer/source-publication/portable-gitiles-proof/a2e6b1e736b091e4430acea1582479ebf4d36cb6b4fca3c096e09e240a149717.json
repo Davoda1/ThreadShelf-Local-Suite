@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+  "archive_bytes": 288405,
+  "archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+  "revision": "2264753777198e4393fb83c44c693462d57a2be1",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/ruy.git",
+  "root_git_tree": "8cc8ca1193f2a36ccb9e017cbcf1af91dc32fdb3",
+  "blob_count": 143,
+  "git_tree_count": 7,
+  "member_count": 151,
+  "regular_file_bytes": 1691069,
+  "symlinks": 0,
+  "gitlinks": [
+    {
+      "path": "third_party/cpuinfo",
+      "revision": "082deffc80ce517f81dc2f3aebe6ba671fcd09c9"
+    },
+    {
+      "path": "third_party/googletest",
+      "revision": "6c58c11d5497b6ee1df3cb400ce30deb72fc28c0"
+    }
+  ],
+  "git_file_modes": {
+    "100644": 139,
+    "100755": 4
+  },
+  "source_blob_inventory_sha256": "b99e52db4868f7855c079a4e5fa3c11fcea2cf2f03d0696a697ce533a30ea3a1",
+  "archive_mtime_range": [
+    1793146330.004,
+    1793146330.06
+  ],
+  "metadata": [
+    {
+      "file": "metadata/d0c9bc6d4faea7eee86923a6a240564d8e4c6056dc3fdb590733b3c1ad3a14c2.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/ruy.git/+/2264753777198e4393fb83c44c693462d57a2be1/?format=JSON",
+      "bytes": 1860,
+      "sha256": "fd5dabcef4245097070738341b97fed63483cd393e116156156e77ff02f13d51",
+      "git_tree": "8cc8ca1193f2a36ccb9e017cbcf1af91dc32fdb3",
+      "receipt": {
+        "file": "metadata/d0c9bc6d4faea7eee86923a6a240564d8e4c6056dc3fdb590733b3c1ad3a14c2.receipt.json",
+        "bytes": 237,
+        "sha256": "a3392d822fa22bb2f8f2def4d594daca5bfd30ac2080c7635204339d7ac44259"
+      }
+    },
+    {
+      "file": "metadata/7414437ff43f85d5fce18c03ccb0f8712f35d7e405b45ebf5773633454995a9d.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/ruy.git/+/2264753777198e4393fb83c44c693462d57a2be1/third_party?format=JSON",
+      "bytes": 772,
+      "sha256": "5a416b8d56d39ebe494e9e19229bd4f907d9b05cb4f536e693e6ef2e1e96630b",
+      "git_tree": "cfdb8a8637ee75aa0ef0f9be5803fb89be8c593a",
+      "receipt": {
+        "file": "metadata/7414437ff43f85d5fce18c03ccb0f8712f35d7e405b45ebf5773633454995a9d.receipt.json",
+        "bytes": 247,
+        "sha256": "76c8726bf55e72e65197474bf4e7f6783f8dec586b5ff5b7c56b933b6a771876"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717.jsonl.gz",
+    "bytes": 12828,
+    "sha256": "6209353125a84da332ad1459c738d7965958785e365de6d18afcd10fefecf9c2",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 43487,
+    "jsonl_sha256": "63f7c1d4d0b0c6155b0af478632f2014deff56fb2d92ff93ac6b77385c90f96b",
+    "records": 153,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "97cf431e9ab046e6f23a1db5995653188eed9b3c057510421b1e67ec78942a76",
+    "bytes": 288392,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "file": "electron-linux-x64-1792784096-2e3374f8d5.profdata",
+    "expected_sha256": "2a33da3dbfef7066ff4976d1cc8398b6ca97e65810dae4ce6a8d4c7f4e69db6a",
+    "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-linux-x64-1792784096-2e3374f8d5.profdata",
+    "bytes": 224080720
+  },
+  {
+    "file": "electron-win-x64-1792784096-2e3374f8d5.profdata",
+    "expected_sha256": "456d805e78255f99f409ca4b987c759465c5d96b9ce72cd819082b6a5a1cd49d",
+    "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-win-x64-1792784096-2e3374f8d5.profdata",
+    "bytes": 394537904
+  },
+  {
+    "file": "electron-v8-x64-1792777021-2e3374f8d5.profile",
+    "expected_sha256": "ef86d1d1933f343856f225b532dc292fefc3e950343eec196845a7fc3d0158b1",
+    "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-v8-x64-1792777021-2e3374f8d5.profile",
+    "bytes": 4428549
+  }
+]

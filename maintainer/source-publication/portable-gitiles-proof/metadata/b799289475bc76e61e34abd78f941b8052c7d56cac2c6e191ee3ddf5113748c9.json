@@ -1,0 +1,233 @@
+{
+  "id": "959213c9a64a13d0b05babb914396796bf2238ff",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "01314ff285a05adbdebefb99665a618f239dab57",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0cd69412e22d3a8aa0ef6f6d79d60226776c9481",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "638cee59750bae2ae029e6639cddcee20b5269e6",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0a4b73bba2330c09d9eeab27662153cccefded8f",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d9a10c0d8e868ebf8da0b3dc95bb0be634c34bfe",
+      "name": "LICENSE-asserts.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0890b3f969623e41a7fc815c48e3f044970249ef",
+      "name": "LICENSE.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a603777e4646a41ef361a3c5c51ef7673b0c5aed",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7299fddcae3cfa3189f938cda497fd23772a3188",
+      "name": "MODULE.bazel.lock"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6b83397d698421081c69a86cc22978bbe9ed4ead",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5ac5850f4f40c4cdf6a8d5a7648bed8ec30b2a35",
+      "name": "asserts.js"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "bcc5070e12a768dbf10906d38be4630b3467afd5",
+      "name": "binary"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0efdecd35e279bb6cc0e8ffda0e36c32205f9cfd",
+      "name": "bytestring.js"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1eccc2bbb9bed8e18e68874f87d6e33e10e6bf40",
+      "name": "commonjs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "aa26a2fb0dc95cc35793d6eb7693a3ea5705d200",
+      "name": "compatibility_tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "43d972322e01738deccb29ff5221354da5d1c42d",
+      "name": "conformance"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "88abaeb6f54f90526f4b4e14b10b8f93e72780cc",
+      "name": "debug.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "37c6756475cd082a8a06debbae263957b9c2c279",
+      "name": "debug_test.js"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3079293bdc74a32f4827c1a47d7e94eae95a475f",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "29d0215e2972bcfda6f1ca0262e77c8b6a62c774",
+      "name": "experimental"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6a1ae58adccde5833ddcb15eae3381e648818e97",
+      "name": "generator"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "37031931d81d1c74841e796aff9474f7f51d0d4b",
+      "name": "gulpfile.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "87b3f2bc3ff51eef389bb00204bd9b1194a39589",
+      "name": "internal_bytes.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "aff1018f24d2178aab6882f8fbfd193bd6f1d941",
+      "name": "internal_options.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cf4a61de9aba13b32a186734364a87d0059af1a4",
+      "name": "internal_public.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "229fd3a63a11a7c633c46812692a998ae1ab58f6",
+      "name": "jasmine.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e917941e2ad56fa77445da81d012bc7b2cb87aa8",
+      "name": "map.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c52c668c3a8ab76851f323a8453d48948087ff68",
+      "name": "maps_test.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f4db81a9c7cd1d13c132f2493864e18f0066cf0a",
+      "name": "message.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "18d103711387d0710c7cf086546d0376fb9d765c",
+      "name": "message_test.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "82e5a687a812262aaf88a834fb0cac8f6288bcef",
+      "name": "node_loader.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "088cd4aea0672f643623e7f47d0fa61858583dbe",
+      "name": "package-lock.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c35f5304f13442bc8056e076f65e429e5f37f8ca",
+      "name": "package.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5c0af41f402bc299283111f52e32a3767d91916e",
+      "name": "proto3_test.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3f9090a4639c9c025732e5547fc542b7171dff3b",
+      "name": "protobuf_javascript_release.bzl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e34a227bfb65582ac80f3fa2cd855ba7a1badd45",
+      "name": "protos"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "31fc1705224c7dd148796490c1dee1c60d212615",
+      "name": "test_bootstrap.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d939df23ea34ba05da64f9a0793f51ed408a3ac5",
+      "name": "unsafe_bytestring.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "814ae3a9e1077ec692070415b77f69d2ecfdc2d7",
+      "name": "yarn.lock"
+    }
+  ]
+}

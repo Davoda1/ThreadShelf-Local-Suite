@@ -1,0 +1,35 @@
+{
+  "id": "cfdb8a8637ee75aa0ef0f9be5803fb89be8c593a",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "name": "BUILD"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4c82d834e4bc500b95c70387dcec7a0ea5ec90ab",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "082deffc80ce517f81dc2f3aebe6ba671fcd09c9",
+      "name": "cpuinfo"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6d68cd5b53db17ef6ad3baa6f9a9880714d660c3",
+      "name": "cpuinfo.BUILD"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "6c58c11d5497b6ee1df3cb400ce30deb72fc28c0",
+      "name": "googletest"
+    }
+  ]
+}

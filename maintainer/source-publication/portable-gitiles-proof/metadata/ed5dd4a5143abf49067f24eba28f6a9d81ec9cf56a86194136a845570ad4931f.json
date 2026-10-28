@@ -1,0 +1,89 @@
+{
+  "id": "d2da3a87e6558cde2cd3a66fa8f6bc5db7e76401",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f53951a2a1984e7430af26629c4297fd0acd9a49",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2624f19cbf1ac4c0e2c01e7535c6106c7fe5311b",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b99ed63a41c7c64d72a9f6b28990dc5890bed980",
+      "name": "Android.bp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "02ddda239c27dd4933d503a0aede5d06aa284510",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "939e5341e74dc2371c8b47f0e27b50581bed5f63",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "name": "MODULE_LICENSE_APACHE2"
+    },
+    {
+      "mode": 40960,
+      "type": "blob",
+      "id": "7a694c9699a986b9adf1f6cb8a18a6e923e47ed9",
+      "name": "NOTICE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "name": "README"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "87a652d04654377f2c6000958fda16c11980729b",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e3194223e2ca6f774d75f68752a1e6eb5c79bd6f",
+      "name": "build.gradle"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "794f1d54f8d8f6a9c1790bc60fbb07a88ea57a55",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "416050285ef47f115aa051627da52a74249c07b3",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6a9ab045777655522e24de8323d1a90725f8e855",
+      "name": "third_party"
+    }
+  ]
+}
