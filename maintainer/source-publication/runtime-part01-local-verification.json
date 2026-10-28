@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "scope": "Accepted part integrity and database consistency only. Expected Git/non-Git source completeness, logical symlink safety, ordered patch application and publication are separate gates.",
+  "part_count": 1,
+  "parts": [
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip",
+      "verification": "local-outer-and-inner-rehashed",
+      "bytes": 1482655137,
+      "sha256": "8c35cf6499376237a00e1eaafbd0a884be4d284bf25633dc741c6e406e4fa81d",
+      "source_count": 1,
+      "database_archive_records_sha256": "e0cfcfe56a0918667e7160f1415a582855998fe87d00daf44f83c0104f567bd8"
+    }
+  ],
+  "sparse_source": {
+    "phase": "before-patch-application",
+    "known_touched_source_files_verified": 565
+  },
+  "required_paths_not_yet_in_inventory": 317
+}

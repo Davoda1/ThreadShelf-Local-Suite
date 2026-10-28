@@ -280,7 +280,7 @@ export class ApplicationService {
     switch(action) {
       case 'bootstrap': {
         const searchStatus=await this.localStatus();
-        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.2.0',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
+        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.3.0',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
       }
       case 'settings.save': {
         const values=validateSettings(args.values),core=validateCoreSettings(values);

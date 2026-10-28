@@ -1,0 +1,1631 @@
+{
+  "passed": true,
+  "electronVersion": "45.1.0",
+  "sourceRevision": "45d20ec03000aac41e73b2abdb707936b4f98ed0",
+  "sourceFiles": 94,
+  "parserVersion": "5.9.3",
+  "staticModuleReferences": 231,
+  "externalPackages": [],
+  "modules": [
+    {
+      "file": "lib/browser/api/auto-updater.ts",
+      "kind": "require",
+      "module": "./auto-updater/auto-updater-msix",
+      "sourceSha256": "22cad96e27f9509cec46a265b45bacc712e8c6ec943113447d3554e5ef28a85d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater.ts",
+      "kind": "require",
+      "module": "./auto-updater/auto-updater-win",
+      "sourceSha256": "22cad96e27f9509cec46a265b45bacc712e8c6ec943113447d3554e5ef28a85d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater.ts",
+      "kind": "require",
+      "module": "./auto-updater/auto-updater-native",
+      "sourceSha256": "22cad96e27f9509cec46a265b45bacc712e8c6ec943113447d3554e5ef28a85d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-msix.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/auto-updater/msix-update-win",
+      "sourceSha256": "f12ebd9b0c338511f6a10da2cfc1cbbb825a19f8f32d5dcde5d2f62d8af74040",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-msix.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "f12ebd9b0c338511f6a10da2cfc1cbbb825a19f8f32d5dcde5d2f62d8af74040",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-msix.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "f12ebd9b0c338511f6a10da2cfc1cbbb825a19f8f32d5dcde5d2f62d8af74040",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-win.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/auto-updater/squirrel-update-win",
+      "sourceSha256": "2aeaf06a22235dbd62401ae6544039ce7c942681d990089c4ea2bda83dc7057c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-win.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "2aeaf06a22235dbd62401ae6544039ce7c942681d990089c4ea2bda83dc7057c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/auto-updater-win.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "2aeaf06a22235dbd62401ae6544039ce7c942681d990089c4ea2bda83dc7057c",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+      "kind": "import",
+      "module": "child_process",
+      "sourceSha256": "1ea5002e9446d3d877932d62f0db437d1a35eeed286daa29468d9848e7672428",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+      "kind": "import",
+      "module": "fs",
+      "sourceSha256": "1ea5002e9446d3d877932d62f0db437d1a35eeed286daa29468d9848e7672428",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "1ea5002e9446d3d877932d62f0db437d1a35eeed286daa29468d9848e7672428",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/base-window.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "a7737bff0e7ab1d173fcf801e4b085487a18c3a4bd7646c1adbaa680546560e2",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/base-window.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "a7737bff0e7ab1d173fcf801e4b085487a18c3a4bd7646c1adbaa680546560e2",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/browser-view.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "e72998e28fd6bccd848280b9a9a7ff42323ea431928297e38e64eafc774ad412",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/browser-window.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "10a9acf6bbbaeaa3907db4ba900168fb3f9f47a89d2d04524225d54d5d8674e5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/browser-window.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "10a9acf6bbbaeaa3907db4ba900168fb3f9f47a89d2d04524225d54d5d8674e5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/browser-window.ts",
+      "kind": "require",
+      "module": "electron",
+      "sourceSha256": "10a9acf6bbbaeaa3907db4ba900168fb3f9f47a89d2d04524225d54d5d8674e5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/clipboard.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/clipboard-item",
+      "sourceSha256": "82c47cdf2f02daa0c8106e7ce1a8441f314e600ef4b8bf33c83d2846a93b4e8a",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/desktop-capturer.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "581909244eb8dae1553530135b9e29058afbb0e31419f09d789315c6f0e8a089",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/dialog.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "573ed1c9f6eaec804e8b3e54ab28f36904d17bc3dfedd3dab02fc04b28e93316",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/dialog.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "573ed1c9f6eaec804e8b3e54ab28f36904d17bc3dfedd3dab02fc04b28e93316",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/module-list",
+      "sourceSha256": "b4da389bd662e88c36dca9d8db45a5dd24282583cceb73f36363c47919a90d56",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/module-list",
+      "sourceSha256": "b4da389bd662e88c36dca9d8db45a5dd24282583cceb73f36363c47919a90d56",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/define-properties",
+      "sourceSha256": "b4da389bd662e88c36dca9d8db45a5dd24282583cceb73f36363c47919a90d56",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/ipc-main.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-impl",
+      "sourceSha256": "35d89814d4a0c7a4040822592970eff5076ce8004cbd1b09925ef54824cbd584",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./app",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./auto-updater",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./base-window",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./browser-view",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./browser-window",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./clipboard",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./clipboard-item",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./content-tracing",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./desktop-capturer",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./dialog",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./global-shortcut",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./ipc-main",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./menu",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./menu-item",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./native-theme",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./net",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./net-log",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./power-monitor",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./power-save-blocker",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./push-notifications",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./protocol",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./safe-storage",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./screen",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./service-worker-main",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./session",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./shared-texture",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./share-menu",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./system-preferences",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./touch-bar",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./tray",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./utility-process",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./web-contents",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/module-list.ts",
+      "kind": "require",
+      "module": "./web-frame-main",
+      "sourceSha256": "62b9c02ae4651b397601c806a24b0df83822c7ccd004c136f9ee4630f4b65e8e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net-fetch.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/net-client-request",
+      "sourceSha256": "a8c100ec7985d3545b848ff23184be7dd052d037bfc108cb521b8236384f2978",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net-fetch.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "a8c100ec7985d3545b848ff23184be7dd052d037bfc108cb521b8236384f2978",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net-fetch.ts",
+      "kind": "import",
+      "module": "stream",
+      "sourceSha256": "a8c100ec7985d3545b848ff23184be7dd052d037bfc108cb521b8236384f2978",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/net-log.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "902885d41d643b49b5d8d082a169e380f203164bd40d31ee370f49226ebfb5ce",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net-websocket.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "a5f5a2ae5b4d18e2526c88e8199f991c48d215f8d75fa49386545dacfc429a82",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/net-websocket",
+      "sourceSha256": "1291bc500921c11faf8de78bf0de5e5aab4c0f87604b4ce7e75adf0d7d169160",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/net-client-request",
+      "sourceSha256": "1291bc500921c11faf8de78bf0de5e5aab4c0f87604b4ce7e75adf0d7d169160",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "1291bc500921c11faf8de78bf0de5e5aab4c0f87604b4ce7e75adf0d7d169160",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/net.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "1291bc500921c11faf8de78bf0de5e5aab4c0f87604b4ce7e75adf0d7d169160",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/power-monitor.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "9ec436139e104f2dc96785e8df4d7c663b605afe7ab6e679ed9a3aec9df44950",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/net-client-request",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "import",
+      "module": "fs",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "import",
+      "module": "stream",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "import",
+      "module": "stream/web",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/protocol.ts",
+      "kind": "require",
+      "module": "stream/web",
+      "sourceSha256": "8e799a93d7a8b1dffacbfdca5b4ce421a07093ebfd0a12e9bd104ddc271ac0ed",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/safe-storage.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/deprecate",
+      "sourceSha256": "4e9431b475802f6ee77f621cac9be48df6b0991966b5dd039d559d8b078939d7",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/screen.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "f7298c02faa52e5148cd7e7b2786f5ec56260a5962c55172ef21f5954e166d9f",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/service-worker-main.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-impl",
+      "sourceSha256": "b1c64be0a3636a2a1dbeb81c14aeb08181d1accf4ff5ebf485a9f42af5362dd3",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/session.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/net-fetch",
+      "sourceSha256": "cfbd0fbdd7a26618e90e5d7f10312b5c7c5068c4b8236e744664326e9719cee5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/session.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/deprecate",
+      "sourceSha256": "cfbd0fbdd7a26618e90e5d7f10312b5c7c5068c4b8236e744664326e9719cee5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/session.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "cfbd0fbdd7a26618e90e5d7f10312b5c7c5068c4b8236e744664326e9719cee5",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/share-menu.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "f68936e9c9af321f663db60891c812ad0079bc1aaf520bced3ccf54347325f04",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/shared-texture.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/ipc-main",
+      "sourceSha256": "b9969d6a7bfd65355eee0b1f87cb1200b7ba585a683ccfdcc56e239ed6c5c274",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/shared-texture.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/ipc-messages",
+      "sourceSha256": "b9969d6a7bfd65355eee0b1f87cb1200b7ba585a683ccfdcc56e239ed6c5c274",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/shared-texture.ts",
+      "kind": "import",
+      "module": "crypto",
+      "sourceSha256": "b9969d6a7bfd65355eee0b1f87cb1200b7ba585a683ccfdcc56e239ed6c5c274",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/touch-bar.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "20c5cec772da59a81acd241c31c7f1491f7509c5b026e634159f8da100b9917f",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/utility-process.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "5273054ff813923c0a4e9a0d9cfac9fb9b7251bd8b090bbfedf00df2bb72ec90",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/utility-process.ts",
+      "kind": "import",
+      "module": "net",
+      "sourceSha256": "5273054ff813923c0a4e9a0d9cfac9fb9b7251bd8b090bbfedf00df2bb72ec90",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/utility-process.ts",
+      "kind": "import",
+      "module": "stream",
+      "sourceSha256": "5273054ff813923c0a4e9a0d9cfac9fb9b7251bd8b090bbfedf00df2bb72ec90",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/guest-window-manager",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-impl",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/parse-features-string",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/deprecate",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "url",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/api/web-contents.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/session",
+      "sourceSha256": "b158e3f6b4d11f7fc321552b798ca675c266f953e5d7b887faa5c46c8baca697",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/api/web-frame-main.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-impl",
+      "sourceSha256": "f1cb3d27dfc26e4efba35664197137b53641fb3877bee5c7f0527b2c9959af78",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-internal",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-internal-utils",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/parse-features-string",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/web-view-events",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/ipc-messages",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/web-view-methods",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-view-manager.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "95b0a67fe73d5dd29f5f6f7530d28005de752c44026e6044f5be55a14d89a08d",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-window-manager.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/parse-features-string",
+      "sourceSha256": "9915929034797b8e4e9d99e833171e7f34596161ab0c181df234798fbf303e66",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-window-manager.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "9915929034797b8e4e9d99e833171e7f34596161ab0c181df234798fbf303e66",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/guest-window-manager.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "9915929034797b8e4e9d99e833171e7f34596161ab0c181df234798fbf303e66",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "import",
+      "module": "url",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "import",
+      "module": "v8",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/common/init",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "electron",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "electron",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/ipc-dispatch",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/rpc-server",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/guest-view-manager",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/api/protocol",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/api/service-worker-main",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/api/web-contents",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/api/web-frame-main",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "v8",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "internal/modules/run_main",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/init.ts",
+      "kind": "require",
+      "module": "url",
+      "sourceSha256": "006b084585148021f32edda400c035b50a5054ee9dffdb1b066858cacb21db64",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/ipc-dispatch.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-internal",
+      "sourceSha256": "110e7f538eb32379e7731e3b8309698ea8ab4b03dcb37ffce30136031ce91e83",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/ipc-dispatch.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "110e7f538eb32379e7731e3b8309698ea8ab4b03dcb37ffce30136031ce91e83",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/ipc-main-impl.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "add32d8414fb38b215b33cb795ba4efa796de15f24c08c16ba6e675c9476761c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/ipc-main-impl.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "add32d8414fb38b215b33cb795ba4efa796de15f24c08c16ba6e675c9476761c",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/browser/ipc-main-internal-utils.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-internal",
+      "sourceSha256": "1bb2f9cf89e2530c33a79f0af30e91af49a820fa40e7df77eadb1696b35c6c3c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/ipc-main-internal.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-impl",
+      "sourceSha256": "82a0c8771d8a1280043612f967b00fdc36d83970c2f597720305391d81b1409e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/parse-features-string.ts",
+      "kind": "import",
+      "module": "electron/main",
+      "sourceSha256": "483d5edaae7fc0177821e3176647e5bb38d433128ca4b80b0de26a2430ac0603",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/rpc-server.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/ipc-main-internal",
+      "sourceSha256": "9af1ef875d62e3c0da3666a5bd08f7be1e4061554bd98c518b1ea2fa352f1e32",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/browser/rpc-server.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/ipc-messages",
+      "sourceSha256": "9af1ef875d62e3c0da3666a5bd08f7be1e4061554bd98c518b1ea2fa352f1e32",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/common/api/module-list.ts",
+      "kind": "require",
+      "module": "./native-image",
+      "sourceSha256": "fd566879f1d29f179e85d3df9eeac78411327f683809253c2982f7afa85c25fe",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/common/api/module-list.ts",
+      "kind": "require",
+      "module": "./shell",
+      "sourceSha256": "fd566879f1d29f179e85d3df9eeac78411327f683809253c2982f7afa85c25fe",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/common/api/net-client-request.ts",
+      "kind": "import",
+      "module": "electron/common",
+      "sourceSha256": "22b4da89fc20f1b55dc186c0a9a96c82a46f8d75f7ba93d067fcea35c85bbf21",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/common/api/net-client-request.ts",
+      "kind": "import",
+      "module": "stream",
+      "sourceSha256": "22b4da89fc20f1b55dc186c0a9a96c82a46f8d75f7ba93d067fcea35c85bbf21",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/api/net-client-request.ts",
+      "kind": "import",
+      "module": "url",
+      "sourceSha256": "22b4da89fc20f1b55dc186c0a9a96c82a46f8d75f7ba93d067fcea35c85bbf21",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/init.ts",
+      "kind": "import",
+      "module": "util",
+      "sourceSha256": "b7b3216943f4aecefb2512515bdd3cbb63709b34962c6ff6b2b72ddaae8e0a2b",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/init.ts",
+      "kind": "import",
+      "module": "stream",
+      "sourceSha256": "b7b3216943f4aecefb2512515bdd3cbb63709b34962c6ff6b2b72ddaae8e0a2b",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/init.ts",
+      "kind": "require",
+      "module": "stream",
+      "sourceSha256": "b7b3216943f4aecefb2512515bdd3cbb63709b34962c6ff6b2b72ddaae8e0a2b",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/init.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "b7b3216943f4aecefb2512515bdd3cbb63709b34962c6ff6b2b72ddaae8e0a2b",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/common/init.ts",
+      "kind": "require",
+      "module": "electron",
+      "sourceSha256": "b7b3216943f4aecefb2512515bdd3cbb63709b34962c6ff6b2b72ddaae8e0a2b",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/isolated_renderer/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-element",
+      "sourceSha256": "7967d9226fff4ebd8e39603f3ff4e0d3e73b3b367a77306062f23b4c4176e991",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/isolated_renderer/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-impl",
+      "sourceSha256": "7967d9226fff4ebd8e39603f3ff4e0d3e73b3b367a77306062f23b4c4176e991",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/isolated_renderer/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/web-view/web-view-element",
+      "sourceSha256": "7967d9226fff4ebd8e39603f3ff4e0d3e73b3b367a77306062f23b4c4176e991",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "buffer",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "fs",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "util",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "crypto",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "import",
+      "module": "os",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/bootstrap/realm",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/fs/utils",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/util",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/validators",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/errors",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "internal/url",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "crypto",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "fs",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "os",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/asar-fs-wrapper.ts",
+      "kind": "require",
+      "module": "child_process",
+      "sourceSha256": "ed88738a6dc025e120d1d19df497b96c2e23005f0b8d13e3a65c28a4e8bf4f13",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/init.ts",
+      "kind": "import",
+      "module": "./asar-fs-wrapper",
+      "sourceSha256": "3ff1de4ce42d26141eefeb653c9b81312cb30c51805df144f93db7824a82f995",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/node/init.ts",
+      "kind": "require",
+      "module": "fs",
+      "sourceSha256": "3ff1de4ce42d26141eefeb653c9b81312cb30c51805df144f93db7824a82f995",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/init.ts",
+      "kind": "require",
+      "module": "internal/child_process",
+      "sourceSha256": "3ff1de4ce42d26141eefeb653c9b81312cb30c51805df144f93db7824a82f995",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/node/init.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "3ff1de4ce42d26141eefeb653c9b81312cb30c51805df144f93db7824a82f995",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/module-list",
+      "sourceSha256": "286d3f70be215de4ad56607480bfbd099be22bb373418b9d5d5e08e8c2f01138",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/define-properties",
+      "sourceSha256": "286d3f70be215de4ad56607480bfbd099be22bb373418b9d5d5e08e8c2f01138",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/api/module-list",
+      "sourceSha256": "286d3f70be215de4ad56607480bfbd099be22bb373418b9d5d5e08e8c2f01138",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./context-bridge",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./crash-reporter",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./ipc-renderer",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./shared-texture",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./web-frame",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/api/module-list.ts",
+      "kind": "require",
+      "module": "./web-utils",
+      "sourceSha256": "6c4cc26f7d2cc45deb8fe0dcaadf045d294e1fe0ae4ef1b00a8b94171ad12751",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/common-init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-init",
+      "sourceSha256": "b4c66729f7b66e693cee06438d84a607c799d00061623708275512f4dcd39a34",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/common-init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/web-view/web-view-init",
+      "sourceSha256": "b4c66729f7b66e693cee06438d84a607c799d00061623708275512f4dcd39a34",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/ipc-messages",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/ipc-renderer-internal",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "import",
+      "module": "url",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/common/init",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/ipc-renderer-internal",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/common-init",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "internal/modules/helpers",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/init.ts",
+      "kind": "require",
+      "module": "internal/modules/run_main",
+      "sourceSha256": "3248d6956729a84a2c1de78a4cf5000cfe9e6a90f39095f987a7755dd1f73dbc",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/renderer/ipc-renderer-internal-utils.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/ipc-renderer-internal",
+      "sourceSha256": "67be7680323e630a216172b3f799aae9a19a45bf6b2af82123c41f91ed815552",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/guest-view-internal.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/ipc-messages",
+      "sourceSha256": "25239593214cb2fc429140662513c924a9a57ea6ef6bd0bc77863527acae59b1",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/guest-view-internal.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/ipc-renderer-internal",
+      "sourceSha256": "25239593214cb2fc429140662513c924a9a57ea6ef6bd0bc77863527acae59b1",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/guest-view-internal.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/ipc-renderer-internal-utils",
+      "sourceSha256": "25239593214cb2fc429140662513c924a9a57ea6ef6bd0bc77863527acae59b1",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-attributes.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-constants",
+      "sourceSha256": "1554d7244151da4eba5c121527bf24748af4f0e143b834d812b14668988ddb1c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-attributes.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-impl",
+      "sourceSha256": "1554d7244151da4eba5c121527bf24748af4f0e143b834d812b14668988ddb1c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-element.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-attributes",
+      "sourceSha256": "492bc000e9877fb4e4d353f72bd4afc641d28f0355cd35c1d98315ef2047d5bd",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-element.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-constants",
+      "sourceSha256": "492bc000e9877fb4e4d353f72bd4afc641d28f0355cd35c1d98315ef2047d5bd",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-element.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-impl",
+      "sourceSha256": "492bc000e9877fb4e4d353f72bd4afc641d28f0355cd35c1d98315ef2047d5bd",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-impl.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/web-view-methods",
+      "sourceSha256": "0353138d339481800aedd94ab9267fdc013384f7a255ecd72cb07b0b4e968545",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-impl.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/guest-view-internal",
+      "sourceSha256": "0353138d339481800aedd94ab9267fdc013384f7a255ecd72cb07b0b4e968545",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-impl.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-attributes",
+      "sourceSha256": "0353138d339481800aedd94ab9267fdc013384f7a255ecd72cb07b0b4e968545",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-impl.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-attributes",
+      "sourceSha256": "0353138d339481800aedd94ab9267fdc013384f7a255ecd72cb07b0b4e968545",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-impl.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-constants",
+      "sourceSha256": "0353138d339481800aedd94ab9267fdc013384f7a255ecd72cb07b0b4e968545",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/guest-view-internal",
+      "sourceSha256": "02aecdf352e557ffb58b12af6148ab545ca908993c1a801b90af2004d3a5d47c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-element",
+      "sourceSha256": "02aecdf352e557ffb58b12af6148ab545ca908993c1a801b90af2004d3a5d47c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/web-view/guest-view-internal",
+      "sourceSha256": "02aecdf352e557ffb58b12af6148ab545ca908993c1a801b90af2004d3a5d47c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/renderer/web-view/web-view-init.ts",
+      "kind": "require",
+      "module": "@electron/internal/renderer/web-view/web-view-element",
+      "sourceSha256": "02aecdf352e557ffb58b12af6148ab545ca908993c1a801b90af2004d3a5d47c",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/define-properties",
+      "sourceSha256": "90bf690dfea56d958fba731e9cfbcd3c51b41fc01b9a06b41e33f5126365ee85",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/exports/electron.ts",
+      "kind": "import",
+      "module": "@electron/internal/utility/api/module-list",
+      "sourceSha256": "90bf690dfea56d958fba731e9cfbcd3c51b41fc01b9a06b41e33f5126365ee85",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/local-ai-handler.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "4e1364dd22bda7290d70da8ee130c0331bf4b3588ba18af011401e86ade3e21f",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/utility/api/module-list.ts",
+      "kind": "require",
+      "module": "./language-model-utility",
+      "sourceSha256": "34724b85efe0349c2e06835f9a91fd7181dffb3604f324bd03446d7256c7b3c4",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/module-list.ts",
+      "kind": "require",
+      "module": "./local-ai-handler",
+      "sourceSha256": "34724b85efe0349c2e06835f9a91fd7181dffb3604f324bd03446d7256c7b3c4",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/module-list.ts",
+      "kind": "require",
+      "module": "./net",
+      "sourceSha256": "34724b85efe0349c2e06835f9a91fd7181dffb3604f324bd03446d7256c7b3c4",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/module-list.ts",
+      "kind": "require",
+      "module": "@electron/internal/browser/api/system-preferences",
+      "sourceSha256": "34724b85efe0349c2e06835f9a91fd7181dffb3604f324bd03446d7256c7b3c4",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/net.ts",
+      "kind": "import",
+      "module": "@electron/internal/browser/api/net-fetch",
+      "sourceSha256": "4a2023bcbdb224331a446decb4163976d84f42a32965ea164db105fc54fea6f6",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/net.ts",
+      "kind": "import",
+      "module": "@electron/internal/common/api/net-client-request",
+      "sourceSha256": "4a2023bcbdb224331a446decb4163976d84f42a32965ea164db105fc54fea6f6",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/api/net.ts",
+      "kind": "import",
+      "module": "electron/utility",
+      "sourceSha256": "4a2023bcbdb224331a446decb4163976d84f42a32965ea164db105fc54fea6f6",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/utility/api/language-model-utility",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "import",
+      "module": "events",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "import",
+      "module": "url",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "require",
+      "module": "stream/web",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/common/init",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "require",
+      "module": "internal/modules/run_main",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/utility/init.ts",
+      "kind": "require",
+      "module": "internal/bootstrap/realm",
+      "sourceSha256": "cce922c14b7f48ef8e64cec7b709c30410402a6b9a69c480d2922d087633e67e",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/webview/init.ts",
+      "kind": "import",
+      "module": "@electron/internal/renderer/web-view/web-view-init",
+      "sourceSha256": "609b4232fb768791e31fae11e157c97592ff610a40d2969b71c8d4f0ba7d5fca",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/worker/init.ts",
+      "kind": "import",
+      "module": "path",
+      "sourceSha256": "db18dd9e81826caa38530c215ac6ae4dd84208f21629eca0d1d099881a95aea0",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/worker/init.ts",
+      "kind": "require",
+      "module": "module",
+      "sourceSha256": "db18dd9e81826caa38530c215ac6ae4dd84208f21629eca0d1d099881a95aea0",
+      "classification": "node-source-or-built-in"
+    },
+    {
+      "file": "lib/worker/init.ts",
+      "kind": "require",
+      "module": "@electron/internal/common/init",
+      "sourceSha256": "db18dd9e81826caa38530c215ac6ae4dd84208f21629eca0d1d099881a95aea0",
+      "classification": "electron-source"
+    },
+    {
+      "file": "lib/worker/init.ts",
+      "kind": "require",
+      "module": "internal/modules/helpers",
+      "sourceSha256": "db18dd9e81826caa38530c215ac6ae4dd84208f21629eca0d1d099881a95aea0",
+      "classification": "node-source-or-built-in"
+    }
+  ],
+  "dynamic": [],
+  "errors": [],
+  "scope": "Static AST inspection of every lib JS/TS file plus retained upstream rolldown bundling recipe. Native Node built-ins and repository source satisfy static imports. Dynamic application require calls remain runtime behavior, not source-bundled npm dependencies. No bundle build was executed."
+}

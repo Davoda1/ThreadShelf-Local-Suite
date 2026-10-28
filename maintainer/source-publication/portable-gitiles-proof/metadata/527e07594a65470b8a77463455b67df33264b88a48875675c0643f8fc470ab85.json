@@ -1,0 +1,119 @@
+{
+  "id": "504170c5313d497a5f01949589b15fec170c9f6d",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e06cf478f460bff08a0e42aa4a834a09f02e8685",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "bddc5dd6b6e79b7400aa11ffb0861ed117166817",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0033f4de721d862ea0402582f339b4b3c2f0e15d",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "399095ea73d1e63e72a133733e5eac9f8d17ae75",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "939e5341e74dc2371c8b47f0e27b50581bed5f63",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "27aa856e421b97959e3454523ce7108601f31677",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a6ee5a78fd37dfce301a250e4ac2ead083d1ceb7",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6888d74f18621e4a7b1b90d4fd2807423f94c433",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "13c5dbb3b0ecdc405729e8d81a4669291c0efbcc",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "54e19797cc73b82cb78ad678d918b4a7252033cb",
+      "name": "bench"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1ef6d6a2cac2ee8fbe65d58a42590b41360ecae0",
+      "name": "cmake"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "51b9b62ed982b107399cec73ef447e0dd7ba7a96",
+      "name": "configure.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fc54f600493d104c6f5fef1291dd16e24f2d1171",
+      "name": "confu.yaml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f701214f703219efaf59c862b7354a881e1b733b",
+      "name": "examples"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c30a4ed6d65a881bcb82b2dfabd1b3ae5a8e1160",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "456785b4bd8fdf1b7a0c927fa2f44f66d83c8138",
+      "name": "jni"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "73b5885c2ec4c78e2d7e61a68e1c3ae50e7eba3e",
+      "name": "scripts"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "eb8a8b01bf5ba98a8a82f44727f081b69750a56e",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "bec31cb9349c2c18a20088e3fcc5c9b084cf4410",
+      "name": "test"
+    }
+  ]
+}

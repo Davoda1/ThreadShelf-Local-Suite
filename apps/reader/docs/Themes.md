@@ -192,11 +192,11 @@ positions, bookmarks, collection identities, compression profiles or server data
 
 The UI writes the selected IDs to root attributes `data-ui-palette` and `data-code-theme`; the existing `data-theme` holds the resolved light/dark mode. The optional `data-contrast="high"` takes priority for readability.
 
-After editing catalog values or token mappings, run:
+After editing catalog values or token mappings, run these commands from the Reader application directory in a source checkout/archive. Use Node 24.22.1 and the managed npm 12.2.1 helper, which verifies pinned integrity and substitutes official Undici 6.29.1 in its isolated npm copy. This is a local toolchain modification; packaged applications use the generated CSS and do not include or need this source helper.
 
 ```sh
 node scripts/generate-themes.mjs
-npm run build
+node scripts/npm-toolchain.mjs -- run build
 ```
 
 The generator writes committed `src/ui/themes.css` and `src/ui/code-themes.css`, imported after Reader styles. The generated interface stylesheet imports the separately maintained `src/ui/modern.css` for Modern, Modern OLED, Platinum, Prism, Nocturne and Garnet surface treatments;

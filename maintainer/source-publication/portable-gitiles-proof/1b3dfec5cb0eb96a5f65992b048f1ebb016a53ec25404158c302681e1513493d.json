@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__ots__src-46bea9879127d0ff1c6601b078e2ce98e83fcd33.tar.gz",
+  "archive_bytes": 28926930,
+  "archive_sha256": "1b3dfec5cb0eb96a5f65992b048f1ebb016a53ec25404158c302681e1513493d",
+  "revision": "46bea9879127d0ff1c6601b078e2ce98e83fcd33",
+  "repository": "https://chromium.googlesource.com/external/github.com/khaledhosny/ots.git",
+  "root_git_tree": "909e6e11351cbdb62e08e6d758b7901470d3b4d7",
+  "blob_count": 519,
+  "git_tree_count": 16,
+  "member_count": 534,
+  "regular_file_bytes": 56172277,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 518,
+    "100755": 1
+  },
+  "source_blob_inventory_sha256": "e0b5a41e00784f7390e4cf920b313426589f3932465e5f7d7a6a88e5420fd330",
+  "archive_mtime_range": [
+    1793145228.763,
+    1793145237.182
+  ],
+  "metadata": [
+    {
+      "file": "metadata/1e8d60d25308f501695db8d22e1c9fd13d22472bdb5fa1b44b204e46c65c4792.json",
+      "url": "https://chromium.googlesource.com/external/github.com/khaledhosny/ots.git/+/46bea9879127d0ff1c6601b078e2ce98e83fcd33/?format=JSON",
+      "bytes": 1717,
+      "sha256": "580fda61bc50e9f2463cf2e91f66c6f15f9d7bfe863fd5cdb40a144d2dd15b4d",
+      "git_tree": "909e6e11351cbdb62e08e6d758b7901470d3b4d7",
+      "receipt": {
+        "file": "metadata/1e8d60d25308f501695db8d22e1c9fd13d22472bdb5fa1b44b204e46c65c4792.receipt.json",
+        "bytes": 242,
+        "sha256": "cccd3fceb405ab9a7474e7390a66c5491ceaf8a2b29cdb8f02943c364d0ee0a3"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/1b3dfec5cb0eb96a5f65992b048f1ebb016a53ec25404158c302681e1513493d.jsonl.gz",
+    "bytes": 71844,
+    "sha256": "12f89615c71c615a64d2643a569602719d75591fee64d3f384554a0e7318889a",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 182241,
+    "jsonl_sha256": "ba4f4c9d9677ee446c96dd15d53bd2134aa336574ad51af038c23dddecaeca88",
+    "records": 536,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "0d4e1f51276ac75913509b0a5326969e7f8fd8734961a1ca23ba586266deaacb",
+    "bytes": 28926957,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

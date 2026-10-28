@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__spirv-cross__src-b8fcf307f1f347089e3c46eb4451d27f32ebc8d3.tar.gz",
+  "archive_bytes": 1922327,
+  "archive_sha256": "d50f81636195aa387c15c39a0940417c13d701602b7223c8dda1efb546bc9a28",
+  "revision": "b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
+  "repository": "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross",
+  "root_git_tree": "5ebe6c14e72f2d401c56421f7b2a73e8c691ee0d",
+  "blob_count": 4343,
+  "git_tree_count": 378,
+  "member_count": 4720,
+  "regular_file_bytes": 10960950,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100755": 9,
+    "100644": 4334
+  },
+  "source_blob_inventory_sha256": "a21e710a14ad02302c06425cff088de4f074b3880054aa508bd6ad740f4d11b7",
+  "archive_mtime_range": [
+    1793146107.917,
+    1793146108.447
+  ],
+  "metadata": [
+    {
+      "file": "metadata/0cd9ed1fb430852afc53463a93864533a9b198913f8536a3069571c7403e4f4b.json",
+      "url": "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross/+/b8fcf307f1f347089e3c46eb4451d27f32ebc8d3/?format=JSON",
+      "bytes": 9382,
+      "sha256": "3863e878d4b857f5f8908d829fbd1e574a955149f9b83e44837654ffdc1c6db1",
+      "git_tree": "5ebe6c14e72f2d401c56421f7b2a73e8c691ee0d",
+      "receipt": {
+        "file": "metadata/0cd9ed1fb430852afc53463a93864533a9b198913f8536a3069571c7403e4f4b.receipt.json",
+        "bytes": 247,
+        "sha256": "0275aacb915d55c72d8a4ca0ee3962d4e38bed2ed5188ef3a2e8b677b3137d10"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/d50f81636195aa387c15c39a0940417c13d701602b7223c8dda1efb546bc9a28.jsonl.gz",
+    "bytes": 504120,
+    "sha256": "5d15f723f12a7c94681f2c52e5918ecd46d644e614d4670e1a93c407634305d1",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 1581134,
+    "jsonl_sha256": "3bcbf0b2fee5688969f4df18f761fd1817c32c2caf91b3248ee858b6ab207e72",
+    "records": 4722,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "53be4c1ba2f063ee989ae71b39ce59bd1ed8a8ae50bf7943f09f675dd0601e62",
+    "bytes": 1923776,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

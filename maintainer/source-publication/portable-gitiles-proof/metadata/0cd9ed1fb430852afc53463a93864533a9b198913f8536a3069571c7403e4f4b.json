@@ -1,0 +1,395 @@
+{
+  "id": "5ebe6c14e72f2d401c56421f7b2a73e8c691ee0d",
+  "entries": [
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "84552f330bbc0b7c768800825cba98dd3c459bfc",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7b00752b125c45e73efd1a365832b34f2a51a179",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3eea4d15698a6a6d05e35f419a9704c0ac2a4b4e",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "56cd39b2e07641dcd6ee61c533c6d9facb8f8be4",
+      "name": ".reuse"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f6019ab266bbf0c5a407498dfde16db8912a8cb1",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ca5e08b930a2312fac0c49e8e42030026ae7f1e7",
+      "name": "CODE_OF_CONDUCT.adoc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2686fc4ea7e075cbc1f6c202b6f2901443ec0006",
+      "name": "GLSL.std.450.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0bb7c70350fae168a9819f22bd8faf90ed98cd51",
+      "name": "LICENSES"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b44eb5e8c97511632235fa9305a134145765508b",
+      "name": "Makefile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "99e601936a42c97f5cae083c2f0032cba44459f4",
+      "name": "Package.swift"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3a89e6c2f8cf8f0be959b4475ca3998c0e145286",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cc2fade27162c3e7651c94d9c83e8355bae71357",
+      "name": "appveyor.yml"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "e25aa98e9c271bd050174711187f63a2d916dd84",
+      "name": "build_glslang_spirv_tools.sh"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "10d20b0a58c0e236a4eb970ba3ec57e38001880f",
+      "name": "checkout_glslang_spirv_tools.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "39cb717e07498c76472e0a3d07e0aa6055d8f6d4",
+      "name": "cmake"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "001c3c5dd4bda595ed68c24654f741d708fe6d80",
+      "name": "format_all.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6b83045cab189d4bb817fbdd3b707fb05116fd82",
+      "name": "gn"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "30aa2f22d141415b7acf6352071c2b3777f880c0",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7e14f11020e1ca1f63ea76fccd7c3284fd2e3a12",
+      "name": "main.cpp"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "45be0417658bc8e819b8c2268a59a89fc9d5f892",
+      "name": "pkg-config"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e64dcc512fcf243a1f610e3268743bc9d4853037",
+      "name": "reference"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "242c68a523e66a1a7f921d88a280ab1e64a273a2",
+      "name": "samples"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "34c201bf7ec74f2d14d106aaef1893b5f76b0127",
+      "name": "shaders-hlsl-no-opt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0aa11e731df2e8db53b63b379428c8d4e1197caa",
+      "name": "shaders-hlsl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "28f27866516373107c7c2d5298c344185e12ba33",
+      "name": "shaders-msl-no-opt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "202d9506f3789a8e9927da8ae95304f1c759fa0b",
+      "name": "shaders-msl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ff2ae674ff178e4d46e9f2121992cdeb3edc3fda",
+      "name": "shaders-no-opt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "117c7d0b563fa2df2e1f020fccb445b629c40c9c",
+      "name": "shaders-other"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "88aaf7ef74ef484d82c7e24f63b1cc79503784b6",
+      "name": "shaders-reflection"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c4d139604562a04afa7ef7996d5e42194b4e9e04",
+      "name": "shaders-ue4-no-opt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5c135d849b5b407a510088afc3ed656e6a279206",
+      "name": "shaders-ue4"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "71c569055a66b2c79bdae287f1e718fd7b5a595a",
+      "name": "shaders"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2d6e215de92360bf9ebfccebe856ad4dfa02da18",
+      "name": "spirv.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f2ee9096bdd5d38d38ac2fe44b4741d2de51b951",
+      "name": "spirv.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "932994798153712327fc5569093f5ddb9ef15f9f",
+      "name": "spirv_cfg.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1d85fe0a97b4d2509e6110c286f993c8522eabb9",
+      "name": "spirv_cfg.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "51fffe7a130e6cf3984b5b3fe40cd88ea8dfe1e9",
+      "name": "spirv_common.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dd0a84c83126ef41448cfe8b60cbc7207cf63eb3",
+      "name": "spirv_cpp.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c76629cdcbed4ec13e8c24fd236306a9122e7c1a",
+      "name": "spirv_cpp.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3f0fec334a34450be72222bb3fd5d0d494adbdac",
+      "name": "spirv_cross.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2ba602502139cfcc1f5a87c582e1a621bb9e2a60",
+      "name": "spirv_cross.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "eea0930ad5240b8b430016629ecac4a7a2646320",
+      "name": "spirv_cross.natvis"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "679333dac9e14fb6d4f135aedad558612535a181",
+      "name": "spirv_cross_c.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "47369964ab023a09c44ffc1316ae5ec4fae8c466",
+      "name": "spirv_cross_c.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c496cb75be5498544b04eab417bc3d13656807d6",
+      "name": "spirv_cross_containers.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "91e6cf4f86be53e20fc479848d54a98483b010be",
+      "name": "spirv_cross_error_handling.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c6ddb6a45eb3ef941198d978905f4c4a62c769ee",
+      "name": "spirv_cross_parsed_ir.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7f35c3815cd2375e128ff14046aeb8909c4e3302",
+      "name": "spirv_cross_parsed_ir.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7cff010d1c1e9ae1ad02e14eab13b2db88eef069",
+      "name": "spirv_cross_util.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e6e3fcdb6340083259535db4ded9da1310d8bf8c",
+      "name": "spirv_cross_util.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0d37ba2e8d7af83544379554e1b989d3dcead148",
+      "name": "spirv_glsl.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3ce044e39fc9bf0747230447f0860a18eccbb1d8",
+      "name": "spirv_glsl.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9b8349365ea7196afa73315219ec3e7cef7e4114",
+      "name": "spirv_hlsl.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bec458c6122b2fb4bd7a101927b05b41a7af98a7",
+      "name": "spirv_hlsl.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a6dd8da9af4f14c0c564ea7eb05e4896ec7f8da6",
+      "name": "spirv_msl.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ed9180972f1288a33100c6fef47b23d799b5b7b7",
+      "name": "spirv_msl.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6108dbb6533c1482503db0e4a2611f9851c9e9b3",
+      "name": "spirv_parser.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dabc0e22446bce815ee98b0eb28eff503d50415d",
+      "name": "spirv_parser.hpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "633983bd30debb636ba40b07a1a930ce9361796b",
+      "name": "spirv_reflect.cpp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a129ba54da57b6bf977d26951539649a09fa7198",
+      "name": "spirv_reflect.hpp"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "452e5e384a37fcc4172172bdfc86b0c7a67a2f4a",
+      "name": "test_shaders.py"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "54bf700ca23a9b7393f2e381b3c7e2340e120e0c",
+      "name": "test_shaders.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fa8dc875c5df71d1e29ae8cd675a8696185a4a49",
+      "name": "tests-other"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "85f9f0b7a1ddd03e5a658da5b8bc14d60ae14812",
+      "name": "update_test_shaders.sh"
+    }
+  ]
+}

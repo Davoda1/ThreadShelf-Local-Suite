@@ -1,0 +1,107 @@
+{
+  "id": "1351c2638167158e4d2c856be300c276a07725fa",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9b753ffe406bc143d7b2e8726e94466986c0715d",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "65e783e17f916dc08b69003ee0f7234a0aa56b68",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f030f54e9ca1ad8bb85025ea67818f2c918a4882",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c42ee90e45577bdf1d453e28fe846ab4bff6de0c",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f8840a5650643dc2a8e516bcd43fb55c565f24ce",
+      "name": "CONTRIBUTORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "88280d52879c153062774a4bfd56f29d6a892e1b",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6a00ffd3f6448d6cbb7851799565b11a9c22e6ca",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a8fba3b0afb3d7819768f3a74cd0014091bbb83b",
+      "name": "android"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fd8bd27cb4dc6ed732340af83cfa0128ffd0ab81",
+      "name": "build.gradle"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "25c588f30813903aea158587b5171ac765885d6e",
+      "name": "common"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "eb7076bf80db502067253c11ddc31031456b8b26",
+      "name": "cpp"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b4edb8a7b0191f644023c554ac75e10e9b4e34ca",
+      "name": "externals"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6ff3530b67bcd85da1f2712694ec6f5ac320d3e6",
+      "name": "gradle"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "6e5d00d8697265f71ac2c7f98246384bbc0aa897",
+      "name": "gradlew"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6689b85beecde676054c39c2408085f41e6be6dc",
+      "name": "gradlew.bat"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "18077ac4d39ffb0de832f12349ff188dc4e7992b",
+      "name": "settings.gradle"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "78028db949d2e93ae418bd2bb3f3b5fc01de749a",
+      "name": "testdata"
+    }
+  ]
+}

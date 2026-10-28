@@ -14,7 +14,9 @@ import { spawnSync } from 'node:child_process';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const pwsh = process.env.TSLR_PWSH || 'pwsh';
 const source = process.env.TSLR_BOOTSTRAP_TEST_SOURCE || path.join(root, 'scripts/run.ps1');
-const fixtureNpm = '99.1.2';
+const fixtureNpm = '12.2.1';
+const fixtureUndici = '6.29.1';
+const fixtureProfile = `npm-${fixtureNpm}-undici-${fixtureUndici}`;
 const environmentNames = ['Path', 'TSLR_NODE_VERSION', 'TSLR_NODE_CHANNEL', 'TSLR_NODE_INDEX_FILE',
   'TSLR_NODE_SHA256', 'TSLR_ELECTRON_VERSION', 'ELECTRON_OVERRIDE_DIST_PATH', 'NODE_USE_ENV_PROXY',
   'ONNXRUNTIME_NODE_INSTALL', 'ELECTRON_SKIP_BINARY_DOWNLOAD'];
@@ -26,28 +28,54 @@ async function fixture(t) {
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
   const scripts = path.join(directory, 'scripts');
   const nodeDir = path.join(directory, '.tooling', `node-${process.version}-win-x64`);
-  const npmCLI = path.join(nodeDir, 'node_modules/npm/bin/npm-cli.js');
+  const managedRoot = path.join(directory, '.tooling', fixtureProfile);
+  const managedBin = path.join(managedRoot, 'bin');
+  const npmCLI = path.join(managedRoot, 'package/bin/npm-cli.js');
   const downloads = path.join(directory, '.tooling/downloads');
-  await Promise.all([fs.mkdir(scripts, { recursive: true }), fs.mkdir(path.dirname(npmCLI), { recursive: true }), fs.mkdir(downloads, { recursive: true })]);
+  await Promise.all([fs.mkdir(scripts, { recursive: true }), fs.mkdir(path.dirname(npmCLI), { recursive: true }), fs.mkdir(downloads, { recursive: true }), fs.mkdir(managedBin, { recursive: true }), fs.mkdir(nodeDir, { recursive: true })]);
   await fs.copyFile(source, path.join(scripts, 'run.ps1'));
   await fs.copyFile(path.join(root, 'scripts/runtime-policy.mjs'), path.join(scripts, 'runtime-policy.mjs'));
   await fs.copyFile(process.execPath, path.join(nodeDir, 'node.exe'));
   await fs.chmod(path.join(nodeDir, 'node.exe'), 0o755);
   const log = path.join(directory, 'calls.jsonl');
   const snapshot = path.join(directory, 'environment.json');
-  const append = `require('node:fs').appendFileSync(process.env.TSLR_FIXTURE_LOG, JSON.stringify({ args: process.argv.slice(2), cwd: process.cwd(), node: process.execPath }) + '\\n');`;
-  await fs.writeFile(npmCLI, `${append}\nif (process.argv[2] === '--version') console.log('${fixtureNpm}');\nif (process.argv[2] === process.env.TSLR_FIXTURE_FAIL) process.exit(71);\n`);
-  if (process.platform !== 'win32') {
-    // The real host Node identifies itself as POSIX even when exercising the
-    // Windows bootstrap. Supply its conventional layout for runtime-policy's
-    // version probe; the bootstrap must still use the Windows-layout CLI.
-    const posixNpm = path.join(nodeDir, '../lib/node_modules/npm/bin/npm-cli.js');
-    await fs.mkdir(path.dirname(posixNpm), { recursive: true });
-    await fs.copyFile(npmCLI, posixNpm);
+  const append = `require('node:fs').appendFileSync(process.env.TSLR_FIXTURE_LOG, JSON.stringify({ args: process.argv.slice(2), cwd: process.cwd(), node: process.execPath, guarded: process.env.TSLR_FIXTURE_GUARDED === '${fixtureProfile}' }) + '\\n');`;
+  await fs.writeFile(npmCLI, `${append}\nif (process.env.TSLR_FIXTURE_GUARDED !== '${fixtureProfile}') throw Error('Managed npm was called without its guard');\nif (process.argv[2] === '--version') console.log('${fixtureNpm}');\nif (process.argv[2] === process.env.TSLR_FIXTURE_FAIL) process.exit(71);\n`);
+  // Exercise the real bootstrap and runtime record against the managed helper
+  // contract. Root toolchain tests validate registry integrity and nested shims;
+  // this fixture makes bypassing that helper fail, without network downloads.
+  await fs.writeFile(path.join(scripts, 'npm-toolchain.mjs'), `
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
+const root=fileURLToPath(new URL('../.tooling/${fixtureProfile}/',import.meta.url));
+export async function ensureNpm(){
+ fs.appendFileSync(process.env.TSLR_FIXTURE_LOG,JSON.stringify({args:['verify-npm-profile'],node:process.execPath,cwd:process.cwd()})+'\\n');
+ if(process.env.TSLR_FIXTURE_FAIL==='profile')throw Error('Managed npm profile verification failed');
+ return {root,cli:path.join(root,'package/bin/npm-cli.js'),bin:path.join(root,'bin'),npm:'${fixtureNpm}',undici:'${fixtureUndici}',id:'${fixtureProfile}'};
+}
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ try{
+  const profile=await ensureNpm(),args=process.argv.slice(2);
+  if(args[0]==='--report')console.log(JSON.stringify(profile));
+  else if(args[0]==='--print-cli')console.log(profile.cli);
+  else if(args[0]==='--'){
+   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>key.toUpperCase()!=='PATH'));
+   env.PATH=profile.bin+path.delimiter+(process.env.PATH||process.env.Path||'');env.TSLR_FIXTURE_GUARDED=profile.id;
+   const result=spawnSync(process.execPath,[profile.cli,...args.slice(1)],{stdio:'inherit',env});if(result.error)throw result.error;process.exitCode=result.status??1;
+  }else throw Error('Unexpected managed npm argument');
+ }catch(error){console.error(error.message);process.exitCode=1;}
+}
+`);
+  for (const bundled of ['node_modules/npm/bin/npm-cli.js', '../lib/node_modules/npm/bin/npm-cli.js']) {
+    const poison = path.join(nodeDir, bundled);
+    await fs.mkdir(path.dirname(poison), { recursive: true });
+    await fs.writeFile(poison, `throw Error('Node-bundled npm must not be used');\n`);
   }
   await fs.writeFile(path.join(scripts, 'ensure-electron.mjs'), `import fs from 'node:fs'; fs.appendFileSync(process.env.TSLR_FIXTURE_LOG, JSON.stringify({args:['ensure-electron']})+'\\n');\n`);
   // If a bootstrap calls the ambiguous wrapper, fail instead of allowing a
-  // globally selected npm to masquerade as the bundled npm in its record.
+  // globally selected npm to masquerade as the managed npm in its record.
   await fs.writeFile(path.join(nodeDir, 'npm.cmd'), '#!/bin/sh\nprintf "unexpected npm wrapper\\n" >&2\nexit 91\n', { mode: 0o755 });
   const archive = Buffer.from('cached official-archive fixture; no extraction requested');
   const archiveName = `node-${process.version}-win-x64.zip`;
@@ -106,15 +134,24 @@ finally {
   return { run, directory, npmCLI, nodeDir };
 }
 
-test('PowerShell ResolveOnly isolates inherited environment aliases and records the selected distribution npm', async t => {
+function npmCalls(result) { return result.calls.filter(call => call.args[0] !== 'verify-npm-profile'); }
+function verifyManagedCalls(result) {
+  assert.equal(result.calls[0]?.args[0], 'verify-npm-profile', 'Verify the managed profile before runtime resolution or npm commands');
+  for (const call of npmCalls(result).filter(call => call.node)) assert.equal(call.guarded, true, 'Every npm command uses the managed wrapper guard');
+  assert.ok(result.calls.filter(call => call.args[0] === 'verify-npm-profile').length >= npmCalls(result).filter(call => call.node).length + 2, 'Bootstrap and runtime policy both verify the profile');
+}
+
+test('PowerShell ResolveOnly isolates inherited environment aliases and records the verified managed npm profile', async t => {
   const f = await fixture(t), result = await f.run('ResolveOnly', '', {
     ...process.env, processor_architecture: 'ARM64', PROCESSOR_ARCHITEW6432: 'ARM64',
     tslr_fixture_node: 'v0.0.0', path: 'invalid synthetic inherited path',
   });
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, new RegExp(`npm ${fixtureNpm.replaceAll('.', '\\.')}`));
-  assert.equal(JSON.parse(await fs.readFile(path.join(f.directory, '.tooling/toolchain.json'))).npm, fixtureNpm);
-  assert.deepEqual(result.calls.map(x => x.args), [['--version'], ['--version']]);
+  const record = JSON.parse(await fs.readFile(path.join(f.directory, '.tooling/toolchain.json')));
+  assert.equal(record.npm, fixtureNpm);assert.equal(record.npmUndici, fixtureUndici);assert.equal(record.npmProfile, fixtureProfile);
+  assert.deepEqual(npmCalls(result).map(x => x.args), [['--version']]);
+  verifyManagedCalls(result);
   for (const call of result.calls) assert.equal(await fs.realpath(call.node), await fs.realpath(path.join(f.nodeDir, 'node.exe')), 'The selected Node executable was used');
 });
 
@@ -123,9 +160,10 @@ test('PowerShell selected npm runs every existing build/test/package/start flow 
   for (const [action, last] of [['Build', null], ['Test', ['test']], ['Package', ['run', 'package', '--', '--win32']], ['', ['start']]]) {
     const result = await f.run(action);
     assert.equal(result.status, 0, `${action}: ${result.stdout}${result.stderr}`);
-    const expected = [['--version'], ['--version'], ['ci', '--include=optional'], ['ensure-electron'], ['run', 'build']];
+    const expected = [['--version'], ['ci', '--include=optional'], ['ensure-electron'], ['run', 'build']];
     if (last) expected.push(last);
-    assert.deepEqual(result.calls.map(x => x.args), expected, action);
+    assert.deepEqual(npmCalls(result).map(x => x.args), expected, action);
+    verifyManagedCalls(result);
     for (const call of result.calls.filter(x => x.node)) {
       assert.equal(await fs.realpath(call.node), await fs.realpath(path.join(f.nodeDir, 'node.exe')), 'The selected Node executable was used');
       assert.equal(await fs.realpath(call.cwd), f.directory, 'Commands run in the isolated project directory');
@@ -137,5 +175,15 @@ test('PowerShell stops on selected npm failure and restores its environment', as
   const f = await fixture(t), result = await f.run('Package', 'ci');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /exit code 71/);
-  assert.deepEqual(result.calls.map(x => x.args), [['--version'], ['--version'], ['ci', '--include=optional']]);
+  assert.deepEqual(npmCalls(result).map(x => x.args), [['--version'], ['ci', '--include=optional']]);
+  verifyManagedCalls(result);
+});
+
+
+test('PowerShell ResolveOnly rejects an unverified managed profile and restores its environment', async t => {
+  const f = await fixture(t), result = await f.run('ResolveOnly', 'profile');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Managed npm profile verification failed/);
+  assert.deepEqual(result.calls.map(call => call.args), [['verify-npm-profile']]);
+  await assert.rejects(fs.stat(path.join(f.directory, '.tooling/toolchain.json')), { code: 'ENOENT' });
 });

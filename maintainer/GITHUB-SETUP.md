@@ -69,7 +69,7 @@ Under the repository's security settings, enable **private vulnerability reporti
 
 ## 5. Use the supplied Actions workflows
 
-The workflows pin external actions to full commit IDs and Node.js to 24.19.0. They need no personal secret for ordinary builds.
+The workflows pin external actions to full commit IDs and Node.js to 24.22.1. They prepare the verified managed npm 12.2.1/Undici 6.29.1 profile described in [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md). They need no personal secret for ordinary builds.
 
 Under **Settings → Actions → General**, permit the GitHub-owned actions used by the workflows. Keep default workflow permissions at **Read repository contents**. Fork pull requests must not receive secrets or a write token.
 

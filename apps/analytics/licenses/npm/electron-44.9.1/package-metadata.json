@@ -1,9 +1,0 @@
-{
-  "name": "electron",
-  "version": "44.9.1",
-  "license": "MIT",
-  "repository": "https://github.com/electron/electron",
-  "retainedNotices": [
-    "LICENSE"
-  ]
-}

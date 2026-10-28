@@ -1,0 +1,101 @@
+{
+  "id": "dc61faf2cc441dd4cff2bb246451d398ae148559",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b3d23083eadafa512b6efb4f4370dd92c5cf888a",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "851448b1b3f849e357fbf018d5418de7b36a7118",
+      "name": "CHANGES"
+    },
+    {
+      "mode": 40960,
+      "type": "blob",
+      "id": "57b939ddb968cd7b6be9b71e3c071d91f2b9a90d",
+      "name": "README.rst"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2c4d0e62d6ba674ed80ab43058c362c89399212f",
+      "name": "conftest.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8f8b4ff94b5aca528df4727d84bbf3598f8f9699",
+      "name": "defs.bzl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c89323f80f2d7d8920106caba448c8cdf224ec96",
+      "name": "docs"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "07630844231683cc1c97e8f75f858a2655e03c70",
+      "name": "generate.py"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d8b95d3305ddc265f246f6e3c36bb1464996d54f",
+      "name": "private"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "efb3b4fb30e8b258b4fb7fbad8649c24c684ad4f",
+      "name": "pyproject.toml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7e39384d0a3609ff339f4c4a759c0496548548b4",
+      "name": "python.iml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d0d558393046fa5398a622bf410cc00a893f60a3",
+      "name": "release-selenium.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "713d9c541349568e2c884c0b072ce387e491521a",
+      "name": "requirements.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5079639bfa9bf5c594a91034d622277f631c49b8",
+      "name": "requirements_lock.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2fa25a541c6c0a60daf0742c6cb5e0fbfcbf25f2",
+      "name": "selenium"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "9c1969c3500a335bf9e45568240366126dc8a7dd",
+      "name": "test"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5c33778ad319fbc14310882bfb1ef060cd6da7c2",
+      "name": "tox.ini"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "windows_package_url": "https://storage.googleapis.com/chromium-browser-clang/Win/rust-toolchain-1edd55dcfcd573872c727fa3e086369a71661ee0-2-llvmorg-24-init-7747-g62397f8b.tar.xz?generation=1789143395284107",
+  "windows_package_bytes": 416611108,
+  "windows_package_sha256": "487387d6c7cfec69b06d613eb0f68331a3b56b1081f73bc673a1b26299865379",
+  "windows_members_scanned": 8758,
+  "linux_source_files": 3725,
+  "windows_source_files": 3725,
+  "missing": [],
+  "additional": [],
+  "changed": [],
+  "scope": "Complete source subtree of Windows package hash-compared to retained Linux source subtree. Compiler binaries are external prerequisites."
+}

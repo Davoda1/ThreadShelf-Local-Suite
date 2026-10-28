@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "total_tests": 58,
+  "suites": [
+    {
+      "file": "test-patch-inputs.py",
+      "passed": 6,
+      "exit_code": 0
+    },
+    {
+      "file": "test-stream-runtime-sources.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "file": "test-source-symlinks.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "file": "test-source-parts.py",
+      "passed": 11,
+      "exit_code": 0
+    },
+    {
+      "file": "test-source-prefetch.py",
+      "passed": 8,
+      "exit_code": 0
+    },
+    {
+      "file": "test-ordered-patches.py",
+      "passed": 11,
+      "exit_code": 0
+    }
+  ],
+  "scope": "Local adversarial source-companion tooling fixtures; does not assert that all real source archives or patches are complete.",
+  "file_sha256": {
+    "prepare-patch-inputs.py": "f1b9826e1dd39815b1f2eaad72050b1e54f30689741e3c3422078757fa735197",
+    "stream-runtime-sources.py": "f1e7bcfb59b5d359e32bf3937d3d591f27c69c437788b2260e1ba6088602811e",
+    "validate-source-symlinks.py": "0943da0e3423e81e02294c750c5275d2f62740d3a132b2526d2b08d3b010c7fb",
+    "verify-source-parts.py": "f876ae66bb5534f2d8c8a0d38f62311c31108726d3a6822430187bccbfaa7128",
+    "prefetch-part02.py": "6c381c94b8db767e85b1b774b4c18f599f308e879b47691bf128ccab215614b4",
+    "verify-ordered-patches.py": "24f7e8fe658114f2355ae9b1c9f391c95c2b56139dcb26a50bd1a7b9c8ba4848",
+    "test-patch-inputs.py": "837a62bf137b7962ed6903a483b87d9c086e9cbdf6e7b655f78b04ea25fbef4b",
+    "test-stream-runtime-sources.py": "42129916933e1db87f9db9c00f061b736973930b442e92f92f6dc4e33c178aea",
+    "test-source-symlinks.py": "f522a80a78a1373ce5190177df408d0d5bc9b3d8ef0a702737cf77fb61a961db",
+    "test-source-parts.py": "7d420f0605a296326bc6902c688d79d497ecf9bb4cc0671a67b9b2392cb8a15f",
+    "test-source-prefetch.py": "81345dd4f86004e34ae4224c9166a604963909aa29bf53cbb4e0c97e8304ae69",
+    "test-ordered-patches.py": "19503d87955f8aa8df4b3aa5fba9ac76405724ed1c8737d64ab38474889587ad"
+  }
+}

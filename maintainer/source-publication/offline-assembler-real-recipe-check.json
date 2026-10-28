@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "scope": "Exact retained257orderedupstreampatches and1115filediffs use reviewed regular-text forms; Git numstat independently agrees with every target. This check does not apply patches.",
+  "patch_count": 257,
+  "diff_count": 1115,
+  "helper_sha256": "037749d06271daa3022d9e8c7952459b36d9d0b40bb4640c3fbe88fcb8198175"
+}

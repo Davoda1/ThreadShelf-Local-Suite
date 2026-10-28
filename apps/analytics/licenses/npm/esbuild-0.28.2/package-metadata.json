@@ -1,0 +1,12 @@
+{
+  "name": "esbuild",
+  "version": "0.28.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evanw/esbuild.git"
+  },
+  "retainedNotices": [
+    "LICENSE.md"
+  ]
+}

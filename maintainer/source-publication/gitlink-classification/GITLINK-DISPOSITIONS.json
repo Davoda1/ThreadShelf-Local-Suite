@@ -1,0 +1,1478 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "scope": "Chromium/Electron Linux+Windows GN graph only; standalone upstream builds not claimed. Nested Gitlink pins are preserved as identities and explicitly reviewed; differently pinned root dependencies are never represented as the nested pin being collected.",
+  "gitlinks": [
+    {
+      "owner_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/Tencent/rapidjson",
+      "revision": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "path": "thirdparty/gtest",
+      "gitlink_revision": "ba96d0b1161f540656efdaed035b3c062b60e006",
+      "owner_path": "src/third_party/angle/third_party/rapidjson/src",
+      "owner_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-test-only",
+      "explanation": "The pinned ANGLE GN wrapper defines only the rapidjson header source_set and its include configuration. It does not invoke upstream RapidJSON CMake or the test directory; the nested GoogleTest checkout is consumed by the separately retained upstream test/CMakeLists.txt.",
+      "review_inputs": [
+        {
+          "file": "evidence/55f29aa6200195cd880ed8331dcac28599f181327a7c0ee3094a88769e04060c.txt",
+          "bytes": 104,
+          "sha256": "55f29aa6200195cd880ed8331dcac28599f181327a7c0ee3094a88769e04060c",
+          "source_path": "src/third_party/angle/third_party/rapidjson/src/.gitmodules",
+          "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+          "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/458a069dfde2f3b04dfbf228990bbb007828ef1a4df334a1393c07f7cf00c002.txt",
+          "bytes": 11046,
+          "sha256": "458a069dfde2f3b04dfbf228990bbb007828ef1a4df334a1393c07f7cf00c002",
+          "source_path": "src/third_party/angle/third_party/rapidjson/src/CMakeLists.txt",
+          "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+          "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/83f4bed0e077bb0a71ea57cb3af7cd4b20743cdebb4309e585458de95eb101ac.txt",
+          "bytes": 491,
+          "sha256": "83f4bed0e077bb0a71ea57cb3af7cd4b20743cdebb4309e585458de95eb101ac",
+          "source_path": "src/third_party/angle/third_party/rapidjson/src/test/CMakeLists.txt",
+          "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+          "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/0c61cb7af72d66688126293bec5d33c876f6576278d15b83fbe39a12e493628a.txt",
+          "bytes": 2035,
+          "sha256": "0c61cb7af72d66688126293bec5d33c876f6576278d15b83fbe39a12e493628a",
+          "source_path": "src/third_party/angle/third_party/rapidjson/BUILD.gn",
+          "source_archive": "src__third_party__angle-3b89d84e9d59f75675ac4e2bef58fc068a9f0577.tar.gz",
+          "source_archive_sha256": "28cbfa5e01343847768a3f00850c20ba736bc429380e8dc223ed1ad30a0d6fc0",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/crc32c.git",
+      "revision": "2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07",
+      "path": "third_party/benchmark",
+      "gitlink_revision": "0da57b85cf23e48d0e515f58c65a25425dbde012",
+      "owner_path": "src/third_party/crc32c/src",
+      "owner_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+      "disposition": "external-build-or-test",
+      "classification": "selected-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium crc32c_benchmark explicitly depends on //third_party/google_benchmark. The independently DEPS-selected root Benchmark source replaces the nested standalone CMake benchmark checkout.",
+      "review_inputs": [
+        {
+          "file": "evidence/e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74.txt",
+          "bytes": 327,
+          "sha256": "e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74",
+          "source_path": "src/third_party/crc32c/src/.gitmodules",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd.txt",
+          "bytes": 14864,
+          "sha256": "9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd",
+          "source_path": "src/third_party/crc32c/src/CMakeLists.txt",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553.txt",
+          "bytes": 4023,
+          "sha256": "09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553",
+          "source_path": "src/third_party/crc32c/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ],
+      "selected_dependency": {
+        "path": "src/third_party/google_benchmark/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/benchmark.git",
+        "revision": "8abf1e701fbd88c8170f48fe0558247e2e5f8e7d",
+        "archive": "src__third_party__google_benchmark__src-8abf1e701fbd88c8170f48fe0558247e2e5f8e7d.tar.gz",
+        "sha256": "6211556848a604de7c9a3928ed6493830cdc0f60b2749885b1f7c73ebf6eefe0"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/crc32c.git",
+      "revision": "2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07",
+      "path": "third_party/glog",
+      "gitlink_revision": "53d58e4531c7c90f71ddab503d915e027432447a",
+      "owner_path": "src/third_party/crc32c/src",
+      "owner_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+      "disposition": "external-build-or-test",
+      "classification": "disabled-standalone-test-logging-library",
+      "explanation": "Chromium crc32c_config defines CRC32C_TESTS_BUILT_WITH_GLOG=0 for the library and tests, and its explicit GN dependencies contain no glog target. Upstream CMake adds the nested glog checkout only under CRC32C_USE_GLOG for its standalone test/benchmark configuration.",
+      "review_inputs": [
+        {
+          "file": "evidence/e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74.txt",
+          "bytes": 327,
+          "sha256": "e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74",
+          "source_path": "src/third_party/crc32c/src/.gitmodules",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd.txt",
+          "bytes": 14864,
+          "sha256": "9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd",
+          "source_path": "src/third_party/crc32c/src/CMakeLists.txt",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553.txt",
+          "bytes": 4023,
+          "sha256": "09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553",
+          "source_path": "src/third_party/crc32c/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/crc32c.git",
+      "revision": "2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07",
+      "path": "third_party/googletest",
+      "gitlink_revision": "52204f78f94d7512df1f0f3bea1d47437a2c3a58",
+      "owner_path": "src/third_party/crc32c/src",
+      "owner_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+      "disposition": "external-build-or-test",
+      "classification": "selected-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium crc32c_tests explicitly depends on //testing/gtest:gtest_main and //third_party/googletest:gtest. The independently DEPS-selected root GoogleTest source replaces the nested standalone CMake test checkout.",
+      "review_inputs": [
+        {
+          "file": "evidence/e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74.txt",
+          "bytes": 327,
+          "sha256": "e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74",
+          "source_path": "src/third_party/crc32c/src/.gitmodules",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd.txt",
+          "bytes": 14864,
+          "sha256": "9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd",
+          "source_path": "src/third_party/crc32c/src/CMakeLists.txt",
+          "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+          "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553.txt",
+          "bytes": 4023,
+          "sha256": "09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553",
+          "source_path": "src/third_party/crc32c/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ],
+      "selected_dependency": {
+        "path": "src/third_party/googletest/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/googletest.git",
+        "revision": "4fe3307fb2d9f86d19777c7eb0e4809e9694dde7",
+        "archive": "src__third_party__googletest__src-4fe3307fb2d9f86d19777c7eb0e4809e9694dde7.tar.gz",
+        "sha256": "f23b419de94d8d3e44aadb057d199d77014e0981c69b868c0635a6bdaf783f99"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/leveldb.git",
+      "revision": "7ee830d02b623e8ffe0b95d59a74db1e58da04c5",
+      "path": "third_party/benchmark",
+      "gitlink_revision": "1a54956777ba672764db09a51960056ea042af7e",
+      "owner_path": "src/third_party/leveldatabase/src",
+      "owner_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+      "disposition": "external-build-or-test",
+      "classification": "selected-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium leveldb_db_bench_log explicitly depends on //third_party/google_benchmark. The DEPS-selected root Benchmark source is included; upstream CMake uses the distinct nested gitlink only for its standalone LEVELDB_BUILD_BENCHMARKS branch.",
+      "review_inputs": [
+        {
+          "file": "evidence/94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0.txt",
+          "bytes": 225,
+          "sha256": "94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0",
+          "source_path": "src/third_party/leveldatabase/src/.gitmodules",
+          "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+          "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789.txt",
+          "bytes": 16127,
+          "sha256": "2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789",
+          "source_path": "src/third_party/leveldatabase/src/CMakeLists.txt",
+          "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+          "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780.txt",
+          "bytes": 8161,
+          "sha256": "3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780",
+          "source_path": "src/third_party/leveldatabase/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ],
+      "selected_dependency": {
+        "path": "src/third_party/google_benchmark/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/benchmark.git",
+        "revision": "8abf1e701fbd88c8170f48fe0558247e2e5f8e7d",
+        "archive": "src__third_party__google_benchmark__src-8abf1e701fbd88c8170f48fe0558247e2e5f8e7d.tar.gz",
+        "sha256": "6211556848a604de7c9a3928ed6493830cdc0f60b2749885b1f7c73ebf6eefe0"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/leveldb.git",
+      "revision": "7ee830d02b623e8ffe0b95d59a74db1e58da04c5",
+      "path": "third_party/googletest",
+      "gitlink_revision": "a35bc7693c117a048152beeb34f6aac354b9423f",
+      "owner_path": "src/third_party/leveldatabase/src",
+      "owner_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+      "disposition": "external-build-or-test",
+      "classification": "selected-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium leveldb_testutil explicitly uses //third_party/googletest:gmock and :gtest (other tests use //testing/gtest). The DEPS-selected root GoogleTest source is included; upstream CMake uses the distinct nested gitlink only for standalone LEVELDB_BUILD_TESTS.",
+      "review_inputs": [
+        {
+          "file": "evidence/94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0.txt",
+          "bytes": 225,
+          "sha256": "94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0",
+          "source_path": "src/third_party/leveldatabase/src/.gitmodules",
+          "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+          "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789.txt",
+          "bytes": 16127,
+          "sha256": "2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789",
+          "source_path": "src/third_party/leveldatabase/src/CMakeLists.txt",
+          "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+          "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780.txt",
+          "bytes": 8161,
+          "sha256": "3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780",
+          "source_path": "src/third_party/leveldatabase/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ],
+      "selected_dependency": {
+        "path": "src/third_party/googletest/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/googletest.git",
+        "revision": "4fe3307fb2d9f86d19777c7eb0e4809e9694dde7",
+        "archive": "src__third_party__googletest__src-4fe3307fb2d9f86d19777c7eb0e4809e9694dde7.tar.gz",
+        "sha256": "f23b419de94d8d3e44aadb057d199d77014e0981c69b868c0635a6bdaf783f99"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__libaddressinput__src-81eb9628382b07d371d8ea0b11badf7de3857fd5.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/libaddressinput.git",
+      "revision": "81eb9628382b07d371d8ea0b11badf7de3857fd5",
+      "path": "externals/grit",
+      "gitlink_revision": "196aa4862969ddb8391969e3d483909c92d56dae",
+      "owner_path": "src/third_party/libaddressinput/src",
+      "owner_archive_sha256": "7e47bb1cdf9848c057a23495656e7600148e92922a1dd940f48c91fad625908b",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-submodule-replaced-by-Chromium-integration",
+      "explanation": "The exact Chromium BUILD.gn imports //tools/grit/grit_rule.gni and builds its own strings target from Chromium resource inputs. The 261 logical entries under src/tools/grit are retained in the full, verified Chromium source archive, rather than using libaddressinput externals/grit.",
+      "review_inputs": [
+        {
+          "file": "evidence/9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02.txt",
+          "bytes": 9129,
+          "sha256": "9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02"
+        },
+        {
+          "file": "evidence/9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0.txt",
+          "bytes": 2934,
+          "sha256": "9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0"
+        },
+        {
+          "file": "evidence/0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a.json",
+          "bytes": 62067,
+          "sha256": "0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a"
+        },
+        {
+          "file": "evidence/24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a.txt",
+          "bytes": 228,
+          "sha256": "24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a"
+        },
+        {
+          "file": "evidence/5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d.txt",
+          "bytes": 3536,
+          "sha256": "5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__libaddressinput__src-81eb9628382b07d371d8ea0b11badf7de3857fd5.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/libaddressinput.git",
+      "revision": "81eb9628382b07d371d8ea0b11badf7de3857fd5",
+      "path": "externals/rapidjson",
+      "gitlink_revision": "a98e99992bd633a2736cc41f96ec85ef0c50e44d",
+      "owner_path": "src/third_party/libaddressinput/src",
+      "owner_archive_sha256": "7e47bb1cdf9848c057a23495656e7600148e92922a1dd940f48c91fad625908b",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-submodule-replaced-by-Chromium-integration",
+      "explanation": "The util target compiles Chromium chromium/json.cc instead of upstream cpp/src/util/json.cc. The Chromium implementation uses base::JSONReader; the upstream file that includes rapidjson/document.h is not in the GN source list.",
+      "review_inputs": [
+        {
+          "file": "evidence/9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02.txt",
+          "bytes": 9129,
+          "sha256": "9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02"
+        },
+        {
+          "file": "evidence/9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0.txt",
+          "bytes": 2934,
+          "sha256": "9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0"
+        },
+        {
+          "file": "evidence/0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a.json",
+          "bytes": 62067,
+          "sha256": "0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a"
+        },
+        {
+          "file": "evidence/24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a.txt",
+          "bytes": 228,
+          "sha256": "24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a"
+        },
+        {
+          "file": "evidence/5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d.txt",
+          "bytes": 3536,
+          "sha256": "5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/absl",
+      "gitlink_revision": "abe63eb9bd1213c018bf82765ab747334d3b33d8",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium GN selects root //third_party/abseil-cpp source/generated-code targets. The matching source/header tree at src/third_party/abseil-cpp is vendored in the complete Chromium root archive; the accepted representative header ownership/hash is recorded separately. This standalone nested Gitlink revision is not selected.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/a5252ce2641a8e4f001e074f701cf8f9208bbc4f136370edebf06156bc789934.txt",
+          "bytes": 20210,
+          "sha256": "a5252ce2641a8e4f001e074f701cf8f9208bbc4f136370edebf06156bc789934",
+          "source_path": "src/third_party/abseil-cpp/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8.json",
+          "bytes": 764,
+          "sha256": "b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8",
+          "source_path": "src",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/abseil-cpp",
+      "selected_dependency": {
+        "path": "src",
+        "repository": "https://chromium.googlesource.com/chromium/src.git",
+        "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+        "archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+        "sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+        "vendored_path": "src/third_party/abseil-cpp"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/depot_tools",
+      "gitlink_revision": "8a11c2d152e9793e59d01bdcdd807d597e65ee1b",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "Standalone upstream build-tool Gitlink. Chromium Nearby wrapper imports Chromium root build/protobuf GN files, selects src source/proto paths and root dependencies, and has no reference to nested depot_tools. Selected local source/include closure contains no depot_tools reference; upstream standalone build/tool execution is outside this scope.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/google-toolbox-for-mac/google-toolbox-for-mac",
+      "gitlink_revision": "1b2da5e6e6b5edb1fa1427cc77e23f04069c04ad",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "Standalone Apple helper Gitlink. Chromium Nearby wrapper selects its listed source/proto files and Chromium root dependencies; no nested Google Toolbox for Mac path or header appears in this wrapper or selected local include closure. The scope is Linux/Windows Chromium GN, not upstream Apple builds.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/gtest",
+      "gitlink_revision": "d6fb5e3bf76c0363d7519373a07c2435e57c1073",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium Nearby BUILD.gn selects Chromium root //third_party/googletest targets/include roots, whose wrapper selects the separately pinned top-level DEPS checkout; it does not select this standalone Nearby nested Gitlink revision.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/423d4734463752cef071be3537e9c0dc10946b149ad69aef8ce8ec91bfc28cfd.txt",
+          "bytes": 7417,
+          "sha256": "423d4734463752cef071be3537e9c0dc10946b149ad69aef8ce8ec91bfc28cfd",
+          "source_path": "src/third_party/googletest/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/googletest/src",
+      "selected_dependency": {
+        "path": "src/third_party/googletest/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/googletest.git",
+        "revision": "4fe3307fb2d9f86d19777c7eb0e4809e9694dde7",
+        "archive": "src__third_party__googletest__src-4fe3307fb2d9f86d19777c7eb0e4809e9694dde7.tar.gz",
+        "sha256": "f23b419de94d8d3e44aadb057d199d77014e0981c69b868c0635a6bdaf783f99"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/json/json",
+      "gitlink_revision": "bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "The standalone preferences API includes nlohmann/json_fwd.hpp. Its edge from selected platform.h is under #ifndef NEARBY_CHROMIUM. Every GN source_set selecting Nearby src files applies nearby_defines with NEARBY_CHROMIUM=1; recursive static header inspection excludes that edge and finds no active JSON include. The nested JSON Gitlink is not selected by this GN graph.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/c6b9c6e0cf86ec1f4ae96fc72540c713b122e5f97d3bf8706a8e039d68469801.txt",
+          "bytes": 6896,
+          "sha256": "c6b9c6e0cf86ec1f4ae96fc72540c713b122e5f97d3bf8706a8e039d68469801",
+          "source_path": "src/third_party/nearby/src/internal/platform/implementation/platform.h",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a"
+        },
+        {
+          "file": "evidence/4e6e4244cdb8b3b6acb7a462cd4a0124dd545dcfeacf62d24fe07e901633bfc6.txt",
+          "bytes": 3621,
+          "sha256": "4e6e4244cdb8b3b6acb7a462cd4a0124dd545dcfeacf62d24fe07e901633bfc6",
+          "source_path": "src/third_party/nearby/src/internal/platform/implementation/preferences_manager.h",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/protobuf",
+      "gitlink_revision": "12f743d4e7bc2a22918371a286e9ab09748b0f40",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium GN selects root //third_party/protobuf source/generated-code targets. The matching source/header tree at src/third_party/protobuf is vendored in the complete Chromium root archive; the accepted representative header ownership/hash is recorded separately. This standalone nested Gitlink revision is not selected.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9.txt",
+          "bytes": 21603,
+          "sha256": "4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9",
+          "source_path": "src/third_party/protobuf/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8.json",
+          "bytes": 764,
+          "sha256": "b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8",
+          "source_path": "src",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/protobuf",
+      "selected_dependency": {
+        "path": "src",
+        "repository": "https://chromium.googlesource.com/chromium/src.git",
+        "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+        "archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+        "sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+        "vendored_path": "src/third_party/protobuf"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/securemessage/securemessage",
+      "gitlink_revision": "69a02984d4563c6c21132ee882d1d3df1981f5a1",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Nearby selects Chromium root //third_party/ukey2, whose public_deps and proto imports select root //third_party/securemessage. Both wrappers refer to their separately pinned DEPS checkout rather than Nearby nested Gitlinks.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55.txt",
+          "bytes": 2397,
+          "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+          "source_path": "src/third_party/securemessage/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/securemessage/src",
+      "selected_dependency": {
+        "path": "src/third_party/securemessage/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/securemessage.git",
+        "revision": "fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84",
+        "archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+        "sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/smhasher/smhasher",
+      "gitlink_revision": "61a0530f28277f2e850bfc39600ce61d02b518de",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium Nearby BUILD.gn selects Chromium root //third_party/smhasher targets/include roots, whose wrapper selects the separately pinned top-level DEPS checkout; it does not select this standalone Nearby nested Gitlink revision.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/8c1df5a1e7e542cb2198f2e3690a3582a21e303794b68e42f7a7ccb20a280cc3.txt",
+          "bytes": 1352,
+          "sha256": "8c1df5a1e7e542cb2198f2e3690a3582a21e303794b68e42f7a7ccb20a280cc3",
+          "source_path": "src/third_party/smhasher/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/smhasher/src",
+      "selected_dependency": {
+        "path": "src/third_party/smhasher/src",
+        "repository": "https://chromium.googlesource.com/external/smhasher.git",
+        "revision": "07bb4de10a63e8cc2e1724865454eba635742383",
+        "archive": "src__third_party__smhasher__src-07bb4de10a63e8cc2e1724865454eba635742383.tar.gz"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "path": "third_party/ukey2/ukey2",
+      "gitlink_revision": "03290b58d9f93cdd5c9f9f7a7f9e8efc640d0c40",
+      "owner_path": "src/third_party/nearby/src",
+      "owner_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium Nearby BUILD.gn selects Chromium root //third_party/ukey2 targets/include roots, whose wrapper selects the separately pinned top-level DEPS checkout; it does not select this standalone Nearby nested Gitlink revision.",
+      "review_inputs": [
+        {
+          "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+          "bytes": 51391,
+          "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+          "source_path": "src/third_party/nearby/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+          "bytes": 1399040,
+          "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+          "source_path": "src/third_party/nearby/src",
+          "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+          "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+          "storage": "metadata"
+        },
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/ukey2/src",
+      "selected_dependency": {
+        "path": "src/third_party/ukey2/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/ukey2.git",
+        "revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+        "archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+        "sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ruy.git",
+      "revision": "2264753777198e4393fb83c44c693462d57a2be1",
+      "path": "third_party/cpuinfo",
+      "gitlink_revision": "082deffc80ce517f81dc2f3aebe6ba671fcd09c9",
+      "owner_path": "src/third_party/ruy/src",
+      "owner_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+      "disposition": "external-build-or-test",
+      "classification": "selected-root-dependency-replaces-standalone-gitlink",
+      "explanation": "The Chromium Ruy GN wrapper imports root //third_party/cpuinfo/cpuinfo.gni and, when use_cpuinfo is enabled, depends explicitly on //third_party/cpuinfo. The independently DEPS-selected root Cpuinfo checkout is included in the companion. The standalone nested CMake submodule pin is not selected by this GN branch.",
+      "review_inputs": [
+        {
+          "file": "evidence/51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88.txt",
+          "bytes": 192,
+          "sha256": "51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88",
+          "source_path": "src/third_party/ruy/src/.gitmodules",
+          "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+          "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f.txt",
+          "bytes": 4630,
+          "sha256": "db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f",
+          "source_path": "src/third_party/ruy/src/CMakeLists.txt",
+          "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+          "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3.txt",
+          "bytes": 16804,
+          "sha256": "c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3",
+          "source_path": "src/third_party/ruy/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ],
+      "selected_dependency": {
+        "path": "src/third_party/cpuinfo/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/pytorch/cpuinfo.git",
+        "revision": "66ee79c038d70dad9f08705b2c9b3e58f6d8f512",
+        "archive": "src__third_party__cpuinfo__src-66ee79c038d70dad9f08705b2c9b3e58f6d8f512.tar.gz"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ruy.git",
+      "revision": "2264753777198e4393fb83c44c693462d57a2be1",
+      "path": "third_party/googletest",
+      "gitlink_revision": "6c58c11d5497b6ee1df3cb400ce30deb72fc28c0",
+      "owner_path": "src/third_party/ruy/src",
+      "owner_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-test-only",
+      "explanation": "The retained Chromium Ruy GN wrapper declares library source sets and no GoogleTest target or nested test dependency. Upstream CMake references this nested checkout only in the nonminimal test branch.",
+      "review_inputs": [
+        {
+          "file": "evidence/51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88.txt",
+          "bytes": 192,
+          "sha256": "51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88",
+          "source_path": "src/third_party/ruy/src/.gitmodules",
+          "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+          "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f.txt",
+          "bytes": 4630,
+          "sha256": "db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f",
+          "source_path": "src/third_party/ruy/src/CMakeLists.txt",
+          "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+          "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3.txt",
+          "bytes": 16804,
+          "sha256": "c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3",
+          "source_path": "src/third_party/ruy/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/securemessage.git",
+      "revision": "fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84",
+      "path": "third_party/gtest",
+      "gitlink_revision": "703bd9caab50b139428cea1aaff9974ebee5742e",
+      "owner_path": "src/third_party/securemessage/src",
+      "owner_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "Standalone Securemessage test dependency. Chromium GN wrapper selects the production crypto/message sources, headers and root protobuf/BoringSSL dependencies, with no gtest path in the selected source/include closure or wrapper.",
+      "review_inputs": [
+        {
+          "file": "evidence/55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55.txt",
+          "bytes": 2397,
+          "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+          "source_path": "src/third_party/securemessage/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa.json",
+          "bytes": 29014,
+          "sha256": "1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa",
+          "source_path": "src/third_party/securemessage/src",
+          "source_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+          "source_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/securemessage.git",
+      "revision": "fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84",
+      "path": "third_party/protobuf",
+      "gitlink_revision": "d0bfd5221182da1a7cc280f3337b5e41a89539cf",
+      "owner_path": "src/third_party/securemessage/src",
+      "owner_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium GN selects root //third_party/protobuf source/generated-code targets. The matching source/header tree at src/third_party/protobuf is vendored in the complete Chromium root archive; the accepted representative header ownership/hash is recorded separately. This standalone nested Gitlink revision is not selected.",
+      "review_inputs": [
+        {
+          "file": "evidence/55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55.txt",
+          "bytes": 2397,
+          "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+          "source_path": "src/third_party/securemessage/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa.json",
+          "bytes": 29014,
+          "sha256": "1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa",
+          "source_path": "src/third_party/securemessage/src",
+          "source_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+          "source_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f"
+        },
+        {
+          "file": "evidence/4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9.txt",
+          "bytes": 21603,
+          "sha256": "4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9",
+          "source_path": "src/third_party/protobuf/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8.json",
+          "bytes": 764,
+          "sha256": "b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8",
+          "source_path": "src",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/protobuf",
+      "selected_dependency": {
+        "path": "src",
+        "repository": "https://chromium.googlesource.com/chromium/src.git",
+        "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+        "archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+        "sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+        "vendored_path": "src/third_party/protobuf"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/snappy.git",
+      "revision": "32ded457c0b1fe78ceb8397632c416568d6714a0",
+      "path": "third_party/benchmark",
+      "gitlink_revision": "d572f4777349d43653b21d6c2fc63020ab326db2",
+      "owner_path": "src/third_party/snappy/src",
+      "owner_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-benchmark-only",
+      "explanation": "Chromium GN explicitly builds only the Snappy library source list and platform public header. Upstream CMake consumes this nested checkout only under SNAPPY_BUILD_BENCHMARKS; that standalone CMake graph is not invoked by the retained GN wrapper.",
+      "review_inputs": [
+        {
+          "file": "evidence/458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a.txt",
+          "bytes": 229,
+          "sha256": "458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a",
+          "source_path": "src/third_party/snappy/src/.gitmodules",
+          "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+          "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201.txt",
+          "bytes": 14888,
+          "sha256": "58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201",
+          "source_path": "src/third_party/snappy/src/CMakeLists.txt",
+          "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+          "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8.txt",
+          "bytes": 1476,
+          "sha256": "31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8",
+          "source_path": "src/third_party/snappy/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/snappy.git",
+      "revision": "32ded457c0b1fe78ceb8397632c416568d6714a0",
+      "path": "third_party/googletest",
+      "gitlink_revision": "b796f7d44681514f58a683a3a71ff17c94edb0c1",
+      "owner_path": "src/third_party/snappy/src",
+      "owner_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-test-only",
+      "explanation": "Chromium GN explicitly builds only the Snappy library source list and platform public header. Upstream CMake consumes this nested checkout only under SNAPPY_BUILD_TESTS; that standalone CMake graph is not invoked by the retained GN wrapper.",
+      "review_inputs": [
+        {
+          "file": "evidence/458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a.txt",
+          "bytes": 229,
+          "sha256": "458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a",
+          "source_path": "src/third_party/snappy/src/.gitmodules",
+          "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+          "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201.txt",
+          "bytes": 14888,
+          "sha256": "58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201",
+          "source_path": "src/third_party/snappy/src/CMakeLists.txt",
+          "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+          "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+          "membership_validation": "matched-complete-Git-blob-inventory"
+        },
+        {
+          "file": "evidence/31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8.txt",
+          "bytes": 1476,
+          "sha256": "31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8",
+          "source_path": "src/third_party/snappy/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+          "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ukey2.git",
+      "revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+      "path": "third_party/absl",
+      "gitlink_revision": "62f05b1f57ad660e9c09e02ce7d591dcc4d0ca08",
+      "owner_path": "src/third_party/ukey2/src",
+      "owner_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "This standalone UKey2 nested dependency is not named by its Chromium GN wrapper or by the selected local source/header include closure. Chromium GN selects only the listed UKey2 sources/protos and root Securemessage/Protobuf dependencies; upstream Bazel/CMake/tests are outside this scope.",
+      "review_inputs": [
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25.json",
+          "bytes": 14485,
+          "sha256": "43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25",
+          "source_path": "src/third_party/ukey2/src",
+          "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+          "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ukey2.git",
+      "revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+      "path": "third_party/gtest",
+      "gitlink_revision": "703bd9caab50b139428cea1aaff9974ebee5742e",
+      "owner_path": "src/third_party/ukey2/src",
+      "owner_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07",
+      "disposition": "external-build-or-test",
+      "classification": "standalone-upstream-dependency-not-selected-by-chromium-gn",
+      "explanation": "This standalone UKey2 nested dependency is not named by its Chromium GN wrapper or by the selected local source/header include closure. Chromium GN selects only the listed UKey2 sources/protos and root Securemessage/Protobuf dependencies; upstream Bazel/CMake/tests are outside this scope.",
+      "review_inputs": [
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25.json",
+          "bytes": 14485,
+          "sha256": "43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25",
+          "source_path": "src/third_party/ukey2/src",
+          "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+          "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+        }
+      ]
+    },
+    {
+      "owner_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ukey2.git",
+      "revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+      "path": "third_party/protobuf",
+      "gitlink_revision": "d0bfd5221182da1a7cc280f3337b5e41a89539cf",
+      "owner_path": "src/third_party/ukey2/src",
+      "owner_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium GN selects root //third_party/protobuf source/generated-code targets. The matching source/header tree at src/third_party/protobuf is vendored in the complete Chromium root archive; the accepted representative header ownership/hash is recorded separately. This standalone nested Gitlink revision is not selected.",
+      "review_inputs": [
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25.json",
+          "bytes": 14485,
+          "sha256": "43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25",
+          "source_path": "src/third_party/ukey2/src",
+          "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+          "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+        },
+        {
+          "file": "evidence/4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9.txt",
+          "bytes": 21603,
+          "sha256": "4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9",
+          "source_path": "src/third_party/protobuf/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8.json",
+          "bytes": 764,
+          "sha256": "b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8",
+          "source_path": "src",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/protobuf",
+      "selected_dependency": {
+        "path": "src",
+        "repository": "https://chromium.googlesource.com/chromium/src.git",
+        "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+        "archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+        "sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+        "vendored_path": "src/third_party/protobuf"
+      }
+    },
+    {
+      "owner_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/ukey2.git",
+      "revision": "0275885d8e6038c39b8a8ca55e75d1d4d1727f47",
+      "path": "third_party/secure_message",
+      "gitlink_revision": "e7b6988454bc94601616fbbf0db3559f73a1ebdf",
+      "owner_path": "src/third_party/ukey2/src",
+      "owner_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07",
+      "disposition": "external-build-or-test",
+      "classification": "chromium-root-dependency-replaces-standalone-gitlink",
+      "explanation": "Chromium root UKey2 wrapper explicitly selects //third_party/securemessage proto/runtime targets and the top-level checkout include roots, rather than this standalone UKey2 nested Gitlink.",
+      "review_inputs": [
+        {
+          "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+          "bytes": 1693,
+          "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+          "source_path": "src/third_party/ukey2/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        },
+        {
+          "file": "evidence/43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25.json",
+          "bytes": 14485,
+          "sha256": "43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25",
+          "source_path": "src/third_party/ukey2/src",
+          "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+          "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+        },
+        {
+          "file": "evidence/55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55.txt",
+          "bytes": 2397,
+          "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+          "source_path": "src/third_party/securemessage/BUILD.gn",
+          "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+          "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+        }
+      ],
+      "selected_source_path": "src/third_party/securemessage/src",
+      "selected_dependency": {
+        "path": "src/third_party/securemessage/src",
+        "repository": "https://chromium.googlesource.com/external/github.com/google/securemessage.git",
+        "revision": "fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84",
+        "archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+        "sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f"
+      }
+    }
+  ],
+  "reviewed_gitlink_count": 27,
+  "distinct_owner_count": 9,
+  "review_evidence_files": [
+    {
+      "file": "evidence/55f29aa6200195cd880ed8331dcac28599f181327a7c0ee3094a88769e04060c.txt",
+      "bytes": 104,
+      "sha256": "55f29aa6200195cd880ed8331dcac28599f181327a7c0ee3094a88769e04060c",
+      "source_path": "src/third_party/angle/third_party/rapidjson/src/.gitmodules",
+      "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+      "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/458a069dfde2f3b04dfbf228990bbb007828ef1a4df334a1393c07f7cf00c002.txt",
+      "bytes": 11046,
+      "sha256": "458a069dfde2f3b04dfbf228990bbb007828ef1a4df334a1393c07f7cf00c002",
+      "source_path": "src/third_party/angle/third_party/rapidjson/src/CMakeLists.txt",
+      "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+      "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/83f4bed0e077bb0a71ea57cb3af7cd4b20743cdebb4309e585458de95eb101ac.txt",
+      "bytes": 491,
+      "sha256": "83f4bed0e077bb0a71ea57cb3af7cd4b20743cdebb4309e585458de95eb101ac",
+      "source_path": "src/third_party/angle/third_party/rapidjson/src/test/CMakeLists.txt",
+      "source_archive": "src__third_party__angle__third_party__rapidjson__src-24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz",
+      "source_archive_sha256": "ef155566f2dc89dad552ff6449f22f31ad6937fe7b88d03ca6e51186947d0574",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/0c61cb7af72d66688126293bec5d33c876f6576278d15b83fbe39a12e493628a.txt",
+      "bytes": 2035,
+      "sha256": "0c61cb7af72d66688126293bec5d33c876f6576278d15b83fbe39a12e493628a",
+      "source_path": "src/third_party/angle/third_party/rapidjson/BUILD.gn",
+      "source_archive": "src__third_party__angle-3b89d84e9d59f75675ac4e2bef58fc068a9f0577.tar.gz",
+      "source_archive_sha256": "28cbfa5e01343847768a3f00850c20ba736bc429380e8dc223ed1ad30a0d6fc0",
+      "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+    },
+    {
+      "file": "evidence/e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74.txt",
+      "bytes": 327,
+      "sha256": "e76abd7d6e004d5c56efca77817fbf652e736a56d333ea19ed1d3caacd50cd74",
+      "source_path": "src/third_party/crc32c/src/.gitmodules",
+      "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+      "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd.txt",
+      "bytes": 14864,
+      "sha256": "9939bf17c708260e6c134673b27ceda5d4db184206d214e8a1348cce744312dd",
+      "source_path": "src/third_party/crc32c/src/CMakeLists.txt",
+      "source_archive": "src__third_party__crc32c__src-2bbb3be42e20a0e6c0f7b39dc07dc863d9ffbc07.tar.gz",
+      "source_archive_sha256": "58888e69135330ef8475737ecba1d01c323275ace77aca1d2eda6cf0600e78db",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553.txt",
+      "bytes": 4023,
+      "sha256": "09bc0f4c92371997c57f4fa29530183a72c05d8317d29eac4aacb509c5e72553",
+      "source_path": "src/third_party/crc32c/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+      "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+    },
+    {
+      "file": "evidence/94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0.txt",
+      "bytes": 225,
+      "sha256": "94932ea9c84e38febbd72c695eaf8ceb807135dc870433faa8362893f867fed0",
+      "source_path": "src/third_party/leveldatabase/src/.gitmodules",
+      "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+      "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789.txt",
+      "bytes": 16127,
+      "sha256": "2302a5891d53af592a9e1e514c0113e4ec735c3da2c19ed5c18a0df76a133789",
+      "source_path": "src/third_party/leveldatabase/src/CMakeLists.txt",
+      "source_archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+      "source_archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780.txt",
+      "bytes": 8161,
+      "sha256": "3b75f29a2b46b88ee1ae1d306ddbdb023b19fafc20bc2ea2794750e09fd8b780",
+      "source_path": "src/third_party/leveldatabase/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+      "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+    },
+    {
+      "file": "evidence/9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02.txt",
+      "bytes": 9129,
+      "sha256": "9e112fe7ea17ffa525acb07d05d34d1e730e70bd5c5e736468f5f0dc23b5fb02"
+    },
+    {
+      "file": "evidence/9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0.txt",
+      "bytes": 2934,
+      "sha256": "9e04a49865d104745d50cba5494e2a09a514adc1c1174bb07ca536f3de9315f0"
+    },
+    {
+      "file": "evidence/0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a.json",
+      "bytes": 62067,
+      "sha256": "0d02e2e4e2e1b94a8b59e474b2d4ea9a98f47b42128d6ce358c0a113b1c2f68a"
+    },
+    {
+      "file": "evidence/24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a.txt",
+      "bytes": 228,
+      "sha256": "24696e0e7005d52985f02f51261e885be7f63345df4392e90412d0f100febc0a"
+    },
+    {
+      "file": "evidence/5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d.txt",
+      "bytes": 3536,
+      "sha256": "5647b62770f4dee311673bb322be51e499a6842fd13da1df2ea9f09d174e3c5d"
+    },
+    {
+      "file": "evidence/2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f.txt",
+      "bytes": 51391,
+      "sha256": "2b26c73c1cb36bbd10831e8a65590c9a23805d6fc9386e18f0b39b1e0edb076f",
+      "source_path": "src/third_party/nearby/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105.json",
+      "bytes": 1399040,
+      "sha256": "f13c50d8b5265f8c0f121fb22c120141959fbd95083004cfa4344eee634db105",
+      "source_path": "src/third_party/nearby/src",
+      "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "storage": "metadata"
+    },
+    {
+      "file": "evidence/a5252ce2641a8e4f001e074f701cf8f9208bbc4f136370edebf06156bc789934.txt",
+      "bytes": 20210,
+      "sha256": "a5252ce2641a8e4f001e074f701cf8f9208bbc4f136370edebf06156bc789934",
+      "source_path": "src/third_party/abseil-cpp/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8.json",
+      "bytes": 764,
+      "sha256": "b28b2b21e4d7101ed5cd369e6612ea1d73b8e9ca996cff4d3ab8b6dcd2d683f8",
+      "source_path": "src",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/423d4734463752cef071be3537e9c0dc10946b149ad69aef8ce8ec91bfc28cfd.txt",
+      "bytes": 7417,
+      "sha256": "423d4734463752cef071be3537e9c0dc10946b149ad69aef8ce8ec91bfc28cfd",
+      "source_path": "src/third_party/googletest/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/c6b9c6e0cf86ec1f4ae96fc72540c713b122e5f97d3bf8706a8e039d68469801.txt",
+      "bytes": 6896,
+      "sha256": "c6b9c6e0cf86ec1f4ae96fc72540c713b122e5f97d3bf8706a8e039d68469801",
+      "source_path": "src/third_party/nearby/src/internal/platform/implementation/platform.h",
+      "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a"
+    },
+    {
+      "file": "evidence/4e6e4244cdb8b3b6acb7a462cd4a0124dd545dcfeacf62d24fe07e901633bfc6.txt",
+      "bytes": 3621,
+      "sha256": "4e6e4244cdb8b3b6acb7a462cd4a0124dd545dcfeacf62d24fe07e901633bfc6",
+      "source_path": "src/third_party/nearby/src/internal/platform/implementation/preferences_manager.h",
+      "source_archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "source_archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a"
+    },
+    {
+      "file": "evidence/4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9.txt",
+      "bytes": 21603,
+      "sha256": "4b4769f47c3aa84582d5a7351590dc1e4272d40b4b51bfda1552e793e80e6de9",
+      "source_path": "src/third_party/protobuf/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c.txt",
+      "bytes": 1693,
+      "sha256": "6db04eb7aaf12ece1ecc0a108ace263b8f246f39d54060678770344781680a0c",
+      "source_path": "src/third_party/ukey2/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55.txt",
+      "bytes": 2397,
+      "sha256": "55a9f459972dbb6fcca4d6af73d219a0e9ddc296586f42b2577b907d98eecf55",
+      "source_path": "src/third_party/securemessage/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/8c1df5a1e7e542cb2198f2e3690a3582a21e303794b68e42f7a7ccb20a280cc3.txt",
+      "bytes": 1352,
+      "sha256": "8c1df5a1e7e542cb2198f2e3690a3582a21e303794b68e42f7a7ccb20a280cc3",
+      "source_path": "src/third_party/smhasher/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e"
+    },
+    {
+      "file": "evidence/51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88.txt",
+      "bytes": 192,
+      "sha256": "51bdabd541d789c68f5b69be3ffa28aff910010290917dcb2712cc0fe5ae8b88",
+      "source_path": "src/third_party/ruy/src/.gitmodules",
+      "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+      "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f.txt",
+      "bytes": 4630,
+      "sha256": "db32cdd94283e5d0d8d538c294f33e65fd704acf07dfdedee545d7c3c99ca66f",
+      "source_path": "src/third_party/ruy/src/CMakeLists.txt",
+      "source_archive": "src__third_party__ruy__src-2264753777198e4393fb83c44c693462d57a2be1.tar.gz",
+      "source_archive_sha256": "a2e6b1e736b091e4430acea1582479ebf4d36cb6b4fca3c096e09e240a149717",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3.txt",
+      "bytes": 16804,
+      "sha256": "c999fe223b683058b8b842e6ebf23593ac4d4d451831d1d2b23b4e1e844585f3",
+      "source_path": "src/third_party/ruy/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+      "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+    },
+    {
+      "file": "evidence/1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa.json",
+      "bytes": 29014,
+      "sha256": "1b7db7f06cb24d8cbac4b6d756fbfaf3e53804057f91fe834ce158097e3f9eaa",
+      "source_path": "src/third_party/securemessage/src",
+      "source_archive": "src__third_party__securemessage__src-fa07beb12babc3b25e0c5b1f38c16aa8cb6b8f84.tar.gz",
+      "source_archive_sha256": "cce119690c4ae84e85df85bd86156248a04c78e143a2d47fb49fcbdfac05cf4f"
+    },
+    {
+      "file": "evidence/458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a.txt",
+      "bytes": 229,
+      "sha256": "458605fccdcb939bd434829461574bd9582d8fdca39638e06d126d9d28b7b66a",
+      "source_path": "src/third_party/snappy/src/.gitmodules",
+      "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+      "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201.txt",
+      "bytes": 14888,
+      "sha256": "58085438d50433fb11afeb518e2aee9791c0af7c3a166aa99562312a01c0e201",
+      "source_path": "src/third_party/snappy/src/CMakeLists.txt",
+      "source_archive": "src__third_party__snappy__src-32ded457c0b1fe78ceb8397632c416568d6714a0.tar.gz",
+      "source_archive_sha256": "ba3d201f6f93a9ac05a890bd13d6e4dd21b7327eaddae10cccce39c763a4738b",
+      "membership_validation": "matched-complete-Git-blob-inventory"
+    },
+    {
+      "file": "evidence/31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8.txt",
+      "bytes": 1476,
+      "sha256": "31dc37899f1392b0fd6d015a067dfe9f6891a5c31474739a1caebaf7e7864fc8",
+      "source_path": "src/third_party/snappy/BUILD.gn",
+      "source_archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "source_archive_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+      "membership_validation": "matched-accepted-source-assembly-size-and-SHA256"
+    },
+    {
+      "file": "evidence/43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25.json",
+      "bytes": 14485,
+      "sha256": "43c2c97ece18c84dd512e04f9b50fe00720dac80d479706acbd53d805bf44c25",
+      "source_path": "src/third_party/ukey2/src",
+      "source_archive": "src__third_party__ukey2__src-0275885d8e6038c39b8a8ca55e75d1d4d1727f47.tar.gz",
+      "source_archive_sha256": "32f1ee6784aee3b2b3c88db97c6941d79f6b5abb984c95ee3e2d7d2ead920f07"
+    }
+  ]
+}

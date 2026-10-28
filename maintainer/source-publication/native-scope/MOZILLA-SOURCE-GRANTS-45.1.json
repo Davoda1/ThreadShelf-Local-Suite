@@ -1,0 +1,134 @@
+{
+  "chromium": "156.0.8078.49",
+  "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+  "files": [
+    {
+      "path": "base/third_party/nspr/LICENSE",
+      "bytes": 16726,
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
+      "classification": "license-document",
+      "selected_later_version": null,
+      "reference_contexts": [
+        "Mozilla Public License Version 2.0\n==================================\n\n1. Definitions\n--------------\n\n1.1. \"Contributor\"\n    means each individual or legal entity that creates, contributes to\n    the creation of, or owns Covered Software.\n\n1.2. \"Contributor Vers",
+        "ring for sale, having\n    made, import, or transfer of either its Contributions or its\n    Contributor Version.\n\n1.12. \"Secondary License\"\n    means either the GNU General Public License, Version 2.0, the GNU\n    Lesser General Public License, Version 2.1, the GNU Affero General\n    Public License, Version 3.0, or any later versions of those\n    licenses.\n\n1.13. \"Source Code Form\"\n    means the form of the work preferred f",
+        "ansfer of either its Contributions or its\n    Contributor Version.\n\n1.12. \"Secondary License\"\n    means either the GNU General Public License, Version 2.0, the GNU\n    Lesser General Public License, Version 2.1, the GNU Affero General\n    Public License, Version 3.0, or any later versions of those\n    licenses.\n\n1.13. \"Source Code Form\"\n    means the form of the work preferred for making modifications.\n\n1.14. \"You\" (or \"Your\")\n    me",
+        "t be attached.\n\nExhibit A - Source Code Form License Notice\n-------------------------------------------\n\n  This Source Code Form is subject to the terms of the Mozilla Public\n  License, v. 2.0. If a copy of the MPL was not distributed with this\n  file, You can obtain one at https://mozilla.org/MPL/2.0/.\n\nIf it is not possible or desirable to put the notice in a particular\nfile, then You may include the notice in a locati",
+        "enses\" Notice\n---------------------------------------------------------\n\n  This Source Code Form is \"Incompatible With Secondary Licenses\", as\n  defined by the Mozilla Public License, v. 2.0.\n"
+      ]
+    },
+    {
+      "path": "base/third_party/nspr/METADATA",
+      "bytes": 163,
+      "sha256": "40615647829c3bb56792a832165b100ff32240e4b91ac3cc16030340731194d0"
+    },
+    {
+      "path": "base/third_party/nspr/OWNERS",
+      "bytes": 15,
+      "sha256": "77bdc795e440b748f2589c626c9644bb9cc9778ad7633398c80ba31b4c54e612"
+    },
+    {
+      "path": "base/third_party/nspr/README.chromium",
+      "bytes": 576,
+      "sha256": "a3034c7a0fce7516f961624b22d8cf9cbc70fd323d8c90b131bcfb2d841e1d2d"
+    },
+    {
+      "path": "base/third_party/nspr/prtime.cc",
+      "bytes": 47478,
+      "sha256": "d1fa4caf8b6d4514fe90dabc280ed53ed6a57bcd92fe877a33b92f01643e8724",
+      "classification": "original-mozilla-grant-preserved",
+      "selected_later_version": null,
+      "header_sha256": "7f4e0cf2817e9239019264392312a85239512037841c38115a3cfc5aaa6920d7"
+    },
+    {
+      "path": "base/third_party/nspr/prtime.h",
+      "bytes": 8698,
+      "sha256": "055c06756741bb054882d9b0f5f415fa183bfaf774f69067799ace62b5162023",
+      "classification": "original-mozilla-grant-preserved",
+      "selected_later_version": null,
+      "header_sha256": "ad8e1867e57f05c4714be9b574e30e50bec53abca166b3b84cb06007e40c89e0"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/LICENSE",
+      "bytes": 26847,
+      "sha256": "a718a32ad435b316ce3a9e871e05421d6ca784c435f8ef5715c1b6e289381f04",
+      "classification": "license-document",
+      "selected_later_version": null,
+      "reference_contexts": [
+        "/* ***** BEGIN LICENSE BLOCK *****\n *                            MOZILLA PUBLIC LICENSE\n *                                 Version 1.1\n *\n *                               ---------------\n *\n * 1. Definitions.\n *\n *      1.0.1. \"Commercial Use\" means distribution or otherwise making the\n *      Covered Code available to a thir",
+        "t your license differs from this License)\n *      and (b) otherwise make it clear that Your version of the license\n *      contains terms which differ from the Mozilla Public License and\n *      Netscape Public License. (Filling in the name of the Initial\n *      Developer, Original Code or Contributor in the notice described in\n *      Exhibit A shall not of themselves be deemed to be modifications of\n *      this Lic",
+        "    Your choice of the MPL or the alternative licenses, if any, specified\n *      by the Initial Developer in the file described in Exhibit A.\n *\n * EXHIBIT A -Mozilla Public License.\n *\n * The contents of this file are subject to the Mozilla Public License Version\n * 1.1 (the \"License\"); you may not use this file except in compliance with\n * the License. You may obtain a copy of the License at\n * http://www.mozilla.or",
+        "*      by the Initial Developer in the file described in Exhibit A.\n *\n * EXHIBIT A -Mozilla Public License.\n *\n * The contents of this file are subject to the Mozilla Public License Version\n * 1.1 (the \"License\"); you may not use this file except in compliance with\n * the License. You may obtain a copy of the License at\n * http://www.mozilla.org/MPL/\n *\n * Software distributed under the License is distributed on an \"A",
+        "* the Initial Developer. All Rights Reserved.\n *\n * Contributor(s):\n *\n * Alternatively, the contents of this file may be used under the terms of\n * either the GNU General Public License Version 2 or later (the \"GPL\"), or\n * the GNU Lesser General Public License Version 2.1 or later (the \"LGPL\"),\n * in which case the provisions of the GPL or the LGPL are applicable instead\n * of those above. If you wish to allow use of you",
+        "*\n * Alternatively, the contents of this file may be used under the terms of\n * either the GNU General Public License Version 2 or later (the \"GPL\"), or\n * the GNU Lesser General Public License Version 2.1 or later (the \"LGPL\"),\n * in which case the provisions of the GPL or the LGPL are applicable instead\n * of those above. If you wish to allow use of your version of this file only\n * under the terms of either the GPL or the LGPL"
+      ]
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/README.chromium",
+      "bytes": 603,
+      "sha256": "8f01b4b89bbac7c0f8e83de0ca690867fa256ff88577195f9afa0188f5f7c552"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsNSSCertificateDB.cpp",
+      "bytes": 12329,
+      "sha256": "4f70bb7db7f3545af1460f8e07b202a5fc485f8fc7856722ebf1f13f418ffdde",
+      "classification": "mozilla-alternatives-preserved",
+      "selected_later_version": null,
+      "header_sha256": "8aef80425f32bce5b5ab8be27928c6705da6e451ab42084c243cffa9853ed35f"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsNSSCertificateDB.h",
+      "bytes": 3044,
+      "sha256": "ae065175d3cab338dcd36f638d0360901261c3b53219d6e57a01cf227adfa961",
+      "classification": "mozilla-alternatives-preserved",
+      "selected_later_version": null,
+      "header_sha256": "cddc7d669695693bbd4750cf1898a030036f30c8717aa3e247d0545eb4328b16"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsPKCS12Blob.cpp",
+      "bytes": 18167,
+      "sha256": "cc9946814be9220215317f2fa6ea2697b4ae0d4fbbf009e0a5c126fbfeb28871",
+      "classification": "mozilla-alternatives-preserved",
+      "selected_later_version": null,
+      "header_sha256": "57d738a084879202ca604d454e0d7e464d6830acd6826bcf897572245efb70ad"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager/nsPKCS12Blob.h",
+      "bytes": 3301,
+      "sha256": "1b8d8f690a4dd1c4b1a0a260a077732b9b79d853dd13273a2cd1fc14e50e4df2",
+      "classification": "mozilla-alternatives-preserved",
+      "selected_later_version": null,
+      "header_sha256": "57d738a084879202ca604d454e0d7e464d6830acd6826bcf897572245efb70ad"
+    },
+    {
+      "path": "url/third_party/mozilla/LICENSE.txt",
+      "bytes": 3200,
+      "sha256": "284545e873c704952e5b1b39d457dd83a3b115a51d9f1eb5175137bd69b8fa1b",
+      "classification": "license-document",
+      "selected_later_version": null,
+      "reference_contexts": [
+        "---\n\nThe file url_parse.cc is based on nsURLParsers.cc from Mozilla. This file is\nlicensed separately as follows:\n\nThe contents of this file are subject to the Mozilla Public License Version\n1.1 (the \"License\"); you may not use this file except in compliance with\nthe License. You may obtain a copy of the License at\nhttp://www.mozilla.org/MPL/\n\nSoftware distributed under the License is distributed on an \"AS IS\" basis,\nW",
+        "per. All Rights Reserved.\n\nContributor(s):\n  Darin Fisher (original author)\n\nAlternatively, the contents of this file may be used under the terms of\neither the GNU General Public License Version 2 or later (the \"GPL\"), or\nthe GNU Lesser General Public License Version 2.1 or later (the \"LGPL\"),\nin which case the provisions of the GPL or the LGPL are applicable instead\nof those above. If you wish to allow use of your version",
+        "l author)\n\nAlternatively, the contents of this file may be used under the terms of\neither the GNU General Public License Version 2 or later (the \"GPL\"), or\nthe GNU Lesser General Public License Version 2.1 or later (the \"LGPL\"),\nin which case the provisions of the GPL or the LGPL are applicable instead\nof those above. If you wish to allow use of your version of this file only\nunder the terms of either the GPL or the LGPL, and not"
+      ]
+    },
+    {
+      "path": "url/third_party/mozilla/README.chromium",
+      "bytes": 391,
+      "sha256": "0f6c477c8205103963e989309c0dc6f6b369398d5dfc65b4ad80792443cd715b"
+    },
+    {
+      "path": "url/third_party/mozilla/url_parse.cc",
+      "bytes": 38017,
+      "sha256": "c1a4ab27f34fac3c5b8c15441cbdbd55a5f7cef6ffff67d787851854b0318a6f",
+      "classification": "mozilla-alternatives-preserved",
+      "selected_later_version": null,
+      "header_sha256": "1c4a77fdc6a43e942b4cc2c8c71837e5ef44a4edeb255b7c88be756ed0282fbd"
+    },
+    {
+      "path": "url/third_party/mozilla/url_parse.h",
+      "bytes": 22274,
+      "sha256": "5bf9c97b3e5f7cae12e171958c828d9e30fdd22737ab2b2ae77d0148fc0f70de"
+    }
+  ],
+  "scope": "Original Mozilla source notices and alternatives retained; no version election."
+}

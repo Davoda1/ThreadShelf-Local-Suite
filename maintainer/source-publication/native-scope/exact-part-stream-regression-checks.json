@@ -1,0 +1,5 @@
+{
+  "passed": true,
+  "checks": 8,
+  "scope": "Stored ZIP and ZIP64 streaming positives; wrong member, size, inner hash, outer hash, truncation and unexpected compression negatives."
+}

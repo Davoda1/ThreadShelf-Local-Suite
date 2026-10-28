@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__emoji-segmenter__src-955936be8b391e00835257059607d7c5b72ce744.tar.gz",
+  "archive_bytes": 8623,
+  "archive_sha256": "d99a406de6880a9263c88bc24ad34597083c0ee8a789f0740684008480b0d49a",
+  "revision": "955936be8b391e00835257059607d7c5b72ce744",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/emoji-segmenter.git",
+  "root_git_tree": "119f3d5193c0eac99995ed6a55038e0d42bebd7c",
+  "blob_count": 7,
+  "git_tree_count": 1,
+  "member_count": 7,
+  "regular_file_bytes": 26212,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 7
+  },
+  "source_blob_inventory_sha256": "b507f850d2d124a1de8edbc4105b9bc05dba676e9837076fa64faed26c1e541e",
+  "archive_mtime_range": [
+    1793146730.923,
+    1793146730.924
+  ],
+  "metadata": [
+    {
+      "file": "metadata/08e7a0833513521773b2181ac7a86c977ea67e2e68d849bd18e86f5ea1455128.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/emoji-segmenter.git/+/955936be8b391e00835257059607d7c5b72ce744/?format=JSON",
+      "bytes": 1077,
+      "sha256": "db98e6600ff28658ce22633397b21a2af2b7bd495ec05b20c95f258e2f69794d",
+      "git_tree": "119f3d5193c0eac99995ed6a55038e0d42bebd7c",
+      "receipt": {
+        "file": "metadata/08e7a0833513521773b2181ac7a86c977ea67e2e68d849bd18e86f5ea1455128.receipt.json",
+        "bytes": 249,
+        "sha256": "37929053e2351b62881b91362266e4f1ede63ec09f7fb8f3b2a4fb79921ec20b"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/d99a406de6880a9263c88bc24ad34597083c0ee8a789f0740684008480b0d49a.jsonl.gz",
+    "bytes": 957,
+    "sha256": "8374f3a82500d933d1799d88e0f86ed5d2be5ed935652714aa49391bfe2d0849",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 2444,
+    "jsonl_sha256": "eba5ad2f4d9d83794d1e94a5280ced7d2fd9865231d25f1ac80da65d0a24f6f6",
+    "records": 9,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "e1ebbb3ac2e5ff86a479140fb77b8dff8ff5660a6ce8bf028b3f641bdd34e3ba",
+    "bytes": 8624,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

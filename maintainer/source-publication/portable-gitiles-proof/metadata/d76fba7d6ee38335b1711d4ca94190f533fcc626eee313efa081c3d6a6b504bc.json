@@ -1,0 +1,353 @@
+{
+  "id": "d6d4d137fd4e885d7efe55b38308c7b0b4495784",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "544d21f097a33612cfde7e3c3c31809789cd3cfe",
+      "name": ".editorconfig"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d94c5fb3a2974217ff7eff7ab3d44dc952c3fc69",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "2cc6b510c02362670c958cc56e347e95e9e80817",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f0f059d08f999ca30fe5aab4b90c088ffb55114c",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a74ab8237f06d19f25b025909756d41135941062",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8a398acff435ab99eaf9edaa2f89b4583ac477ca",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c5411ad3276caecddcb4e1bf6b4d9a76f0104e9f",
+      "name": "BUILD.gn"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b89696f4d7d46208a5092b6bd0f1d9c7870ca982",
+      "name": "CHANGES"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f89c9434e5fa84a40150aae6fa647d6196bbc4be",
+      "name": "ChangeLog"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0017a17981edc84b4092e12b7c5b40cb1300b82d",
+      "name": "DIR_METADATA"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "76411c5bd9d33aafb5993fc7de6c84cc629a739c",
+      "name": "INSTALL"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5425798463e7229a333bbc82a3dc035d32ae0690",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cd9245e86dbf8e821b90946099d26476cf9af12f",
+      "name": "Makefile.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "47e4f5b04c6e59b2c1ea140a99c9821011a68476",
+      "name": "Mkfiles"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b7260f5e9202a404c59acf855389ffab77697f34",
+      "name": "OWNERS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b6abea3cc5eb5d4929dc77e93543c7324abbf811",
+      "name": "PRESUBMIT.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6420336726bf6317c6df6481b63d1b3cf148e611",
+      "name": "README.chromium"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e9b3dc30fe3da67bde1cc95ed4788e0676decf10",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b902a909348aa19bd9da434d951b5aeb18e37800",
+      "name": "README.patches"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "678edc7f98ffe4a8adaa56537937f03a79ddf258",
+      "name": "SubmittingPatches"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c264291f9d06f6a1a8751810bde3e365b4d75f4f",
+      "name": "asm"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4e87079df65db584bb8d36f0a524d4963ef2cf82",
+      "name": "autoconf"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "778a98ce31d94b6f67cedb336065e5ec4a743061",
+      "name": "autogen.sh"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "677926420ef05d1fb9adb42c6296824b2f7a76a3",
+      "name": "codereview.settings"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e8f4a4377e3f687e551880529ad7c618279eaa31",
+      "name": "common"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1e3e1f6d31416177c23f5e32afe9815d0d6cccb4",
+      "name": "config"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "03998ebd5214ffd36a0d1ef14c42162b894fec57",
+      "name": "configure.ac"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "aea54443782260b37b66803660a18c01bbec06c1",
+      "name": "contrib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fbf6797d4f872313fcdc9e909aa7bd27f31fadbf",
+      "name": "disasm"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "aba2622749c0332106dbc2647f67d4d3cbd31b5b",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "59b9ee8f7a67901bf527ceab553f002047ec2323",
+      "name": "editors"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "663fd6c6ee084e9e90ee796f5cd17c42ba890fc5",
+      "name": "find_patches.py"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "f55fdf3181aff3087fe496fd5969cfca5d121e9f",
+      "name": "generate_nasm_configs.py"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "5d3fe2d6966155d5a385ac2fcaf265af22ced1a8",
+      "name": "generate_nasm_sources.py"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6efbc1ef6335fdc2d213eb0b8e736a92dacfc417",
+      "name": "headers"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e3181d542b77449694a685d4c2c5c44ae2fa0470",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "87926a64ed1ae470f5266de67b1180303f098af8",
+      "name": "macros"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "32038afbd2dc211a0aac6a55633d49fdb6f37e73",
+      "name": "misc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3a0beb542a07b51ebf42b7cbccc399e5d081f5fd",
+      "name": "nasm.spec.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ae0d039b012cb3f15251d37f6d7ea82402b1466a",
+      "name": "nasm.spec.sed"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "950c361a2c847b3381411354468a1fbebc24847d",
+      "name": "nasm.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "dafc88e187e4d098e4377109005f9be3c0dbbc20",
+      "name": "nasm_assemble.gni"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2a1935d05944dedbd79035cdef2f74f067cc9c5f",
+      "name": "nasm_sources.gni"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e8fa8da8dfa142f0dce2560849b9f022466bd80d",
+      "name": "nasmlib"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "eaccfe4e4d810da279dd030ccd622f1f76f771c5",
+      "name": "ndisasm.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1ff83b67a66b8758b421a104bf998c86425d3b06",
+      "name": "nsis"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c6fba65306ad4dbed2fab5edf763306e68555d5a",
+      "name": "output"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0938a2a8bb2c38f0e21805d9bfe76cc4191b7855",
+      "name": "perllib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c3464ae655576bb616d8647b63e0ac3f72c7ddaa",
+      "name": "stdlib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "dd13b87bceec097f9d90c000839a2377a106a0f5",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e7d6559f812d47fa7f9bc804eb5a1001503e7aa8",
+      "name": "tools"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "40b167007e10cdcbf2ebedfd9130aede88dd66f4",
+      "name": "travis"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2c36cfac76a6dfe8c1c2c1ebdafac2891e87f09e",
+      "name": "version"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "86e3e9f6fcb53137e8c9d5bf81f2dbc5e47d520f",
+      "name": "version.h"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "26cea13af044bddb2731c60d55a39600f5173bfc",
+      "name": "version.pl"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ffbaf3639e37d82b10e5855a9972919cfc13324d",
+      "name": "win"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "9c8b47e678b6256a4a67003cfc99e9a7d1e5576f",
+      "name": "x86"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c06d41c8661e6c71a148de9ecce946eaff3d9ba6",
+      "name": "zlib"
+    }
+  ]
+}

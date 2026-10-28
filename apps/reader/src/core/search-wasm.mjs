@@ -4,8 +4,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
+export function wasmDirectoryUrl(runtimeEntry, options) {
+  // ONNX imports its .mjs loader and reads its .wasm through the same prefix.
+  // A file URL handles drive letters and encodes literal #/%/Unicode safely;
+  // the upstream Node loader converts file URLs back to native filesystem paths.
+  return new URL('.', pathToFileURL(runtimeEntry, options)).href;
+}
 async function modelFile(cacheDir, model, filename, allowRemote, progress) {
   const target = path.join(cacheDir, model, filename);
   if (fs.existsSync(target) && fs.statSync(target).size > 0) return target;
@@ -48,7 +55,7 @@ export async function createWasmExtractor({ cacheDir, model, allowRemote = false
     JSON.parse(fs.readFileSync(files['tokenizer_config.json'], 'utf8')));
   ort.env.wasm.numThreads = 1;
   ort.env.wasm.proxy = false;
-  ort.env.wasm.wasmPaths = path.dirname(require.resolve('onnxruntime-web')) + path.sep;
+  ort.env.wasm.wasmPaths = wasmDirectoryUrl(require.resolve('onnxruntime-web'));
   onProgress({ phase: 'loading', message: 'Loading the portable CPU search engine.' });
   const session = await ort.InferenceSession.create(fs.readFileSync(files['onnx/model_quantized.onnx']), {
     executionProviders: ['wasm'], graphOptimizationLevel: 'all',

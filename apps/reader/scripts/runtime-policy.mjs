@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { ensureNpm } from './npm-toolchain.mjs';
 
 export const NODE_RELEASES = 'https://nodejs.org/dist/index.json';
 export const ELECTRON_RELEASES = 'https://releases.electronjs.org/releases.json';
@@ -60,12 +60,12 @@ async function main() {
   const args = process.argv.slice(2), explicit = args.indexOf('--electron-version');
   const electron = explicit >= 0 ? stableVersion(args[explicit + 1]) : selectRelease(await fetchReleases(ELECTRON_RELEASES), 'electron', 'stable');
   const channel = process.env.TSLR_NODE_CHANNEL || 'exact';
-  const npm = spawnSync(process.execPath, [path.join(path.dirname(process.execPath), process.platform === 'win32' ? 'node_modules/npm/bin/npm-cli.js' : '../lib/node_modules/npm/bin/npm-cli.js'), '--version'], { encoding: 'utf8' });
-  if (npm.status !== 0) throw new Error('The selected Node distribution does not contain a working npm.');
+  const npm = await ensureNpm({ cacheRoot: process.env.TSL_NPM_CACHE });
   await recordToolchain(root, {
     schema: 1, selectedAt: new Date().toISOString(), node: process.version, nodeChannel: channel,
     nodeArchiveSha256: process.env.TSLR_NODE_SHA256 || null,
-    electron, electronChannel: explicit >= 0 ? 'exact' : 'stable', npm: npm.stdout.trim(),
+    electron, electronChannel: explicit >= 0 ? 'exact' : 'stable', npm: npm.npm,
+    npmUndici: npm.undici, npmProfile: npm.id,
     nodeSource: channel === 'exact' ? `https://nodejs.org/dist/${process.version}/` : NODE_RELEASES,
     electronSource: explicit >= 0 ? `https://releases.electronjs.org/release/v${electron}` : ELECTRON_RELEASES,
     platform: process.platform, arch: process.arch

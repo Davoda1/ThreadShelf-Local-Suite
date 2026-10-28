@@ -1,0 +1,47 @@
+{
+  "id": "235ccfd44deaee7f998a98133cfa9da58615144d",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c09b05195498a4df1257824064966608be9db9e4",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "074df0f12b0140d5f7c2baefb8cb62ef594be4d0",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4181ee1d25d7e26ba57aafc39fef0efa0f30f3aa",
+      "name": "README.md"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "bc385e5333cf0f58d6069ac781486cdc4f211915",
+      "name": "autogen.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "854341ad4517a8f473658739477f7525943a5674",
+      "name": "compact_enc_det"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "bbd74e0c37e7f4293aec533dfc9cbb09e9aac689",
+      "name": "util"
+    }
+  ]
+}

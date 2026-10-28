@@ -1,0 +1,95 @@
+{
+  "id": "566c07ef5b9dca715e4075fc7de33dc823d8c0a9",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3d22e0a8dd845410b578d93da3c76976ad519bd4",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "06c217cd5e326f2e687b141214c3702d6b400ed0",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "567609b1234a9b8806c5a05da6c866e480aa148d",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5ee9017a7198fae424cf641436427fbe22684fdd",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8735e17040ee7e065099cd41df5e0f611b38a9b5",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1a09deb2d3e38931e5b9463399a9f36fc0d92667",
+      "name": "CONTRIBUTING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "cffd61e290a8baafbb36667810793ac8ac85d0fa",
+      "name": "MODULES.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e87f96e9e00018780675bb624253cac58c44100f",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8882f4c1979edf88b1adbd4b4a559a775c2b076a",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "99ac249c2ac521e954524678047604c7fd8969de",
+      "name": "examples"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "551dc72a1b940779827268f5ad20719fa9ee8e09",
+      "name": "libprotobuf-mutator.pc.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f62a50119016bf08be97d8827f414221d0fc2ae1",
+      "name": "libprotobuf-mutatorConfig.cmake.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "189c7ba4612f78e8fe2105b09a85b682a9c825b7",
+      "name": "port"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "546c7ae8155a938402095ec1e13ef6c71205e79b",
+      "name": "src"
+    }
+  ]
+}

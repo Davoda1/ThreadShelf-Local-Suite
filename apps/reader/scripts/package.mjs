@@ -14,6 +14,7 @@ import { selectedElectronVersion, assertSelectedNode } from './runtime-policy.mj
 import { createBoundedArchiveSink, writeVerifiedArchive } from './archive-output.mjs';
 import { writeVerifiedRuntimeExecutable, verifyRuntimeExecutable } from './runtime-executable.mjs';
 import { walkPackageFiles, verifyNativeSymlinks, assertNoLauncherScripts, LINUX_PORTABLE_LINKS, LINUX_DEB_LINKS } from './package-layout.mjs';
+import { TOOLCHAIN, ensureNpm, npmEnvironment } from './npm-toolchain.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const pkg = JSON.parse(await fsp.readFile(path.join(root, 'package.json')));
@@ -38,6 +39,25 @@ await fsp.mkdir(out, { recursive: true });
 await fsp.mkdir(staging, { recursive: true });
 const lock = await fsp.readFile(path.join(root, 'package-lock.json'));
 const lockHash = hash(lock);
+const dependencyFingerprint = `${lockHash}\n${TOOLCHAIN.id}\ntransformers-source-only-v1`;
+
+async function removeTransformersPrebuiltBundles(modules) {
+  const transformers = path.join(modules, '@huggingface', 'transformers');
+  const dist = path.join(transformers, 'dist');
+  // Reader imports the version-checked upstream source entry. The unused
+  // prebuilt distributions embed a different ONNX Web runtime and must not ship.
+  const remove = async target => {
+    if (!exists(target)) return;
+    const stat = await fsp.lstat(target);
+    if (stat.isDirectory() && !stat.isSymbolicLink()) {
+      for (const name of await fsp.readdir(target)) await remove(path.join(target, name));
+      await fsp.rmdir(target);
+    } else await fsp.unlink(target);
+  };
+  await remove(dist);
+  if (exists(dist)) throw new Error('Unused Transformers prebuilt distributions remain in dependency staging.');
+  if (!exists(path.join(transformers, 'src', 'transformers.js'))) throw new Error('Required Transformers source entry is missing.');
+}
 
 async function verifyBundledCodec() {
   // The source offer and notices travel with the executables in every release.
@@ -114,6 +134,8 @@ async function extractZip(archive, destination) {
   const reader = new ZipReader(new Uint8ArrayReader(await fsp.readFile(archive)), { useWebWorkers: false });
   try {
     for (const entry of await reader.getEntries()) {
+      // The upstream demo is never part of a branded application package.
+      if (entry.filename === 'resources/default_app.asar') continue;
       const target = path.resolve(destination, entry.filename);
       if (!target.startsWith(path.resolve(destination) + path.sep)) throw new Error('Unsafe runtime archive path.');
       if (entry.directory) { await fsp.mkdir(target, { recursive: true }); continue; }
@@ -183,16 +205,15 @@ async function getRuntime(platform) {
 async function prepareDependencies(platform) {
   const location = path.join(staging, `deps-${platform}-x64`);
   const marker = path.join(location, '.lock-hash');
-  const valid = exists(marker) && (await fsp.readFile(marker, 'utf8')) === lockHash;
+  const valid = exists(marker) && (await fsp.readFile(marker, 'utf8')) === dependencyFingerprint;
   if (!valid) {
     await fsp.rm(location, { recursive: true, force: true });
     await fsp.mkdir(location, { recursive: true });
     await copy('package.json', location); await copy('package-lock.json', location);
     // CPU ONNX runtimes are already present in the npm package. CUDA is optional
     // and is deliberately not downloaded into this portable desktop release.
-    const npmCLI = process.env.npm_execpath || path.join(path.dirname(process.execPath), process.platform === 'win32' ? 'node_modules/npm/bin/npm-cli.js' : '../lib/node_modules/npm/bin/npm-cli.js');
-    if (exists(npmCLI)) run(process.execPath, [npmCLI, 'ci', '--omit=dev', '--include=optional', '--ignore-scripts', `--os=${platform}`, '--cpu=x64', '--no-audit', '--no-fund'], { cwd: location });
-    else run(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['ci', '--omit=dev', '--include=optional', '--ignore-scripts', `--os=${platform}`, '--cpu=x64', '--no-audit', '--no-fund'], { cwd: location, shell: process.platform === 'win32' });
+    const npm = await ensureNpm({ cacheRoot: process.env.TSL_NPM_CACHE || path.join(root, '.tooling', 'npm') });
+    run(process.execPath, [npm.cli, 'ci', '--omit=dev', '--include=optional', '--ignore-scripts', `--os=${platform}`, '--cpu=x64', '--no-audit', '--no-fund'], { cwd: location, env: await npmEnvironment(npm) });
     const onnxRoot = path.join(location, 'node_modules/onnxruntime-node/bin/napi-v6');
     for (const os of await fsp.readdir(onnxRoot)) {
       if (os !== platform) await fsp.rm(path.join(onnxRoot, os), { recursive: true, force: true });
@@ -200,8 +221,10 @@ async function prepareDependencies(platform) {
     }
     const sharpNative = path.join(location, `node_modules/@img/sharp-${platform}-x64/package.json`);
     if (!exists(sharpNative)) throw new Error(`Target sharp native package missing: ${sharpNative}`);
-    await fsp.writeFile(marker, lockHash);
+    await removeTransformersPrebuiltBundles(path.join(location, 'node_modules'));
+    await fsp.writeFile(marker, dependencyFingerprint);
   }
+  await removeTransformersPrebuiltBundles(path.join(location, 'node_modules'));
   return path.join(location, 'node_modules');
 }
 async function dependencyReport(modules) {
@@ -253,6 +276,7 @@ async function binary(platform) {
   const app = path.join(runtime, 'resources/app'); await fsp.mkdir(app, { recursive: true });
   for (const p of ['package.json', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
   await fsp.cp(modules, path.join(app, 'node_modules'), { recursive: true, dereference: true });
+  await removeTransformersPrebuiltBundles(path.join(app, 'node_modules'));
   // Verify the complete native dependency tree before accepting the binary
   // staging, including dereferenced npm .bin links.
   await verifyCopiedTree(modules, path.join(app, 'node_modules'), [], true);
@@ -274,7 +298,7 @@ async function binary(platform) {
     if ((await fsp.readdir(folder)).some(name => name.toLowerCase().endsWith('.cmd') || name === 'app')) throw new Error('Windows portable layout must not include an app folder or CMD launcher.');
     await assertNoLauncherScripts(folder);
     await fsp.rm(path.join(runtime, 'electron.exe'), { force: true });
-    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe'], true);
+    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe', 'resources/default_app.asar'], true);
   } else {
     const executable = path.join(runtime, 'threadshelf-local-reader');
     const executableFingerprint = await writeVerifiedRuntimeExecutable(path.join(runtime, 'electron'), executable);
@@ -288,7 +312,7 @@ async function binary(platform) {
     await assertNoLauncherScripts(folder, path.join(folder, 'bin'), runtime);
     await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
     await verifyRuntimeExecutable(executable, executableFingerprint);
-    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron'], true, LINUX_PORTABLE_LINKS);
+    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron', 'app/resources/default_app.asar'], true, LINUX_PORTABLE_LINKS);
     await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
     await verifyRuntimeExecutable(executable, executableFingerprint);
     await deb(runtime);
@@ -302,16 +326,26 @@ async function deb(runtime) {
   for (const d of ['DEBIAN', 'opt', 'usr/bin', 'usr/share/applications', 'usr/share/icons/hicolor/256x256/apps']) await fsp.mkdir(path.join(dir, d), { recursive: true });
   await fsp.rm(path.join(runtime, 'electron'), { force: true });
   const installedApp = path.join(dir, 'opt/threadshelf-local-reader');
-  await fsp.cp(runtime, installedApp, { recursive: true, filter: source => !['electron', 'threadshelf-local-reader'].includes(path.relative(runtime, source)) });
+  // Copy the verified file inventory, excluding transient managed work files
+  // before stat/copy so disappearing temporary names cannot break a release.
+  for (const relative of await walk(runtime, '', true)) {
+    if (['electron', 'threadshelf-local-reader', 'resources/default_app.asar'].includes(relative)) continue;
+    const destination = path.join(installedApp, relative);
+    await fsp.mkdir(path.dirname(destination), { recursive: true });
+    await fsp.copyFile(path.join(runtime, relative), destination);
+  }
   // Some managed filesystems can retain the source name after a rename.
   // Remove it again at the final package boundary, before the size snapshot.
   await fsp.rm(path.join(dir, 'opt/threadshelf-local-reader/electron'), { force: true });
   await fsp.rm(path.join(runtime, 'electron'), { force: true });
   const executable = path.join(installedApp, 'threadshelf-local-reader');
   const executableFingerprint = await writeVerifiedRuntimeExecutable(path.join(runtime, 'threadshelf-local-reader'), executable);
-  const verifiedCopy = await verifyCopiedTree(runtime, installedApp, ['electron']);
+  await fsp.rm(path.join(installedApp, 'resources/default_app.asar'), { force: true });
+  const verifiedCopy = await verifyCopiedTree(runtime, installedApp, ['electron', 'resources/default_app.asar']);
   const size = Math.ceil(verifiedCopy.bytes / 1024);
   await fsp.writeFile(path.join(dir, 'DEBIAN/control'), `Package: threadshelf-local-reader\nVersion: ${pkg.version}\nSection: utils\nPriority: optional\nArchitecture: amd64\nMaintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: ${size}\nDepends: libc6 (>= 2.31), libstdc++6, libgcc-s1, libnss3, libnspr4, libgtk-3-0 | libgtk-3-0t64, libatk1.0-0 | libatk1.0-0t64, libatk-bridge2.0-0 | libatk-bridge2.0-0t64, libcups2 | libcups2t64, libdrm2, libxkbcommon0, libxcomposite1, libxdamage1, libxfixes3, libxrandr2, libgbm1, libasound2 | libasound2t64, libatspi2.0-0 | libatspi2.0-0t64, libx11-6, libxcb1, libxext6\nHomepage: ${pkg.homepage}\nDescription: Standalone AI export archive and ThreadShelf desktop reader\n Import, organize, search and read AI conversations locally, or connect\n independently to a ThreadShelf server. Includes its own Electron runtime.\n`);
+  // Remove a stale entry retained by a managed staging filesystem before recreating the verified link.
+  await fsp.rm(path.join(dir, 'usr/bin/threadshelf-local-reader'), { force: true });
   await fsp.symlink(LINUX_DEB_LINKS['usr/bin/threadshelf-local-reader'], path.join(dir, 'usr/bin/threadshelf-local-reader'));
   await fsp.writeFile(path.join(dir, 'usr/share/applications/threadshelf-local-reader.desktop'), '[Desktop Entry]\nType=Application\nName=ThreadShelf Local Reader\nComment=Read and search AI conversations\nExec=threadshelf-local-reader\nIcon=threadshelf-local-reader\nTerminal=false\nCategories=Utility;Office;\nStartupWMClass=threadshelf-local-reader\n');
   await fsp.copyFile(path.join(root, 'build/icons/256x256.png'), path.join(dir, 'usr/share/icons/hicolor/256x256/apps/threadshelf-local-reader.png'));

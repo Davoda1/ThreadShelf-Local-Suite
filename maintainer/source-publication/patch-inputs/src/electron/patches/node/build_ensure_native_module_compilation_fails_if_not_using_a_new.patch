@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Samuel Attard <sattard@salesforce.com>
+Date: Wed, 13 Jul 2022 13:56:12 -0700
+Subject: build: ensure native module compilation fails if not using a new
+ enough builder
+
+This should not be upstreamed, it is a quality-of-life patch for downstream module builders.
+
+diff --git a/common.gypi b/common.gypi
+index b4161293343cc05a868d2734419367fc7146a664..c11b4a8df43cd2d07c55ca3dbbb67d5b555c77cc 100644
+--- a/common.gypi
++++ b/common.gypi
+@@ -96,6 +96,8 @@
+     'v8_use_perfetto': 0,
+     'tsan%': 0,
+ 
++    'using_electron_config_gypi%': 0,
++
+     ##### end V8 defaults #####
+ 
+     'conditions': [
+@@ -347,7 +349,8 @@
+       '_GLIBCXX_USE_CXX11_ABI=1',
+       # This help forks when building Node.js on a 32-bit arch as
+       # libuv is always compiled with _FILE_OFFSET_BITS=64
+-      '_FILE_OFFSET_BITS=64'
++      '_FILE_OFFSET_BITS=64',
++      'ELECTRON_ENSURE_CONFIG_GYPI',
+     ],
+ 
+     # Forcibly disable -Werror.  We support a wide range of compilers, it's
+@@ -504,6 +507,11 @@
+           }],
+         ],
+       }],
++      ['using_electron_config_gypi == 1', {
++        'defines': [
++          'USING_ELECTRON_CONFIG_GYPI',
++        ],
++      }],
+       # The defines bellow must include all things from the external_v8_defines
+       # list in v8/BUILD.gn.
+       ['node_enable_experimentals == "true"', {
+diff --git a/configure.py b/configure.py
+index 1b35f195f7ee7547544cc954baf95c725afa8d0b..172aef2c5194574eb298462588ecf76ae2a2e366 100755
+--- a/configure.py
++++ b/configure.py
+@@ -1930,6 +1930,7 @@ def configure_library(lib, output, pkgname=None):
+ def configure_v8(o, configs):
+   set_configuration_variable(configs, 'v8_enable_v8_checks', release=0, debug=1)
+ 
++  o['variables']['using_electron_config_gypi'] = 1
+   o['variables']['v8_enable_webassembly'] = 0 if options.v8_lite_mode else 1
+   o['variables']['v8_enable_javascript_promise_hooks'] = 1
+   o['variables']['v8_enable_lite_mode'] = 1 if options.v8_lite_mode else 0
+diff --git a/src/node.h b/src/node.h
+index 9f9ba48eb8e2ffcac85dd2147fe631204f2a604e..cba83119bfaf88b360b2f1220611a0c642ec7364 100644
+--- a/src/node.h
++++ b/src/node.h
+@@ -22,6 +22,12 @@
+ #ifndef SRC_NODE_H_
+ #define SRC_NODE_H_
+ 
++#ifdef ELECTRON_ENSURE_CONFIG_GYPI
++#ifndef USING_ELECTRON_CONFIG_GYPI
++#error "It looks like you are building this native module without using the right config.gypi.  This normally means that you need to update electron-rebuild (>=3.2.8) or node-gyp (>=9.0.0) if you're building modules directly."
++#endif
++#endif
++
+ #ifdef _WIN32
+ # ifndef BUILDING_NODE_EXTENSION
+ #  define NODE_EXTERN __declspec(dllexport)

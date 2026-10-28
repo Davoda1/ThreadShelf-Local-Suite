@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__domato__src-fadff396cc45d521cc594d3e2396e27e887b1963.tar.gz",
+  "archive_bytes": 261650,
+  "archive_sha256": "951d499270b41151cbcc3cd0f175d591d1ef4510bc5105554e8165cd9683aa28",
+  "revision": "fadff396cc45d521cc594d3e2396e27e887b1963",
+  "repository": "https://chromium.googlesource.com/external/github.com/googleprojectzero/domato.git",
+  "root_git_tree": "d2417db04033e51da84ce36784b5ecba87853b4f",
+  "blob_count": 53,
+  "git_tree_count": 10,
+  "member_count": 62,
+  "regular_file_bytes": 1536915,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 44,
+    "100755": 9
+  },
+  "source_blob_inventory_sha256": "2f1213bf5847331c46ddc91e5e88d60aa923758610b1e5c49fb0b58405d4de67",
+  "archive_mtime_range": [
+    1793146370.33,
+    1793146370.387
+  ],
+  "metadata": [
+    {
+      "file": "metadata/185850c51c1773cfab4cfe445d2db5167816b60cffb59065f86034edfb162220.json",
+      "url": "https://chromium.googlesource.com/external/github.com/googleprojectzero/domato.git/+/fadff396cc45d521cc594d3e2396e27e887b1963/?format=JSON",
+      "bytes": 2563,
+      "sha256": "1a837e8315f237c31b155d136bf326127ea6558cd28482408da41e78df5642b8",
+      "git_tree": "d2417db04033e51da84ce36784b5ecba87853b4f",
+      "receipt": {
+        "file": "metadata/185850c51c1773cfab4cfe445d2db5167816b60cffb59065f86034edfb162220.receipt.json",
+        "bytes": 251,
+        "sha256": "59066b8e6614f0307673257da4eb2ea4e9f8386bb85e4d853e183ba5c0e4582f"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/951d499270b41151cbcc3cd0f175d591d1ef4510bc5105554e8165cd9683aa28.jsonl.gz",
+    "bytes": 5191,
+    "sha256": "ecbd9ac8412170f17c0434f91f85edd7da6e50b96261e473fb1d63878948e7c1",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 17325,
+    "jsonl_sha256": "f10804d8aef5bcb5bebe1553b7b5ccc2a6018b15f536683aabcf5501157ab2de",
+    "records": 64,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "e54cc6b8536d88be7d5df59abf5c6e0b52a4cb57c54ecb5058a5f84b803ed0b2",
+    "bytes": 261648,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

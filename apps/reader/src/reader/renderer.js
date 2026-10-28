@@ -298,13 +298,25 @@ function configureMermaid() {
     return null;
   }
 
+  const theme = effectiveMermaidTheme() === 'dark' ? 'dark' : 'default';
+  const classic = { theme, look: 'classic' };
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
     suppressErrorRendering: true,
-    theme: effectiveMermaidTheme() === 'dark' ? 'dark' : 'default',
+    theme,
+    // Mermaid 12 changes diagram defaults; preserve the suite's classic layout.
+    look: 'classic',
+    layout: 'dagre',
     htmlLabels: false,
-    flowchart: { htmlLabels: false },
+    flowchart: { ...classic, htmlLabels: false, wrappingWidth: 200, minNodeWidth: 0 },
+    sequence: classic,
+    class: classic,
+    state: { ...classic, layout: 'dagre', wrappingWidth: 200, minNodeWidth: 0 },
+    er: classic,
+    requirement: classic,
+    swimlane: classic,
+    venn: classic,
     secure: [
       'secure',
       'securityLevel',

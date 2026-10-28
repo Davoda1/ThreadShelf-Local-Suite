@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__libjpeg_turbo-640f254ad0fa03f6b1f29f89b7dd9366f2f6e533.tar.gz",
+  "archive_bytes": 2624789,
+  "archive_sha256": "8a1532935acc33ed77051a745ddf73865fa3e0d6d0e07a2041a74e7d09fe5d9c",
+  "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533",
+  "repository": "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git",
+  "root_git_tree": "cddc4a33897ebf52326f564a2ec1cc9dd09f3b50",
+  "blob_count": 308,
+  "git_tree_count": 12,
+  "member_count": 319,
+  "regular_file_bytes": 7155016,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 308
+  },
+  "source_blob_inventory_sha256": "a550d4802824968074dae45a10f7eda8d64f244cad313c1207b0325cf2447d1b",
+  "archive_mtime_range": [
+    1793146057.745,
+    1793146058.003
+  ],
+  "metadata": [
+    {
+      "file": "metadata/608de94f2596e72072c39bbfa821ef9331a62c5bda458e41de112b9e3eb6a270.json",
+      "url": "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git/+/640f254ad0fa03f6b1f29f89b7dd9366f2f6e533/?format=JSON",
+      "bytes": 2162,
+      "sha256": "694de96c27ff29d46f032de1f78b72edf9d2fac6c9a42a54695078a25c1aafc9",
+      "git_tree": "cddc4a33897ebf52326f564a2ec1cc9dd09f3b50",
+      "receipt": {
+        "file": "metadata/608de94f2596e72072c39bbfa821ef9331a62c5bda458e41de112b9e3eb6a270.receipt.json",
+        "bytes": 234,
+        "sha256": "da687905ccb7077ef0116e667dcbc5de56ed601f625f6398583bef2df1aee0d7"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/8a1532935acc33ed77051a745ddf73865fa3e0d6d0e07a2041a74e7d09fe5d9c.jsonl.gz",
+    "bytes": 33184,
+    "sha256": "018da7d862ef6a1a315b40db607a8d12ada1519a05eed6cd797d5e4e768d1bcc",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 92310,
+    "jsonl_sha256": "b8eb524b280e439bbc7cee15020e0434110a5b787f959d76056e76c7c35dc856",
+    "records": 321,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "8396b7c70ec00edd3c32dc829b2de18120e4e7307209604fbc95fa105d74535c",
+    "bytes": 2624710,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

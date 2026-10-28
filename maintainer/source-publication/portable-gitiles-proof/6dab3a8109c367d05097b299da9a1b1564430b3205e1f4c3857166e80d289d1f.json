@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__ced__src-d127078cedef9c6642cbe592dacdd2292b50bb19.tar.gz",
+  "archive_bytes": 305104,
+  "archive_sha256": "6dab3a8109c367d05097b299da9a1b1564430b3205e1f4c3857166e80d289d1f",
+  "revision": "d127078cedef9c6642cbe592dacdd2292b50bb19",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/compact_enc_det.git",
+  "root_git_tree": "235ccfd44deaee7f998a98133cfa9da58615144d",
+  "blob_count": 28,
+  "git_tree_count": 5,
+  "member_count": 32,
+  "regular_file_bytes": 1482175,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 27,
+    "100755": 1
+  },
+  "source_blob_inventory_sha256": "cbd84661657b9bf564db11e187c0378620cbd90fb33f51bdddcd55f94b4a1bbe",
+  "archive_mtime_range": [
+    1793146305.836,
+    1793146305.911
+  ],
+  "metadata": [
+    {
+      "file": "metadata/007bbdf6afc3630af2b39cdc932ec20a30a43498ac987daccc2b812cc02038df.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/compact_enc_det.git/+/d127078cedef9c6642cbe592dacdd2292b50bb19/?format=JSON",
+      "bytes": 1046,
+      "sha256": "d71566c551efbe666e6af82517c3ec99a6a00b19152c7f6e6f9178a8dbcc5d14",
+      "git_tree": "235ccfd44deaee7f998a98133cfa9da58615144d",
+      "receipt": {
+        "file": "metadata/007bbdf6afc3630af2b39cdc932ec20a30a43498ac987daccc2b812cc02038df.receipt.json",
+        "bytes": 249,
+        "sha256": "3cd684bbf2f55dea059b5c2db39b7dc13ec0d1e3bf46182a0f0d9fc05cb60916"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/6dab3a8109c367d05097b299da9a1b1564430b3205e1f4c3857166e80d289d1f.jsonl.gz",
+    "bytes": 2934,
+    "sha256": "bd0a8f27c9c7f5ff7e44b7b387b0628341a7b5e79d2dde24081a083d84014235",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 9650,
+    "jsonl_sha256": "8e33b65d4a97869f6704e6e961f39bf927709dfd07921208cdfb29b104364ccf",
+    "records": 34,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "8b53e863f0324f2ac3cb93ac133c3d73fd01f4db79570e6627027c5e3bda896d",
+    "bytes": 305097,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

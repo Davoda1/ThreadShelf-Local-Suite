@@ -1,0 +1,77 @@
+{
+  "id": "909e6e11351cbdb62e08e6d758b7901470d3b4d7",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a238cbd8e08a83ee1bd55648b7539c381a875c4e",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "df4dc25c88e04325988235481960929bbdece4a1",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d5e3bff5ad52072ea2ab55431064276c7a4a8855",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9031b0ce9f003b3c3a62780ff8c262ba1de7788d",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0a9b5dbb86fc7df15d3748d6efa221c539ad86be",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c62d8e99658c2e1f0d7655cb5357aceb1fbecd0c",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7a46779e048621cbfa0e115eaeb22e7413f3fd7b",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "801cdd48173b31e568f3ddc4cb70ca685881a653",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3fb3a4f57cbef7787e7ba53fb50f8c3d8fa0f34b",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0bab9739904dcc4b0966bab1bbde43f69ab29254",
+      "name": "subprojects"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c01906bfa072b13a43724b9694e4fb7bfafcb2de",
+      "name": "tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7ece30f896ef9a0ab9c4734fcf10701a0b9d2469",
+      "name": "util"
+    }
+  ]
+}

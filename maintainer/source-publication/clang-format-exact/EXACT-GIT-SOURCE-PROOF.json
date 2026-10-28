@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "passed": true,
+  "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+  "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "retrieval_method": "git-smart-http-exact-revision",
+  "officialEndpoint": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+  "refAdvertisement": {
+    "file": "remote-ref-advertisement.txt",
+    "bytes": 220,
+    "sha256": "88f7bf96becdca06f246fdc323bfcb9611b6519e1dabcf2781846c7691bda080"
+  },
+  "rawCommit": {
+    "file": "commit.raw",
+    "bytes": 498,
+    "sha256": "feed3ebe4bcccb63cfd77e0f89cb39e878552bc5c3ded8f630a2e378e4ab8166"
+  },
+  "commitGitObjectSha1": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "rootTree": "5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6",
+  "treeObjects": [
+    {
+      "path": "",
+      "gitTree": "5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6",
+      "rawObject": {
+        "file": "git-trees/5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6.raw",
+        "bytes": 543,
+        "sha256": "723cbd301026088b56d725b9fa17cb08a065fa06488f80e69cc7c3819a9b3bee"
+      },
+      "entries": [
+        {
+          "mode": "100644",
+          "name": ".clang-format",
+          "object": "d7331b3c8cf02ef7944e83a4280476627e33b31d"
+        },
+        {
+          "mode": "100644",
+          "name": "CMakeLists.txt",
+          "object": "1c61a3c8fb8036836ea5c93e11b4d996580aed3e"
+        },
+        {
+          "mode": "100644",
+          "name": "ClangFormat.cpp",
+          "object": "743c7c27a9f5d2ea316d1c1311a70a490179d074"
+        },
+        {
+          "mode": "100644",
+          "name": "clang-format-bbedit.applescript",
+          "object": "fa88fe9004803f1b4ccf93813db78d5d862574aa"
+        },
+        {
+          "mode": "100755",
+          "name": "clang-format-diff.py",
+          "object": "3059982ba231f1e6e520950c8315a17753bf625b"
+        },
+        {
+          "mode": "100644",
+          "name": "clang-format-sublime.py",
+          "object": "8d41da332c1889c19ada08a976743ac7c009ddb7"
+        },
+        {
+          "mode": "100644",
+          "name": "clang-format-test.el",
+          "object": "667d606b4f238d099258f316f6e5d7db3072cea0"
+        },
+        {
+          "mode": "100644",
+          "name": "clang-format.el",
+          "object": "b356e1bfa1436180aad1b00c75b26b5364118699"
+        },
+        {
+          "mode": "100644",
+          "name": "clang-format.py",
+          "object": "07eebd27f49d112e852791160428153480520821"
+        },
+        {
+          "mode": "40000",
+          "name": "fuzzer",
+          "object": "f19d3b866d769d01f92a00726b15b254c07ce932"
+        },
+        {
+          "mode": "100755",
+          "name": "git-clang-format",
+          "object": "d9b2d501c00e39ae9335e57cf5031f251f6a0b6f"
+        },
+        {
+          "mode": "100644",
+          "name": "git-clang-format.bat",
+          "object": "a40276e63c5848bde0144a0677e4279151af362c"
+        }
+      ]
+    },
+    {
+      "path": "fuzzer",
+      "gitTree": "f19d3b866d769d01f92a00726b15b254c07ce932",
+      "rawObject": {
+        "file": "git-trees/f19d3b866d769d01f92a00726b15b254c07ce932.raw",
+        "bytes": 91,
+        "sha256": "22c2a46110f632b13b55667841a56baf506a3893fcc90d1e141c582f4244c6c4"
+      },
+      "entries": [
+        {
+          "mode": "100644",
+          "name": "CMakeLists.txt",
+          "object": "87ae05b62d1977716335845e3dbd2f6dbd9170c2"
+        },
+        {
+          "mode": "100644",
+          "name": "ClangFormatFuzzer.cpp",
+          "object": "a8a783ba1a53e549d904b2887250a5ed10295e59"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": ".clang-format",
+      "gitMode": "100644",
+      "gitBlob": "d7331b3c8cf02ef7944e83a4280476627e33b31d",
+      "bytes": 27,
+      "sha256": "084be5fdd49d5fb2823e7bdca5e2f4d21797f165faa86e8486e721b2cef018b0"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "gitMode": "100644",
+      "gitBlob": "1c61a3c8fb8036836ea5c93e11b4d996580aed3e",
+      "bytes": 1149,
+      "sha256": "8932004c54b8279a61c695fc672168d2ad1990b4e3b9630da275959449f030bd"
+    },
+    {
+      "path": "ClangFormat.cpp",
+      "gitMode": "100644",
+      "gitBlob": "743c7c27a9f5d2ea316d1c1311a70a490179d074",
+      "bytes": 27493,
+      "sha256": "70d654ef8ce771d16368f43d6f21e3814bbd6fca2f4ee04ef7c0c8ad05b21c77"
+    },
+    {
+      "path": "clang-format-bbedit.applescript",
+      "gitMode": "100644",
+      "gitBlob": "fa88fe9004803f1b4ccf93813db78d5d862574aa",
+      "bytes": 1429,
+      "sha256": "8a1f0c9acb341a32e55839abc131f5ecb1a1ab68e462b30400914f24bd392674"
+    },
+    {
+      "path": "clang-format-diff.py",
+      "gitMode": "100755",
+      "gitBlob": "3059982ba231f1e6e520950c8315a17753bf625b",
+      "bytes": 6356,
+      "sha256": "197da6e16fc24a10da3f56760d0335f6f636501b795b4d15cc2a1aed19f0fa83"
+    },
+    {
+      "path": "clang-format-sublime.py",
+      "gitMode": "100644",
+      "gitBlob": "8d41da332c1889c19ada08a976743ac7c009ddb7",
+      "bytes": 2800,
+      "sha256": "507e49d17757b0f9a16aa3c1312aa5c7ede35f9eea929f17788af309dd859dcb"
+    },
+    {
+      "path": "clang-format-test.el",
+      "gitMode": "100644",
+      "gitBlob": "667d606b4f238d099258f316f6e5d7db3072cea0",
+      "bytes": 5303,
+      "sha256": "27fb61fa0e742ff41dfbde03965a851a1b6abbc7c7fcfd6d9910c05374699b92"
+    },
+    {
+      "path": "clang-format.el",
+      "gitMode": "100644",
+      "gitBlob": "b356e1bfa1436180aad1b00c75b26b5364118699",
+      "bytes": 18433,
+      "sha256": "1bc9ba48c931630eb846de10500d0fda439c2377da55958beec36a81d7da55a2"
+    },
+    {
+      "path": "clang-format.py",
+      "gitMode": "100644",
+      "gitBlob": "07eebd27f49d112e852791160428153480520821",
+      "bytes": 6356,
+      "sha256": "5963470b30425397962596e91122e3b0c96addcafb58dce66215a07c170c6205"
+    },
+    {
+      "path": "fuzzer/CMakeLists.txt",
+      "gitMode": "100644",
+      "gitBlob": "87ae05b62d1977716335845e3dbd2f6dbd9170c2",
+      "bytes": 338,
+      "sha256": "6bcdf228c6fecded7678211196d9126221e8c08dca49e001055e59092c18f48f"
+    },
+    {
+      "path": "fuzzer/ClangFormatFuzzer.cpp",
+      "gitMode": "100644",
+      "gitBlob": "a8a783ba1a53e549d904b2887250a5ed10295e59",
+      "bytes": 1332,
+      "sha256": "d74087c9f9265e7f59a39b46537d3520c97b66931aadc08098ada5c528246e5d"
+    },
+    {
+      "path": "git-clang-format",
+      "gitMode": "100755",
+      "gitBlob": "d9b2d501c00e39ae9335e57cf5031f251f6a0b6f",
+      "bytes": 29907,
+      "sha256": "50f70f44b927aecef08bd13df39f8a3b2069cda8a87dfa01289e8ba9a607ec11"
+    },
+    {
+      "path": "git-clang-format.bat",
+      "gitMode": "100644",
+      "gitBlob": "a40276e63c5848bde0144a0677e4279151af362c",
+      "bytes": 18,
+      "sha256": "9be5db346d63c3da38c7e723a8e6f4b4660fe71ce75fd933a6ad35cad6b3c3b3"
+    }
+  ],
+  "archive": {
+    "file": "/tmp/threadshelf-source-staging/clang-format-exact/clang-format-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+    "bytes": 28763,
+    "sha256": "aea58b9111cf181d0d0eec0c228a93c455a6cd058a30ff7e892ceecc6d3e233a",
+    "prefix": ""
+  },
+  "scope": "Every original Git blob and mode from the exact pinned commit is retained. Commit and all tree/blob object identities were independently recomputed from raw bytes. Gitiles web endpoints returned404 while official Git smartHTTP advertised and supplied this exact commit; no fallback revision or export filtering was used.",
+  "fileCount": 13,
+  "treeCount": 2,
+  "regularFileBytes": 100941
+}

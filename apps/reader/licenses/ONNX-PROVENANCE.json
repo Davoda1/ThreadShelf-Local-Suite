@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "suite_version": "1.3.0",
+  "onnxruntime_version": "1.31.1",
+  "reviewed_utc": "2026-10-27T22:23:46.391201+00:00",
+  "upstream_source": {
+    "repository": "https://github.com/microsoft/onnxruntime",
+    "tag": "v1.31.1",
+    "revision": "6af1a932e2286d5c58166085d24c68783033edee",
+    "release_url": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.1",
+    "source_archive_url": "https://codeload.github.com/microsoft/onnxruntime/tar.gz/6af1a932e2286d5c58166085d24c68783033edee",
+    "source_archive_downloaded": true,
+    "complete_source_companion_prepared": true,
+    "source_archive_retained": true,
+    "source_archive_inspection": {
+      "archiveBytes": 280385122,
+      "archiveSha256": "ca15bee9ccf04f17da55d78834cce95168e3e2178edf402bd38d2e5eb95b1e26",
+      "regularFilesScanned": 11379,
+      "regularFileBytes": 584026306,
+      "scope": "Initial full source stream scanned for privacy flag references. The exact source archive is now retained in the separately verified complete source companion."
+    }
+  },
+  "npm_packages": [
+    {
+      "name": "onnxruntime-node",
+      "version": "1.31.1",
+      "license": "MIT",
+      "tarball_url": "https://registry.npmjs.org/onnxruntime-node/-/onnxruntime-node-1.31.1.tgz",
+      "registry_integrity": "sha512-ijnSghbDHVWaQ2nDPmVccPlCHI8kH1Mx1aJ4a/qzRP16bBcVs4E3EqZQKZCkhWnbqN1tuQWxagimFtDpbPYYQw==",
+      "registry_sha1": "984183ad51216c99ce333a1e0bf4a1f2fa1d19f0",
+      "registry_git_head": null,
+      "installed_package_json_sha256": "41aedb3e877786245ab4dc0f533cda63f7d971b5c5fec171eafca9fb9572a8d5",
+      "dependencies": {
+        "adm-zip": "^0.6.0",
+        "global-agent": "^4.1.3",
+        "onnxruntime-common": "1.31.1"
+      }
+    },
+    {
+      "name": "onnxruntime-web",
+      "version": "1.31.1",
+      "license": "MIT",
+      "tarball_url": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.31.1.tgz",
+      "registry_integrity": "sha512-5GeH+bWQ+HxM10z7erGlsWqryrwMbSvm/1tkIsKTT48g0fI19VXVVC435t4t7VsPdSQeS7NmuZPXrQ73k82URw==",
+      "registry_sha1": "309e196c733e90a038e0380867dde308a994de92",
+      "registry_git_head": null,
+      "installed_package_json_sha256": "81fa53b6bf23c91d6fdd37dac97ebec558048bbd14ccbcc02e54fb47d3c1c699",
+      "dependencies": {
+        "flatbuffers": "^25.1.24",
+        "guid-typescript": "^1.0.9",
+        "long": "^5.2.3",
+        "onnxruntime-common": "1.31.1",
+        "platform": "^1.3.6",
+        "protobufjs": "^7.2.4"
+      }
+    },
+    {
+      "name": "onnxruntime-common",
+      "version": "1.31.1",
+      "license": "MIT",
+      "tarball_url": "https://registry.npmjs.org/onnxruntime-common/-/onnxruntime-common-1.31.1.tgz",
+      "registry_integrity": "sha512-F+nnYNiQtmNJ95V6R/isBJqiVpdANCrsMEg1OaF+Bkbl3GAtzWLR7Ng17Ld0QtYtYJyotOHPJzOQn1Y6PLZjpg==",
+      "registry_sha1": "13a4e86106ed12e3c670026d7c2926dbed7210d3",
+      "registry_git_head": null,
+      "installed_package_json_sha256": "c8e59240260cd3d230f1417765e0dbe098323ef65a5785991059de1bd5d7cde0",
+      "dependencies": {}
+    }
+  ],
+  "retained_notices": [
+    {
+      "file": "ONNX-Runtime-MIT.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/6af1a932e2286d5c58166085d24c68783033edee/LICENSE",
+      "retrievedUTC": "2026-10-27T21:35:43.458131+00:00",
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+      "bytes": 1073
+    },
+    {
+      "file": "ONNX-Runtime-ThirdPartyNotices.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/6af1a932e2286d5c58166085d24c68783033edee/ThirdPartyNotices.txt",
+      "retrievedUTC": "2026-10-27T21:35:43.588296+00:00",
+      "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3",
+      "bytes": 338088
+    }
+  ],
+  "integration": {
+    "transformers_version": "4.3.2",
+    "source_entry": "@huggingface/transformers/src/transformers.js",
+    "reader_adapter": "src/core/transformers-runtime.mjs",
+    "omitted_native_package_directory": "node_modules/@huggingface/transformers/dist",
+    "omission_reason": "Unused prebuilt distributions embed an older ONNX Web runtime; Reader loads the unchanged upstream source entry and exact external ONNX 1.31.1 packages.",
+    "upstream_transformers_constraints": {
+      "onnxruntime-node": "1.30.0",
+      "onnxruntime-web": "1.31.0-dev.20260914-8d85527a0"
+    },
+    "override_scope": "Intentional suite overrides; upstream package metadata and source remain unchanged. Compatibility is verified locally, not claimed as an upstream certification."
+  },
+  "telemetry": {
+    "official_native_packages": "Linux x64 and Windows x64 core binaries retain 1DS telemetry code; Windows also retains a product telemetry provider and a separate OS diagnostic logging provider.",
+    "reader_control": "src/core/onnx-privacy.cjs sets ORT_DISABLE_TELEMETRY=1 and ORT_RUNNING_UNIT_TESTS=1 on the main thread, loaded first by src/desktop/main.cjs and src/core/search.mjs, before worker creation or native initialization.",
+    "worker_caveat": "Default Node worker process.env changes are thread-local copies and do not update the OS environment seen by native getenv/GetEnvironmentVariableW.",
+    "upstream_opt_out_source": "https://github.com/microsoft/onnxruntime/blob/6af1a932e2286d5c58166085d24c68783033edee/onnxruntime/core/platform/telemetry_environment.h",
+    "upstream_suppression_source": "https://github.com/microsoft/onnxruntime/blob/6af1a932e2286d5c58166085d24c68783033edee/onnxruntime/core/platform/telemetry_1ds.cc",
+    "node_worker_environment_reference": "https://github.com/nodejs/node/blob/v24.22.1/doc/api/process.md#processenv",
+    "native_binary_inspection": [
+      {
+        "file": "package/bin/napi-v6/linux/x64/libonnxruntime.so.1",
+        "bytes": 47552704,
+        "sha256": "f19a4da48c4c65e0cdccff82354482f657fa91a3455b66174195b94ca55b0e6f"
+      },
+      {
+        "file": "package/bin/napi-v6/win32/x64/onnxruntime.dll",
+        "bytes": 31736672,
+        "sha256": "beb6e1edba0e74c132453fe4df113da2ea2b99ef8ea7dfc25696a872efd11c45"
+      },
+      {
+        "file": "package/bin/napi-v6/linux/x64/onnxruntime_binding.node",
+        "bytes": 519712,
+        "sha256": "e3a108803b8bd33c8e9691b52921c37bede7a6886251aa41219f053d268ee231"
+      },
+      {
+        "file": "package/bin/napi-v6/win32/x64/onnxruntime_binding.node",
+        "bytes": 358200,
+        "sha256": "8d9f996ff7dcc60c4899aa87aa7abe07d806f9c314882f44a001d0fd8a23d16f"
+      }
+    ],
+    "limits": "Source and binary inspection establish the bounded suppression mechanisms; runtime regression evidence is recorded separately. No native Windows execution, removal of diagnostic code, or universal absence of network activity is asserted by this provenance record.",
+    "internal_flag_review": {
+      "name": "ORT_RUNNING_UNIT_TESTS",
+      "value": "1",
+      "pinned_version": "1.31.1",
+      "status": "Upstream internal signal used as a bounded compatibility suppression; not a general public configuration API. Re-review before any ONNX upgrade.",
+      "production_uses": "Only telemetry_environment.h defines the predicate; telemetry_1ds.cc checks it before uploader/device-ID initialization and windows/telemetry.cc checks it before product telemetry provider registration. The remaining matching files are upstream tests. No inference or validation bypass use was found in the scanned repository.",
+      "scan_record": "maintainer/onnx-source-inputs/1.31.1/telemetry-flag-scan.json",
+      "scan_record_sha256": "ae122021567cb3069798f889550b0b991363b3c7c5b3285cae152c8d2566f0e7",
+      "scan_limits": "All regular members of complete pinned repository source archive scanned; separate Git submodules are not included by GitHub source archives."
+    },
+    "upstream_windows_suppression_source": "https://github.com/microsoft/onnxruntime/blob/6af1a932e2286d5c58166085d24c68783033edee/onnxruntime/core/platform/windows/telemetry.cc",
+    "separate_os_diagnostics": {
+      "source": "https://github.com/microsoft/onnxruntime/blob/6af1a932e2286d5c58166085d24c68783033edee/onnxruntime/core/platform/windows/logging/etw_sink.cc",
+      "scope": "The independent ONNXRuntimeTraceLoggingProvider in windows/logging/etw_sink.cc is not controlled by these flags. It supplies local diagnostics when an external OS trace session enables it; this path has no HTTP uploader.",
+      "application_behavior": "Reader does not enable the external trace session or configure a diagnostic uploader. No claim that OS diagnostic code is removed."
+    }
+  },
+  "limits": [
+    "npm metadata omits gitHead. The official source release and npm integrity pins are separate evidence; source-to-binary reproducibility has not been proved.",
+    "The GitHub source archive alone omits separate submodule contents and CMake-fetched dependencies.",
+    "The historical 1.0.0 native/runtime source companions do not establish ONNX 1.31.1 coverage; the separately published 1.3.0 ONNX source companion supplies the matching source closure.",
+    "Root ThirdPartyNotices is retained verbatim and is not a claim that every listed component is enabled in every target."
+  ],
+  "source_companion": {
+    "status": "complete-original-source-collection-verified",
+    "source_archives": 96,
+    "indexed_entries": 260922,
+    "active_vcpkg_ports": 33,
+    "version_constraints_checked": 28,
+    "ordered_patch_applications": 60,
+    "manifest": "source-publication/onnx/ONNX-COLLECTION-MANIFEST.json",
+    "source_parts": [
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-01.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-02.zip"
+    ],
+    "metadata": "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-ONNX-Sources-Metadata.zip",
+    "scope": "Matching original native/Web/common source closure and retained recipes; no full native rebuild or byte-identical binary reproduction claimed. Historical preparation snapshots inside immutable parts remain explicitly scoped to their earlier phases."
+  }
+}

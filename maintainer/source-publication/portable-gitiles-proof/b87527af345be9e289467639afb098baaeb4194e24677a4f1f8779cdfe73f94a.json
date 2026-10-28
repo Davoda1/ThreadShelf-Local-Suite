@@ -1,0 +1,166 @@
+{
+  "passed": true,
+  "archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+  "archive_bytes": 8637797,
+  "archive_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+  "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+  "root_git_tree": "bdd866e24e88a86213d49138890f9d2b48f73bbd",
+  "blob_count": 3065,
+  "git_tree_count": 176,
+  "member_count": 3249,
+  "regular_file_bytes": 105310698,
+  "symlinks": 5,
+  "gitlinks": [
+    {
+      "path": "third_party/absl",
+      "revision": "abe63eb9bd1213c018bf82765ab747334d3b33d8"
+    },
+    {
+      "path": "third_party/depot_tools",
+      "revision": "8a11c2d152e9793e59d01bdcdd807d597e65ee1b"
+    },
+    {
+      "path": "third_party/google-toolbox-for-mac/google-toolbox-for-mac",
+      "revision": "1b2da5e6e6b5edb1fa1427cc77e23f04069c04ad"
+    },
+    {
+      "path": "third_party/gtest",
+      "revision": "d6fb5e3bf76c0363d7519373a07c2435e57c1073"
+    },
+    {
+      "path": "third_party/json/json",
+      "revision": "bc889afb4c5bf1c0d8ee29ef35eaaf4c8bef8a5d"
+    },
+    {
+      "path": "third_party/protobuf",
+      "revision": "12f743d4e7bc2a22918371a286e9ab09748b0f40"
+    },
+    {
+      "path": "third_party/securemessage/securemessage",
+      "revision": "69a02984d4563c6c21132ee882d1d3df1981f5a1"
+    },
+    {
+      "path": "third_party/smhasher/smhasher",
+      "revision": "61a0530f28277f2e850bfc39600ce61d02b518de"
+    },
+    {
+      "path": "third_party/ukey2/ukey2",
+      "revision": "03290b58d9f93cdd5c9f9f7a7f9e8efc640d0c40"
+    }
+  ],
+  "git_file_modes": {
+    "100644": 3058,
+    "100755": 2,
+    "120000": 5
+  },
+  "source_blob_inventory_sha256": "838f5b32080d7bbb73190eeb3f970ca78883570cc9b447514dcb41eda0a883d6",
+  "archive_mtime_range": [
+    1793145320.374,
+    1793145323.278
+  ],
+  "metadata": [
+    {
+      "file": "metadata/2848e935f89bd2f32907cd1b84ff4f1d43e40196571ca9caf8991a29b4b5feb9.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/?format=JSON",
+      "bytes": 3154,
+      "sha256": "c6bad0c59eb53754e7c7e5948943f9ee3a0d94b6b5877f579f56a1ea77ccdf21",
+      "git_tree": "bdd866e24e88a86213d49138890f9d2b48f73bbd",
+      "receipt": {
+        "file": "metadata/2848e935f89bd2f32907cd1b84ff4f1d43e40196571ca9caf8991a29b4b5feb9.receipt.json",
+        "bytes": 252,
+        "sha256": "cfd3df05f42a50a16b4271091b6576b974c2720fabb6109ff6402f8f8c5115bb"
+      }
+    },
+    {
+      "file": "metadata/21f0eeb8ea01fe9834e25316c96e5007fc9cfdc81db87e7b5cdc8d728c35187a.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party?format=JSON",
+      "bytes": 1323,
+      "sha256": "f61b4ebed71056a767158afed1ef2d29ee3879eacd0578aa8e19356f5fe73b66",
+      "git_tree": "c3e2955448bbd81f2e304e7d91a0c57342902e48",
+      "receipt": {
+        "file": "metadata/21f0eeb8ea01fe9834e25316c96e5007fc9cfdc81db87e7b5cdc8d728c35187a.receipt.json",
+        "bytes": 263,
+        "sha256": "6a227939b0b4fdecf1b555831052789562673be9a3a37c38d3b79f8a126d1f7e"
+      }
+    },
+    {
+      "file": "metadata/052aa006ee96ba34e49f7da19f05942e8eb79c76b519e9cdf160755b850899c6.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party/google-toolbox-for-mac?format=JSON",
+      "bytes": 363,
+      "sha256": "649018eabe4e875e9af6f50831ae89db431ba29346026867cd007811eedf8d7a",
+      "git_tree": "3c8edf1e2abf84f3524b79310d945833673cee2f",
+      "receipt": {
+        "file": "metadata/052aa006ee96ba34e49f7da19f05942e8eb79c76b519e9cdf160755b850899c6.receipt.json",
+        "bytes": 285,
+        "sha256": "4784f25a2d1cd0fffbfbd837b31cdde4851f60128c070807196f0c63736cfde4"
+      }
+    },
+    {
+      "file": "metadata/631a5804821812bf66fd7045f4490449afdffd1f95cccb51b469126dde993006.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party/json?format=JSON",
+      "bytes": 370,
+      "sha256": "50493f3c5ec4b315b88ddd5b7c983ede4ac85fd193a8f8061c0c0769d23b9041",
+      "git_tree": "fb0b8ca6c6333cae92a333e33efd5d59e912d547",
+      "receipt": {
+        "file": "metadata/631a5804821812bf66fd7045f4490449afdffd1f95cccb51b469126dde993006.receipt.json",
+        "bytes": 267,
+        "sha256": "a12d3c4754a2814e20c55dc9c39342fc02c6fc7f0770951da8d71d6d2034cdc9"
+      }
+    },
+    {
+      "file": "metadata/db1820cfe3deef11f621714e7578b3bc8001a607b99af1d332057a5f3fe89f91.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party/securemessage?format=JSON",
+      "bytes": 497,
+      "sha256": "eb50884f569b23d5ca83f3f814c7bfd7fbe64766e43c89509ba56ca3e9832e54",
+      "git_tree": "7f64b6e63da86b9ee6ccedfc484582a7a5fc3bd4",
+      "receipt": {
+        "file": "metadata/db1820cfe3deef11f621714e7578b3bc8001a607b99af1d332057a5f3fe89f91.receipt.json",
+        "bytes": 276,
+        "sha256": "2852fad9c0a0821f185c53daac87d788da88acaee1d3ac3fc90ca09d8e86b2b0"
+      }
+    },
+    {
+      "file": "metadata/be2beae8c4530c58a1a844c0beab83c1e35e940b1e8e589e39d809b1b95af62d.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party/smhasher?format=JSON",
+      "bytes": 349,
+      "sha256": "81975658642e39f162b862da2f3ba56b4a8b32eb0195cb22294029d0be5e3fed",
+      "git_tree": "b7a61b55e79c045012297189bf771e73e8b24953",
+      "receipt": {
+        "file": "metadata/be2beae8c4530c58a1a844c0beab83c1e35e940b1e8e589e39d809b1b95af62d.receipt.json",
+        "bytes": 271,
+        "sha256": "c019f12ace343c9beb211de7014da763c321d47174f878950aae60b064c10930"
+      }
+    },
+    {
+      "file": "metadata/d5b60c00bcc623e7157d112c8b93a361c4570171f2dcfbdaf19c2a8c27c823ef.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+/0bad8b0c9877f92eeeb550654f1ea51a71a085e4/third_party/ukey2?format=JSON",
+      "bytes": 489,
+      "sha256": "7d936f6c2db893ea2973c13bf0ecc09556120afaf3f8c1cff0554d43e8a30686",
+      "git_tree": "e8ca34782d20f50d3c4925cc4be67806228d6144",
+      "receipt": {
+        "file": "metadata/d5b60c00bcc623e7157d112c8b93a361c4570171f2dcfbdaf19c2a8c27c823ef.receipt.json",
+        "bytes": 268,
+        "sha256": "7ac44ebc2db4c1d0c128177d3f4ee2081ae81b447314c639e9df9245b89d151b"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a.jsonl.gz",
+    "bytes": 341182,
+    "sha256": "82b8d5d3c4a2c750e0c06cd2bf854dcfd0417babd633a8f0f9b95d1cb0d78300",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 1120105,
+    "jsonl_sha256": "374ff40e6f3871d6e7b24076df36be9c90ef4adbd173cf75838043d9a33ae0ce",
+    "records": 3251,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "4dfccb8558eaa529f62610c79b936bf0a66eade2265ce17458b9f31f3b0d07c9",
+    "bytes": 8637871,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

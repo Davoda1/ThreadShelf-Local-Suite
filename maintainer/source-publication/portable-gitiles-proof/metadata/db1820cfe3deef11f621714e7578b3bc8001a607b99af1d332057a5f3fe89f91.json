@@ -1,0 +1,23 @@
+{
+  "id": "7f64b6e63da86b9ee6ccedfc484582a7a5fc3bd4",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e829f4a9ec3b13812802245800a87028c8314eca",
+      "name": "compiled_proto"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "53fd1ec7a61fc372ac1ce595f5de2f2d1134cdaf",
+      "name": "include"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "69a02984d4563c6c21132ee882d1d3df1981f5a1",
+      "name": "securemessage"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import { downloadArtifact, initializeProxy } from '@electron/get';
 import { releaseFilename } from './release-filenames.mjs';
 import { writeVerifiedRuntimeExecutable, verifyRuntimeExecutable } from './runtime-executable.mjs';
 import { walkPackageFiles, verifyNativeSymlinks, assertNoLauncherScripts, LINUX_PORTABLE_LINKS, LINUX_DEB_LINKS } from './package-layout.mjs';
+import { TOOLCHAIN, ensureNpm, npmEnvironment } from './npm-toolchain.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const pkg = JSON.parse(await fsp.readFile(path.join(root, 'package.json')));
@@ -37,6 +38,7 @@ await fsp.mkdir(out, { recursive: true });
 await fsp.mkdir(staging, { recursive: true });
 const lock = await fsp.readFile(path.join(root, 'package-lock.json'));
 const lockHash = hash(lock);
+const dependencyFingerprint = `${lockHash}\n${TOOLCHAIN.id}`;
 
 async function verifyBundledCodec() {
   // The source offer and notices travel with the executables in every release.
@@ -112,6 +114,8 @@ async function extractZip(archive, destination) {
   const reader = new ZipReader(new Uint8ArrayReader(await fsp.readFile(archive)), { useWebWorkers: false });
   try {
     for (const entry of await reader.getEntries()) {
+      // The upstream demo is never part of a branded application package.
+      if (entry.filename === 'resources/default_app.asar') continue;
       const target = path.resolve(destination, entry.filename);
       if (!target.startsWith(path.resolve(destination) + path.sep)) throw new Error('Unsafe runtime archive path.');
       if (entry.directory) { await fsp.mkdir(target, { recursive: true }); continue; }
@@ -189,15 +193,14 @@ async function getRuntime(platform) {
 async function prepareDependencies(platform) {
   const location = path.join(staging, `deps-${platform}-x64`);
   const marker = path.join(location, '.lock-hash');
-  const valid = exists(marker) && (await fsp.readFile(marker, 'utf8')) === lockHash;
+  const valid = exists(marker) && (await fsp.readFile(marker, 'utf8')) === dependencyFingerprint;
   if (!valid) {
     await fsp.rm(location, { recursive: true, force: true });
     await fsp.mkdir(location, { recursive: true });
     await copy('package.json', location); await copy('package-lock.json', location);
-    const npmCLI = process.env.npm_execpath || path.join(path.dirname(process.execPath), process.platform === 'win32' ? 'node_modules/npm/bin/npm-cli.js' : '../lib/node_modules/npm/bin/npm-cli.js');
-    if (exists(npmCLI)) run(process.execPath, [npmCLI, 'ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: location });
-    else run(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: location, shell: process.platform === 'win32' });
-    await fsp.writeFile(marker, lockHash);
+    const npm = await ensureNpm({ cacheRoot: process.env.TSL_NPM_CACHE || path.join(root, '.tooling', 'npm') });
+    run(process.execPath, [npm.cli, 'ci', '--omit=dev', '--ignore-scripts', '--no-audit', '--no-fund'], { cwd: location, env: await npmEnvironment(npm) });
+    await fsp.writeFile(marker, dependencyFingerprint);
   }
   // Library CLI shortcuts are unused by Analytics and are not app launchers.
   // Omit them from runtime packages to keep all public startup paths native.
@@ -268,7 +271,7 @@ async function binary(platform) {
     if ((await fsp.readdir(folder)).some(name => name.toLowerCase().endsWith('.cmd') || name === 'app')) throw new Error('Windows portable layout must not include an app folder or CMD launcher.');
     await assertNoLauncherScripts(folder);
     await fsp.rm(path.join(runtime, 'electron.exe'), { force: true });
-    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe'], true);
+    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe', 'resources/default_app.asar'], true);
   } else {
     const executable = path.join(runtime, 'threadshelf-local-analytics');
     const executableFingerprint = await writeVerifiedRuntimeExecutable(path.join(runtime, 'electron'), executable);
@@ -282,7 +285,7 @@ async function binary(platform) {
     await assertNoLauncherScripts(folder, path.join(folder,'bin'), runtime);
     await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
     await verifyRuntimeExecutable(executable, executableFingerprint);
-    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron'], true, LINUX_PORTABLE_LINKS);
+    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron', 'app/resources/default_app.asar'], true, LINUX_PORTABLE_LINKS);
     await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
     await verifyRuntimeExecutable(executable, executableFingerprint);
     await deb(runtime);
@@ -299,8 +302,8 @@ async function deb(runtime) {
   // Keep one immutable runtime tree on constrained build hosts. The sandbox
   // helper is copied because DEB finalization changes its ownership mode.
   await fsp.mkdir(installedApp, { recursive:true });
-  for (const relative of await walk(runtime)) {
-    if (relative === 'electron') continue;
+  for (const relative of await walk(runtime, '', true)) {
+    if (relative === 'electron' || relative === 'resources/default_app.asar') continue;
     const input = path.join(runtime, relative), output = path.join(installedApp, relative);
     await fsp.mkdir(path.dirname(output), {recursive:true});
     if (relative === 'chrome-sandbox') await fsp.copyFile(input, output);
@@ -313,9 +316,12 @@ async function deb(runtime) {
   // Remove it again at the final package boundary, before the size snapshot.
   await fsp.rm(path.join(dir, 'opt/threadshelf-local-analytics/electron'), { force: true });
   await fsp.rm(path.join(runtime, 'electron'), { force: true });
-  const verifiedCopy = await verifyCopiedTree(runtime, installedApp, ['electron']);
+  await fsp.rm(path.join(installedApp, 'resources/default_app.asar'), { force: true });
+  const verifiedCopy = await verifyCopiedTree(runtime, installedApp, ['electron', 'resources/default_app.asar']);
   const size = Math.ceil(verifiedCopy.bytes / 1024);
   await fsp.writeFile(path.join(dir, 'DEBIAN/control'), `Package: threadshelf-local-analytics\nVersion: ${pkg.version}\nSection: utils\nPriority: optional\nArchitecture: amd64\nMaintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: ${size}\nDepends: libc6 (>= 2.31), libstdc++6, libgcc-s1, libnss3, libnspr4, libgtk-3-0 | libgtk-3-0t64, libatk1.0-0 | libatk1.0-0t64, libatk-bridge2.0-0 | libatk-bridge2.0-0t64, libcups2 | libcups2t64, libdrm2, libxkbcommon0, libxcomposite1, libxdamage1, libxfixes3, libxrandr2, libgbm1, libasound2 | libasound2t64, libatspi2.0-0 | libatspi2.0-0t64, libx11-6, libxcb1, libxext6, libglib2.0-0 | libglib2.0-0t64, libdbus-1-3, libcairo2, libpango-1.0-0, libexpat1, libudev1\nHomepage: ${pkg.homepage}\nDescription: Offline analytics companion for archived AI conversations\n Capture ThreadShelf Local Reader archives read-only or ingest exports into independent\n Analytics storage. Includes its own Electron runtime and 7-Zip codecs.\n`);
+  // Remove a stale entry retained by a managed staging filesystem before recreating the verified link.
+  await fsp.rm(path.join(dir, 'usr/bin/threadshelf-local-analytics'), { force: true });
   await fsp.symlink(LINUX_DEB_LINKS['usr/bin/threadshelf-local-analytics'], path.join(dir, 'usr/bin/threadshelf-local-analytics'));
   await fsp.writeFile(path.join(dir, 'usr/share/applications/threadshelf-local-analytics.desktop'), '[Desktop Entry]\nType=Application\nName=ThreadShelf Local Analytics\nComment=Analyze archived AI conversations read-only\nExec=threadshelf-local-analytics\nIcon=threadshelf-local-analytics\nTerminal=false\nCategories=Utility;Office;\nStartupWMClass=threadshelf-local-analytics\n');
   await fsp.copyFile(path.join(root, 'build/icons/256x256.png'), path.join(dir, 'usr/share/icons/hicolor/256x256/apps/threadshelf-local-analytics.png'));
@@ -354,11 +360,11 @@ async function refreshBinaryInputs(platform) {
   await copy('licenses', folder);
   if (platform === 'win32') {
     await assertNoLauncherScripts(folder);
-    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe'], true);
+    await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe', 'resources/default_app.asar'], true);
   } else {
     await assertNoLauncherScripts(folder, path.join(folder,'bin'), runtime);
     await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
-    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron'], true, LINUX_PORTABLE_LINKS);
+    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron', 'app/resources/default_app.asar'], true, LINUX_PORTABLE_LINKS);
     await deb(runtime);
   }
   console.log(`Refreshed final ${flags.has('--refresh-app') ? 'application inputs' : 'human documentation'} and re-archived ${name}`);

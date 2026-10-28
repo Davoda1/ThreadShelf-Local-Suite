@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "depot_tools_revision": "c61f9e27ffddc07c383f71f05d733fe326b8e216",
+  "parser_sha256": "091353f94971d21fd8cfb40cb193e47b64c0e87ff573f4cff10674f3ef99f19d",
+  "scope": "Every dependency row and condition compared to official safe AST parser. Graph traversal implements reviewed gclient parent-variable precedence; no downloads/hooks or publication claim.",
+  "targets": [
+    {
+      "target": "linux",
+      "dependencies": 1130,
+      "selected_git": 173,
+      "all_rows_equal": true
+    },
+    {
+      "target": "win",
+      "dependencies": 1130,
+      "selected_git": 161,
+      "all_rows_equal": true
+    }
+  ],
+  "input_sha256": {
+    "deps-45.1-inventory.json": "952f477352f94cfae89bc39fe8ad747f19289616a27faca7ee5f4c0a177e7456",
+    "resolve-deps.py": "e90202226a0c13327292963e0a4e3600773005b191036e5e4d7901d7b72999ed",
+    "gclient_eval.py": "091353f94971d21fd8cfb40cb193e47b64c0e87ff573f4cff10674f3ef99f19d",
+    "schema.py": "ea5a116288f27cdfd6652075778dfb5c968c5c70ecce37c7841ec2baed602508"
+  },
+  "deps_inputs": [
+    {
+      "file": "deps-inputs/27b88d7bc94a2f52-DEPS",
+      "bytes": 40359,
+      "sha256": "cf584a7a8cfe3534c60ea3c1c16ae732c6e1a8cb393579a3480f6ff36102580c"
+    },
+    {
+      "file": "deps-inputs/27b88d7bc94a2f52-DEPS.json",
+      "bytes": 212,
+      "sha256": "48991f311e2b9888af67fc9835881c8047543058f2c9d98b700c3760dd90b1a5"
+    },
+    {
+      "file": "deps-inputs/378cbf22f6518f6d-DEPS",
+      "bytes": 201590,
+      "sha256": "133437f87bd38d2777b6718a3a1a428dd976f7df1d698e3523a4775e524ba1e3"
+    },
+    {
+      "file": "deps-inputs/378cbf22f6518f6d-DEPS.json",
+      "bytes": 224,
+      "sha256": "46dc05885795a8c4607a1f440f9a189d01349066c534027ac52c4a8be18dc420"
+    },
+    {
+      "file": "deps-inputs/919b67c161f68d1f-DEPS",
+      "bytes": 27246,
+      "sha256": "dd64fd1d57c2b7e34e11f93418c7812a18f2d667ced66dfebe53242c1bc0a233"
+    },
+    {
+      "file": "deps-inputs/919b67c161f68d1f-DEPS.json",
+      "bytes": 218,
+      "sha256": "abc153e28c54c780522d5bab8f7c83a36e1cc4d967123cbfc17b46d2568316d4"
+    },
+    {
+      "file": "deps-inputs/b7c90461156513ef-DEPS",
+      "bytes": 5328,
+      "sha256": "731decee03fee6cb3168a35c5d56e55908c442fd5a381a23620fbba970f0083e"
+    },
+    {
+      "file": "deps-inputs/b7c90461156513ef-DEPS.json",
+      "bytes": 224,
+      "sha256": "05b1540e127011c717ff73480c18723af587ec438ba2cd8f56497c4c098a9dc1"
+    },
+    {
+      "file": "deps-inputs/ba9aea03e86d1f9c-DEPS",
+      "bytes": 2000,
+      "sha256": "4dcba4832a9144fab0e68de9d04c7e1ae9dbaee96edf7edba1dbc18d1f5431ae"
+    },
+    {
+      "file": "deps-inputs/ba9aea03e86d1f9c-DEPS.json",
+      "bytes": 230,
+      "sha256": "82be747b05fb35e3c1e7d03b065d29d4e438045d42754461261bce8c247e8649"
+    },
+    {
+      "file": "deps-inputs/d65d6e4b5e2d5a20-DEPS",
+      "bytes": 14457,
+      "sha256": "5027da92ac3086d2a2b66784fca1975da5bcfee8a6911de9990ae49853575c6c"
+    },
+    {
+      "file": "deps-inputs/d65d6e4b5e2d5a20-DEPS.json",
+      "bytes": 234,
+      "sha256": "938562e39782cb3bd73614733759242f7caa43e75150665e9f73a78098487090"
+    }
+  ]
+}

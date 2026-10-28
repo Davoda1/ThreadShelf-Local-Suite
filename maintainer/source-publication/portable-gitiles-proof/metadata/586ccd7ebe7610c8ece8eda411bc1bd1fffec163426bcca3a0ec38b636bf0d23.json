@@ -1,0 +1,89 @@
+{
+  "id": "f49cdff6b7a861d0097471edcca842fe685477c0",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c10cb6006ea27c03b8fee8616651dddcd4e43ff3",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "12a6b33526e7172fbb220e1e06048fbfa99364cb",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2e3882bb85faf6398f010bb1d82435d2cfe3a664",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bcae6b5ac8ea324308e460586914688029056ff2",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f25bb419286df488daf0b7a5dc0bdb804d42afc4",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b8ef0d3f5227fb92e3c81a82884aed5442184a7d",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4fbe23d23abbddff38087961818a083a553720c8",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "15e98edc6fec343234951c018f061bbb4604ae70",
+      "name": "bench"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "27d88670174f8372aca945b0bffede6f04d62a33",
+      "name": "cmake"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "e61363fea4c6764eb2fec5ddce1d2b35baa6cb6f",
+      "name": "configure.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2f1bf46dd92508d1cc476942e69d5a17b621d919",
+      "name": "confu.yaml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e63b23e184b77bb19ef0e9ca87f0678faa5ace2d",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "86e47eda77b18dbfcb1b2ab2cba4680dde45ccf2",
+      "name": "jni"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "37f9f2664a649596885d948b4d50fd9cf539e72b",
+      "name": "test"
+    }
+  ]
+}

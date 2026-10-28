@@ -1,0 +1,14 @@
+tree 5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6
+parent 47dce8466cd71943f64df3860e608957d6e20007
+author Fangrui Song <i@maskray.me> 1790386930 -0700
+committer Copybara-Service <copybara-worker@google.com> 1790387288 -0700
+
+Replace cl::bits with cl::list. NFC (#226399)
+
+cl::bits packs enum values into an unsigned, which would block migration
+to TableGen based representation. The three users only test membership.
+
+LLM-aided
+
+NOKEYCHECK=True
+GitOrigin-RevId: 90c150f868adb53b45dbf7489e93a23c22f6b6b3

@@ -18,6 +18,9 @@ await fs.mkdir(path.dirname(outputs.rules), {recursive: true});
 const require = createRequire(import.meta.url);
 const dataRoot = path.dirname(require.resolve('date-holidays/package.json'));
 const upstream = JSON.parse(await fs.readFile(path.join(dataRoot, 'data/holidays.json'), 'utf8'));
+const buildPackage = JSON.parse(await fs.readFile(path.join(here, 'package.json'), 'utf8'));
+const dataPackage = JSON.parse(await fs.readFile(path.join(dataRoot, 'package.json'), 'utf8'));
+const parserPackage = JSON.parse(await fs.readFile(path.join(here, 'node_modules/date-holidays-parser/package.json'), 'utf8'));
 const days = rules => Object.fromEntries(Object.entries(rules).map(([rule, name]) => [rule, {name: {en: name}, type: 'public'}]));
 const paschal = (base, adjective = '') => ({
   [`${base} -2`]: `${adjective}Good Friday`,
@@ -72,8 +75,8 @@ for (const code of Object.keys(upstream.holidays).sort()) {
     christianProfile: profileByCountry[code] || 'western', days: publicRules};
 }
 const data = {schemaVersion: 1,
-  metadata: {suiteVersion: '0.0.12.1-dev.0', source: 'date-holidays', sourceVersion: '3.37.0',
-    sourceDataVersion: upstream.version, parserVersion: '3.4.7',
+  metadata: {suiteVersion: buildPackage.suiteVersion, source: 'date-holidays', sourceVersion: dataPackage.version,
+    sourceDataVersion: upstream.version, parserVersion: parserPackage.version,
     sourceUrl: 'https://github.com/commenthol/date-holidays',
     ruleSpecificationUrl: 'https://github.com/commenthol/date-holidays/blob/master/docs/specification.md',
     license: 'CC-BY-SA-3.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
@@ -91,7 +94,7 @@ const data = {schemaVersion: 1,
   defaultChristianProfile: 'western', christianProfiles: profiles,
   holidays, names: {substitutes: {name: {en: 'substitute day'}}}};
 await fs.writeFile(outputs.rules, JSON.stringify(data) + '\n');
-const result = await build({entryPoints: ['holiday-engine-source.mjs'], outfile: outputs.engine,
+const result = await build({absWorkingDir: here, entryPoints: ['holiday-engine-source.mjs'], outfile: outputs.engine,
   bundle: true, platform: 'browser', format: 'esm', target: ['es2020'], minify: true,
   legalComments: 'none', metafile: true,
   banner: {js: '/*! ThreadShelf offline holiday engine. See ../assets/data/HOLIDAY-LICENSES.txt for bundled dependency licenses. */'}});
@@ -102,7 +105,7 @@ for (const file of Object.keys(result.metafile.inputs)) {
 }
 const licenseParts = [
   'THREADSHELF OFFLINE HOLIDAY ENGINE — THIRD-PARTY NOTICES',
-  'The derived holiday-rules.json is licensed CC BY-SA 3.0. It is an adaptation of date-holidays 3.37.0 data (2026-09-20): national public rules retained, regional data omitted, names reduced to English, Christian application policy added. The JSON stays separately licensed from application and adapter code.',
+  `The derived holiday-rules.json is licensed CC BY-SA 3.0. It is an adaptation of date-holidays ${dataPackage.version} data (${upstream.version}): national public rules retained, regional data omitted, names reduced to English, Christian application policy added. The JSON stays separately licensed from application and adapter code.`,
   'Data license: https://creativecommons.org/licenses/by-sa/3.0/\nOriginal project: https://github.com/commenthol/date-holidays\nAll original data attributions follow in the date-holidays LICENSE section.'
 ];
 for (const name of [...packageNames].sort()) {
@@ -113,7 +116,10 @@ for (const name of [...packageNames].sort()) {
   if (!licenseFiles.length) throw new Error(`No license notice found for ${name}`);
   for (const file of licenseFiles) licenseParts.push(await fs.readFile(path.join(dir, file), 'utf8'));
 }
-await fs.writeFile(outputs.licenses, licenseParts.join('\n\n') + '\n');
+const licenseText = licenseParts.join('\n\n') + '\n';
+await fs.writeFile(outputs.licenses, licenseText);
+await fs.writeFile(path.join(here, 'THIRD-PARTY-LICENSES.txt'), licenseText);
+await fs.writeFile(path.resolve(here, '../../licenses/HOLIDAY-LICENSES.txt'), licenseText);
 const sizes = {};
 for (const file of Object.values(outputs)) sizes[path.relative(guiRoot, file).replaceAll('\\', '/')] = (await fs.stat(file)).size;
 console.log(JSON.stringify({countries: Object.keys(holidays).length, nationalRules: ruleCount, sizes}, null, 2));

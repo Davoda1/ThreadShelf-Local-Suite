@@ -1,0 +1,59 @@
+{
+  "id": "535c20875e1845cd04718e27b6a34ae84e2d5328",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a8dcf8853602eedfa8b260ea5d3846cc945f3a8b",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "279e3cc7ba9e9484682cc271901a604891a5d9b7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+      "name": "LICENSE-APACHE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "87cf6995cad6dd1f5314961a35862d6cd80ff756",
+      "name": "LICENSE-MIT"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7fc08e4686a366a285e34348e1da7f149fcf1a64",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fd855e0e3d8cb4a23a8855c0a5982d84382f109b",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "adc7485b08483048bf6f8f3a1ea0e023621304dc",
+      "name": "release"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "034de84f376fa22fceeb444219d038892041b8ec",
+      "name": "script"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8c4bbd8e0a3a5355ad747ba3492397c8e385e7e1",
+      "name": "sync.txt"
+    }
+  ]
+}

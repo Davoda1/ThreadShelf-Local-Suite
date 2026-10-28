@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__chrome__test__data__xr__webvr_info-c58ae99b9ff9e2aa4c524633519570bf33536248.tar.gz",
+  "archive_bytes": 96145195,
+  "archive_sha256": "f139f52b7b2e78ce7182a6f349c573209c1d53287d73aa83b9bc8b35a2e810ff",
+  "revision": "c58ae99b9ff9e2aa4c524633519570bf33536248",
+  "repository": "https://chromium.googlesource.com/external/github.com/toji/webvr.info.git",
+  "root_git_tree": "a67763186183f2b65d81dcbb28d8f9103843aaae",
+  "blob_count": 77,
+  "git_tree_count": 15,
+  "member_count": 91,
+  "regular_file_bytes": 97260882,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 74,
+    "100755": 3
+  },
+  "source_blob_inventory_sha256": "5eb92bc7f7747bad67138060e3042026e5c6faaf6d76d39177b6844b7b42e305",
+  "archive_mtime_range": [
+    1793144845.836,
+    1793144852.921
+  ],
+  "metadata": [
+    {
+      "file": "metadata/517151377203da45a764eb92b0d685f1c5012fe3d963afb076b6bdd218e8f761.json",
+      "url": "https://chromium.googlesource.com/external/github.com/toji/webvr.info.git/+/c58ae99b9ff9e2aa4c524633519570bf33536248/?format=JSON",
+      "bytes": 1885,
+      "sha256": "5bf2b7ada1c3a9ece580001eb57635287bee26132047f3ca087cf939e7983fe5",
+      "git_tree": "a67763186183f2b65d81dcbb28d8f9103843aaae",
+      "receipt": {
+        "file": "metadata/517151377203da45a764eb92b0d685f1c5012fe3d963afb076b6bdd218e8f761.receipt.json",
+        "bytes": 242,
+        "sha256": "66db42942f1ee7585d088ad7e2c2fcae2c531eda524df84b377cf8f0e14976a2"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/f139f52b7b2e78ce7182a6f349c573209c1d53287d73aa83b9bc8b35a2e810ff.jsonl.gz",
+    "bytes": 7695,
+    "sha256": "6983257b1066103b359dfc8d17dcae2e6257dea4e0c5f470bb60322d9bb9ff00",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 26162,
+    "jsonl_sha256": "8ff5fc026b66911d3e4025afb81f8b542ddb9f6a410966cff98fb0cb17410e9d",
+    "records": 93,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "267f30742d3db35029727e60d351621a4089269ac39b9557ccccbd68c17a3941",
+    "bytes": 96145234,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

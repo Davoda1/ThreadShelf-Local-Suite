@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "scope": "Offline assembler tool validation:24boundaryfixtures, actual257patch-form/Git-statistics agreement, and one complete upstream Electron archive physical extraction. Not full runtime source collection assembly, patch application or a publication gate.",
+  "boundary_tests_passed": 24,
+  "upstream_patch_forms_checked": 257,
+  "upstream_diff_targets_checked": 1115,
+  "real_archive_regular_file_bytes": 37152835,
+  "files": [
+    {
+      "file": "assemble-runtime-sources.py",
+      "bytes": 26412,
+      "sha256": "037749d06271daa3022d9e8c7952459b36d9d0b40bb4640c3fbe88fcb8198175"
+    },
+    {
+      "file": "test-offline-assembler.py",
+      "bytes": 14646,
+      "sha256": "f7e9fac908a6199b6ecc80bba6c3979bc91b055270561489a6b7bb9250a704b7"
+    },
+    {
+      "file": "test-offline-assembler-electron.py",
+      "bytes": 3101,
+      "sha256": "6d9e0ee2e9128a5008fc43025368baef44223d58404c5b372dcbe3ed646a2670"
+    },
+    {
+      "file": "offline-assembler-tests.log",
+      "bytes": 2881,
+      "sha256": "97aefaeaf38e330657b0646f923800d7acf98e8c823f8a68834b1e368982894d"
+    },
+    {
+      "file": "offline-assembler-real-recipe-check.json",
+      "bytes": 343,
+      "sha256": "1d39637a103f44937391a67e1a8d7ef37de04f3763d15fee887caaa299f739d4"
+    },
+    {
+      "file": "offline-assembler-electron-integration.json",
+      "bytes": 1243,
+      "sha256": "02767ddfc91f15d7b1833ea527f27093a407ad50978c187869ad0d472e0590a7"
+    }
+  ]
+}

@@ -8,20 +8,21 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { RELEASE_REVISION, releaseArtifactNames, releaseFilename } from '../scripts/release-filenames.mjs';
 
-test('current delivery has exactly eight artifacts without changing application version', async () => {
-  const pkg = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url)));
-  assert.equal(pkg.version, '1.0.0');
+const pkg = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url)));
+
+test('current delivery has exactly eight artifacts bearing the application version', () => {
+  assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
   assert.ok(Number.isSafeInteger(RELEASE_REVISION) && RELEASE_REVISION >= 0);
   const revision = RELEASE_REVISION;
   assert.deepEqual(releaseArtifactNames(pkg.version), [
-    `ThreadShelf-Local-Analytics-1.0.0-Windows-x64-Portable${revision ? `-${revision}` : ""}.zip`,
-    `ThreadShelf-Local-Analytics-1.0.0-Linux-amd64${revision ? `-${revision}` : ""}.tar.gz`,
-    `threadshelf-local-analytics_1.0.0_amd64${revision ? `-${revision}` : ""}.deb`,
-    `ThreadShelf-Local-Analytics-1.0.0-Source${revision ? `-${revision}` : ""}.zip`,
-    `ThreadShelf-Local-Analytics-1.0.0-Source${revision ? `-${revision}` : ""}.tar.gz`,
-    `ThreadShelf-Local-Analytics-1.0.0-Preview${revision ? `-${revision}` : ""}.html`,
-    `ThreadShelf-Local-Analytics-1.0.0-Verification${revision ? `-${revision}` : ""}.md`,
-    `ThreadShelf-Local-Analytics-1.0.0-CHECKSUMS${revision ? `-${revision}` : ""}.txt`
+    `ThreadShelf-Local-Analytics-${pkg.version}-Windows-x64-Portable${revision ? `-${revision}` : ""}.zip`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-Linux-amd64${revision ? `-${revision}` : ""}.tar.gz`,
+    `threadshelf-local-analytics_${pkg.version}_amd64${revision ? `-${revision}` : ""}.deb`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-Source${revision ? `-${revision}` : ""}.zip`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-Source${revision ? `-${revision}` : ""}.tar.gz`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-Preview${revision ? `-${revision}` : ""}.html`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-Verification${revision ? `-${revision}` : ""}.md`,
+    `ThreadShelf-Local-Analytics-${pkg.version}-CHECKSUMS${revision ? `-${revision}` : ""}.txt`
   ]);
 });
 
@@ -38,7 +39,7 @@ test('download revisions preserve composite extensions and can address historica
 test('checksum tool names only seven current artifacts and leaves historical files untouched', async () => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'analytics-release-names-'));
   try {
-    const names = releaseArtifactNames('1.0.0');
+    const names = releaseArtifactNames(pkg.version);
     const checksumName = names.pop();
     await Promise.all(names.map(name => fs.writeFile(path.join(directory, name), name)));
     const historical = [

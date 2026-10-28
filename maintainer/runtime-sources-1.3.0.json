@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "suite_version": "1.3.0",
+  "electron_version": "45.1.0",
+  "chromium_version": "156.0.8078.49",
+  "embedded_node_version": "24.22.1",
+  "complete_runtime_mirror": true,
+  "publication_ready": false,
+  "scope": "Complete selected Electron 45.1.0 Linux x64/Windows x64 source collection. This committed inventory records collection verification; final tagged asset availability is checked separately in the external release verification report.",
+  "source_seeds": [
+    {
+      "id": "electron",
+      "revision": "45d20ec03000aac41e73b2abdb707936b4f98ed0",
+      "archive": "electron-45d20ec03000aac41e73b2abdb707936b4f98ed0.tar.gz",
+      "archive_url": "https://codeload.github.com/electron/electron/tar.gz/45d20ec03000aac41e73b2abdb707936b4f98ed0",
+      "expected_sha256": "023fec7887359eeff6981ba34485b7849e0bb258f2e4f7e97474023cd6f8e54d"
+    },
+    {
+      "id": "chromium",
+      "revision": "29eb03535d5f2f4f899b95f22a92413ffde5284e",
+      "archive": "chromium-29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/src/+archive/29eb03535d5f2f4f899b95f22a92413ffde5284e.tar.gz",
+      "upstream_tag": "156.0.8078.49"
+    },
+    {
+      "id": "node",
+      "revision": "ce7aaf1cee78b8cf0ce17364260535c418d3ed26",
+      "archive": "node-ce7aaf1cee78b8cf0ce17364260535c418d3ed26.tar.gz",
+      "archive_url": "https://codeload.github.com/nodejs/node/tar.gz/ce7aaf1cee78b8cf0ce17364260535c418d3ed26"
+    },
+    {
+      "id": "ffmpeg",
+      "revision": "9db86ce5b5b454dfc96c435f9f0723012980c37f",
+      "archive": "ffmpeg-9db86ce5b5b454dfc96c435f9f0723012980c37f.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/third_party/ffmpeg/+archive/9db86ce5b5b454dfc96c435f9f0723012980c37f.tar.gz"
+    }
+  ],
+  "release_profiles": [
+    {
+      "file": "electron-linux-x64-1792784096-2e3374f8d5.profdata",
+      "expected_sha256": "2a33da3dbfef7066ff4976d1cc8398b6ca97e65810dae4ce6a8d4c7f4e69db6a",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-linux-x64-1792784096-2e3374f8d5.profdata"
+    },
+    {
+      "file": "electron-win-x64-1792784096-2e3374f8d5.profdata",
+      "expected_sha256": "456d805e78255f99f409ca4b987c759465c5d96b9ce72cd819082b6a5a1cd49d",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-win-x64-1792784096-2e3374f8d5.profdata"
+    },
+    {
+      "file": "electron-v8-x64-1792777021-2e3374f8d5.profile",
+      "expected_sha256": "ef86d1d1933f343856f225b532dc292fefc3e950343eec196845a7fc3d0158b1",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-v8-x64-1792777021-2e3374f8d5.profile"
+    }
+  ],
+  "provenance_inputs": [
+    {
+      "file": "runtime-source-inputs/45.1.0/electron-DEPS",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/DEPS",
+      "sha256": "7aa4a068b325a19d727e31818acf70e6a36a45c7e41e43863cc1ef2b141a816b",
+      "bytes": 8441
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/chromium-DEPS",
+      "url": "https://chromium.googlesource.com/chromium/src/+/156.0.8078.49/DEPS?format=TEXT",
+      "sha256": "3535b3175635f9984c82a3f0c2a8e70f0ed2cfdb2a352f40446c9fddf2490703",
+      "bytes": 192396
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/blink-base64.cc",
+      "url": "https://chromium.googlesource.com/chromium/src/+/156.0.8078.49/third_party/blink/renderer/platform/wtf/text/base64.cc?format=TEXT",
+      "sha256": "55d6d81d7a6167449f5a18b70a0ddfb3cc8f0fad10cb7ab2d5fe34599aadec3f",
+      "bytes": 5894
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/electron-LICENSE",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/LICENSE",
+      "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d",
+      "bytes": 1096
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/chromium-LICENSE",
+      "url": "https://chromium.googlesource.com/chromium/src/+/156.0.8078.49/LICENSE?format=TEXT",
+      "sha256": "368cca1106be99d39ecd32a38d8305585d802a475effb66380b91ffc9bcf709b",
+      "bytes": 1536
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/electron-build.md",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/docs/development/build-instructions-gn.md",
+      "sha256": "8f32a0b64d1ccf87b474fd8f9455b853a45278cb7a95c45a768ef153e4ffa97c",
+      "bytes": 14271
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/electron-patches.json",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/patches/config.json",
+      "sha256": "a553e517c894b220355855e2c25c741254960033e662c69e22c2e3919c5e9463",
+      "bytes": 1303
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/electron-release.gn",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/build/args/release.gn",
+      "sha256": "b4490cee911e0ed136a6d095c69a7914cb3f4aa2d5517e3f987a2b5f45d3cd56",
+      "bytes": 902
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/linux-x64.pgo.txt",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/build/pgo_profiles/linux-x64.pgo.txt",
+      "sha256": "ae72b48696fe93d37f13da6c9da0b00cd651670645998c3b1426dd24d8a9b8ee",
+      "bytes": 115
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/win-x64.pgo.txt",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/build/pgo_profiles/win-x64.pgo.txt",
+      "sha256": "d744222cc1687215827d68afa14621095175f5acf8124fde32b249cae5b3cebd",
+      "bytes": 113
+    },
+    {
+      "file": "runtime-source-inputs/45.1.0/v8-builtins.pgo.txt",
+      "url": "https://raw.githubusercontent.com/electron/electron/v45.1.0/build/pgo_profiles/v8-builtins.pgo.txt",
+      "sha256": "3ce0d534997137b050af11efa1a0f57470d91b2e14b55cf9c987e457310ce72c",
+      "bytes": 111
+    }
+  ],
+  "outstanding_requirements": [
+    "Run the complete source publication verifier against the exact tagged commit, external final asset ledger and fresh release/historical GitHub API snapshots.",
+    "Require final merged/tagged application and native package checks, exact tagged source snapshots, privacy/artifact review and the release-wide checksum before publishing."
+  ],
+  "historical_mirror_reference": {
+    "electron_version": "44.9.1",
+    "chromium_version": "152.0.7977.167",
+    "runtime_parts_compressed_bytes": 4463083956,
+    "inner_archive_bytes": 4351995726,
+    "extra_release_profile_bytes": 585758200,
+    "unpacked_archive_member_bytes": 16093659352,
+    "native_companion_bytes": 625292648,
+    "source_archive_count": 208,
+    "note": "Measured from existing v1.0.0 release manifests; a capacity baseline, not a size claim or matching source set for45.1.0."
+  },
+  "source_companion": {
+    "status": "complete-original-source-collection-verified",
+    "source_archives": 186,
+    "selected_git_trees": 179,
+    "supplemental_archives": 6,
+    "release_profile_archives": 1,
+    "indexed_entries": 1169803,
+    "regular_source_bytes": 17550756264,
+    "ordered_patch_applications": 257,
+    "logical_inventory_sha256": "e931d591d3338266fb310d60aa507fb56a1b424500f37a1fec838d4f21926740",
+    "manifest": {
+      "file": "source-publication/final-runtime/SOURCE-MANIFEST.json",
+      "bytes": 305289,
+      "sha256": "3e02f341f5407a414f30625a828f7832ce8b02f7eb90ae3ec31e7f38a0721e9e"
+    },
+    "assembly": {
+      "file": "source-publication/final-runtime/RUNTIME-ASSEMBLY.json",
+      "bytes": 294766,
+      "sha256": "ede471296d65d77d5d3b91c9bd7fefa571e09fb659824b435809657a21f8251a"
+    },
+    "source_parts": [
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip",
+      "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip"
+    ],
+    "metadata": "https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-Metadata.zip",
+    "scope": "Exact original source identities, complete logical assembly and ordered patches checked on all touched source paths. Full simultaneous source extraction, native compilation and byte-identical binary reproduction are not claimed; compilers and platform SDKs remain external. Historical incomplete part snapshots are superseded only by the complete canonical manifest."
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "archive": "src__third_party__leveldatabase__src-7ee830d02b623e8ffe0b95d59a74db1e58da04c5.tar.gz",
+  "archive_bytes": 252305,
+  "archive_sha256": "91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad",
+  "revision": "7ee830d02b623e8ffe0b95d59a74db1e58da04c5",
+  "repository": "https://chromium.googlesource.com/external/leveldb.git",
+  "root_git_tree": "3da4be7481faec7a2103432e0ed8f0aeaa00cc3a",
+  "blob_count": 152,
+  "git_tree_count": 16,
+  "member_count": 169,
+  "regular_file_bytes": 992405,
+  "symlinks": 0,
+  "gitlinks": [
+    {
+      "path": "third_party/benchmark",
+      "revision": "1a54956777ba672764db09a51960056ea042af7e"
+    },
+    {
+      "path": "third_party/googletest",
+      "revision": "a35bc7693c117a048152beeb34f6aac354b9423f"
+    }
+  ],
+  "git_file_modes": {
+    "100644": 152
+  },
+  "source_blob_inventory_sha256": "9c63996903872c54b5bb398a897320dd3e44f74ce93b41307dd0c60512dfc590",
+  "archive_mtime_range": [
+    1793146381.036,
+    1793146381.082
+  ],
+  "metadata": [
+    {
+      "file": "metadata/5e40b28ef3e1b32dcd60fa2bb886f41d685a53d3acd14f0ae184012364ad9fec.json",
+      "url": "https://chromium.googlesource.com/external/leveldb.git/+/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/?format=JSON",
+      "bytes": 3077,
+      "sha256": "486d038fb6fca425dddaad29a1a8b26ad927f3d98458acfa0eec66ab1b37f5f0",
+      "git_tree": "3da4be7481faec7a2103432e0ed8f0aeaa00cc3a",
+      "receipt": {
+        "file": "metadata/5e40b28ef3e1b32dcd60fa2bb886f41d685a53d3acd14f0ae184012364ad9fec.receipt.json",
+        "bytes": 223,
+        "sha256": "17ddb8c2a27621a613a15096a0a925e8aa0cd55ffd2326f018396a264cddb187"
+      }
+    },
+    {
+      "file": "metadata/6b5f603512236d14290beb338159ec28b6717c823d9ae3de607dac85f15b4277.json",
+      "url": "https://chromium.googlesource.com/external/leveldb.git/+/7ee830d02b623e8ffe0b95d59a74db1e58da04c5/third_party?format=JSON",
+      "bytes": 355,
+      "sha256": "8a5dce1a41131cabef98740bb7cbd48eb927b387398841787aaec10fa8fb47c3",
+      "git_tree": "617a42dce5a32dc762c0a86240a20b4b9af966a0",
+      "receipt": {
+        "file": "metadata/6b5f603512236d14290beb338159ec28b6717c823d9ae3de607dac85f15b4277.receipt.json",
+        "bytes": 233,
+        "sha256": "d25174fbb76b946ff2cf4cb5a5a4c95cfb5d9aa640a82f259662e30ffeca47b1"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/91d1dc5ab4db029e26405eb6e82ed088ec08840589173af857e2df227b9a38ad.jsonl.gz",
+    "bytes": 13809,
+    "sha256": "285b15017401d022b0144cdec41d99bb0de21c111eba839de17765dbca493ef5",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 47303,
+    "jsonl_sha256": "386fc601088d77aff5b73125657982523903704d960e8d7a3cf2b70007c1cc3a",
+    "records": 171,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "f1fd528381817e08179ff801915d706b754bdc2b3cabdc3da99578c479013e54",
+    "bytes": 252362,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

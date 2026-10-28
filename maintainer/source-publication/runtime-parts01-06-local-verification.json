@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "scope": "Accepted part integrity and database consistency only. Expected Git/non-Git source completeness, logical symlink safety, ordered patch application and publication are separate gates.",
+  "part_count": 6,
+  "parts": [
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 1482655137,
+      "sha256": "8c35cf6499376237a00e1eaafbd0a884be4d284bf25633dc741c6e406e4fa81d",
+      "source_count": 1,
+      "database_archive_records_sha256": "e0cfcfe56a0918667e7160f1415a582855998fe87d00daf44f83c0104f567bd8",
+      "asset_id": 683172441,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683172441",
+      "local_verification_sha256": "e9f6f81241cab99c39526eed6bde8b13725b83fe168bea23b0fc801962034600",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 340803503,
+      "sha256": "e5df0c28f8a204c1fe262075f583de648ad7c367cfbf2eb7893a113b540194dc",
+      "source_count": 11,
+      "database_archive_records_sha256": "170de7ec40ef34084768a46f36ed0889d56132c52cbb7605c0a7319cb625e85e",
+      "asset_id": 683205244,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683205244",
+      "local_verification_sha256": "e33f7165081d0dddd2982a0ce3d56e9aeb4335e957733573e614674b6dc5fb6a",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 635147477,
+      "sha256": "2077e5946ef77da0b922bb4ac2a0b256731102cdc9bad97b5cac7034bbcb8c41",
+      "source_count": 3,
+      "database_archive_records_sha256": "241d74bd1eca886b326d51c8f5ba7837946c3cb10902804db794771e45d2416a",
+      "asset_id": 683239556,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683239556",
+      "local_verification_sha256": "34a6f2206d99d3023d4cf3870570ae89341733246a122ce9f1571090a9783063",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 904222145,
+      "sha256": "ddae3be2550eac482b3d77fe3abc14815326674df7abcb32f9547a24fab8936c",
+      "source_count": 8,
+      "database_archive_records_sha256": "7a9addaffb29dbae12b19fa531853c492bd81844af5b08f802c03c33a3b61509",
+      "asset_id": 683250476,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683250476",
+      "local_verification_sha256": "44b8c1085bdb884d6c39b5003f638b629272f76a288c201d81ba6797d97a29b9",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip",
+      "verification": "prior-local-check-plus-github-api-receipt",
+      "bytes": 1044050213,
+      "sha256": "7e445fb9a44ecf80b0b3de97159762a3399fc07510861b9fe7c8f72bdfdebd74",
+      "source_count": 41,
+      "database_archive_records_sha256": "ff9b272f0f5d6f8af3bbf9b4605a48e31f1d8b231467a83081015bbe9a1fb41a",
+      "asset_id": 683288750,
+      "asset_api_url": "https://api.github.com/repos/Davoda1/ThreadShelf-Local-Suite/releases/assets/683288750",
+      "local_verification_sha256": "335427a95a74bb9ba71c0da16b4fb7c14cd04018dfa44a803f9831e5ade97ca1",
+      "limitation": "This invocation did not download or rehash the remote asset; it checked the explicit API digest/size receipt and prior local report."
+    },
+    {
+      "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip",
+      "verification": "local-outer-and-inner-rehashed",
+      "bytes": 445991514,
+      "sha256": "6f0059926efa363afc0c0d66f6db2b7878b76de00c768c55f3220dbe1273efc3",
+      "source_count": 122,
+      "database_archive_records_sha256": "db9bc80e4525ccfb4ea23351757f94bea07c14ef3fd0e5094d854ba47a01b824"
+    }
+  ],
+  "sparse_source": {
+    "phase": "before-patch-application",
+    "known_touched_source_files_verified": 822
+  },
+  "required_paths_not_yet_in_inventory": 60
+}

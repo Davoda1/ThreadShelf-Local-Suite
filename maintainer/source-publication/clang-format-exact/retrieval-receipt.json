@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+  "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "fetched_revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "retrieval_method": "git-smart-http",
+  "requested_depth": 1,
+  "requested_ref": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "fetch_endpoint": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+  "ref_advertisement": {
+    "file": "remote-ref-advertisement.txt",
+    "bytes": 220,
+    "sha256": "88f7bf96becdca06f246fdc323bfcb9611b6519e1dabcf2781846c7691bda080"
+  },
+  "raw_commit": {
+    "file": "commit.raw",
+    "bytes": 498,
+    "sha256": "feed3ebe4bcccb63cfd77e0f89cb39e878552bc5c3ded8f630a2e378e4ab8166"
+  },
+  "scope": "Exact revision requested and fetched from the original official repository using Git smart HTTP. Ref advertisement includes this revision as HEAD/main. Raw commit object identity and all archive Git trees/blobs are independently checked; no Gitiles HTTP JSON assertion is substituted."
+}

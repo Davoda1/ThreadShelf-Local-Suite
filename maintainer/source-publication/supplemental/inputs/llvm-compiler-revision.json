@@ -1,0 +1,165 @@
+)]}'
+{
+  "commit": "62397f8b3c3986f54187ce08f00b3448ea1f8880",
+  "tree": "fe0d1084219028a0e77d1353ebde8e05de51ced5",
+  "parents": [
+    "49ce9d0aac2117edc0d50e5a7a838f934c99dd61"
+  ],
+  "author": {
+    "name": "Fangrui Song",
+    "email": "i@maskray.me",
+    "time": "Mon Sep 07 21:09:29 2026 -0700"
+  },
+  "committer": {
+    "name": "GitHub",
+    "email": "noreply@github.com",
+    "time": "Tue Sep 08 04:09:29 2026 +0000"
+  },
+  "message": "Iterate DenseMaps with auto and structured bindings. NFC (#221869)\n\nAvoid naming `std::pair` directly. The DenseMap bucket is subject to\nchange (#221853).",
+  "tree_diff": [
+    {
+      "type": "modify",
+      "old_id": "67573c9f1c72ab5fc65aa28a342f526df0adbba1",
+      "old_mode": 33188,
+      "old_path": "clang/lib/Sema/SemaAttr.cpp",
+      "new_id": "35d14a4444595a01b010e089c38f68ecd816a89f",
+      "new_mode": 33188,
+      "new_path": "clang/lib/Sema/SemaAttr.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "f4ebfce24b016e273b68d2b46cfd7ab5dbdd7360",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Bitcode/Reader/MetadataLoader.cpp",
+      "new_id": "6f1fbd627edbcf3fe2c80229e9e77201af5fa023",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Bitcode/Reader/MetadataLoader.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "859e073b91cc5044c4571498ce8d1ff8c7b21333",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Bitcode/Writer/BitcodeWriter.cpp",
+      "new_id": "e33b6e00503182a02b78ed8bbc2e286699f52e6c",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Bitcode/Writer/BitcodeWriter.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "38e4c30ceb634d566ded52e80fc030e0ef4efd3a",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/CodeGen/RegisterUsageInfo.cpp",
+      "new_id": "d139bd430fb20b6fecd363c24fce2463a7da9445",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/CodeGen/RegisterUsageInfo.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "aa42c0ee28532e18747985fa3dc7336cbfa9aa40",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/CodeGen/StackColoring.cpp",
+      "new_id": "0e4c1526d0d0bc48df32747c9ff017e81c7c45db",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/CodeGen/StackColoring.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "eb1a62f1f64126f218086e29a3a7779c98e90a0a",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/MC/StringTableBuilder.cpp",
+      "new_id": "39d10ad128ed70dacbf4c7ca93ad926ed9e8ce72",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/MC/StringTableBuilder.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "bf0b432524881427083473755f4ec4eaa3e80180",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/MCA/HardwareUnits/LSUnit.cpp",
+      "new_id": "f88f82a7f5279dd1c254bb22b8801cb4a668b9f8",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/MCA/HardwareUnits/LSUnit.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "cdf3439e07d61505ac0bc6c77536acef2f99eb18",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/MCA/HardwareUnits/ResourceManager.cpp",
+      "new_id": "12d062ab6ff9f563d0e0ea1be283ee4b6ec7d39e",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/MCA/HardwareUnits/ResourceManager.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "cb11372183bc83d2db0ffe0e0633f19ed462dc91",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/IPO/SampleProfile.cpp",
+      "new_id": "cd9549cd2f0ccf0b6c4c33be46c99ea8f9b1190a",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/IPO/SampleProfile.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "37562a024a2b0f123aa62c2b57f31f92ec26fb37",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/Scalar/GVNHoist.cpp",
+      "new_id": "6bb6d6772fbfbd517fb21275b1474b7791d8bd87",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/Scalar/GVNHoist.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "9707eee005c56de2f0deb23ffc10bb99a5079718",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/Scalar/StructurizeCFG.cpp",
+      "new_id": "9b9889b911eee6bca2dbb6dc34c8e75d8a6198ab",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/Scalar/StructurizeCFG.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "b88e506ae681ad9e95144ca970da04eeaac53c41",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/Utils/Local.cpp",
+      "new_id": "f08f1e48680917446293826f79b0d19bb1a8d936",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/Utils/Local.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "cc2c769b25ce9cffc5e7cae4c5e9aa2568b02963",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/Utils/SimplifyCFG.cpp",
+      "new_id": "ca96f2e70d81069c85d79e29361ff6b298fe7423",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/Utils/SimplifyCFG.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "5de71f3bf87b523f5862686e6a07cd428e726bd2",
+      "old_mode": 33188,
+      "old_path": "llvm/lib/Transforms/Vectorize/SLPVectorizer.cpp",
+      "new_id": "323442be1c8a7df497349d018571b89860bc5965",
+      "new_mode": 33188,
+      "new_path": "llvm/lib/Transforms/Vectorize/SLPVectorizer.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "370457c85e7972d1f174ec371d28fbc8ae626355",
+      "old_mode": 33188,
+      "old_path": "mlir/lib/Conversion/SCFToGPU/SCFToGPU.cpp",
+      "new_id": "796083062ac72b4c41739eb72fc194b0b06f80dd",
+      "new_mode": 33188,
+      "new_path": "mlir/lib/Conversion/SCFToGPU/SCFToGPU.cpp"
+    },
+    {
+      "type": "modify",
+      "old_id": "62a71aa2c1daa256a4818130a546ac6ab7cde552",
+      "old_mode": 33188,
+      "old_path": "mlir/lib/IR/PDL/PDLPatternMatch.cpp",
+      "new_id": "ceaced2610b6e01751f1eef546222ba8c1252b83",
+      "new_mode": 33188,
+      "new_path": "mlir/lib/IR/PDL/PDLPatternMatch.cpp"
+    }
+  ]
+}

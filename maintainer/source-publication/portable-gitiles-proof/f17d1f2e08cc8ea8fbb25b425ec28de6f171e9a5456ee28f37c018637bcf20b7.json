@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__dragonbox__src-beeeef91cf6fef89a4d4ba5e95d47ca64ccb3a44.tar.gz",
+  "archive_bytes": 4235113,
+  "archive_sha256": "f17d1f2e08cc8ea8fbb25b425ec28de6f171e9a5456ee28f37c018637bcf20b7",
+  "revision": "beeeef91cf6fef89a4d4ba5e95d47ca64ccb3a44",
+  "repository": "https://chromium.googlesource.com/external/github.com/jk-jeon/dragonbox.git",
+  "root_git_tree": "176383f02746d0248e7b04409367f691cc231cef",
+  "blob_count": 92,
+  "git_tree_count": 31,
+  "member_count": 122,
+  "regular_file_bytes": 5096952,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 92
+  },
+  "source_blob_inventory_sha256": "16e0f88c287f7278424fbe299790f1292be4856e4b5bfad66f72df6b609bcc4d",
+  "archive_mtime_range": [
+    1793145037.04,
+    1793145037.246
+  ],
+  "metadata": [
+    {
+      "file": "metadata/27a41b27f8efd62251b7bcfa26f1d8958cb0e8bc5275807a6a4685bfc2b99651.json",
+      "url": "https://chromium.googlesource.com/external/github.com/jk-jeon/dragonbox.git/+/beeeef91cf6fef89a4d4ba5e95d47ca64ccb3a44/?format=JSON",
+      "bytes": 1890,
+      "sha256": "86b0f973499c4d6724a5f1f2c267654bf3e8572cef1c9263e490963a3965840d",
+      "git_tree": "176383f02746d0248e7b04409367f691cc231cef",
+      "receipt": {
+        "file": "metadata/27a41b27f8efd62251b7bcfa26f1d8958cb0e8bc5275807a6a4685bfc2b99651.receipt.json",
+        "bytes": 244,
+        "sha256": "f266013f71a052716780df7d291dfa05e811fa0c0e2bd64e5854aa7d65973c0d"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/f17d1f2e08cc8ea8fbb25b425ec28de6f171e9a5456ee28f37c018637bcf20b7.jsonl.gz",
+    "bytes": 9562,
+    "sha256": "512875b631ce630c98af354d9b4d4892ae2770a90505c6e768b1cdde42e564da",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 35447,
+    "jsonl_sha256": "d62a89c69bc8874de3540403d4995b06491dbe7204091bbe6d2c424a663e3e5a",
+    "records": 124,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "5cb1287ecaadd6adeec11625b63bb4dea076572cf54ce98584b916f459c92b9f",
+    "bytes": 4235074,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

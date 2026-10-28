@@ -1,0 +1,167 @@
+{
+  "id": "42220faaa684c14bfc42aeebc6d5006fb6c51eff",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6f598bb7f91e28aa869074e1cc2f0c8256ff33b5",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5932e82c21ca04650f9ff26240134f92b58ee149",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5e41f7c97517b8c45754b24fc135a7ae4985f938",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ac918bed172ceef4af2be8246f159093291a529e",
+      "name": ".travis.yml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1c580bd140015f0002c708161a122ac587f62672",
+      "name": "CHANGELOG.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "be860c93d7ae38795da1bd70aca7b887aa7fd645",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8d9aab537c76b5dad5bbc9b6fc4cc5c008b3a47b",
+      "name": "CMakeModules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6afb079f81a6d631c872c1323bc8958af5f4f20f",
+      "name": "RapidJSON.pc.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0ee1d9d3b6d665b27d165a90ec85a51fb22f5efa",
+      "name": "RapidJSONConfig.cmake.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "25741fc097614f0bc0aeb8126a163987b306ad92",
+      "name": "RapidJSONConfigVersion.cmake.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0623dce5b83ed14aaeeddc99262a5994a9d87b33",
+      "name": "appveyor.yml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d6702f6a05078a0f1027b9bc09a1e01c5e83a9e8",
+      "name": "bin"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "83771a7d039bdc26415cc4f26e139112b390a859",
+      "name": "contrib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d95b30e914cdf634d30f6457bca08472d41a02f0",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7e1422abe4fb9889cfb37109f7f4b58a58b9a001",
+      "name": "docker"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "529c11eec63ed2633b258e47e2e504928c08eea2",
+      "name": "example"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1da6fa35f246ecf36036d6ada8ce785bfe7a7aa1",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b373e85f5ae8e8a827de7cea762020d1373219b0",
+      "name": "include_dirs.js"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2210fcd61735c8cca63c19534e8df591eda60d58",
+      "name": "library.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7ccc161c84b243687498a0dae5043c1da6173ac4",
+      "name": "license.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "129581a633512e5165e985041339c58f990efc24",
+      "name": "package.json"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fe72030a9a4372b2a9cd303d1d9782a9733bafa3",
+      "name": "rapidjson.autopkg"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ac683b0514800018d62fd6ea2825b38638420524",
+      "name": "readme.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "216802e1b379e70d3c77401c875d5d6f35d4672d",
+      "name": "readme.zh-cn.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1f719f7e480cf262df7f244cc18b57fe64c512b2",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e7e150caec520aae7853f8cca0a8a99d981a481c",
+      "name": "thirdparty"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "cf18dc3432ed0c69c04a604339d5605cf283fb55",
+      "name": "travis-doxygen.sh"
+    }
+  ]
+}

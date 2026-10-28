@@ -1,0 +1,83 @@
+{
+  "id": "8cc8ca1193f2a36ccb9e017cbcf1af91dc32fdb3",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "950a145bad150c065ba59c210e0b53e75a6b3747",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0e03f4e7867e213ee489b94649b6845293841a22",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fe04ddee9aa722debcc134012f03b6e94164834f",
+      "name": "BUILD"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f4fe8934be4d1d624d3cdf7266da2eeb49ad8bad",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "654a071648d6c1647f845136cf9805de41c34916",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f341563e9629ae7e4d97516cfea2700625872662",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "da4fe9f596da8bc20cf1d505a1b0f65589e132aa",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "de17f6aad637531469cee4a304c6a76796f8f0fa",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "065ba66c751c50d2242b1d6ea9f3480d291b71b3",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d2a3db60c035b907474093ddd6daa7bb0f87f05f",
+      "name": "example"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0b90e88225900c379ae807c7160956aa96cf5754",
+      "name": "ruy"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cfdb8a8637ee75aa0ef0f9be5803fb89be8c593a",
+      "name": "third_party"
+    }
+  ]
+}

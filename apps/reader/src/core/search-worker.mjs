@@ -1,5 +1,6 @@
 // Model inference is isolated so cancellation can stop downloads and CPU inference.
 import { parentPort, workerData } from 'node:worker_threads';
+import { loadTransformers } from './transformers-runtime.mjs';
 
 let extractor;
 let lastProgress = 0;
@@ -12,7 +13,7 @@ async function load(allowRemote) {
   if (extractor) return;
   if (workerData.backend === 'wasm') return loadWasm(allowRemote);
   let transformers;
-  try { transformers = await import('@huggingface/transformers'); }
+  try { transformers = await loadTransformers(); }
   catch (error) {
     if (error.code === 'ERR_DLOPEN_FAILED' || /onnxruntime|dll|shared object|vcruntime|msvcp140|sharp.*win32/i.test(error.message)) {
       parentPort.postMessage({ event: 'progress', progress: { phase: 'loading', message: 'Using the portable CPU search engine.' } });

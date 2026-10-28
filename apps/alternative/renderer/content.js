@@ -294,7 +294,10 @@
   }
   function configureDiagrams() {
     if (!window.mermaid?.render) return false;
-    window.mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:diagramTheme()==='dark'?'dark':'default',suppressErrorRendering:true,htmlLabels:false,flowchart:{htmlLabels:false},maxTextSize:50000,maxEdges:500,secure:['secure','securityLevel','startOnLoad','maxTextSize','maxEdges','htmlLabels','theme','themeCSS','themeVariables','fontFamily','fontSize']});
+    const theme = diagramTheme() === 'dark' ? 'dark' : 'default';
+    const classic = {theme, look:'classic'};
+    // Keep Mermaid 12 on the suite's classic diagram appearance and Dagre layout.
+    window.mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme,look:'classic',layout:'dagre',suppressErrorRendering:true,htmlLabels:false,flowchart:{...classic,htmlLabels:false,wrappingWidth:200,minNodeWidth:0},sequence:classic,class:classic,state:{...classic,layout:'dagre',wrappingWidth:200,minNodeWidth:0},er:classic,requirement:classic,swimlane:classic,venn:classic,maxTextSize:50000,maxEdges:500,secure:['secure','securityLevel','startOnLoad','maxTextSize','maxEdges','htmlLabels','theme','themeCSS','themeVariables','fontFamily','fontSize']});
     return true;
   }
   function safeDiagramSource(source) {

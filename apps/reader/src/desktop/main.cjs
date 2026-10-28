@@ -1,3 +1,4 @@
+require('../core/onnx-privacy.cjs');
 const {app,BrowserWindow,ipcMain,dialog,shell,screen,Menu,session,clipboard,nativeTheme}=require('electron');
 const fs=require('node:fs');
 const fsp=require('node:fs/promises');

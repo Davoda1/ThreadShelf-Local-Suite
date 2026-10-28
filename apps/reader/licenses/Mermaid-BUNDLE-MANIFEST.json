@@ -2,24 +2,24 @@
   "formatVersion": 1,
   "description": "Exact dependencies incorporated into the shared offline diagram renderer.",
   "toolchain": {
-    "node": "24.19.0",
-    "npm": "11.9.0",
-    "esbuild": "0.25.12"
+    "node": "24.22.1",
+    "npm": "12.2.1",
+    "esbuild": "0.28.2"
   },
   "versions": {
-    "mermaid": "11.17.2",
+    "mermaid": "12.2.0",
     "dompurify": "3.4.17",
-    "katex": "0.18.2",
-    "esbuild": "0.25.12"
+    "katex": "0.19.1",
+    "esbuild": "0.28.2"
   },
   "bundle": {
     "file": "mermaid.min.js",
-    "bytes": 3580922,
-    "sha256": "d467a48bf275bf890056eec0fc0b88e9dfdaab17212647459c7b83efddd6a698",
+    "bytes": 5504893,
+    "sha256": "c92d6ff986d851ec1a53b3424f8f90492f7fbdd85c2ba606a6ec833ab69a40d9",
     "externalImports": 0
   },
-  "packageLockSha256": "a55ce5b4367edac1873032be10a2e4c9caa23ae66405719f03caeebeebd6cfd2",
-  "buildRecipeSha256": "71992e7bed3a9b36cf0ba9afdac9ca13402453527e9f2f3c861bd903790e7a9d",
+  "packageLockSha256": "296190a036d98998e846f9622bf2edfe6dae8d8a56a747e0794592853dd2ba6d",
+  "buildRecipeSha256": "0b4aeda91962bf5fbeb157b2dd65237323c8239fa62f10c3e63b178acd45cacc",
   "packages": [
     {
       "name": "@braintree/sanitize-url",
@@ -30,6 +30,54 @@
           "name": "LICENSE",
           "sha256": "0984740e0c3d725c8044dec7edcefe1dbce180ef5a7bc710c251e19607000158",
           "bytes": 1066
+        }
+      ]
+    },
+    {
+      "name": "@chevrotain/cst-dts-gen",
+      "version": "13.2.0",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358
+        }
+      ]
+    },
+    {
+      "name": "@chevrotain/gast",
+      "version": "13.2.0",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358
+        }
+      ]
+    },
+    {
+      "name": "@chevrotain/regexp-to-ast",
+      "version": "13.2.0",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358
+        }
+      ]
+    },
+    {
+      "name": "@chevrotain/utils",
+      "version": "13.2.0",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358
         }
       ]
     },
@@ -47,7 +95,7 @@
     },
     {
       "name": "@mermaid-js/parser",
-      "version": "1.2.1",
+      "version": "2.0.1",
       "license": "MIT",
       "licenseFiles": [
         {
@@ -66,6 +114,18 @@
           "name": "LICENSE",
           "sha256": "6a3508febf2cfccfee96597394543a6154a4bb0b1f91f28404be42c09e9fcb54",
           "bytes": 1106
+        }
+      ]
+    },
+    {
+      "name": "chevrotain",
+      "version": "13.2.0",
+      "license": "Apache-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358
         }
       ]
     },
@@ -627,6 +687,18 @@
       ]
     },
     {
+      "name": "elkjs",
+      "version": "0.9.3",
+      "license": "EPL-2.0",
+      "licenseFiles": [
+        {
+          "name": "LICENSE.md",
+          "sha256": "89591d4578fb1ebd91501312a3d25f021bd865a2e436641c1cf7b1bc7e3c1617",
+          "bytes": 14480
+        }
+      ]
+    },
+    {
       "name": "es-toolkit",
       "version": "1.52.0",
       "license": "MIT",
@@ -644,18 +716,6 @@
       ]
     },
     {
-      "name": "fastdom",
-      "version": "1.0.12",
-      "license": "MIT",
-      "licenseFiles": [
-        {
-          "name": "README.md#License",
-          "sha256": "df2ae14f12f31864acef768195afe4584b08a257f25925f49884619279f02f37",
-          "bytes": 1106
-        }
-      ]
-    },
-    {
       "name": "internmap",
       "version": "2.0.3",
       "license": "ISC",
@@ -669,7 +729,7 @@
     },
     {
       "name": "katex",
-      "version": "0.18.2",
+      "version": "0.19.1",
       "license": "MIT",
       "licenseFiles": [
         {
@@ -729,7 +789,7 @@
     },
     {
       "name": "mermaid",
-      "version": "11.17.2",
+      "version": "12.2.0",
       "license": "MIT",
       "licenseFiles": [
         {

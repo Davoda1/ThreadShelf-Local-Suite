@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "archive": "src__third_party__webpagereplay__third_party__clang-format__script-9f796802e5d633c96dbe97e0b6683d5e62594f9f.tar.gz",
+  "archive_bytes": 28763,
+  "archive_sha256": "aea58b9111cf181d0d0eec0c228a93c455a6cd058a30ff7e892ceecc6d3e233a",
+  "revision": "9f796802e5d633c96dbe97e0b6683d5e62594f9f",
+  "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/clang/tools/clang-format.git",
+  "root_git_tree": "5f33aa6fa9d255066a8d13ed0135ae5ac67c75a6",
+  "blob_count": 13,
+  "git_tree_count": 2,
+  "member_count": 14,
+  "regular_file_bytes": 100941,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 11,
+    "100755": 2
+  },
+  "source_blob_inventory_sha256": "5b288ea3ddad174b121602de92b07085f155e619dbcd123e875fba65b150ef9b",
+  "archive_mtime_range": [
+    0,
+    0
+  ],
+  "metadata": [],
+  "scope": "Exact Git source identity from raw commit/tree/blob objects obtained using official Git smart HTTP. The raw commit Git object SHA1 equals the planned revision and binds the reconstructed root tree. Archive bytes preserve every blob and mode; no source code or hooks executed.",
+  "source_inventory": {
+    "file": "full-inventory.jsonl.gz",
+    "bytes": 1512,
+    "sha256": "d2862d6b00f95fa6383c38984c35eba21f26631e6c93a7dc8152981016e9374d",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 4477,
+    "jsonl_sha256": "b726902ac8332ea6e92637a3d42142f2eb749c3b4d15c8c6fe0689484ceeecfb",
+    "records": 16
+  },
+  "source_identity_method": "git-commit-object",
+  "commit_object": {
+    "file": "commit.raw",
+    "bytes": 498,
+    "sha256": "feed3ebe4bcccb63cfd77e0f89cb39e878552bc5c3ded8f630a2e378e4ab8166"
+  },
+  "retrieval_receipt": {
+    "file": "retrieval-receipt.json",
+    "bytes": 1141,
+    "sha256": "8f4025a50881c05d9225f6a5fc58c17c6c5df6c82722fd83bfb05832233a97d0"
+  }
+}

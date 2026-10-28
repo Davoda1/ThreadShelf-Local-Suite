@@ -8,6 +8,17 @@ as the separate release asset
 The release `SHA256SUM.txt` verifies this download. Preserve that asset and the
 source-access link when redistributing the Reader binaries.
 
+For 1.3.0, verified reuse of this historical companion is limited to the
+unchanged sharp/libvips sources described here. Its Electron-specific source
+materials cover the old runtime and do not satisfy Electron 45.1.0 source
+availability. See `ELECTRON-SOURCE-ACCESS.md` for the matching 45.1.0 source collection.
+
+ONNX Runtime native, Web/WASM and common packages are now 1.31.1. Their
+separate [source and provenance record](ONNX-SOURCE-ACCESS.md) identifies the
+new release, npm integrity pins, retained notices, Transformers source adapter
+and native telemetry control. The historical companion linked above does not
+establish source coverage for ONNX Runtime 1.31.1.
+
 The companion archive contains versioned component source archives, patches,
 build recipes, checksummed Rust dependency sources, and source provenance for
 the Linux, Windows and WebAssembly sharp/libvips packages. The companion manifests map

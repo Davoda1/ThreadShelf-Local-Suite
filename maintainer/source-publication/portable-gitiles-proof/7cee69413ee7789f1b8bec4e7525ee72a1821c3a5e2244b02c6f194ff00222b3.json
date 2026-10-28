@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__webdriver__pylib-1e954903022e9386b9acf452c24f4458dd4c4fc1.tar.gz",
+  "archive_bytes": 287895,
+  "archive_sha256": "7cee69413ee7789f1b8bec4e7525ee72a1821c3a5e2244b02c6f194ff00222b3",
+  "revision": "1e954903022e9386b9acf452c24f4458dd4c4fc1",
+  "repository": "https://chromium.googlesource.com/external/github.com/SeleniumHQ/selenium/py.git",
+  "root_git_tree": "dc61faf2cc441dd4cff2bb246451d398ae148559",
+  "blob_count": 279,
+  "git_tree_count": 49,
+  "member_count": 327,
+  "regular_file_bytes": 1414595,
+  "symlinks": 1,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 278,
+    "120000": 1
+  },
+  "source_blob_inventory_sha256": "714e0800d047d5b473d4f435db853963c3e34c1f765ab2bbff4564ddd939bce1",
+  "archive_mtime_range": [
+    1793146346.196,
+    1793146346.266
+  ],
+  "metadata": [
+    {
+      "file": "metadata/03f7e9b0cc2112a0d53e0643afed05988bc4e8feb0abd602749894af19696780.json",
+      "url": "https://chromium.googlesource.com/external/github.com/SeleniumHQ/selenium/py.git/+/1e954903022e9386b9acf452c24f4458dd4c4fc1/?format=JSON",
+      "bytes": 2306,
+      "sha256": "ca3f3af87acf53d20e84fc3d0373572e38a30733f3792a72e84da62dde5b63f7",
+      "git_tree": "dc61faf2cc441dd4cff2bb246451d398ae148559",
+      "receipt": {
+        "file": "metadata/03f7e9b0cc2112a0d53e0643afed05988bc4e8feb0abd602749894af19696780.receipt.json",
+        "bytes": 249,
+        "sha256": "f069a7de4474d8e91133204686b8116e73fe2e9639f25caf55369f88b820a258"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/7cee69413ee7789f1b8bec4e7525ee72a1821c3a5e2244b02c6f194ff00222b3.jsonl.gz",
+    "bytes": 29898,
+    "sha256": "fd83b48f3fc1bc1fa52856bfd2a0f88c2213a72099e1ede1ac9c1744199f6b4a",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 98466,
+    "jsonl_sha256": "a90ed21f355d14e0fb7c6c46dd798acfda703e1c6db66475c25e2593d7802839",
+    "records": 329,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "85fbd90a54fbb005d212db8ddb713c58c25a27fa4d964c159a518ca99961f6ed",
+    "bytes": 287928,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

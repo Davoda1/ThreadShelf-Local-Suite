@@ -1,0 +1,12 @@
+{
+  "name": "@zip.js/zip.js",
+  "version": "2.24.0",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gildas-lormeau/zip.js.git"
+  },
+  "retainedNotices": [
+    "LICENSE"
+  ]
+}

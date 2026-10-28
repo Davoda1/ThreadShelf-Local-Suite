@@ -10,6 +10,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 
@@ -344,6 +345,104 @@ class NativeEntrypointTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unsupported ZIP object'):
             self.check(archive)
 
+    def test_portable_archive_rejects_default_app_even_when_staging_matches(self):
+        default_app = self.stage / 'app/resources/default_app.asar'
+        default_app.parent.mkdir(parents=True)
+        default_app.write_bytes(b'Unwanted Electron default application')
+        with self.assertRaisesRegex(ValueError, 'Electron default application is included'):
+            self.check(self.archive(prefix='ThreadShelf'), prefix='ThreadShelf')
+
+    def test_archive_omission_is_checked_independently_of_stale_staging(self):
+        default_app = self.stage / 'app/resources/default_app.asar'
+        default_app.parent.mkdir(parents=True)
+        default_app.write_bytes(b'Stale managed staging file')
+        def omit_default(name, entry, data):
+            return None if name == 'app/resources/default_app.asar' else (entry, data)
+        self.assertTrue(self.check(self.archive(omit_default))['omittedDefaultApp'])
+
+    def test_windows_archive_rejects_default_app_even_when_staging_matches(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        (self.stage / 'ThreadShelf Local Analytics.exe').write_bytes(b'MZ fixture')
+        default_app = self.stage / 'resources/default_app.asar'
+        default_app.parent.mkdir()
+        default_app.write_bytes(b'Unwanted Electron default application')
+        archive = self.root / 'Windows-fixture.zip'
+        with zipfile.ZipFile(archive, 'w') as stream:
+            for path in self.stage.rglob('*'):
+                if path.is_file():
+                    stream.write(path, path.relative_to(self.stage).as_posix())
+        with self.assertRaisesRegex(ValueError, 'Electron default application is included'):
+            VALIDATOR.verify_archive(archive, self.stage)
+
+    def test_deb_archive_checks_default_app_in_actual_payload(self):
+        shutil.rmtree(self.stage)
+        self.stage.mkdir()
+        self.links = VALIDATOR.DEB_LINKS
+        self.make_layout(self.links)
+        for include_default in [False, True]:
+            with self.subTest(include_default=include_default):
+                if include_default:
+                    default_app = self.stage / 'opt/threadshelf-local-analytics/resources/default_app.asar'
+                    default_app.parent.mkdir()
+                    default_app.write_bytes(b'Unwanted Electron default application')
+                archive = self.root / 'fixture.deb'
+                archive.write_bytes(self.archive().read_bytes())
+                class Process:
+                    stdout = archive.open('rb')
+                    def wait(self): return 0
+                with patch.object(VALIDATOR.subprocess, 'Popen', return_value=Process()):
+                    if include_default:
+                        with self.assertRaisesRegex(ValueError, 'Electron default application is included'):
+                            VALIDATOR.verify_archive(archive, self.stage, deb=True, approved_links=self.links)
+                    else:
+                        self.assertTrue(VALIDATOR.verify_archive(
+                            archive, self.stage, deb=True, approved_links=self.links)['stagingByteMatches'])
+
+
+class LicenseInputTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='threadshelf-license-inputs-')
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.source, self.app = self.root / 'source', self.root / 'app'
+        for directory in [self.source, self.app]:
+            license_file = directory / 'licenses/npm/current/LICENSE'
+            license_file.parent.mkdir(parents=True)
+            license_file.write_bytes(b'Current dependency license')
+
+    def check(self):
+        with patch.object(VALIDATOR, 'ROOT', self.source):
+            return VALIDATOR.verify_license_inputs(self.app)
+
+    def test_retained_inputs_and_generated_target_metadata_are_allowed(self):
+        self.assertEqual(self.check(), 1)
+        (self.app / 'licenses/DEPENDENCIES.json').write_text('{"target":"linux-x64"}')
+        self.assertEqual(self.check(), 1)
+
+    def test_unexpected_stale_dependency_license_is_rejected(self):
+        stale = self.app / 'licenses/npm/old-version/LICENSE'
+        stale.parent.mkdir()
+        stale.write_bytes(b'Old dependency license')
+        with self.assertRaisesRegex(ValueError, 'Unexpected packaged license inputs'):
+            self.check()
+
+    def test_metadata_exception_does_not_allow_nested_extra_files(self):
+        (self.app / 'licenses/npm/DEPENDENCIES.json').write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'Unexpected packaged license inputs'):
+            self.check()
+
+    def test_missing_or_changed_retained_input_is_rejected(self):
+        retained = self.app / 'licenses/npm/current/LICENSE'
+        for contents in [None, b'Changed license']:
+            with self.subTest(contents=contents):
+                if contents is None:
+                    retained.unlink()
+                else:
+                    retained.write_bytes(contents)
+                with self.assertRaisesRegex(ValueError, 'stale or missing'):
+                    self.check()
+
 
 class PortableDocumentationTests(unittest.TestCase):
     def setUp(self):
@@ -403,6 +502,7 @@ class DebRuntimeProvenanceTests(unittest.TestCase):
                 archive.writestr(name, data)
                 target = 'threadshelf-local-analytics' if name == 'electron' else name
                 (self.runtime / target).write_bytes(data)
+            archive.writestr('resources/default_app.asar', b'Intentionally omitted Electron default application')
         checksum = VALIDATOR.file_digest(self.archive)[1]
         (self.cache / 'SHASUMS256.txt').write_text(f'{checksum}  {self.archive.name}\n')
 
@@ -411,11 +511,19 @@ class DebRuntimeProvenanceTests(unittest.TestCase):
         self.assertEqual(result['package'], 'deb')
         self.assertEqual(result['platform'], 'linux')
         self.assertEqual(result['officialFilesVerified'], 3)
+        self.assertNotIn('omittedDefaultApp', result)
 
     def test_changed_deb_runtime_is_rejected_even_when_tar_runtime_would_be_valid(self):
         (self.runtime / 'threadshelf-local-analytics').write_bytes(b'\x7fELF altered fixture')
         with self.assertRaisesRegex(ValueError, 'Runtime mismatch: linux/electron'):
             VALIDATOR.verify_packaged_runtime(self.cache, 'deb', self.runtime, self.version)
+
+    def test_staging_runtime_does_not_claim_archive_default_application_omission(self):
+        default_app = self.runtime / 'resources/default_app.asar'
+        default_app.parent.mkdir()
+        default_app.write_bytes(b'Intentionally omitted Electron default application')
+        result = VALIDATOR.verify_packaged_runtime(self.cache, 'deb', self.runtime, self.version)
+        self.assertNotIn('omittedDefaultApp', result)
 
 
 if __name__ == '__main__':

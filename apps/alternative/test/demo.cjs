@@ -1,16 +1,17 @@
 /* End-to-end browser verification of the generated, standalone offline demo. */
+const VERSION = require('../package.json').version;
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 let playwright;try{playwright=require('playwright');}catch{playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');}
 const root=path.resolve(__dirname,'..');
-const demo=process.env.DEMO_PATH||path.join(root,'dist/ThreadShelf-Local-Alternative-1.2.0-Demo.html');
+const demo=process.env.DEMO_PATH||path.join(root,`dist/ThreadShelf-Local-Alternative-${VERSION}-Demo.html`);
 const shots=process.env.DEMO_SCREENSHOTS;
 const storageKey='threadshelf-local-alternative.demo.v1';
 (async()=>{
  const browser=await playwright.chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
- const report={version:'1.2.0',success:false,checks:[],networkRequests:[],pageErrors:[],conversations:[],layouts:[],exports:[]};
+ const report={version:VERSION,success:false,checks:[],networkRequests:[],pageErrors:[],conversations:[],layouts:[],exports:[]};
  try{
   const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',acceptDownloads:true});
   await context.setOffline(true);const page=await context.newPage();

@@ -1,5 +1,6 @@
 'use strict';
 // Focused renderer gate. Run with Playwright Chromium, or ELECTRON_PATH + xvfb-run.
+const VERSION = require('../package.json').version;
 const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const path=require('node:path');
@@ -7,7 +8,7 @@ const os=require('node:os');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..');
 const pixel='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==';
-const report={version:'1.2.0',passed:false,checks:[],requests:[],errors:[]};
+const report={version:VERSION,passed:false,checks:[],requests:[],errors:[]};
 (async()=>{
  let browser,electron,temporary,page;
  try{

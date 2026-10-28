@@ -1,0 +1,970 @@
+{
+  "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip",
+  "bytes": 1044050213,
+  "sha256": "7e445fb9a44ecf80b0b3de97159762a3399fc07510861b9fe7c8f72bdfdebd74",
+  "source_count": 41,
+  "sources": [
+    {
+      "path": "src/third_party/skia",
+      "repository": "https://skia.googlesource.com/skia.git",
+      "revision": "886e42fda11610a56dd1b22e8697e27f9d1e34f2",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__skia-886e42fda11610a56dd1b22e8697e27f9d1e34f2.tar.gz",
+      "archive_url": "https://skia.googlesource.com/skia.git/+archive/886e42fda11610a56dd1b22e8697e27f9d1e34f2.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 70314543,
+      "size": 80240880,
+      "sha256": "b627cb9b3f42d91328cd0e5f694f2ab908d7dbea9f51d87f6216d5d9af6bea2f",
+      "member_count": 13276,
+      "regular_files": 12431,
+      "unpacked_member_bytes": 189677682,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 8.387
+    },
+    {
+      "path": "src/third_party/hunspell_dictionaries",
+      "repository": "https://chromium.googlesource.com/chromium/deps/hunspell_dictionaries.git",
+      "revision": "cee14e319bb7603a1157bb4d1e216be64ee82b77",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__hunspell_dictionaries-cee14e319bb7603a1157bb4d1e216be64ee82b77.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/deps/hunspell_dictionaries.git/+archive/cee14e319bb7603a1157bb4d1e216be64ee82b77.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 69491669,
+      "size": 69491764,
+      "sha256": "70702343c676631e952977e22a5daf8ebcb4d28efdfeb0b39dd36b0318d6229c",
+      "member_count": 245,
+      "regular_files": 243,
+      "unpacked_member_bytes": 277781612,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 18.323
+    },
+    {
+      "path": "src/third_party/perfetto",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/perfetto.git",
+      "revision": "403906f4adfbf287a02e5546f8430dcc9d56b649",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__perfetto-403906f4adfbf287a02e5546f8430dcc9d56b649.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/google/perfetto.git/+archive/403906f4adfbf287a02e5546f8430dcc9d56b649.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 62207601,
+      "size": 64452905,
+      "sha256": "3f0f37ee25cf8f674c2199d98ccb578068fd3db313fbf5ca5803defc5f4c40f5",
+      "member_count": 19187,
+      "regular_files": 12770,
+      "unpacked_member_bytes": 127789379,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 7.966
+    },
+    {
+      "path": "src/third_party/openh264/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/cisco/openh264",
+      "revision": "9547f96ea5c47f4d465d97b07264b997ecc4b4b6",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__openh264__src-9547f96ea5c47f4d465d97b07264b997ecc4b4b6.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/cisco/openh264/+archive/9547f96ea5c47f4d465d97b07264b997ecc4b4b6.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 60328261,
+      "size": 60334583,
+      "sha256": "40e69561375810824ea6902a883003c710d19d1e05417bdbbad217ddd255fadb",
+      "member_count": 918,
+      "regular_files": 741,
+      "unpacked_member_bytes": 72671614,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 3.575
+    },
+    {
+      "path": "src/third_party/icu",
+      "repository": "https://chromium.googlesource.com/chromium/deps/icu.git",
+      "revision": "19dfb44a62ae60ce6b0060de8c0cef5d5c527177",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__icu-19dfb44a62ae60ce6b0060de8c0cef5d5c527177.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/deps/icu.git/+archive/19dfb44a62ae60ce6b0060de8c0cef5d5c527177.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 55874465,
+      "size": 55718637,
+      "sha256": "4e566e30ee01f8cbe095549f82226681537a4f557fc6e72139ce857e3f60482d",
+      "member_count": 7263,
+      "regular_files": 7118,
+      "unpacked_member_bytes": 228838074,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 11.404
+    },
+    {
+      "path": "src/third_party/harfbuzz/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git",
+      "revision": "f5efbbef3841bdcdc6427bde7c2971f62ac8c8f1",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__harfbuzz__src-f5efbbef3841bdcdc6427bde7c2971f62ac8c8f1.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git/+archive/f5efbbef3841bdcdc6427bde7c2971f62ac8c8f1.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 37526867,
+      "size": 38822816,
+      "sha256": "60317aeea67bc467851a168742bd6f31d2ca79b04c5d05307c64d7a2768d68ad",
+      "member_count": 3998,
+      "regular_files": 3826,
+      "unpacked_member_bytes": 103285592,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 5.551
+    },
+    {
+      "path": "src/third_party/dawn",
+      "repository": "https://dawn.googlesource.com/dawn.git",
+      "revision": "1da41e55bb915dd03f61028fad64a99ee1786d48",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__dawn-1da41e55bb915dd03f61028fad64a99ee1786d48.tar.gz",
+      "archive_url": "https://dawn.googlesource.com/dawn.git/+archive/1da41e55bb915dd03f61028fad64a99ee1786d48.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 34029366,
+      "size": 32164192,
+      "sha256": "d9d06324e9a526949ad551ec75d784c5403e81cb62ed59471a291a80b4725dea",
+      "member_count": 87703,
+      "regular_files": 85594,
+      "unpacked_member_bytes": 268603266,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 9.999
+    },
+    {
+      "path": "src/third_party/wayland-protocols/gtk",
+      "repository": "https://chromium.googlesource.com/external/github.com/GNOME/gtk.git",
+      "revision": "40ebed3a03aef096addc0af09fec4ec529d882a0",
+      "targets": [
+        "linux"
+      ],
+      "archive": "src__third_party__wayland-protocols__gtk-40ebed3a03aef096addc0af09fec4ec529d882a0.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/GNOME/gtk.git/+archive/40ebed3a03aef096addc0af09fec4ec529d882a0.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "6f87dd5ef3a69023c3c9eb91839debfecdd9c87126a75bff6c45fd6c736f5d60",
+      "planning_estimate_bytes": 29573468,
+      "historical_archive_representation": {
+        "sha256": "bcc4631becb7cb64fec2a7ca24b6bc338305243a125fd581ebf5a7cd25b738db",
+        "bytes": 29573377,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__wayland-protocols__gtk-40ebed3a03aef096addc0af09fec4ec529d882a0.tar.gz.proof.json",
+        "bytes": 1832,
+        "sha256": "f215f7d7b6b788cec4ebaff73ca318c8fd18fffea232e871b3522289dc2a9544",
+        "root_git_tree": "5ac7da504f1b2bc42b134301c3e731fb9e7ec293"
+      },
+      "size": 29573468,
+      "sha256": "6f87dd5ef3a69023c3c9eb91839debfecdd9c87126a75bff6c45fd6c736f5d60",
+      "member_count": 5672,
+      "regular_files": 5488,
+      "unpacked_member_bytes": 107635327,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.861
+    },
+    {
+      "path": "src/third_party/ots/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/khaledhosny/ots.git",
+      "revision": "46bea9879127d0ff1c6601b078e2ce98e83fcd33",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__ots__src-46bea9879127d0ff1c6601b078e2ce98e83fcd33.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/khaledhosny/ots.git/+archive/46bea9879127d0ff1c6601b078e2ce98e83fcd33.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "1b3dfec5cb0eb96a5f65992b048f1ebb016a53ec25404158c302681e1513493d",
+      "planning_estimate_bytes": 28926930,
+      "historical_archive_representation": {
+        "sha256": "0d4e1f51276ac75913509b0a5326969e7f8fd8734961a1ca23ba586266deaacb",
+        "bytes": 28926957,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__ots__src-46bea9879127d0ff1c6601b078e2ce98e83fcd33.tar.gz.proof.json",
+        "bytes": 1824,
+        "sha256": "46760abfb2af89c80d9180784c94c8502786530a28bd200d9da96a54684749df",
+        "root_git_tree": "909e6e11351cbdb62e08e6d758b7901470d3b4d7"
+      },
+      "size": 28926930,
+      "sha256": "1b3dfec5cb0eb96a5f65992b048f1ebb016a53ec25404158c302681e1513493d",
+      "member_count": 534,
+      "regular_files": 519,
+      "unpacked_member_bytes": 56172277,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.394
+    },
+    {
+      "path": "src/third_party/crabbyavif/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/webmproject/CrabbyAvif.git",
+      "revision": "d25069779cc7258d5f8816d3ca175d463b0b6444",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__crabbyavif__src-d25069779cc7258d5f8816d3ca175d463b0b6444.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/webmproject/CrabbyAvif.git/+archive/d25069779cc7258d5f8816d3ca175d463b0b6444.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 28016125,
+      "size": 28167205,
+      "sha256": "addb344d172abc842e738939d4f811afceb1d50dd6c6e1b06d5b414390868d28",
+      "member_count": 355,
+      "regular_files": 308,
+      "unpacked_member_bytes": 30300431,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.1
+    },
+    {
+      "path": "src/third_party/ds_store/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/dmgbuild/ds_store.git",
+      "revision": "6f971c764a511f609615c6c4f5ae2a9403ff32cb",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__ds_store__src-6f971c764a511f609615c6c4f5ae2a9403ff32cb.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/dmgbuild/ds_store.git/+archive/6f971c764a511f609615c6c4f5ae2a9403ff32cb.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 26214400,
+      "size": 26694,
+      "sha256": "91cf034b774fcc466c26d3c6aa382cc9ce92f3417a7fc062848db5ae491d007e",
+      "member_count": 29,
+      "regular_files": 22,
+      "unpacked_member_bytes": 106147,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.045
+    },
+    {
+      "path": "src/third_party/jetstream/v3.0",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git",
+      "revision": "06785cf861ac44855f168cbbe829278c2802e6de",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__jetstream__v3.0-06785cf861ac44855f168cbbe829278c2802e6de.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git/+archive/06785cf861ac44855f168cbbe829278c2802e6de.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 26214400,
+      "size": 194431133,
+      "sha256": "81309665284fd56f2004c305a093f3be6822b78f79b0532af8d47b8c9151fc23",
+      "member_count": 1099,
+      "regular_files": 960,
+      "unpacked_member_bytes": 485754699,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 31.179
+    },
+    {
+      "path": "src/third_party/mac_alias/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/dmgbuild/mac_alias.git",
+      "revision": "d0c076b4562541c1509d9874f42880378245d268",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__mac_alias__src-d0c076b4562541c1509d9874f42880378245d268.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/dmgbuild/mac_alias.git/+archive/d0c076b4562541c1509d9874f42880378245d268.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 26214400,
+      "size": 33189,
+      "sha256": "7b36f0ac159113dbf62bafd2af14894bd5c7ae2df2c61ec86a87edea28e3e4e3",
+      "member_count": 32,
+      "regular_files": 25,
+      "unpacked_member_bytes": 128545,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.004
+    },
+    {
+      "path": "src/third_party/microsoft_multimedia_redirection/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/microsoft/multimedia-redirection.git",
+      "revision": "8b1d8893d126547309f1bab8d8232418aa7c7109",
+      "targets": [
+        "win"
+      ],
+      "archive": "src__third_party__microsoft_multimedia_redirection__src-8b1d8893d126547309f1bab8d8232418aa7c7109.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/microsoft/multimedia-redirection.git/+archive/8b1d8893d126547309f1bab8d8232418aa7c7109.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 26214400,
+      "size": 31718,
+      "sha256": "4b5cf2f90a1a3488e4f20ba1bf1cc273c36dc1571be3ef6b51e5da72c80c184b",
+      "member_count": 18,
+      "regular_files": 15,
+      "unpacked_member_bytes": 145661,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.004
+    },
+    {
+      "path": "src/third_party/dawn/third_party/directx-shader-compiler/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/microsoft/DirectXShaderCompiler",
+      "revision": "9757d44faa47de7e8d1bb731c30551ec608624f9",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__dawn__third_party__directx-shader-compiler__src-9757d44faa47de7e8d1bb731c30551ec608624f9.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/microsoft/DirectXShaderCompiler/+archive/9757d44faa47de7e8d1bb731c30551ec608624f9.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 25677454,
+      "size": 25807311,
+      "sha256": "a018c4130c5d8d72ad6e4c071ae704b8526d62bc48ab675775a084e5f47bf26c",
+      "member_count": 19673,
+      "regular_files": 18345,
+      "unpacked_member_bytes": 127044879,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 6.187
+    },
+    {
+      "path": "src/third_party/webgl/src",
+      "repository": "https://chromium.googlesource.com/external/khronosgroup/webgl.git",
+      "revision": "714857a28445e8f5d8d6ae1c78498578009534d8",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__webgl__src-714857a28445e8f5d8d6ae1c78498578009534d8.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/khronosgroup/webgl.git/+archive/714857a28445e8f5d8d6ae1c78498578009534d8.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 20820682,
+      "size": 20825263,
+      "sha256": "32f5cf0db23c6934bc872f5d11911bf77a6f12ee3b4551dc49095d04729d797a",
+      "member_count": 17027,
+      "regular_files": 16003,
+      "unpacked_member_bytes": 88043871,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 3.08
+    },
+    {
+      "path": "src/chrome/test/data/perf/canvas_bench",
+      "repository": "https://chromium.googlesource.com/chromium/canvas_bench.git",
+      "revision": "a7b40ea5ae0239517d78845a5fc9b12976bfc732",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__chrome__test__data__perf__canvas_bench-a7b40ea5ae0239517d78845a5fc9b12976bfc732.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/canvas_bench.git/+archive/a7b40ea5ae0239517d78845a5fc9b12976bfc732.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "40615907487adda8cde1ec3735ccae9d8f6d4571d7b56202c646b6e37af61916",
+      "planning_estimate_bytes": 19486320,
+      "historical_archive_representation": {
+        "sha256": "48901d573f22fd0076a4f23409e666d6c5c818c5fe342aba6ff926e67a9ba90f",
+        "bytes": 19486387,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__chrome__test__data__perf__canvas_bench-a7b40ea5ae0239517d78845a5fc9b12976bfc732.tar.gz.proof.json",
+        "bytes": 1811,
+        "sha256": "5149641d62814f6208b8420935944dc0e126bd1297faaeb4293a812624073f06",
+        "root_git_tree": "edf33faa2362240de3b5887cd23a4d9af71d958e"
+      },
+      "size": 19486320,
+      "sha256": "40615907487adda8cde1ec3735ccae9d8f6d4571d7b56202c646b6e37af61916",
+      "member_count": 406,
+      "regular_files": 405,
+      "unpacked_member_bytes": 19422875,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.11
+    },
+    {
+      "path": "src/third_party/angle",
+      "repository": "https://chromium.googlesource.com/angle/angle.git",
+      "revision": "3b89d84e9d59f75675ac4e2bef58fc068a9f0577",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__angle-3b89d84e9d59f75675ac4e2bef58fc068a9f0577.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/angle/angle.git/+archive/3b89d84e9d59f75675ac4e2bef58fc068a9f0577.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 16761878,
+      "size": 17001497,
+      "sha256": "28cbfa5e01343847768a3f00850c20ba736bc429380e8dc223ed1ad30a0d6fc0",
+      "member_count": 4815,
+      "regular_files": 4037,
+      "unpacked_member_bytes": 102343451,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 4.327
+    },
+    {
+      "path": "src/third_party/liblouis/src",
+      "repository": "https://chromium.googlesource.com/external/liblouis-github.git",
+      "revision": "9700847afb92cb35969bdfcbbfbbb74b9c7b3376",
+      "targets": [
+        "linux"
+      ],
+      "archive": "src__third_party__liblouis__src-9700847afb92cb35969bdfcbbfbbb74b9c7b3376.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/liblouis-github.git/+archive/9700847afb92cb35969bdfcbbfbbb74b9c7b3376.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "4791dd51b5e9254be6a246fb37167126f2d4a8e8800e5d52d543dc018298af28",
+      "planning_estimate_bytes": 15684257,
+      "historical_archive_representation": {
+        "sha256": "f86b05edfc720447c2c4aa22e94d05fb7946cbc5bf9ee4f14b21ace562c35dfc",
+        "bytes": 15684474,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__liblouis__src-9700847afb92cb35969bdfcbbfbbb74b9c7b3376.tar.gz.proof.json",
+        "bytes": 1827,
+        "sha256": "0b6adb7132a8670af361c0ed50cb872521ca258868c0db3e851b7c0a4ed408ad",
+        "root_git_tree": "aa3bb4e2d715fbd071aa62b00655511342cb0d9e"
+      },
+      "size": 15684257,
+      "sha256": "4791dd51b5e9254be6a246fb37167126f2d4a8e8800e5d52d543dc018298af28",
+      "member_count": 1040,
+      "regular_files": 999,
+      "unpacked_member_bytes": 81498171,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.476
+    },
+    {
+      "path": "src/third_party/squirrel.mac/vendor/Sparkle",
+      "repository": "https://github.com/sparkle-project/Sparkle.git",
+      "revision": "79bc9e872948e47877e76f194cb0c8e0412b0b90",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__squirrel.mac__vendor__Sparkle-79bc9e872948e47877e76f194cb0c8e0412b0b90.tar.gz",
+      "archive_url": "https://codeload.github.com/sparkle-project/Sparkle/tar.gz/79bc9e872948e47877e76f194cb0c8e0412b0b90",
+      "archive_prefix": "Sparkle-79bc9e872948e47877e76f194cb0c8e0412b0b90/",
+      "expected_sha256": "e2d6ef050b9cf1d9ea2e5fbb6c26e91954619c79224787adbf483e758043eaa5",
+      "planning_estimate_bytes": 15364053,
+      "size": 15364053,
+      "sha256": "e2d6ef050b9cf1d9ea2e5fbb6c26e91954619c79224787adbf483e758043eaa5",
+      "member_count": 751,
+      "regular_files": 600,
+      "unpacked_member_bytes": 21010733,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.647
+    },
+    {
+      "path": "src/third_party/openscreen/src",
+      "repository": "https://chromium.googlesource.com/openscreen",
+      "revision": "a515d3a249e7411fa251a27125815a06a2d73862",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__openscreen__src-a515d3a249e7411fa251a27125815a06a2d73862.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/openscreen/+archive/a515d3a249e7411fa251a27125815a06a2d73862.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 14980156,
+      "size": 15043406,
+      "sha256": "c5708355d37d137e6387691e1ce9dc139caa414510e509a649d0c7513eb61157",
+      "member_count": 3217,
+      "regular_files": 2925,
+      "unpacked_member_bytes": 38043176,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.886
+    },
+    {
+      "path": "src/third_party/libphonenumber/src",
+      "repository": "https://chromium.googlesource.com/external/libphonenumber.git",
+      "revision": "0ae309f1940227efe688f5eb1815ef45a6fbee8d",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__libphonenumber__src-0ae309f1940227efe688f5eb1815ef45a6fbee8d.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/libphonenumber.git/+archive/0ae309f1940227efe688f5eb1815ef45a6fbee8d.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 13135663,
+      "size": 13127596,
+      "sha256": "1358be904a2465ae951751f651986239dd7816c077f1753e12cf18e1fc148e66",
+      "member_count": 4287,
+      "regular_files": 3759,
+      "unpacked_member_bytes": 100250947,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 4.194
+    },
+    {
+      "path": "src/third_party/pdfium",
+      "repository": "https://pdfium.googlesource.com/pdfium.git",
+      "revision": "2f22dfe030ded6a7666aeea4899d400bd2e338a4",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__pdfium-2f22dfe030ded6a7666aeea4899d400bd2e338a4.tar.gz",
+      "archive_url": "https://pdfium.googlesource.com/pdfium.git/+archive/2f22dfe030ded6a7666aeea4899d400bd2e338a4.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 13047393,
+      "size": 13044800,
+      "sha256": "bb6cf591e2a34cdde795eea3a6b5d5851a7fa47023dd6c20f569e6918e4d2e8a",
+      "member_count": 5587,
+      "regular_files": 5439,
+      "unpacked_member_bytes": 40588022,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 10.582
+    },
+    {
+      "path": "src/third_party/speedometer/v3.1",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git",
+      "revision": "1386415be8fef2f6b6bbdbe1828872471c5d802a",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__speedometer__v3.1-1386415be8fef2f6b6bbdbe1828872471c5d802a.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git/+archive/1386415be8fef2f6b6bbdbe1828872471c5d802a.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "0865df8b808514464d7fad6feca963aee3c29ec005ff0c78ebfc6e64b75a7a51",
+      "planning_estimate_bytes": 12384519,
+      "historical_archive_representation": {
+        "sha256": "a0ce23c5dfc9643c186fb4a5e5928cdcd33d76837d1848d0ead9d7eee456c521",
+        "bytes": 12384530,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__speedometer__v3.1-1386415be8fef2f6b6bbdbe1828872471c5d802a.tar.gz.proof.json",
+        "bytes": 1843,
+        "sha256": "6d8418c5dfd49aaaa0163c936d403f1d9a808e13c6e5bd5e52c5868e6faa3181",
+        "root_git_tree": "d6839bc6f5a239b0dc1c18b419024a27ba5a1fb9"
+      },
+      "size": 12384519,
+      "sha256": "0865df8b808514464d7fad6feca963aee3c29ec005ff0c78ebfc6e64b75a7a51",
+      "member_count": 1377,
+      "regular_files": 1118,
+      "unpacked_member_bytes": 61022359,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.343
+    },
+    {
+      "path": "src/third_party/speedometer/v3.0",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git",
+      "revision": "8d67f28d0281ac4330f283495b7f48286654ad7d",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__speedometer__v3.0-8d67f28d0281ac4330f283495b7f48286654ad7d.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git/+archive/8d67f28d0281ac4330f283495b7f48286654ad7d.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "5a4516aef968960d53174e98d77d3db59d8db61a14ec04a6f6c30797693f03e4",
+      "planning_estimate_bytes": 12382687,
+      "historical_archive_representation": {
+        "sha256": "ff574f39aad3942bfbf8d208965616d1fbd2c779db02826d580d597b7fad0183",
+        "bytes": 12382641,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__speedometer__v3.0-8d67f28d0281ac4330f283495b7f48286654ad7d.tar.gz.proof.json",
+        "bytes": 1843,
+        "sha256": "f9e37e281cb95efb7d4d8429f77c40478a091e0729d7fa547a38606c1ed96d36",
+        "root_git_tree": "32bc885fc0b2e36018ff660bdca34e53a72e1b95"
+      },
+      "size": 12382687,
+      "sha256": "5a4516aef968960d53174e98d77d3db59d8db61a14ec04a6f6c30797693f03e4",
+      "member_count": 1377,
+      "regular_files": 1118,
+      "unpacked_member_bytes": 61013581,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.353
+    },
+    {
+      "path": "src/third_party/jetstream/v2.2",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git",
+      "revision": "2145cedef4ca2777b792cb0059d3400ee2a6153c",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__jetstream__v2.2-2145cedef4ca2777b792cb0059d3400ee2a6153c.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git/+archive/2145cedef4ca2777b792cb0059d3400ee2a6153c.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "329de784ab05e31293098444b3afdf03394adb8e4c43dd536b4e85eb4fc749f6",
+      "planning_estimate_bytes": 12340087,
+      "historical_archive_representation": {
+        "sha256": "ba11990b7c7c39aeecb406274d65cd21f3185619000ee454dfdc4f4cb873fbee",
+        "bytes": 12340422,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__jetstream__v2.2-2145cedef4ca2777b792cb0059d3400ee2a6153c.tar.gz.proof.json",
+        "bytes": 1833,
+        "sha256": "6b78f0f3fc53990ca0600725697bbafd27d1592d7dda49b04f1defee3f0f8282",
+        "root_git_tree": "930555fc6e0eb09fe2fd9abb65f3d8a1089bd35d"
+      },
+      "size": 12340087,
+      "sha256": "329de784ab05e31293098444b3afdf03394adb8e4c43dd536b4e85eb4fc749f6",
+      "member_count": 511,
+      "regular_files": 485,
+      "unpacked_member_bytes": 68657414,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.316
+    },
+    {
+      "path": "src/third_party/xnnpack/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/XNNPACK.git",
+      "revision": "b6d54fe94520ee6e1181ca1b402f71dbb5d50efa",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__xnnpack__src-b6d54fe94520ee6e1181ca1b402f71dbb5d50efa.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/google/XNNPACK.git/+archive/b6d54fe94520ee6e1181ca1b402f71dbb5d50efa.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 10766277,
+      "size": 10986026,
+      "sha256": "52ace57ef2530a909b32016136ed19b8d977cd6434fd7932248146d7bde8c579",
+      "member_count": 12803,
+      "regular_files": 12347,
+      "unpacked_member_bytes": 146865458,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 5.083
+    },
+    {
+      "path": "src/third_party/nlohmann_json/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/nlohmann/json.git",
+      "revision": "55f93686c01528224f448c19128836e7df245f72",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__nlohmann_json__src-55f93686c01528224f448c19128836e7df245f72.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/nlohmann/json.git/+archive/55f93686c01528224f448c19128836e7df245f72.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 10142909,
+      "size": 9730786,
+      "sha256": "3bf60bf1fdc06f25551519182d83aa85fe83de24f9ee1fad733eaa97aa3e79b2",
+      "member_count": 1270,
+      "regular_files": 1163,
+      "unpacked_member_bytes": 15958746,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.956
+    },
+    {
+      "path": "src/third_party/angle/third_party/glmark2/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/glmark2/glmark2",
+      "revision": "6edcf02205fd1e8979dc3f3964257a81959b80c8",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__angle__third_party__glmark2__src-6edcf02205fd1e8979dc3f3964257a81959b80c8.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/glmark2/glmark2/+archive/6edcf02205fd1e8979dc3f3964257a81959b80c8.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "cd6bb9726854dbcf08c10531320e2309577712a0102f13793552fb247cf96fa7",
+      "planning_estimate_bytes": 9262999,
+      "historical_archive_representation": {
+        "sha256": "b31e70ce0cc55181e442cc64097cde403bbc66d7a98e847bd3e2522d8133fba5",
+        "bytes": 9262691,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__angle__third_party__glmark2__src-6edcf02205fd1e8979dc3f3964257a81959b80c8.tar.gz.proof.json",
+        "bytes": 1854,
+        "sha256": "a88200de297958bcac418024d0073933eed24f7fc98b15727c35afa47b8e657f",
+        "root_git_tree": "5705228f66ec24bfd36caffd56e8c4b90753def9"
+      },
+      "size": 9262999,
+      "sha256": "cd6bb9726854dbcf08c10531320e2309577712a0102f13793552fb247cf96fa7",
+      "member_count": 757,
+      "regular_files": 702,
+      "unpacked_member_bytes": 17631471,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.151
+    },
+    {
+      "path": "src/third_party/libc++/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libcxx.git",
+      "revision": "97b436da4c33663581d394f4ee0a5977fc38c2f4",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__libc++__src-97b436da4c33663581d394f4ee0a5977fc38c2f4.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libcxx.git/+archive/97b436da4c33663581d394f4ee0a5977fc38c2f4.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 8942419,
+      "size": 9030009,
+      "sha256": "6bc28f6b606d4fabbdeed2daad46aae6e68ee18c83d36c7fc1d2e996bfed7ada",
+      "member_count": 14873,
+      "regular_files": 12408,
+      "unpacked_member_bytes": 62030975,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 2.959
+    },
+    {
+      "path": "src/third_party/nearby/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git",
+      "revision": "0bad8b0c9877f92eeeb550654f1ea51a71a085e4",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/google/nearby-connections.git/+archive/0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "planning_estimate_bytes": 8637797,
+      "historical_archive_representation": {
+        "sha256": "4dfccb8558eaa529f62610c79b936bf0a66eade2265ce17458b9f31f3b0d07c9",
+        "bytes": 8637871,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__nearby__src-0bad8b0c9877f92eeeb550654f1ea51a71a085e4.tar.gz.proof.json",
+        "bytes": 5592,
+        "sha256": "17760ddff171cc53ac944a880492a5e6664c350c8c5cb9346b476121295d41f1",
+        "root_git_tree": "bdd866e24e88a86213d49138890f9d2b48f73bbd"
+      },
+      "size": 8637797,
+      "sha256": "b87527af345be9e289467639afb098baaeb4194e24677a4f1f8779cdfe73f94a",
+      "member_count": 3249,
+      "regular_files": 3060,
+      "unpacked_member_bytes": 105310698,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.611
+    },
+    {
+      "path": "src/third_party/expat/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git",
+      "revision": "a851869e111c06fbcdc89edf639abf5fc2b6deba",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__expat__src-a851869e111c06fbcdc89edf639abf5fc2b6deba.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git/+archive/a851869e111c06fbcdc89edf639abf5fc2b6deba.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "e570157523b1d1e1020dd368f32ae7b542712933542c766a27105f8bafde17a9",
+      "planning_estimate_bytes": 8448295,
+      "historical_archive_representation": {
+        "sha256": "29d8a785c57ab1847601f2db5f9820860e68113da1c28fcb01c8c529dee96ae6",
+        "bytes": 8448303,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__expat__src-a851869e111c06fbcdc89edf639abf5fc2b6deba.tar.gz.proof.json",
+        "bytes": 1846,
+        "sha256": "072234a0fe2f8c0c234dabab7fd72b874aa2cc5249675102c207cd489d9f307d",
+        "root_git_tree": "b7b4f742c001346d94f9708c1cfc025086e74fde"
+      },
+      "size": 8448295,
+      "sha256": "e570157523b1d1e1020dd368f32ae7b542712933542c766a27105f8bafde17a9",
+      "member_count": 238,
+      "regular_files": 217,
+      "unpacked_member_bytes": 136209779,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.412
+    },
+    {
+      "path": "src/third_party/vulkan-validation-layers/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-ValidationLayers",
+      "revision": "b0688753f1fc04a382ef0fd8c46ecb5a7c91486c",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__vulkan-validation-layers__src-b0688753f1fc04a382ef0fd8c46ecb5a7c91486c.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-ValidationLayers/+archive/b0688753f1fc04a382ef0fd8c46ecb5a7c91486c.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 8430768,
+      "size": 8578443,
+      "sha256": "8767198cd3aab212f04cb16c959c32d81fba1c2b5b5bd3f22f71317341ef2d49",
+      "member_count": 1086,
+      "regular_files": 1029,
+      "unpacked_member_bytes": 61617230,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.91
+    },
+    {
+      "path": "src/third_party/llvm-libc/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git",
+      "revision": "b8b28272d32b75f0ee71acd2fa1144c8b5b95460",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__llvm-libc__src-b8b28272d32b75f0ee71acd2fa1144c8b5b95460.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+archive/b8b28272d32b75f0ee71acd2fa1144c8b5b95460.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 7928882,
+      "size": 44127086,
+      "sha256": "f226582144267c265dd3b2f0a6142e10e8d8301d8a795e1d382b88c051c0fe2c",
+      "member_count": 9186,
+      "regular_files": 8694,
+      "unpacked_member_bytes": 97280448,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 7.496
+    },
+    {
+      "path": "src/third_party/libaom/source/libaom",
+      "repository": "https://aomedia.googlesource.com/aom.git",
+      "revision": "7b6197cb8fdc1ce555a03d23a9d25242c61d38e6",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__libaom__source__libaom-7b6197cb8fdc1ce555a03d23a9d25242c61d38e6.tar.gz",
+      "archive_url": "https://aomedia.googlesource.com/aom.git/+archive/7b6197cb8fdc1ce555a03d23a9d25242c61d38e6.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 6689342,
+      "size": 6703527,
+      "sha256": "17dc0eb935ad018bcc164a504352bab2698d4c7f513be23e98ad8b2b9430129f",
+      "member_count": 1598,
+      "regular_files": 1522,
+      "unpacked_member_bytes": 38785934,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 2.29
+    },
+    {
+      "path": "src/chrome/test/data/perf/frame_rate/content",
+      "repository": "https://chromium.googlesource.com/chromium/frame_rate/content.git",
+      "revision": "c10272c88463efeef6bb19c9ec07c42bc8fe22b9",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__chrome__test__data__perf__frame_rate__content-c10272c88463efeef6bb19c9ec07c42bc8fe22b9.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/frame_rate/content.git/+archive/c10272c88463efeef6bb19c9ec07c42bc8fe22b9.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "164b19bf87b21067e14a0940b96d4b1eb38f3e359f42c63b4c9d4973f0130748",
+      "planning_estimate_bytes": 6669122,
+      "historical_archive_representation": {
+        "sha256": "cb7f80fd82bb781d440d1ed0e64cc70e69c3f9ee870ae31546550e3342fb2388",
+        "bytes": 6669239,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__chrome__test__data__perf__frame_rate__content-c10272c88463efeef6bb19c9ec07c42bc8fe22b9.tar.gz.proof.json",
+        "bytes": 1808,
+        "sha256": "10612746b1be3060cfcfafdbf283628e2b08ff336c28d0568c6933e76dfde4d5",
+        "root_git_tree": "1bddba7664d12c00d320037521ea891103913017"
+      },
+      "size": 6669122,
+      "sha256": "164b19bf87b21067e14a0940b96d4b1eb38f3e359f42c63b4c9d4973f0130748",
+      "member_count": 101,
+      "regular_files": 98,
+      "unpacked_member_bytes": 6902847,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.04
+    },
+    {
+      "path": "src/third_party/dawn/third_party/webgpu-cts",
+      "repository": "https://chromium.googlesource.com/external/github.com/gpuweb/cts",
+      "revision": "81aeeb49e5b15587ec6c1f59b2fdcb4074ffcf63",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__dawn__third_party__webgpu-cts-81aeeb49e5b15587ec6c1f59b2fdcb4074ffcf63.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/gpuweb/cts/+archive/81aeeb49e5b15587ec6c1f59b2fdcb4074ffcf63.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 6210466,
+      "size": 6218110,
+      "sha256": "24c414e6aa0fece4295fb3eac7b8a55454e3b5e5ca1d7aa70209bb9a770d341d",
+      "member_count": 1497,
+      "regular_files": 1328,
+      "unpacked_member_bytes": 57731067,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.86
+    },
+    {
+      "path": "src/third_party/webgpu-cts/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/gpuweb/cts.git",
+      "revision": "a5e5d7440fa036b74ea13c3c5cb6b618a3c884e9",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__webgpu-cts__src-a5e5d7440fa036b74ea13c3c5cb6b618a3c884e9.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/gpuweb/cts.git/+archive/a5e5d7440fa036b74ea13c3c5cb6b618a3c884e9.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 6210351,
+      "size": 6227394,
+      "sha256": "fb97f7f97b3db921bfd6f61f24e3018098c417c2f34ddcadce3f0b3245eac0de",
+      "member_count": 1497,
+      "regular_files": 1328,
+      "unpacked_member_bytes": 57764034,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 2.223
+    },
+    {
+      "path": "src/third_party/breakpad/breakpad",
+      "repository": "https://chromium.googlesource.com/breakpad/breakpad.git",
+      "revision": "868abe6f016cfeabfb7208681e89031ae667c336",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__breakpad__breakpad-868abe6f016cfeabfb7208681e89031ae667c336.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/breakpad/breakpad.git/+archive/868abe6f016cfeabfb7208681e89031ae667c336.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 5878228,
+      "size": 5879310,
+      "sha256": "272ce6a60c351cafce3f50729cfd61e90fb29b2e69f69a58d74ea19ca4d00419",
+      "member_count": 1085,
+      "regular_files": 927,
+      "unpacked_member_bytes": 30011369,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.352
+    },
+    {
+      "path": "src/third_party/libvpx/source/libvpx",
+      "repository": "https://chromium.googlesource.com/webm/libvpx.git",
+      "revision": "5e680f30801d03c21078f8c4b772464752516211",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__libvpx__source__libvpx-5e680f30801d03c21078f8c4b772464752516211.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/webm/libvpx.git/+archive/5e680f30801d03c21078f8c4b772464752516211.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 5718252,
+      "size": 5723505,
+      "sha256": "e7bfdf7bdb068c83070e9638e0f06e9a1140d8f02c811ce03222e459db3eb9a2",
+      "member_count": 1343,
+      "regular_files": 1258,
+      "unpacked_member_bytes": 24832407,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.142
+    },
+    {
+      "path": "src/third_party/oak/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/project-oak/oak.git",
+      "revision": "14031232cec7d3d454e89bbae36404d74abf18dc",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__oak__src-14031232cec7d3d454e89bbae36404d74abf18dc.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/project-oak/oak.git/+archive/14031232cec7d3d454e89bbae36404d74abf18dc.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 5459278,
+      "size": 22863403,
+      "sha256": "4c3cd507f75b008e0c804e0c0759a2a5d8ff855d00eff3784951a77fbb146e2b",
+      "member_count": 2745,
+      "regular_files": 2094,
+      "unpacked_member_bytes": 87633391,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 5.285
+    }
+  ],
+  "scope": "Every input tar member validated; all regular bytes hashed; source collection still incomplete until final assembly, supplemental and patch gates."
+}

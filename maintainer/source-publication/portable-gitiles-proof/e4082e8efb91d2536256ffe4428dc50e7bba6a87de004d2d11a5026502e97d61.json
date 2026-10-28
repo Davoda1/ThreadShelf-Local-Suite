@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__gemmlowp__src-16e8662c34917be0065110bfcd9cc27d30f52fdf.tar.gz",
+  "archive_bytes": 847640,
+  "archive_sha256": "e4082e8efb91d2536256ffe4428dc50e7bba6a87de004d2d11a5026502e97d61",
+  "revision": "16e8662c34917be0065110bfcd9cc27d30f52fdf",
+  "repository": "https://chromium.googlesource.com/external/github.com/google/gemmlowp.git",
+  "root_git_tree": "c624d80dca3991dceaebb120b9659c73e273baaa",
+  "blob_count": 145,
+  "git_tree_count": 21,
+  "member_count": 165,
+  "regular_file_bytes": 5458426,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 141,
+    "100755": 4
+  },
+  "source_blob_inventory_sha256": "2866bd4608ad4752b963021516038f21bb4b3cb9b69b5b5d1ec9bd33f93d38cb",
+  "archive_mtime_range": [
+    1793146207.001,
+    1793146207.325
+  ],
+  "metadata": [
+    {
+      "file": "metadata/f9ad0841088687e8cc859c33c968b1865a278ddf9dea8016b7fc58d1dfab64cd.json",
+      "url": "https://chromium.googlesource.com/external/github.com/google/gemmlowp.git/+/16e8662c34917be0065110bfcd9cc27d30f52fdf/?format=JSON",
+      "bytes": 3369,
+      "sha256": "523040c79a3b29d28cbc19a78cf3b162301e373504dfc90ed64ecb178904930a",
+      "git_tree": "c624d80dca3991dceaebb120b9659c73e273baaa",
+      "receipt": {
+        "file": "metadata/f9ad0841088687e8cc859c33c968b1865a278ddf9dea8016b7fc58d1dfab64cd.receipt.json",
+        "bytes": 242,
+        "sha256": "b4504b835893e039e9b915dca3d3436d1a28dc25d32df3352b359a94b94713fb"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/e4082e8efb91d2536256ffe4428dc50e7bba6a87de004d2d11a5026502e97d61.jsonl.gz",
+    "bytes": 13789,
+    "sha256": "d621c6f5d71650252c56de6dced0be792db045f9782cf93b0c8d18995366b054",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 47896,
+    "jsonl_sha256": "df7a35b4414d66d31566d38ab441c109502452903785b246d487f501a7dbe1a8",
+    "records": 167,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "8724ba549195965c2f053311d72305a8b82754432a224016e72693e41ecd32b0",
+    "bytes": 847608,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

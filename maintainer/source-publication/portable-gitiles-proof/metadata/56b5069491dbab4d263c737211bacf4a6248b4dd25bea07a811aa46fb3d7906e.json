@@ -1,0 +1,179 @@
+{
+  "id": "e240dc0bc54afd953256adbe67eb2f267beb9d86",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3ce91d27219304b9ffc3cfabca19d4e9c272eb7a",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0d9585493ef3b89648c64242f521a5952202b871",
+      "name": ".bcr"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f6cb8ad931f5442a5e2276ed66ba7b5a733b82c6",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4c7b815ccdb80851b3f421a1154edfdf02019bf2",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e18d082c69794cc3cebf58ddf0d9ccbf39765565",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "89a33095dd05174255cda989e690a3374ba709ad",
+      "name": "BUILD"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "709227c8641770d7d16d7b6c0e5f33fd1f41ac80",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "c71ef87cf3d2652b04c08f9370e38d067a11cb62",
+      "name": "CMakeLists.txt.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "24e83ee578dc110bbc8c0627f3d2412ad5b0ef3a",
+      "name": "CONTRIBUTING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1af4f15ca709c0e74e610c09fe91022f354aea58",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1aeffe213dbfa1e6c6ee04a36f18eec96398c91f",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ba78a9de854ce03e59c494672a2b5db0065deea4",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8dab288d06127ce3804e985a48db47e6edb15eff",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a0942e7b8783857923ca78ce201b755cffba13cb",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "84b5c5af515a11f80d3b1afc16b0fc170f79a1f2",
+      "name": "debian"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1778bc8f14fb9574dff7fac3b2d0a81d50cc2a5b",
+      "name": "docs"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b2f1fc4f7496a42dc04a02f0fd41ac2179d4db31",
+      "name": "g3doc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f922010b293ec596585b97c8a31c3b86a9053f36",
+      "name": "hwy.gni"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e7b3932cfff5be5b58996b91b98f03c05e269197",
+      "name": "hwy"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1419c5f1ead8d9b049f5464b22a20a0aa8447134",
+      "name": "hwy_tests.bzl"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "afc549fef1bbc7794a8e358c36b5d28805aa6ab9",
+      "name": "libhwy-contrib.pc.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "57d89a33407970f7035cea82bfbc30df6c45d293",
+      "name": "libhwy-test.pc.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "643989275df8fe1f4c5d3543048b8e61f6225237",
+      "name": "libhwy.pc.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "18ca70cd062672dcb3827f50d7ba24f897eb0a1d",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f061850065dd84be4c0aa635f4375bd457829a85",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f484a19d2c691587fa6b7039af7e04ceaea36c6b",
+      "name": "preamble.js.lds"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "26600a2c4f7029e6912e48131269e7d561799cae",
+      "name": "run_tests.bat"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "e3d78c049a3f1c91dccde73f994801d920501726",
+      "name": "run_tests.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c3da497b4be3e350203877a581c172207b1fab30",
+      "name": "subprojects"
+    }
+  ]
+}

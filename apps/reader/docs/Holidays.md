@@ -41,8 +41,8 @@ invalid date, missing rule data or evaluation error leaves ordinary waves active
 
 ## Offline rules and limits
 
-The bundled JSON contains date-holidays **3.37.0** rules from **2026-09-20**,
-evaluated by date-holidays-parser **3.4.7**: 207 country/territory entries and 3,286
+The bundled JSON contains date-holidays **3.38.0** rules from **2026-10-24**,
+evaluated by date-holidays-parser **3.4.7**: 207 country/territory entries and 3,288
 national public rules. Regional, state, school, optional and bank-only categories
 are excluded unless classified as national public holidays by the upstream data.
 Observed substitutes, durations, active periods and known one-off exceptions are

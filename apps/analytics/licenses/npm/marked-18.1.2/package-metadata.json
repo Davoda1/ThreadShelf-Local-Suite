@@ -1,0 +1,12 @@
+{
+  "name": "marked",
+  "version": "18.1.2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markedjs/marked.git"
+  },
+  "retainedNotices": [
+    "LICENSE"
+  ]
+}

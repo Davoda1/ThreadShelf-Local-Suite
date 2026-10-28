@@ -1,0 +1,69 @@
+{
+  "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip",
+  "bytes": 635147477,
+  "sha256": "2077e5946ef77da0b922bb4ac2a0b256731102cdc9bad97b5cac7034bbcb8c41",
+  "source_count": 3,
+  "sources": [
+    {
+      "path": "src/third_party/devtools-frontend/src",
+      "repository": "https://chromium.googlesource.com/devtools/devtools-frontend",
+      "revision": "bf69d041b0ad1f74730204a73bff29f3ef1d4ead",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__devtools-frontend__src-bf69d041b0ad1f74730204a73bff29f3ef1d4ead.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/devtools/devtools-frontend/+archive/bf69d041b0ad1f74730204a73bff29f3ef1d4ead.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 275138278,
+      "size": 279509475,
+      "sha256": "d229ea76c08295edfb542db83a77897531604bd8ef608b96a5b81cde6a4d781f",
+      "member_count": 34295,
+      "regular_files": 30655,
+      "unpacked_member_bytes": 607498627,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 28.838
+    },
+    {
+      "path": "src/third_party/jetstream/main",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git",
+      "revision": "c603c04db8505477867974a69789309ded2cc948",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__jetstream__main-c603c04db8505477867974a69789309ded2cc948.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/JetStream.git/+archive/c603c04db8505477867974a69789309ded2cc948.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 194438092,
+      "size": 194436288,
+      "sha256": "47d2c46e146d12c2d604c96f58f4a7b9fd11d2b0239419b26d75f27d84fb92c4",
+      "member_count": 1100,
+      "regular_files": 961,
+      "unpacked_member_bytes": 485785970,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 33.036
+    },
+    {
+      "path": "src/third_party/catapult",
+      "repository": "https://chromium.googlesource.com/catapult.git",
+      "revision": "f411808cd159db5e47be79ebee59fffca3da1bd4",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__catapult-f411808cd159db5e47be79ebee59fffca3da1bd4.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/catapult.git/+archive/f411808cd159db5e47be79ebee59fffca3da1bd4.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 161261750,
+      "size": 161198036,
+      "sha256": "edb568eeb85a6b13046635ed2c46fd8dc9ec146ef85032f86614c57972d2ad70",
+      "member_count": 9275,
+      "regular_files": 8206,
+      "unpacked_member_bytes": 540115934,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 24.502
+    }
+  ],
+  "scope": "Every input tar member validated; all regular bytes hashed; source collection still incomplete until final assembly, supplemental and patch gates."
+}

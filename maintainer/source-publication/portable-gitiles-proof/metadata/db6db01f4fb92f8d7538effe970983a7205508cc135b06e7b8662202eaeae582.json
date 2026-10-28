@@ -1,0 +1,269 @@
+{
+  "id": "3657c37b75d659dc69aa2f13da5c68f5270fddb8",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "394685d33a030aecd6f986edcdcdd8c7ce93b55c",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "71043af1eb687b9d75329fd4c3cee18e56cc23c3",
+      "name": ".cmake-format.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa5a76cf9728a2bfd83cc37828c6520326cef436",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "096b9467266b7535c7f29944485df51602c16e1c",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "376fd58331d33090cf29458be6e737d645d86451",
+      "name": ".mailmap"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4658b844b806ea7d155ae8530c31a6a2a952fed4",
+      "name": ".pylintrc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0be981a4867039beebe75a1a5b21afa1e31d2cf3",
+      "name": ".style.yapf"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6fe9552cd0e4b0b30e77ebd4d3620ca1ced95e03",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f1e9ad803047167acf9a8c8402e8e6689eb9916f",
+      "name": "Android.mk"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "96c7de95a614ebe386df63a377345642ba9b8cc7",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "147fc1980a064a0f4697454da2cb3e4720f40944",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7a6f99547d4d6b4c5e6d5321acfaeba313e08de3",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0d53a3200b036b2829b139bad94f26a2460847c1",
+      "name": "ChangeLog"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e1c1dd4046314bf6aca335e16133c64cb52ad429",
+      "name": "Makefile.am"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "773bab19d1195317c7994358391c95a83b2f82a6",
+      "name": "Makefile.vc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fa4f977ab94f3e6fb89fc66152ffb94e2b6a05d4",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "caedf607e95ae4c3dc84d057fddcc301cd0e4863",
+      "name": "PATENTS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "91ad12e151afc6d8e0c01869b23bf627f9d3f2e8",
+      "name": "PRESUBMIT.py"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5732f78e229fd1efc4c9adf791eb2f01179dfb48",
+      "name": "README.md"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "8ef9babbae6f795050dfa8157c4478042b9e0746",
+      "name": "autogen.sh"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "14ceebf78c752c573c0d0fc827261bc02a8db50a",
+      "name": "build.gradle"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3433293e16ed1cb0447f8c0336e4af7a86a8fe63",
+      "name": "cmake"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ccba2eeed2467cde06dbdb8aea39f499bdc105cb",
+      "name": "codereview.settings"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "292a062a7bb5b6002d1d19b091d3d601dc6c9155",
+      "name": "configure.ac"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a526d2cd982a345d5c849f2a73143b01ce8826d2",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7207f780c639c0982f481bd38e73fe81d654d32b",
+      "name": "examples"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d7c08ee8a83eabbf15bbd35f059df078c7339ef1",
+      "name": "extras"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "20f1fba8c9e11b2a397aa2e0db1fa29d9cbe6583",
+      "name": "fuzzer"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "28d39f5dfece48c7a0c3a77d77c565e9a45651bd",
+      "name": "gradle.properties"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "67805990a6ef9278e5f84edd716a19fae2d909a2",
+      "name": "gradle"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "2fe81a7d95e4f9ad2c9b2a046707d36ceb3980b3",
+      "name": "gradlew"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9618d8d9607cd91a0efb866bcac4810064ba6fac",
+      "name": "gradlew.bat"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "27cd9ebe0a578e7dcc913c2c4a8905b20c6ef460",
+      "name": "imageio"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "50083fc857f1a126baaffc701b118bf734803c6e",
+      "name": "infra"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "62cb8dcbac713fc31d5f75352f3dca8ed46d5125",
+      "name": "iosbuild.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "13b472af068b5f95ec137ab7ee98978b78d21c68",
+      "name": "m4"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "70f97ff20757c9707580efc726a4438cb1a6575e",
+      "name": "makefile.unix"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5fc2a31fdcd6596a4e624d9fcfdad9bcf93e9aac",
+      "name": "man"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c270e47c745491d0630f3fd6b845c58f948a12a0",
+      "name": "sharpyuv"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "cd99ff84d72448eb6d39b6c68377eea9ca8a0d52",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4cbf9ef8ea4495990b6652776e728df40c891db1",
+      "name": "swig"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8b83a81af4fe5caee1085ee76d39adb05446b4a4",
+      "name": "tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "280a924eefb98e02f346decef1196a339dbbb61b",
+      "name": "webp_js"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "3c1c56cbb5484986329d4ce686213b069c1598c1",
+      "name": "xcframeworkbuild.sh"
+    }
+  ]
+}

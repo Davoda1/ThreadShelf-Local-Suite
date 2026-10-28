@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "asset_id": 683172441,
+  "part_bytes": 1482655137,
+  "part_sha256": "8c35cf6499376237a00e1eaafbd0a884be4d284bf25633dc741c6e406e4fa81d",
+  "inner_bytes": 1482617435,
+  "inner_sha256": "5ccf3d4a73783edc9341b0a570655a619fee9a7108dbccc4b80ff3c44d59a33c",
+  "scope": "Corrected complete original-source index regenerated from exact uploaded source part; outer and inner byte counts and SHA256 verified."
+}

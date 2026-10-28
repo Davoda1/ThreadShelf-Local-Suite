@@ -1,0 +1,239 @@
+{
+  "id": "aa3bb4e2d715fbd071aa62b00655511342cb0d9e",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5f1611c5e5c3f509029455c7ca7213d6829d431c",
+      "name": ".clang-format"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "610642c6deb104b66f7af20ec43483d872ff43a3",
+      "name": ".dir-locals.el"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "412d40c05ab92c45d8183d00da818b325f4229f3",
+      "name": ".dockerignore"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "442c36202351bb8ae99fe132b6545806ba009b73",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "61a7ca876e07dac1a2535b71be7bb5145fdca406",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "00ede0b97a6b3f7888a04eaab0f83c72b1d9d039",
+      "name": "ANNOUNCEMENT"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e93cd76295f2bc414be54d5b941b8b80328f60e3",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "94a9ed024d3859793618152ea559a168bbcbb5e2",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4362b49151d7b34ef83b3067a8f9c9f877d72a0e",
+      "name": "COPYING.LESSER"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "31e92e1ea9373a202a2485fc488099c28913cf87",
+      "name": "ChangeLog"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a05410f02994fca1efbebf3901933f900c56c92a",
+      "name": "Dockerfile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e70c3cadc595fe3bbecade9fc876afcd30dcbabb",
+      "name": "Dockerfile.win32"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4f5ab0f8cfb311152b4c8081685f9049b7ea0d34",
+      "name": "Dockerfile.win64"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ec92be61d87e1066d82b79e0c95db273f1b4ecdc",
+      "name": "Doxyfile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "14bce1c4b379313f4195c5f2d424c76c20f28d8a",
+      "name": "HACKING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "19e307187ac8b9abc086be686dc81b0f09523ef1",
+      "name": "License.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "00abf815640eaab3de1c37733b26b7770c13c54e",
+      "name": "Makefile.am"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7ccabb644431712f75d60bdfaf91e5aeda422cd4",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b44b4755f1917d818a59b0703a65bc520d3c8bec",
+      "name": "README"
+    },
+    {
+      "mode": 40960,
+      "type": "blob",
+      "id": "100b93820ade4c16225673b4ca62bb3ade63c313",
+      "name": "README.org"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6547c4d42900d85622238dc68dcb9caa02253d96",
+      "name": "README.windows"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9b766af6414d6cc0501672cf990d4792d12dde97",
+      "name": "TODO"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "cb554320d1fd5bada6277a33c841e135ca4bc6b1",
+      "name": "autogen.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b4dc875d001183c10996087af9cce01dec5e2618",
+      "name": "build-aux"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "14060cbb952f15b8a2a82f11642c0fe296b8cc80",
+      "name": "configure.ac"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7b06bc849473ae83b608a3c3a6e8efaaa8a3ac97",
+      "name": "contrib"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3122d44260fddecf1ac5abe777caa64d5cb70c23",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "0c1d2d61463b7f4af0c5dc8de349c50de0cb5385",
+      "name": "extra"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7955c0658d4a6afcb398c0713e936ece94ddcff8",
+      "name": "gnulib"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "65881b9726a09e1020b4dd7ba1a343d5688a6540",
+      "name": "liblouis.pc.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b16d234480cd4c8100cfafd756b9264bb6406985",
+      "name": "liblouis"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f86f26cf17f1051c4ddbf6cbdd05e84c03af8bd1",
+      "name": "libyaml_mingw.patch"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d564d0bc3dd917926892c55e3706cc116d5b165e",
+      "name": "m4"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5dbe17142a9e587d7822ad84e3988dd72c4fa15d",
+      "name": "man"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f03aef90ec40a1feb57639fc1184743b273edf0f",
+      "name": "python"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "d898336ab446a262236358d6a0fa40ab6ac518e7",
+      "name": "tables"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "976c97ae98af22e73e16c1d5089d5f7d9c141d3b",
+      "name": "tests"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4474fe22cc1d3e960bd7291d4d68b1a7781dc87a",
+      "name": "tools"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ade76d5786a5b76d5fca31e23ee93d8151e09639",
+      "name": "windows"
+    }
+  ]
+}

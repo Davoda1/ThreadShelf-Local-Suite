@@ -1,0 +1,143 @@
+{
+  "id": "7832a6a9c86aa935e29c35ca78a809095f94c67e",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "88f458588294e1c0e3d92e6e691866b08b202a76",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b8d794f93a51b9a7ddac5b0f562100aac7e15bf7",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5049b8da54ebc3938061d83e55b5b98c6928d4bb",
+      "name": "CHANGELOG.rst"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4f0d1ea9071fea60840125ecea318937f3e8c619",
+      "name": "ENTERPRISE.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3105888ec149d10cad51c11d332779e94b548661",
+      "name": "LICENSE.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "23cda9fea9a72d0e6fb6ff0026582ea9a6dfb0db",
+      "name": "Makefile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "324f29d24781161694a634648f9a5e8676ba79de",
+      "name": "README-hacking.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0b6e52a42806f11d57b539b72670cb3e2573ad5a",
+      "name": "README.rst"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b058cac1d8dcd45bdb31554c86007975fbb460c0",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "53ba3314bca7551aa21388dbe3daab7576153313",
+      "name": "bootstrap.ps1"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bf26ebac438dee7ecb4b2aac6c8cda5d5ab569f8",
+      "name": "build.ps1"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a2a59af33ed05cc7d2d48e3677eb61bedfc78dba",
+      "name": "clean.ps1"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ac5e99a82cde02bafbda27d1f905eb64932fe1f5",
+      "name": "colorama"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f358b64299882a330fde3f4d13a2b62a7d1fe305",
+      "name": "demos"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7f5397889ad27fdc5a80c7e9c977ee406b1b094e",
+      "name": "pyproject.toml"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a9753bd906444e87a498a1deec062ff325b5b9b1",
+      "name": "release.ps1"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2f92fc49eb0a37ad970f8f6a1ad08a40b19c19f7",
+      "name": "requirements-dev.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6305ed30c07eae7e4892901f0c91b6e524d5a290",
+      "name": "requirements.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "185da20cf9f44b44edfadf0395110a527aa49afa",
+      "name": "screenshots"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d7bf091a72e3cb0bbfa96e6812c64ef03a8ce5a4",
+      "name": "test-release"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7fbdcc988db2dd449e7345403b43175c68ba5dbe",
+      "name": "test-release.ps1"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "03ea144f1a357e2533e3e613945a68438f044fb9",
+      "name": "test.ps1"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0f7e3a3b36cf7e585c9a5db7c642a2e875f4531c",
+      "name": "tox.ini"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__wuffs__src-7411f488fe2e2c205c3d3b3d28638b7356522930.tar.gz",
+  "archive_bytes": 778622,
+  "archive_sha256": "b1c4a6a74cf91ddb629847e1a4bd0132ac09ac5659814092c5b464811163854c",
+  "revision": "7411f488fe2e2c205c3d3b3d28638b7356522930",
+  "repository": "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git",
+  "root_git_tree": "535c20875e1845cd04718e27b6a34ae84e2d5328",
+  "blob_count": 14,
+  "git_tree_count": 6,
+  "member_count": 19,
+  "regular_file_bytes": 5917182,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 13,
+    "100755": 1
+  },
+  "source_blob_inventory_sha256": "6da1d1f7947c23f506af37efa3adfe87849f05df120a2ea0873b1afba63765e5",
+  "archive_mtime_range": [
+    1793146220.063,
+    1793146220.333
+  ],
+  "metadata": [
+    {
+      "file": "metadata/de5595a7702022dc8fd567cffca7407cc4df88f646cda2980d15582df3e296a9.json",
+      "url": "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git/+/7411f488fe2e2c205c3d3b3d28638b7356522930/?format=JSON",
+      "bytes": 1308,
+      "sha256": "4c6ea61025bbd2aa2df3fca45ed3e8d1af1cfa401d2a987a886439fcdf7b46dd",
+      "git_tree": "535c20875e1845cd04718e27b6a34ae84e2d5328",
+      "receipt": {
+        "file": "metadata/de5595a7702022dc8fd567cffca7407cc4df88f646cda2980d15582df3e296a9.receipt.json",
+        "bytes": 252,
+        "sha256": "9b43fcb789aca05f35fe9ac101db36958f1af365ae70eaef038abf8d116a935e"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/b1c4a6a74cf91ddb629847e1a4bd0132ac09ac5659814092c5b464811163854c.jsonl.gz",
+    "bytes": 1789,
+    "sha256": "a0f0af1f60a06985c114210a76a51b2fc689beb5fa88d491a328bd307921a1ef",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 5369,
+    "jsonl_sha256": "41b2f1b7a50e645cbd21794c1178a948834763b2c797a8de21ec47e1c2b8c695",
+    "records": 21,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "ba29882f318b0a2a08b2e86181a563f9f1e041511cf4df8e6107840e832bf6cb",
+    "bytes": 778614,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

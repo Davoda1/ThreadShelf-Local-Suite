@@ -1,0 +1,77 @@
+{
+  "id": "344fb8e5885ab196e438c0d97b52cdd2c9152077",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "afba86403c25e324c4317508842327932256320c",
+      "name": "Android.bp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d71f15fcda6b926c84f4e55efa761bd8d5985639",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "44378268be1b87777827ab64b1ea2d98e808850e",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a62b0fdc4217c5012cf35a7cd8bc7c3b350a697e",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "12fbd83310464a286b88b5c782e3de48c3b5af2d",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a24d8dc968ee47eed90f57f23c8b123f6c4ef141",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5a2bce6e5d43c17c48faa6de1669ee2810b2584a",
+      "name": "googletest"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3ad0d04488f155d037e80a20f56c2a6da5e57423",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7ca3979bcfef6a6573f9e62e88c98949c96f2c7e",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a6ed5d3ba743c4b1533b23610438a1be4a790033",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "290725d30ab75c112e8374e18d6ebf6f794eb205",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "c08ccf7293dacb515b0172a7a3aa86ea424baa35",
+      "name": "test"
+    }
+  ]
+}

@@ -1,0 +1,346 @@
+[
+  {
+    "file": "lib/browser/api/auto-updater/auto-updater-msix.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/auto-updater/auto-updater-win.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+    "module": "child_process"
+  },
+  {
+    "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/browser/api/auto-updater/squirrel-update-win.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/browser/api/clipboard-item.ts",
+    "module": " +\n          "
+  },
+  {
+    "file": "lib/browser/api/net-fetch.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/browser/api/power-monitor.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/protocol.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/browser/api/protocol.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/browser/api/protocol.ts",
+    "module": "stream/web"
+  },
+  {
+    "file": "lib/browser/api/protocol.ts",
+    "module": "stream/web"
+  },
+  {
+    "file": "lib/browser/api/protocol.ts",
+    "module": "stream/web"
+  },
+  {
+    "file": "lib/browser/api/screen.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/shared-texture.ts",
+    "module": "crypto"
+  },
+  {
+    "file": "lib/browser/api/touch-bar.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/utility-process.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/api/utility-process.ts",
+    "module": "net"
+  },
+  {
+    "file": "lib/browser/api/utility-process.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/browser/api/web-contents.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/browser/api/web-contents.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "v8"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "v8"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "internal/modules/run_main"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "@node/lib/internal/modules/run_main"
+  },
+  {
+    "file": "lib/browser/init.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/browser/ipc-main-impl.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/common/api/net-client-request.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/common/api/net-client-request.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/common/init.ts",
+    "module": "timers"
+  },
+  {
+    "file": "lib/common/init.ts",
+    "module": "util"
+  },
+  {
+    "file": "lib/common/init.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/common/init.ts",
+    "module": "stream"
+  },
+  {
+    "file": "lib/common/init.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/common/node-events.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "buffer"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "util"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "crypto"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "os"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/bootstrap/realm"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/fs/utils"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "@node/lib/internal/fs/utils"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/util"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "@node/lib/internal/util"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/validators"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "@node/lib/internal/validators"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/errors"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "@node/lib/internal/errors"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "internal/url"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "crypto"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "os"
+  },
+  {
+    "file": "lib/node/asar-fs-wrapper.ts",
+    "module": "child_process"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "fs"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "child_process"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "internal/child_process"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "@node/lib/internal/child_process"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/node/init.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "internal/modules/helpers"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "@node/lib/internal/modules/helpers"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "internal/modules/run_main"
+  },
+  {
+    "file": "lib/renderer/init.ts",
+    "module": "@node/lib/internal/modules/run_main"
+  },
+  {
+    "file": "lib/utility/api/local-ai-handler.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "events"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "url"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "stream/web"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "stream/web"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "internal/modules/run_main"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "@node/lib/internal/modules/run_main"
+  },
+  {
+    "file": "lib/utility/init.ts",
+    "module": "internal/bootstrap/realm"
+  },
+  {
+    "file": "lib/worker/init.ts",
+    "module": "path"
+  },
+  {
+    "file": "lib/worker/init.ts",
+    "module": "module"
+  },
+  {
+    "file": "lib/worker/init.ts",
+    "module": "internal/modules/helpers"
+  },
+  {
+    "file": "lib/worker/init.ts",
+    "module": "@node/lib/internal/modules/helpers"
+  }
+]

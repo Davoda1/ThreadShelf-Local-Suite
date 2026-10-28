@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__chrome__test__data__perf__canvas_bench-a7b40ea5ae0239517d78845a5fc9b12976bfc732.tar.gz",
+  "archive_bytes": 19486320,
+  "archive_sha256": "40615907487adda8cde1ec3735ccae9d8f6d4571d7b56202c646b6e37af61916",
+  "revision": "a7b40ea5ae0239517d78845a5fc9b12976bfc732",
+  "repository": "https://chromium.googlesource.com/chromium/canvas_bench.git",
+  "root_git_tree": "edf33faa2362240de3b5887cd23a4d9af71d958e",
+  "blob_count": 405,
+  "git_tree_count": 2,
+  "member_count": 406,
+  "regular_file_bytes": 19422875,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 404,
+    "100755": 1
+  },
+  "source_blob_inventory_sha256": "8a05100c140668985e6c5c61b1f58302902c1efc5b97dcdd6d80dc20b7b632e4",
+  "archive_mtime_range": [
+    1793145247.958,
+    1793145248.838
+  ],
+  "metadata": [
+    {
+      "file": "metadata/fce4f03735206b92acc640ab068c43782c3a5820eec0b32982f9d09628b3e785.json",
+      "url": "https://chromium.googlesource.com/chromium/canvas_bench.git/+/a7b40ea5ae0239517d78845a5fc9b12976bfc732/?format=JSON",
+      "bytes": 776,
+      "sha256": "4cb7b0c9a71a46c8015b87809b6aabf6f702b6c2c57718938245c8341dbb9d04",
+      "git_tree": "edf33faa2362240de3b5887cd23a4d9af71d958e",
+      "receipt": {
+        "file": "metadata/fce4f03735206b92acc640ab068c43782c3a5820eec0b32982f9d09628b3e785.receipt.json",
+        "bytes": 227,
+        "sha256": "2430df90d6951092080fd601f98ceb51dc8cb4f3653bfe26e783c186832d9b7d"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/40615907487adda8cde1ec3735ccae9d8f6d4571d7b56202c646b6e37af61916.jsonl.gz",
+    "bytes": 41761,
+    "sha256": "167325db8f555356d94a245dfd03b46ee6e658f24d7f051aff5ec835be8d97c6",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 119416,
+    "jsonl_sha256": "48a715f4909ba1d0eea62ba1d9abf961f0e29f0000ea3788658a5b2146432563",
+    "records": 408,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "48901d573f22fd0076a4f23409e666d6c5c818c5fe342aba6ff926e67a9ba90f",
+    "bytes": 19486387,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

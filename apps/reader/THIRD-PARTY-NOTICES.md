@@ -11,20 +11,20 @@ Existing upstream copyrights and license terms continue to apply.
 | --- | --- |
 | ThreadShelf adaptations and fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. See `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
 | Conversation renderer, export-converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
-| Electron 44.9.1 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
+| Electron 45.1.0 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
 | Chromium and Electron's bundled native components | Multiple licenses; original `LICENSES.chromium.html` is retained beside the executable. |
-| Mermaid 11.17.2 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.18.2; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |
+| Mermaid 12.2.0 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.19.1; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |
 | MathJax 3.2.1 | Apache-2.0; The MathJax Consortium. The versioned upstream source notice includes Copyright (c) 2017–2022 The MathJax Consortium. See `licenses/MathJax-Upstream-LICENSE.txt` and the preserved source in `licenses/MathJax-3.2.1-MathDocument.ts`. |
 | highlight.js | BSD-3-Clause; Copyright (c) 2006 Ivan Sagalaev. See `licenses/highlight.js-LICENSE.txt`. |
 | Ayu code-palette adaptation | MIT; Copyright (c) Konstantin Pschera <me@kons.ch> (kons.ch). See `licenses/Ayu-MIT.txt` and the palette provenance below. |
 | Noto Sans JP Japanese font | SIL Open Font License 1.1; Copyright 2014–2021 Adobe, with Reserved Font Name “Source”. See `licenses/NotoSansJP-OFL.txt` and `licenses/NotoSansJP-provenance.json`. |
 | marked | MIT; Copyright (c) 2018+ MarkedJS and 2011–2018 Christopher Jeffrey, with the original Markdown BSD notice for Copyright (c) 2004 John Gruber. See `licenses/marked-LICENSE.md`. |
 | Hugging Face Transformers.js and Tokenizers | Apache-2.0; Hugging Face. Their npm license files remain in `resources/app/node_modules/`. |
-| ONNX Runtime | MIT; Copyright (c) Microsoft Corporation. The separately preserved official license is `licenses/ONNX-Runtime-MIT.txt`; the npm packages do not each supply a standalone license file. |
+| ONNX Runtime 1.31.1 (Web, Node and common) | MIT; Copyright (c) Microsoft Corporation. See `licenses/ONNX-Runtime-MIT.txt`, retained upstream `licenses/ONNX-Runtime-ThirdPartyNotices.txt`, and [source provenance](licenses/ONNX-SOURCE-ACCESS.md). |
 | sharp and the prebuilt native/WASM packages | Apache-2.0 for sharp; Copyright 2013 Lovell Fuller and others. Native/WASM dependencies include **LGPL-3.0-or-later** and additional licenses; see below. |
 | zip.js | BSD-3-Clause; Copyright (c) 2023 Gildas Lormeau. The npm license remains with the package. |
 | parse5 | MIT; Copyright (c) 2013–2019 Ivan Nikulin. The npm license remains with the package. |
-| ThreadShelf offline holiday rules/evaluator | Rules adapted from date-holidays 3.37.0 under CC BY-SA 3.0; date-holidays-parser 3.4.7 under ISC and the parser dependencies retain their own licenses. See `licenses/HOLIDAY-LICENSES.txt`, `licenses/holiday-provenance.json` and `docs/Holidays.md`. |
+| ThreadShelf offline holiday rules/evaluator | Rules adapted from date-holidays 3.38.0 under CC BY-SA 3.0; date-holidays-parser 3.4.7 under ISC and the parser dependencies retain their own licenses. See `licenses/HOLIDAY-LICENSES.txt`, `licenses/holiday-provenance.json` and `docs/Holidays.md`. |
 | IANA timezone-country map | Public domain IANA 2026e inputs; original comments, provenance and deterministic generator retained under `scripts/timezone-data/`. |
 
 The exact npm package/version/license declarations are recorded in
@@ -141,24 +141,19 @@ comprehensive legal audit of Chromium or a substitute for upstream terms.
 
 ## Electron runtime source access
 
-All three suite applications use Electron **44.9.1** / Chromium
-**152.0.7977.167**. The release
-[native-source companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz)
-mirrors the matching FFmpeg fork, Blink renderer/interfaces/tools, selected
-Chromium-modified Mozilla sources, and the identified Electron patches and build
-inputs. [Runtime source access and rebuild instructions](licenses/ELECTRON-SOURCE-ACCESS.md)
-provide exact complete upstream source retrieval, relinking/replacement directions,
-license selections and availability-maintenance instructions.
+The 1.3.0 candidate uses Electron **45.1.0**, Chromium **156.0.8078.49** and
+embedded Node.js **24.22.1**. Original runtime notices remain intact.
+[Runtime source access and rebuilding](licenses/ELECTRON-SOURCE-ACCESS.md)
+records the exact upstream revisions and source preparation status.
 
-Original runtime notices remain intact. LGPLv3 is selected only where the
-original grant permits that later version; Blink
-`platform/wtf/text/base64.cc` retains the original LGPL version 2 grant. The
-companion includes that exact source and records the reviewed per-file selections.
-The separate **numbered Runtime-Sources parts**, available from the
-[v1.0.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0),
-mirror the complete pinned Electron/Chromium Git dependency trees selected for
-Linux x64 and Windows x64, plus the supplemental source and release build data
-recorded in the manifests. Normal compiler, SDK and build-tool prerequisites
-remain separate. Preserve the suite Source archive, Native-Sources companion
-and **every** Runtime-Sources part with the matching binary downloads; the
-runtime source-access document explains verification, assembly and rebuilding.
+The complete matching runtime source companion is still pending; publication
+of the new binaries is blocked until it is assembled, verified and supplied
+beside them. The historical v1.0.0 runtime mirror covers Electron 44.9.1 and
+must not be represented as matching source for 45.1.0. The unchanged Reader
+sharp/libvips source materials retain their separate versioned provenance.
+
+Original license grants continue to apply. Chromium's Blink
+`platform/wtf/text/base64.cc` retains its original LGPL version 2 grant without
+an “or later” option; the new source was checked and its hash retained. The
+old per-file license-selection index cannot be reused as evidence for the new
+Chromium source. Preserve original notices and complete corresponding sources.

@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "archive": "src__third_party__fadec__src-c9f78f532b9004de278489019ab2c6c28ae9746e.tar.gz",
+  "archive_bytes": 121733,
+  "archive_sha256": "2b0c73850e7c5a9aecce1fad879ed5f5dc0c796e2861ba2125746bf3d423b6e4",
+  "revision": "c9f78f532b9004de278489019ab2c6c28ae9746e",
+  "repository": "https://chromium.googlesource.com/external/github.com/aengelke/fadec.git",
+  "root_git_tree": "386ddffc8ba27b168f4e9ec6dd1bc2a6b24a3a75",
+  "blob_count": 25,
+  "git_tree_count": 3,
+  "member_count": 27,
+  "regular_file_bytes": 775648,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 25
+  },
+  "source_blob_inventory_sha256": "e1f58941b3616968153c05420f8702c2c8db70c1935ad5947ee73f4e9a8760c5",
+  "archive_mtime_range": [
+    1793146459.655,
+    1793146459.675
+  ],
+  "metadata": [
+    {
+      "file": "metadata/ccec10635fc59059fcce732646e5e16d14d326d9ec19d9768c13153488326b82.json",
+      "url": "https://chromium.googlesource.com/external/github.com/aengelke/fadec.git/+/c9f78f532b9004de278489019ab2c6c28ae9746e/?format=JSON",
+      "bytes": 3585,
+      "sha256": "9dc098b8c7751de7dff5c1544584a20efd906f5b23f0beb45a4ca4637c82b7a0",
+      "git_tree": "386ddffc8ba27b168f4e9ec6dd1bc2a6b24a3a75",
+      "receipt": {
+        "file": "metadata/ccec10635fc59059fcce732646e5e16d14d326d9ec19d9768c13153488326b82.receipt.json",
+        "bytes": 241,
+        "sha256": "d56361d139ad683e5af609a1866340bf7e32c5a79c769ed5ae1d69070570f738"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/2b0c73850e7c5a9aecce1fad879ed5f5dc0c796e2861ba2125746bf3d423b6e4.jsonl.gz",
+    "bytes": 2547,
+    "sha256": "a2f3afdd1106fdf82fc4adfaa37fe6ee1943d05e38bca17ce46a6cc9598afa47",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 7848,
+    "jsonl_sha256": "c2561cac15f8ecf72b96ba6d0ae8ab4103ab3227a89fc80ab85243a55bdd269c",
+    "records": 29,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "408475e696dd539f71399141f25640a4ba51c0304f95f2bd3a16b0adc9055881",
+    "bytes": 121732,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

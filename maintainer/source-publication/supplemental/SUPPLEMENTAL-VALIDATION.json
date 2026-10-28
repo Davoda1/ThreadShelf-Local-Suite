@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "archives": [
+    {
+      "archive": "rust-stdlib-1edd55dcfcd573872c727fa3e086369a71661ee0.tar.gz",
+      "passed": true,
+      "members": 4685,
+      "regular_files": 3740,
+      "unpacked_regular_bytes": 73256626,
+      "size": 9472131,
+      "sha256": "73726c2eb11e92b8ebeaf99e9d0b2bd34d4d01e240a01d4d5c43caafea2aef67",
+      "source_record": "rust-source.json",
+      "source_record_sha256": "d10581118e957d9da4b8c0a79ab45b010e47c02221633b88b6781f93f567606f"
+    },
+    {
+      "archive": "chromium-node-modules-44f845cd5bd9d805cb1c73a98d5726b38ed8662a.tar.gz",
+      "passed": true,
+      "members": 6519,
+      "regular_files": 5331,
+      "unpacked_regular_bytes": 57905230,
+      "size": 11312049,
+      "sha256": "146cb2af600aa8cf80635592b65219fc94ff3deb384a46a41261405feb46c228",
+      "source_record": "node-build-source.json",
+      "source_record_sha256": "86bbddccca7c6bd1fcd5a15be56e5cd5ea7ac88e14666d649869a95c9271c4fc"
+    },
+    {
+      "archive": "llvm-toolchain-compiler-rt-62397f8b3c3986f54187ce08f00b3448ea1f8880.tar.gz",
+      "passed": true,
+      "members": 5142,
+      "regular_files": 4887,
+      "unpacked_regular_bytes": 41452558,
+      "size": 4907901,
+      "sha256": "ff542a47b1633b31140905fa71edf82232e563e39276736b3a2aa5a4a7dff1a6",
+      "source_record": "llvm-compiler-rt-source.json",
+      "source_record_sha256": "cc330f2141860e9b90fae2d6b8a1944e57937a4ef352dae612c754cb32ef73f0"
+    },
+    {
+      "archive": "wtl-10.1.0.tar.gz",
+      "passed": true,
+      "members": 21,
+      "regular_files": 21,
+      "unpacked_regular_bytes": 1394807,
+      "size": 253816,
+      "sha256": "cc4a6532649f75464ada0ffedc0f3297f050348e4e30b0a76102bf0a367370e0",
+      "source_record": "wtl-10.1.0.tar.gz.json",
+      "source_record_sha256": "1db715c574217c74001b7e132eff7aa10507e9ed105014051127e91b73120526"
+    },
+    {
+      "archive": "webview2-sdk-source-1.0.3856.49.tar.gz",
+      "passed": true,
+      "members": 2,
+      "regular_files": 2,
+      "unpacked_regular_bytes": 2743500,
+      "size": 183152,
+      "sha256": "d23e650af4db0d3d8d9c64221c336b0585983150aa637ce645204842726e7ae2",
+      "source_record": "webview2-sdk-source-1.0.3856.49.tar.gz.json",
+      "source_record_sha256": "17ec004073a6bba5e8d3582a6940937baa85fa2290d612b3c6df9eae80c6cbf9"
+    },
+    {
+      "archive": "agility-sdk-source-1.721.0-preview.tar.gz",
+      "passed": true,
+      "members": 45,
+      "regular_files": 45,
+      "unpacked_regular_bytes": 4563370,
+      "size": 526255,
+      "sha256": "1ccbce16040865d183ee056ae910fbb5f3ad1e3f2dc300aae69ae0efae84838d",
+      "source_record": "agility-sdk-source-1.721.0-preview.tar.gz.json",
+      "source_record_sha256": "66950633cb118c36944f133750ced1f9cd71c9587088a63f8872bb27a4d4ac0e"
+    }
+  ],
+  "combined_supplemental_file_destinations": 14026,
+  "overlaps": 0,
+  "windows_rust_source_parity": true,
+  "scope": "All six compressed archive sizes and hashes, regular source bytes, member/link safety, and mutual layout checked. Required notices must also match the complete Chromium Git tree during parent source assembly."
+}

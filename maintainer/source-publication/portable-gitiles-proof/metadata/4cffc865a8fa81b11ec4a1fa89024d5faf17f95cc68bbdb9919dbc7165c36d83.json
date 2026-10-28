@@ -1,0 +1,239 @@
+{
+  "id": "b7e02e09ad4a56bdaf5b4117f88f9214dae47700",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "673b332cef76b5c9164282f5299ad8962cf45567",
+      "name": ".bazelrc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4cda4e5df67dc7cb36011a8256e4eff2b1763ed7",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0c8cf0ef4663888a49104eb6308240c85a0f8c5f",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "06c3fd30149a933f98a3638cdcd5bb61d8c34fa2",
+      "name": ".gitmodules"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4858b377c74b1de6389be2f57e768310a162f5bb",
+      "name": "AUTHORS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "04d16b7cbabcc7812c80898677693c132a37f4fa",
+      "name": "BUILD.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b1d072ce04262b00ba1a2a381ff1e00dfb77ee80",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "66a60d5c86414a7c3487cfb9b2974e4c255a9a40",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "bd0e5971dbf09bd6b3213ea7248383d10f26dea2",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7b917ac6d579ba2cbae21dc79c57798a675a6d42",
+      "name": "MODULE.bazel"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "792a578001df6a2777df720e56e792f79d6db43a",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9b4a49405c50a0ff0c5ae8d726200f926afeac53",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7e60888b0a80676de08fb4acc8e16abb5f186de2",
+      "name": "WORKSPACE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "name": "WORKSPACE.bzlmod"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "007117fca08f4f91c8f40a2faf65fa3e8c8156e1",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "623f88517e0bcfaf7d42d445b7e60095c2517a0a",
+      "name": "docs"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "20db66c1f26b3f1850d7105344bc43216cbda7fb",
+      "name": "format_description.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "9764e83de663dc5c3eafada510ac9ccf85324ffb",
+      "name": "framing_format.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "473a0b097864f37e3ac4c474f7399a17675351c3",
+      "name": "snappy-c.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "32aa0c6b8b52b48c1120377abca3f96383b9a0e3",
+      "name": "snappy-c.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "ae78247dbbc9ed862b4c3cd34cd91cb839b1935d",
+      "name": "snappy-internal.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8214964a7ec0144de6f5caa7db97fa4e8057cca9",
+      "name": "snappy-sinksource.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3c74e1bb6e90e0ac4c553ae2efa4ea2480c4b976",
+      "name": "snappy-sinksource.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "0bc8c2d34490ec85d2273638e5a803678a68f4f9",
+      "name": "snappy-stubs-internal.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "526c38b700b3fa1f3f2708480b5a7a883c461b92",
+      "name": "snappy-stubs-internal.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "02947fabd5cfff2dba07a984c2896fe7bcc12144",
+      "name": "snappy-stubs-public.h.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "aae607210b012a684cfd4a727b9f1846b33dd1a1",
+      "name": "snappy-test.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "65f3725744bce72ca91d69990ddf27636b427a73",
+      "name": "snappy-test.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "877b65a73802dc4cb42acf2a0476a875a79caeeb",
+      "name": "snappy.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2f1b8020b7275ddf8e401c36c46430226c60b623",
+      "name": "snappy.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "d6e35d38774f013d0eabba988b70643deb535830",
+      "name": "snappy_benchmark.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "93254a28b11a4e41a34eb5e314a6c1b16828e0fc",
+      "name": "snappy_compress_fuzzer.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8b541536220d54519b34f9b73d8c0a7dc0c52541",
+      "name": "snappy_test_data.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b01f74b267f5e89d3e1fff83897bb29950e215b3",
+      "name": "snappy_test_data.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "a7c779bb7dd1148ba2dd702c1801843d2888fdff",
+      "name": "snappy_test_tool.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "385bfb5a336ca6eb38504a6c69fd4c9f4a605b58",
+      "name": "snappy_uncompress_fuzzer.cc"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e57b13d0e8694668c33c9f5f3d2c835390e75db3",
+      "name": "snappy_unittest.cc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "57ae789855af29e5165e74f58ab4c09de2f48223",
+      "name": "testdata"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "009778603c56f3a9ecc6cd08c807017e2b63f270",
+      "name": "third_party"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || '
 const runtime = path.resolve(process.argv[2]);
 const reportFile = path.resolve(process.argv[3]);
 const appRoot = path.join(runtime, 'resources/app');
+const expectedPackage = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const binary = path.join(runtime, 'threadshelf-local-reader');
 const profile = await fs.mkdtemp(path.join(os.tmpdir(), 'threadshelf-smoke-'));
 const { ApplicationService } = await import(pathToFileURL(path.join(appRoot, 'src/core/service.mjs')));
@@ -54,8 +55,8 @@ try {
   const context = browser.contexts()[0], page = context.pages()[0] || await context.waitForEvent('page');
   page.on('pageerror', error => errors.push(error.message)); page.on('request', request => { if (/^https?:/.test(request.url())) requests.push(request.url()); });
   await page.locator('.conversation-row').first().waitFor({ timeout: 30000 });
-  const boot = await page.evaluate(() => window.desktop.invoke('bootstrap', {})); assert.equal(boot.version, '1.0.0');
-  const about = await page.evaluate(() => window.desktop.invoke('app.about', {})); assert.equal(about.version, '1.0.0'); assert.equal(about.electron, '44.9.1');
+  const boot = await page.evaluate(() => window.desktop.invoke('bootstrap', {})); assert.equal(boot.version, expectedPackage.version);
+  const about = await page.evaluate(() => window.desktop.invoke('app.about', {})); assert.equal(about.version, expectedPackage.version); assert.equal(about.electron, expectedPackage.devDependencies.electron);
   await page.locator('.conversation-row').first().click(); await page.locator('.message').first().waitFor();
   assert.match(await page.locator('#readerHost').innerText(), /quartz/);
   const results = await page.evaluate(() => window.desktop.invoke('search', { mode: 'local', q: 'quartz', searchMode: 'keyword' })); assert.ok(results.total > 0);

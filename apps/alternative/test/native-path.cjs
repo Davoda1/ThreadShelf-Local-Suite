@@ -1,11 +1,12 @@
 'use strict';
 // native integration: real IPC and reload from a special-character POSIX path.
 // Synthetic profile only; Windows path semantics are covered by node:test.
+const VERSION = require('../package.json').version;
 const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url');
 const pw=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..');
-const report={version:'1.2.0',platform:process.platform,passed:false,checks:[],errors:[],limitations:['Native Windows execution is not claimed.','Root headless launch uses test-only --no-sandbox; optional single-instance stub stays in the temporary wrapper.']};
+const report={version:VERSION,platform:process.platform,passed:false,checks:[],errors:[],limitations:['Native Windows execution is not claimed.','Root headless launch uses test-only --no-sandbox; optional single-instance stub stays in the temporary wrapper.']};
 let temp,electron;
 (async()=>{
  assert.equal(process.platform,'linux','This native path test uses POSIX filename semantics.');
@@ -19,7 +20,7 @@ let temp,electron;
  electron=await pw._electron.launch({executablePath:process.env.ELECTRON_PATH,args:['--no-sandbox',wrapper],env:{...process.env,XDG_CONFIG_HOME:path.join(temp,'config'),XDG_CACHE_HOME:path.join(temp,'cache')},timeout:30000});
  const page=await electron.firstWindow();page.on('pageerror',e=>report.errors.push(e.message));
  await page.waitForSelector('#app[data-ready="true"]');
- const info=await page.evaluate(()=>alternative.getInfo());assert.equal(info.version,'1.2.0');assert.equal(Object.hasOwn(info,'revision'),false);assert.ok(info.profile.startsWith(temp));
+ const info=await page.evaluate(()=>alternative.getInfo());assert.equal(info.version,VERSION);assert.equal(Object.hasOwn(info,'revision'),false);assert.ok(info.profile.startsWith(temp));
  report.electron=info.electron;report.expectedURL=pathToFileURL(path.join(appPath,'renderer/index.html')).href.replace(pathToFileURL(temp).href,'file:///TEMP');report.actualURL=page.url().replace(pathToFileURL(temp).href,'file:///TEMP');
  report.checks.push('Real sandboxed preload and native IPC accept a path with spaces, tilde, #, %, Unicode, apostrophe and literal POSIX backslash.');
  await page.click('#settings-button');
@@ -31,7 +32,7 @@ let temp,electron;
  const saved=await page.evaluate(()=>alternative.loadState());assert.equal(saved.theme,'dark');assert.equal(saved.imageMode,'auto');
  report.checks.push('State save, startup theme and reload IPC remain functional under the same special path.');
  await page.click('#welcome-demo');await page.waitForSelector('#thread-content .tsa-message');
- await page.click('#settings-button');assert.match(await page.locator('.about-line').innerText(),/1\.2\.0\b/);
+ await page.click('#settings-button');assert.equal((await page.locator('.about-line strong').textContent()).trim(),VERSION);
  assert.equal(await page.title(),'ThreadShelf Local Alternative');
  report.checks.push('Demo and Settings load with identity and unchanged native title.');
  assert.deepEqual(report.errors,[]);report.passed=true;

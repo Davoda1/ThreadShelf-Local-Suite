@@ -1,5 +1,6 @@
 'use strict';
 // display-only JSON acceptance. Synthetic fixtures; no remote requests.
+const VERSION = require('../package.json').version;
 const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const path=require('node:path');
@@ -7,7 +8,7 @@ const os=require('node:os');
 const {pathToFileURL}=require('node:url');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..'),appPath=path.resolve(process.env.TSA_APP_PATH||root);
-const report={product:'ThreadShelf Local Alternative',version:'1.2.0',target:process.env.TSA_JSON_TARGET||'source',runtime:process.env.ELECTRON_PATH?'native-linux-electron':'browser',checks:[],layouts:[],requests:[],errors:[],passed:false};
+const report={product:'ThreadShelf Local Alternative',version:VERSION,target:process.env.TSA_JSON_TARGET||'source',runtime:process.env.ELECTRON_PATH?'native-linux-electron':'browser',checks:[],layouts:[],requests:[],errors:[],passed:false};
 let browser,electron,temporary,page;
 async function check(name,fn){const details=await fn();report.checks.push({name,...details});}
 async function viewport(width,height){if(electron){await electron.evaluate(({BrowserWindow},v)=>BrowserWindow.getAllWindows()[0].setContentSize(v.width,v.height),{width,height});await page.waitForFunction(v=>innerWidth===v.width&&innerHeight===v.height,{width,height});}else await page.setViewportSize({width,height});}
@@ -26,9 +27,9 @@ async function viewport(width,height){if(electron){await electron.evaluate(({Bro
   await page.waitForSelector('#thread-content .tsa-message');
   await check('Complete application loads the formatter and About identity',async()=>{
    assert.equal(await page.evaluate(()=>typeof TSAJsonResponse.formatJsonResponse),'function');
-   await page.click('#settings-button');assert.match(await page.locator('.about-line').innerText(),/1\.2\.0\b/);await page.locator('#settings-dialog .dialog-footer [data-close]').click();
+   await page.click('#settings-button');assert.equal((await page.locator('.about-line strong').textContent()).trim(),VERSION);await page.locator('#settings-dialog .dialog-footer [data-close]').click();
    assert.equal(await page.title(),'ThreadShelf Local Alternative');
-   return {nativeTitle:'ThreadShelf Local Alternative',about:'1.2.0'};
+   return {nativeTitle:'ThreadShelf Local Alternative',about:VERSION};
   });
   await page.evaluate(()=>{
    // Isolate harness bindings from the demo conversation's previous bindings.

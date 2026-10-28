@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__speedometer__v2.1-8bf7946e39e47c875c00767177197aea5727e84a.tar.gz",
+  "archive_bytes": 4062191,
+  "archive_sha256": "f255a966cf6d445e954c6f0b25f15238aa29e8511c41ef60a8ab8e9e779fd51b",
+  "revision": "8bf7946e39e47c875c00767177197aea5727e84a",
+  "repository": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git",
+  "root_git_tree": "b6a5767d6625e59c3d25186166a9e47015bf7e8d",
+  "blob_count": 566,
+  "git_tree_count": 206,
+  "member_count": 771,
+  "regular_file_bytes": 16044861,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 562,
+    "100755": 4
+  },
+  "source_blob_inventory_sha256": "f9f0b578224e42243e906e821de182f4d2c9aa20f4f8686b771f4de6c6c47c76",
+  "archive_mtime_range": [
+    1793145047.068,
+    1793145048.301
+  ],
+  "metadata": [
+    {
+      "file": "metadata/f02aa3040dadf6617b6120f04decd099b377e2bf1ae2c08f9cfce5999b2c534f.json",
+      "url": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git/+/8bf7946e39e47c875c00767177197aea5727e84a/?format=JSON",
+      "bytes": 777,
+      "sha256": "0fa58e46a35db4c58f7bdfee14dc95e37aaced70f0fa1d06ee15b29835cb4be8",
+      "git_tree": "b6a5767d6625e59c3d25186166a9e47015bf7e8d",
+      "receipt": {
+        "file": "metadata/f02aa3040dadf6617b6120f04decd099b377e2bf1ae2c08f9cfce5999b2c534f.receipt.json",
+        "bytes": 244,
+        "sha256": "be5fb6a9fa2ceaf506c66a6f4513c5fb5b1f81de0934549f7c6e8807e1deda7f"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/f255a966cf6d445e954c6f0b25f15238aa29e8511c41ef60a8ab8e9e779fd51b.jsonl.gz",
+    "bytes": 62491,
+    "sha256": "9cbb60984d19b06d7ff376d3f52b0711ca13c4f145d3a291a8d15871a5e11eae",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 241868,
+    "jsonl_sha256": "1a336df6bab9b59d6ec5fdf24ce95fbc39334d5bee593fc3f5eb2c03feebbbbf",
+    "records": 773,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "5da1fcd98f9a880aaf3d42c69f6247d5514a0d5c8a6e7053c633db84173bcfbe",
+    "bytes": 4062063,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

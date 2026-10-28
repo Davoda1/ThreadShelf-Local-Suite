@@ -10,6 +10,7 @@ import { JsonState, validateSettings, validateAppearanceSettings, validateReader
 import { READER_APPEARANCE_DEFAULTS, PROMPT_EXPAND_STYLES } from '../src/core/reader-appearance.mjs';
 import * as legacy from './fixtures/compatibility-v3.2.0/core/state.mjs';
 
+const { version: applicationVersion } = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const envelope = data => JSON.stringify({ schemaVersion: 1, data }, null, 2) + '\n';
 const preferenceFiles = ['settings.json', 'interface.json', 'appearance.json', 'layout.json'];
 const legacyValues = {
@@ -96,7 +97,7 @@ test('3.2 profile opens with waves off and Outlined right, without rewriting any
   const { dataDir, open } = await fixture(t);
   const before = await readFiles(dataDir);
   const app = await open(), boot = await app.handle('bootstrap');
-  assert.equal(boot.version, '1.2.0');
+  assert.equal(boot.version, applicationVersion);
   assert.equal(boot.settings.waveVideoBackground, false);
   assert.equal(boot.settings.promptExpandStyle, 'outlined-right');
   for (const values of Object.values(legacyValues)) for (const [key, value] of Object.entries(legacy.validateSettings(values))) assert.deepEqual(boot.settings[key], value);

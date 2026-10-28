@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "ordered_patch_inputs_reviewed": 257,
+  "indexed_files_touched": [
+    "src/third_party/blink/renderer/core/frame/frame.cc",
+    "src/third_party/blink/renderer/core/frame/local_frame.cc",
+    "src/third_party/blink/renderer/core/frame/local_frame.h",
+    "src/third_party/blink/renderer/core/fullscreen/fullscreen.cc"
+  ],
+  "affected_patch_files": [
+    {
+      "path": "src/third_party/blink/renderer/core/frame/frame.cc",
+      "patch": "patches/chromium/blink_local_frame.patch",
+      "patch_sha256": "db37f8c59cb994b1a473175a5acea48292756c04e71d40bb8d767af4483cf6b5"
+    },
+    {
+      "path": "src/third_party/blink/renderer/core/frame/local_frame.cc",
+      "patch": "patches/chromium/blink_local_frame.patch",
+      "patch_sha256": "db37f8c59cb994b1a473175a5acea48292756c04e71d40bb8d767af4483cf6b5"
+    },
+    {
+      "path": "src/third_party/blink/renderer/core/fullscreen/fullscreen.cc",
+      "patch": "patches/chromium/webview_fullscreen.patch",
+      "patch_sha256": "7592c241b3a15aeb700976a4d34a1e6ac5973e97411a4099183afe20ee18c0f5"
+    },
+    {
+      "path": "src/third_party/blink/renderer/core/frame/local_frame.cc",
+      "patch": "patches/chromium/fix_return_v8_value_from_localframe_requestexecutescript.patch",
+      "patch_sha256": "62a5fd7b8bac7c2458029d2276cd0f88533d6ef8e7b68a476e189746b12b5ff6"
+    },
+    {
+      "path": "src/third_party/blink/renderer/core/frame/local_frame.h",
+      "patch": "patches/chromium/fix_return_v8_value_from_localframe_requestexecutescript.patch",
+      "patch_sha256": "62a5fd7b8bac7c2458029d2276cd0f88533d6ef8e7b68a476e189746b12b5ff6"
+    }
+  ],
+  "changes_within_indexed_original_headers": [],
+  "base64_exception_patch_references": [],
+  "scope": "Exact source-index grant header line ranges compared with added/deleted hunk lines in every retained ordered Electron patch. Actual patch applicability is separately validated; this does not assess all source licensing."
+}

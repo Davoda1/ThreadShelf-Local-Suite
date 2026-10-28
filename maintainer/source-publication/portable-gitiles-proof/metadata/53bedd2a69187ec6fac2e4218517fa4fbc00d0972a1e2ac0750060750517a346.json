@@ -1,0 +1,173 @@
+{
+  "id": "03a8890bb53e87ea3fc494796d4b10cf38d767cc",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6db5e19ac1d5a3be5976ac416e96a250b0443c33",
+      "name": ".codespell-ignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "e3e33c630311a33a6dc23d556fbd833b240de0d4",
+      "name": ".editorconfig"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "648f3f523015268b593f048f4997ba2c77148dbf",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2ebb460fd49ed01c677e5f41e84cf6c24a94322d",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "448bfa06e4452e190350942fa395381b0b4ccc9c",
+      "name": ".gitlab-ci.yml"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "4ea59c036882a86ce00b852495e87674ec3cf5d6",
+      "name": ".gitlab"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "3f6b27ad1ba5f8bd4efcd11b275b6467acc64ead",
+      "name": "CODE_OF_CONDUCT.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "aa100ce9c02238111b56e394ad5a13311e23a521",
+      "name": "COPYING"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "7a0d7f2a51a34b58e41614ddbf1bfde43496a8ef",
+      "name": "INSTALL.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f4c692d0c7cec93ea559edc403fe528b7635ef48",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "31cd8eb9e798d8e2e3259bc2e825c9de87049655",
+      "name": "Makefile.in"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6097a6eb892676ad1c3df5ece3b3208b34845e1c",
+      "name": "NEWS"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6282e8f70067238a340420804cced5f24178b511",
+      "name": "README.md"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "5e0c381e7c4442f5bac16a217268655ab411c0cd",
+      "name": "autogen.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "340a991580f729b990123b46498ac3dfbb98d429",
+      "name": "doc"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3cca9230d2523d59a5e0b7f693b28e594a04c7ff",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "104f08392a1cf5eaf9ce4e4d0b469c6514f30612",
+      "name": "meson.build"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "206d68659ead5d12dfd2115ab312debb2cfba354",
+      "name": "meson_options.txt"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "9cbd307496c5afd14390cbcaa059d598cee4e981",
+      "name": "pipewire-alsa"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6c35efe76bee3fc4cd2cd1ac1b841b3dbb5796d2",
+      "name": "pipewire-jack"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "46433e70533cfeef74a22d98467bd8a01b45c61d",
+      "name": "pipewire-v4l2"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "ec62188f7a3b8af9bdf6a3dbab9d60417b2ca3f7",
+      "name": "po"
+    },
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "af6aa4d870a95b0fe1ea8c4c7b804d1d615d9176",
+      "name": "pw-uninstalled.sh"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "42c2e22c7f502815f0fca80b07956d438c393bf1",
+      "name": "spa"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "5a35fb9e0bffcfaf73b7bac99e94f4e4267195b2",
+      "name": "src"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "1028d9e1a77f98432e3a625102a3b46e1d847f74",
+      "name": "subprojects"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "f90c96e2b4852e5c1b4fe7eb005166b259a7e911",
+      "name": "template.test.in"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fddecaeb21abe1dca07dee754a1a234b66297acb",
+      "name": "test"
+    }
+  ]
+}

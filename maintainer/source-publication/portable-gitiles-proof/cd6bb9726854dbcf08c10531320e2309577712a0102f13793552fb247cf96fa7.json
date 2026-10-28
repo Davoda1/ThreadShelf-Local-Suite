@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "archive": "src__third_party__angle__third_party__glmark2__src-6edcf02205fd1e8979dc3f3964257a81959b80c8.tar.gz",
+  "archive_bytes": 9262999,
+  "archive_sha256": "cd6bb9726854dbcf08c10531320e2309577712a0102f13793552fb247cf96fa7",
+  "revision": "6edcf02205fd1e8979dc3f3964257a81959b80c8",
+  "repository": "https://chromium.googlesource.com/external/github.com/glmark2/glmark2",
+  "root_git_tree": "5705228f66ec24bfd36caffd56e8c4b90753def9",
+  "blob_count": 704,
+  "git_tree_count": 54,
+  "member_count": 757,
+  "regular_file_bytes": 17631471,
+  "symlinks": 2,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 698,
+    "120000": 2,
+    "100755": 4
+  },
+  "source_blob_inventory_sha256": "fd88c9074c87e50980694c0ef5726e1f936585f4638d074d30aefef4360e60ab",
+  "archive_mtime_range": [
+    1793145309.633,
+    1793145310.53
+  ],
+  "metadata": [
+    {
+      "file": "metadata/44fbb118f8825b7bb60ee5ca6542d5ead55b1538e7cce1d1d459da040f233448.json",
+      "url": "https://chromium.googlesource.com/external/github.com/glmark2/glmark2/+/6edcf02205fd1e8979dc3f3964257a81959b80c8/?format=JSON",
+      "bytes": 2272,
+      "sha256": "93ae8a8648bf645904abd7ea91e2a69026b5c5491a4eadfc19e34a4752dd2b9a",
+      "git_tree": "5705228f66ec24bfd36caffd56e8c4b90753def9",
+      "receipt": {
+        "file": "metadata/44fbb118f8825b7bb60ee5ca6542d5ead55b1538e7cce1d1d459da040f233448.receipt.json",
+        "bytes": 238,
+        "sha256": "4a54cadb94f761b9836b7cf177e80cec467af005c2e3f46c6c0227e823a836ce"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/cd6bb9726854dbcf08c10531320e2309577712a0102f13793552fb247cf96fa7.jsonl.gz",
+    "bytes": 78461,
+    "sha256": "8504424392c7f922c98aeb904601e0c43e301ff166e938a649f5c182b429fc7b",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 223740,
+    "jsonl_sha256": "ae6887c014854577753e55b15c46e6837c219f941f3d46c17a91592696ea4bef",
+    "records": 759,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "b31e70ce0cc55181e442cc64097cde403bbc66d7a98e847bd3e2522d8133fba5",
+    "bytes": 9262691,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}

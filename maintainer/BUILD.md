@@ -1,21 +1,23 @@
 # Build the public desktop releases
 
-The current tree builds Reader **1.2.0** and Alternative **1.2.0** while retaining Analytics **1.0.0**. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds **1.3.0 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
 | Tool | Version / requirement |
 | --- | --- |
-| Node.js | **24.19.0**, LTS development toolchain |
-| npm | **11.9.0** |
-| Electron (all three applications) | **44.9.1** |
+| Node.js | **24.22.1**, LTS development toolchain |
+| npm | **12.2.1**, managed copy with bundled **Undici 6.29.1** |
+| Electron (all three applications) | **45.1.0** |
 | Python | 3.10 or newer |
 | Debian packaging | GNU/Linux with `dpkg-deb`, `tar`, `gzip` |
 | Manual build | PHP CLI with ctype; see `manual/README.md` |
 
 Electron's embedded Node.js belongs to the Electron runtime and can differ from the Node.js used to build the application. Electron uses supported stable release lines; the term LTS above applies to the development Node.js toolchain.
 
-Install Node from [the official 24.19.0 distribution](https://nodejs.org/dist/v24.19.0/), checking the published checksums, or use a trusted version manager. Select the pinned version before building. Check `node --version` and `npm --version`; if necessary, install npm 11.9.0 within that selected Node environment. Do not update dependency lockfiles merely to build a release.
+Install Node from [the official 24.22.1 distribution](https://nodejs.org/dist/v24.22.1/), checking the published checksums, or use a trusted version manager. Select the pinned version before building and check `node --version`. From the repository root, run `node tools/npm.mjs --report` to prepare and verify the managed npm profile. Its upstream npm version remains 12.2.1; the separately recorded Undici 6.29.1 replacement repairs npm's bundled dependency. [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md) records the exact inputs, verification and commands.
+
+The suite helper and Reader/Analytics source run.sh/run.ps1 helpers use this managed npm profile. It does not modify a global npm installation or fall back to an unverified system copy. CI selects Node with setup-node and invokes the same managed entrypoint. Do not install npm globally for these builds or update application lockfiles merely to reproduce a release.
 
 ## Windows checkout
 
@@ -62,9 +64,9 @@ Use `--runtime-cache <directory>` to keep downloaded Electron ZIPs between build
 Reader and Analytics:
 
 ```text
-npm ci
-npm test
-npm run build
+node scripts/npm-toolchain.mjs -- ci
+node scripts/npm-toolchain.mjs -- test
+node scripts/npm-toolchain.mjs -- run build
 node scripts/package.mjs --win32 --out <output-directory>
 node scripts/package.mjs --linux --out <output-directory>
 ```
@@ -84,28 +86,25 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [current release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.2.0) supplies the suite Source archive. The unchanged [shared source downloads](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) supply `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz`, and **every numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` part. The ordinary application packagers use the official pinned Electron binaries; rebuilding the runtime is a separate workflow.
+The [1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0) supplies the exact tagged suite source, six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
 
-The runtime parts mirror the complete pinned Electron/Chromium Git dependency trees selected for Linux x64 and Windows x64, including recursive dependencies, runtime JavaScript package sources, source-bearing build packages, Rust standard-library and vendored sources, and exact Linux, Windows and V8 optimization profiles. The source manifest and dependency-condition audit record coverage and separately obtained build tools and SDKs. A compiler, platform SDK, normal build utilities and package-manager installation remain necessary.
+Verify all downloaded assets against their original release's `SHA256SUM.txt`. Keep numbered source ZIPs together and extract only the metadata ZIPs into a separate directory. Both use the `source-publication/` namespace. The ordinary application packagers use official pinned Electron/ONNX binaries; rebuilding those dependencies is separate.
 
-Verify each downloaded part against the release's `SHA256SUM.txt`, then extract every part into the same parent directory. They merge into `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources/`. From that directory, use Python 3 to verify the inner archives:
-
-```sh
-python assemble-runtime-sources.py
-```
-
-To assemble an inspectable tree and apply Electron's original ordered patches, choose a new, empty destination:
+Verify the original source collections without downloading or executing upstream build hooks:
 
 ```sh
-python assemble-runtime-sources.py --destination ../electron-source --apply-patches
+python source-publication/assemble-runtime-sources.py --manifest source-publication/final-runtime/SOURCE-MANIFEST.json --parts-dir /path/to/source-parts
+python source-publication/onnx/assemble-onnx-sources.py --manifest source-publication/onnx/ONNX-COLLECTION-MANIFEST.json --parts-dir /path/to/source-parts
 ```
 
-Assembly also requires Git and considerable disk space. The helper verifies and extracts sources; it does not download, execute or compile them. Read the mirror's `README.md` and `SOURCE-MANIFEST.json`, then follow [runtime source access and rebuilding](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md). Preserve both companions and the suite Source archive with redistributed binaries.
+To extract runtime source and apply Electron's ordered patches, add `--destination /path/to/new-runtime-tree --apply-patches` to the first command. For original ONNX source extraction, add `--destination /path/to/new-onnx-tree` to the second; its upstream recipes apply the appropriate platform-specific patches. Python 3.10+, original symlink support and substantial free space are required; runtime patch application also needs Git.
+
+The manifests preserve the selected Linux/Windows Git dependency union, source-bearing supplemental material, Rust library/vendor sources, compiler-runtime source references, exact optimization profiles, ONNX active CMake/vcpkg dependencies, and source/configuration provenance. Compilers, platform SDKs and normal build utilities remain external prerequisites. Read [source verification](RUNTIME-SOURCE-PREPARATION.md), [runtime source access](../apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) and [ONNX source access](../apps/reader/licenses/ONNX-SOURCE-ACCESS.md) for precise scope and limits. No complete runtime rebuild or byte-identical binary reproduction is claimed.
 
 ## What to preserve
 
 - `package-lock.json`, runtime pins and official runtime checksum verification.
-- Bundled fonts, renderer libraries, codecs, notices, the suite Source archive, the Native-Sources companion and every Runtime-Sources part.
+- Bundled fonts, renderer libraries, codecs, notices, the suite Source archive, the scoped Native-Sources companion, every Runtime/ONNX source part and both metadata ZIPs.
 - Windows EXE at the portable ZIP root.
 - Linux `bin/` or `/usr/bin/` links resolving directly to the native executable.
 - Correct native executable permissions and DEB sandbox-helper mode.
@@ -133,7 +132,7 @@ Replace `reader` with `analytics` or `alternative` for the other applications. U
 
 Reader and Alternative validation additionally launches their actual extracted Windows ZIP and Linux TAR.GZ/DEB executables with the Chromium sandbox enabled, fresh synthetic profiles and the recipe-pinned Playwright driver. It checks the interface, settings across restart and byte integrity of the extracted application. Analytics validation on Linux uses its package GUI harness to import synthetic data, persist settings and verify unchanged installed files. Analytics Windows validation covers native runtime identity without a GUI claim.
 
-Install the locked driver with `npm ci --ignore-scripts` in `tools/mermaid-bundle`. Linux GUI checks require Xvfb, the required desktop libraries and working Chromium sandbox support. The GitHub runner configures its temporary host to permit sandboxed user namespaces; package launchers and application source receive no sandbox bypass. DEB checks use extracted payloads rather than system-wide installation. Reports distinguish native runtime checks from GUI checks.
+Install the locked driver with `node ../npm.mjs -- ci --ignore-scripts` in `tools/mermaid-bundle`. Linux GUI checks require Xvfb, the required desktop libraries and working Chromium sandbox support. The GitHub runner configures its temporary host to permit sandboxed user namespaces; package launchers and application source receive no sandbox bypass. DEB checks use extracted payloads rather than system-wide installation. Reports distinguish native runtime checks from GUI checks.
 
 ## Validation and updating pins
 

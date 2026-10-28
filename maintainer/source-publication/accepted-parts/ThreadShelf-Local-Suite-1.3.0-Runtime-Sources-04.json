@@ -1,0 +1,195 @@
+{
+  "part": "ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip",
+  "bytes": 904222145,
+  "sha256": "ddae3be2550eac482b3d77fe3abc14815326674df7abcb32f9547a24fab8936c",
+  "source_count": 8,
+  "sources": [
+    {
+      "path": "src/third_party/speedometer/main",
+      "repository": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git",
+      "revision": "f866d2b077038bc85bea5edb7bff8e05cadef0b2",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__speedometer__main-f866d2b077038bc85bea5edb7bff8e05cadef0b2.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/WebKit/Speedometer.git/+archive/f866d2b077038bc85bea5edb7bff8e05cadef0b2.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "404760b3b2e942b437e80e5c11d7f9d71f204fe4354ad10fad25e9ac5d12bea3",
+      "planning_estimate_bytes": 134836010,
+      "historical_archive_representation": {
+        "sha256": "56cd779ee85538ebd77190c633ca63a8d4f2f07aceecdd38b373e6bff16eadaa",
+        "bytes": 134834771,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__third_party__speedometer__main-f866d2b077038bc85bea5edb7bff8e05cadef0b2.tar.gz.proof.json",
+        "bytes": 1845,
+        "sha256": "791078d6beb37fc94566b8cda0b3db40d5a26c91cdae95c5c7c1b7f2884067b5",
+        "root_git_tree": "510e6bd79bd5e94f3cc680dd9030e85d2e981b91"
+      },
+      "size": 134836010,
+      "sha256": "404760b3b2e942b437e80e5c11d7f9d71f204fe4354ad10fad25e9ac5d12bea3",
+      "member_count": 3074,
+      "regular_files": 2754,
+      "unpacked_member_bytes": 203164079,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 1.249
+    },
+    {
+      "path": "src/third_party/litert/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/google-ai-edge/LiteRT.git",
+      "revision": "4dac1538b76bc20bb7f2ba314bcc89dc57c0ee2b",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__litert__src-4dac1538b76bc20bb7f2ba314bcc89dc57c0ee2b.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/google-ai-edge/LiteRT.git/+archive/4dac1538b76bc20bb7f2ba314bcc89dc57c0ee2b.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 124766110,
+      "size": 197309653,
+      "sha256": "f6ceab32d14388610c8d9c342a55bd1bf2c50ab99d6de2884a56f442ce7b4f61",
+      "member_count": 7981,
+      "regular_files": 7324,
+      "unpacked_member_bytes": 332557639,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 17.986
+    },
+    {
+      "path": "src/third_party/dawn/third_party/OpenGL-Registry/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry",
+      "revision": "1cdd228e34966dd6b95bd203e9f84faba0f371a1",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__dawn__third_party__OpenGL-Registry__src-1cdd228e34966dd6b95bd203e9f84faba0f371a1.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/KhronosGroup/OpenGL-Registry/+archive/1cdd228e34966dd6b95bd203e9f84faba0f371a1.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 114047565,
+      "size": 114048199,
+      "sha256": "2aec1a0c8692ca4e5f8c614e38d193235131d84d9d0ab8319d790cc27a394233",
+      "member_count": 1425,
+      "regular_files": 1354,
+      "unpacked_member_bytes": 182913153,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 9.756
+    },
+    {
+      "path": "src/third_party/tflite/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/tensorflow/tensorflow.git",
+      "revision": "9edd58f895c58c3db484a9e39ab2e953baca4bca",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__tflite__src-9edd58f895c58c3db484a9e39ab2e953baca4bca.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/tensorflow/tensorflow.git/+archive/9edd58f895c58c3db484a9e39ab2e953baca4bca.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 108176996,
+      "size": 114381958,
+      "sha256": "3f4c02dc70ccf599aa499137e3d4ee589c78546a9ab178d54d4e8a6515802af3",
+      "member_count": 39331,
+      "regular_files": 36971,
+      "unpacked_member_bytes": 493261245,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 27.392
+    },
+    {
+      "path": "src/third_party/swiftshader",
+      "repository": "https://swiftshader.googlesource.com/SwiftShader.git",
+      "revision": "1e80438d2b93ef36a7c05f8d2b81233bac0e3d16",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__swiftshader-1e80438d2b93ef36a7c05f8d2b81233bac0e3d16.tar.gz",
+      "archive_url": "https://swiftshader.googlesource.com/SwiftShader.git/+archive/1e80438d2b93ef36a7c05f8d2b81233bac0e3d16.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 99036146,
+      "size": 99219517,
+      "sha256": "227093453a81d8e002bcced48fd412abc379dced74fbe4c7f53cbe8e2bbd5019",
+      "member_count": 15429,
+      "regular_files": 14390,
+      "unpacked_member_bytes": 1352487016,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 32.715
+    },
+    {
+      "path": "src/chrome/test/data/xr/webvr_info",
+      "repository": "https://chromium.googlesource.com/external/github.com/toji/webvr.info.git",
+      "revision": "c58ae99b9ff9e2aa4c524633519570bf33536248",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__chrome__test__data__xr__webvr_info-c58ae99b9ff9e2aa4c524633519570bf33536248.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/toji/webvr.info.git/+archive/c58ae99b9ff9e2aa4c524633519570bf33536248.tar.gz",
+      "archive_prefix": "",
+      "expected_sha256": "f139f52b7b2e78ce7182a6f349c573209c1d53287d73aa83b9bc8b35a2e810ff",
+      "planning_estimate_bytes": 96145195,
+      "historical_archive_representation": {
+        "sha256": "267f30742d3db35029727e60d351621a4089269ac39b9557ccccbd68c17a3941",
+        "bytes": 96145234,
+        "matches_current_bytes": false,
+        "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+      },
+      "source_identity_proof": {
+        "file": "source-companion-review/gitiles-proof/src__chrome__test__data__xr__webvr_info-c58ae99b9ff9e2aa4c524633519570bf33536248.tar.gz.proof.json",
+        "bytes": 1834,
+        "sha256": "dc51e1fbeeeab990f26ba6ef22d185248bab8a188595c0751d1ca8c36ac52cd7",
+        "root_git_tree": "a67763186183f2b65d81dcbb28d8f9103843aaae"
+      },
+      "size": 96145195,
+      "sha256": "f139f52b7b2e78ce7182a6f349c573209c1d53287d73aa83b9bc8b35a2e810ff",
+      "member_count": 91,
+      "regular_files": 77,
+      "unpacked_member_bytes": 97260882,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 0.552
+    },
+    {
+      "path": "src/third_party/crossbench-web-tests",
+      "repository": "https://chromium.googlesource.com/chromium/web-tests.git",
+      "revision": "4483f71db32259409d9c5f7c4c95e2605b7a3b13",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__crossbench-web-tests-4483f71db32259409d9c5f7c4c95e2605b7a3b13.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/chromium/web-tests.git/+archive/4483f71db32259409d9c5f7c4c95e2605b7a3b13.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 76932811,
+      "size": 76952183,
+      "sha256": "aff88d22ec5d599a133da7d1448d66e0c0857f71ac492c9b2db93ba1c3b7d9c0",
+      "member_count": 941,
+      "regular_files": 765,
+      "unpacked_member_bytes": 79232932,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 4.106
+    },
+    {
+      "path": "src/third_party/angle/third_party/VK-GL-CTS/src",
+      "repository": "https://chromium.googlesource.com/external/github.com/KhronosGroup/VK-GL-CTS",
+      "revision": "93bca01861b0e3ef3c387027a9791e6d065f900c",
+      "targets": [
+        "linux",
+        "win"
+      ],
+      "archive": "src__third_party__angle__third_party__VK-GL-CTS__src-93bca01861b0e3ef3c387027a9791e6d065f900c.tar.gz",
+      "archive_url": "https://chromium.googlesource.com/external/github.com/KhronosGroup/VK-GL-CTS/+archive/93bca01861b0e3ef3c387027a9791e6d065f900c.tar.gz",
+      "archive_prefix": "",
+      "planning_estimate_bytes": 70924019,
+      "size": 71318095,
+      "sha256": "9cb5f6b71586063f399baa046411c1f5781804b8a1c791375e49b379b0e5f214",
+      "member_count": 9020,
+      "regular_files": 8503,
+      "unpacked_member_bytes": 1771170626,
+      "patch_paths_retained": [],
+      "elapsed_seconds": 43.027
+    }
+  ],
+  "scope": "Every input tar member validated; all regular bytes hashed; source collection still incomplete until final assembly, supplemental and patch gates."
+}

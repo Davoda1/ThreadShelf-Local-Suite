@@ -1,0 +1,59 @@
+{
+  "id": "c3e2955448bbd81f2e304e7d91a0c57342902e48",
+  "entries": [
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "abe63eb9bd1213c018bf82765ab747334d3b33d8",
+      "name": "absl"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "8a11c2d152e9793e59d01bdcdd807d597e65ee1b",
+      "name": "depot_tools"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "3c8edf1e2abf84f3524b79310d945833673cee2f",
+      "name": "google-toolbox-for-mac"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "d6fb5e3bf76c0363d7519373a07c2435e57c1073",
+      "name": "gtest"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "fb0b8ca6c6333cae92a333e33efd5d59e912d547",
+      "name": "json"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "12f743d4e7bc2a22918371a286e9ab09748b0f40",
+      "name": "protobuf"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7f64b6e63da86b9ee6ccedfc484582a7a5fc3bd4",
+      "name": "securemessage"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "b7a61b55e79c045012297189bf771e73e8b24953",
+      "name": "smhasher"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e8ca34782d20f50d3c4925cc4be67806228d6144",
+      "name": "ukey2"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "url": "https://codeload.github.com/microsoft/onnxruntime/tar.gz/6af1a932e2286d5c58166085d24c68783033edee",
+  "revision": "6af1a932e2286d5c58166085d24c68783033edee",
+  "archiveBytes": 280385122,
+  "archiveSha256": "ca15bee9ccf04f17da55d78834cce95168e3e2178edf402bd38d2e5eb95b1e26",
+  "regularFilesScanned": 11379,
+  "regularFileBytes": 584026306,
+  "needleStrings": [
+    "ORT_RUNNING_UNIT_TESTS",
+    "IsRunningUnitTests"
+  ],
+  "hits": [
+    {
+      "path": "onnxruntime/core/platform/telemetry_1ds.cc",
+      "bytes": 38987,
+      "sha256": "ccb9c8fcddc62e2d133f544a41de543c60b060e66dc6eaa504b930aeebeed615",
+      "matches": [
+        {
+          "line": 396,
+          "text": "      IsRunningInCI() || IsRunningUnitTests() || IsTelemetryDisabledByEnvironment()) {"
+        }
+      ]
+    },
+    {
+      "path": "onnxruntime/core/platform/telemetry_environment.h",
+      "bytes": 11580,
+      "sha256": "190a4032af0df641eb4d04f9f0efbdd153330cb4d5445fc4d81e1f4a55312afe",
+      "matches": [
+        {
+          "line": 268,
+          "text": "// True if ORT_RUNNING_UNIT_TESTS is set to a truthy value. ORT's own unit-test entry points set this"
+        },
+        {
+          "line": 271,
+          "text": "inline bool IsRunningUnitTests() {"
+        },
+        {
+          "line": 272,
+          "text": "  const auto value = telemetry_detail::ReadTelemetryEnvironment(\"ORT_RUNNING_UNIT_TESTS\");"
+        }
+      ]
+    },
+    {
+      "path": "onnxruntime/core/platform/windows/telemetry.cc",
+      "bytes": 49105,
+      "sha256": "f569d66af5eaba1f37fe680fe9dee225e1a4a3f58d64148e2908f5738025681a",
+      "matches": [
+        {
+          "line": 272,
+          "text": "  // ORT_RUNNING_UNIT_TESTS is an internal hard-suppression signal, unlike the user-facing"
+        },
+        {
+          "line": 274,
+          "text": "  if (IsRunningUnitTests()) {"
+        }
+      ]
+    },
+    {
+      "path": "onnxruntime/test/platform/telemetry_environment_test.cc",
+      "bytes": 7136,
+      "sha256": "8d003abd645711275c98a4d2b5e7e6b1f9f9b92d2e134ef6f49385ee4a2b8c2a",
+      "matches": [
+        {
+          "line": 47,
+          "text": "        EnvVarMap{{\"APPVEYOR\", value}, {\"ORT_RUNNING_UNIT_TESTS\", value}, {\"ORT_DISABLE_TELEMETRY\", value}}};"
+        },
+        {
+          "line": 49,
+          "text": "    EXPECT_TRUE(IsRunningUnitTests());"
+        },
+        {
+          "line": 86,
+          "text": "        EnvVarMap{{\"APPVEYOR\", value}, {\"ORT_RUNNING_UNIT_TESTS\", value}, {\"ORT_DISABLE_TELEMETRY\", value}}};"
+        },
+        {
+          "line": 88,
+          "text": "    EXPECT_EQ(IsRunningUnitTests(), ci_or_unit_test);"
+        }
+      ]
+    },
+    {
+      "path": "onnxruntime/test/util/include/telemetry_test_environment.h",
+      "bytes": 357,
+      "sha256": "e543cd6b54cb9f62344748990380ed76e705271bf0f45366f961f6e5a17b1eab",
+      "matches": [
+        {
+          "line": 12,
+          "text": "  _putenv_s(\"ORT_RUNNING_UNIT_TESTS\", \"1\");"
+        },
+        {
+          "line": 14,
+          "text": "  setenv(\"ORT_RUNNING_UNIT_TESTS\", \"1\", 1);"
+        }
+      ]
+    }
+  ],
+  "limits": "All regular members of complete pinned repository source archive scanned; separate Git submodules are not included by GitHub source archives.",
+  "scanMethod": "Read every regular member of the complete gzip-compressed tar stream; byte-search each complete file for both exact needle strings. Preserve matching file SHA-256 values and matching source lines. Read the remaining compressed stream to EOF for the archive SHA-256.",
+  "productionUseAssessment": "Only telemetry_environment.h defines the predicate; telemetry_1ds.cc checks it before uploader/device-ID initialization and windows/telemetry.cc checks it before product telemetry provider registration. The remaining matching files are upstream tests. No inference or validation bypass use was found in the scanned repository.",
+  "separateWindowsDiagnostics": "The independent ONNXRuntimeTraceLoggingProvider in windows/logging/etw_sink.cc is not controlled by these flags. It supplies local diagnostics when an external OS trace session enables it; this path has no HTTP uploader."
+}

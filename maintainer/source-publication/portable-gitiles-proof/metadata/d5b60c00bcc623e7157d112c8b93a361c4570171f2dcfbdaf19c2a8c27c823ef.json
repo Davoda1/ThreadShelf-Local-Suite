@@ -1,0 +1,23 @@
+{
+  "id": "e8ca34782d20f50d3c4925cc4be67806228d6144",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "7cb8a4418512e4ca08c0537899c6751b412968f7",
+      "name": "compiled_proto"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "01721bf7e8fe0f47c9db58681da6941eb7727086",
+      "name": "include"
+    },
+    {
+      "mode": 57344,
+      "type": "commit",
+      "id": "03290b58d9f93cdd5c9f9f7a7f9e8efc640d0c40",
+      "name": "ukey2"
+    }
+  ]
+}

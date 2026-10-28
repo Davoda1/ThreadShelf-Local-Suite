@@ -1,0 +1,48 @@
+{
+  "path": "src/electron/build/pgo_profiles",
+  "archive": "electron-45.1.0-release-profiles.tar.gz",
+  "archive_prefix": "",
+  "archive_url": "https://github.com/electron/electron/tree/45d20ec03000aac41e73b2abdb707936b4f98ed0/build/pgo_profiles",
+  "repository": "https://github.com/electron/electron.git",
+  "revision": "45d20ec03000aac41e73b2abdb707936b4f98ed0",
+  "role": "verified-release-optimization-profiles",
+  "local_file": "/tmp/threadshelf-source-staging/runtime/supplemental/electron-45.1.0-release-profiles.tar.gz",
+  "expected_sha256": "efbb249d571301ad58a1e12a0a8f1e1c27f5eb2edd9dda67e981436587f0926d",
+  "size": 147415726,
+  "source_files": [
+    {
+      "file": "electron-linux-x64-1792784096-2e3374f8d5.profdata",
+      "expected_sha256": "2a33da3dbfef7066ff4976d1cc8398b6ca97e65810dae4ce6a8d4c7f4e69db6a",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-linux-x64-1792784096-2e3374f8d5.profdata",
+      "bytes": 224080720,
+      "archive_member": "electron-linux-x64-1792784096-2e3374f8d5.profdata",
+      "size": 224080720,
+      "sha256": "2a33da3dbfef7066ff4976d1cc8398b6ca97e65810dae4ce6a8d4c7f4e69db6a"
+    },
+    {
+      "file": "electron-win-x64-1792784096-2e3374f8d5.profdata",
+      "expected_sha256": "456d805e78255f99f409ca4b987c759465c5d96b9ce72cd819082b6a5a1cd49d",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-win-x64-1792784096-2e3374f8d5.profdata",
+      "bytes": 394537904,
+      "archive_member": "electron-win-x64-1792784096-2e3374f8d5.profdata",
+      "size": 394537904,
+      "sha256": "456d805e78255f99f409ca4b987c759465c5d96b9ce72cd819082b6a5a1cd49d"
+    },
+    {
+      "file": "electron-v8-x64-1792777021-2e3374f8d5.profile",
+      "expected_sha256": "ef86d1d1933f343856f225b532dc292fefc3e950343eec196845a7fc3d0158b1",
+      "url": "https://dev-cdn-experimental.electronjs.org/pgo/electron-v8-x64-1792777021-2e3374f8d5.profile",
+      "bytes": 4428549,
+      "archive_member": "electron-v8-builtins.profile",
+      "size": 4428549,
+      "sha256": "ef86d1d1933f343856f225b532dc292fefc3e950343eec196845a7fc3d0158b1"
+    },
+    {
+      "archive_member": "electron-v8-builtins.profile.version",
+      "size": 46,
+      "sha256": "78ec8ea34b402afaf8f86f90a78769348ab8729b8cd008a7d1e5525d4d314de9",
+      "derivation": "Exact upstream download-profiles.py writes original CDN filename plus newline."
+    }
+  ],
+  "representation": "Deterministic tar.gz of unchanged pinned upstream profile bytes plus the upstream downloader version marker; compiler executables excluded."
+}

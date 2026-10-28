@@ -6,10 +6,10 @@
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const {pathToFileURL}=require('node:url');
 const {chromium}=require(process.env.ANALYTICS_PLAYWRIGHT||'playwright');
-const project=path.resolve(__dirname,'..');
-const preview=path.resolve(process.argv[2]||path.join(project,'release/ThreadShelf-Local-Analytics-1.0.0-Preview.html'));
+const project=path.resolve(__dirname,'..');const expectedVersion=require('../package.json').version;
+const preview=path.resolve(process.argv[2]||path.join(project,`release/ThreadShelf-Local-Analytics-${expectedVersion}-Preview.html`));
 const out=path.resolve(process.argv[3]||path.join(project,'.verification/screenshots'));
-const facts={application:'ThreadShelf Local Analytics',version:'1.0.0',syntheticOnly:true,renderer:'Exact production renderer in Chromium; browser preview bridge',screenshots:[],layouts:[],pageErrors:[],networkRequests:[]};
+const facts={application:'ThreadShelf Local Analytics',version:expectedVersion,syntheticOnly:true,renderer:'Exact production renderer in Chromium; browser preview bridge',screenshots:[],layouts:[],pageErrors:[],networkRequests:[]};
 (async()=>{let browser;try{
  await fs.mkdir(out,{recursive:true});
  browser=await chromium.launch({headless:true,...(process.env.ANALYTICS_BROWSER_PATH?{executablePath:process.env.ANALYTICS_BROWSER_PATH}:{}),...(process.getuid?.()===0?{args:['--no-sandbox']}: {})});
@@ -18,7 +18,7 @@ const facts={application:'ThreadShelf Local Analytics',version:'1.0.0',synthetic
  page.on('request',r=>{if(!/^(file:|data:|blob:)/.test(r.url()))facts.networkRequests.push(r.url().split('?')[0]);});
  await page.goto(pathToFileURL(preview).href);
  const ready=()=>page.waitForFunction(()=>!document.querySelector('#analytics-boot')&&document.querySelector('.shell')&&!/Loading|Calculating/.test(document.querySelector('.footer')?.textContent||''),null,{timeout:60000});
- await ready();assert.match(await page.locator('.topbar').innerText(),/1\.0\.0/);
+ await ready();assert.match(await page.locator('.topbar').innerText(),new RegExp('\\b'+expectedVersion.replaceAll('.', '\\.')+'\\b'));
  async function appearance(mode){await page.locator('[data-action="settings"]').click();for(const [key,value]of Object.entries({appearance:mode,uiPalette:'default',timezone:'UTC',language:'en'}))await page.locator('.dialog #appearance-form [name="'+key+'"]').selectOption(value);await page.locator('.dialog #appearance-form button[type="submit"]').click();await page.waitForFunction(()=>!document.querySelector('.dialog #appearance-form'));await ready();await page.locator('.toast').evaluateAll(ns=>ns.forEach(n=>n.remove()));}
  async function workspace(name){await page.locator('[data-workspace="'+name+'"]').click();await ready();await page.locator('.content').evaluate(n=>n.scrollTop=0);}
  async function capture(name){await page.mouse.move(2,2);await page.evaluate(()=>document.activeElement?.blur());await page.waitForTimeout(150);const geometry=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,bodyWidth:document.body.scrollWidth,bodyHeight:document.body.scrollHeight,documentScroll:document.documentElement.scrollTop,htmlOverflow:getComputedStyle(document.documentElement).overflow}));facts.layouts.push({name,...geometry});assert(geometry.bodyWidth<=geometry.width+1);assert(geometry.bodyHeight<=geometry.height+1);assert.equal(geometry.htmlOverflow,"hidden");assert.equal(geometry.documentScroll,0);await page.screenshot({path:path.join(out,name+'.png')});facts.screenshots.push(name+'.png');}

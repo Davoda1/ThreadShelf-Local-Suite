@@ -1,0 +1,83 @@
+{
+  "id": "b7b4f742c001346d94f9708c1cfc025086e74fde",
+  "entries": [
+    {
+      "mode": 33261,
+      "type": "blob",
+      "id": "2789b7d94714c672fdb443a8c31bc239fef8228e",
+      "name": ".ci.sh"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "5cd46bbe03a2566f5f68e3ecb23ff8c1936f5449",
+      "name": ".gitattributes"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "e6617bc3c6d87f69935b89567c0fa1a7602613e2",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "4c8703f809650af34cccaf54f1c779891e02e3a0",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "75d4ab8775be1599da163048ccb70220b0df3d6d",
+      "name": ".mailmap"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8f1ae5169be1c635de31ff170815cec4088e6171",
+      "name": "Brewfile"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "007c7f8469a43a2fe0b106c949b013a2895d4e6f",
+      "name": "CONTRIBUTING.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "1fe8abbe1c5e562d56c90d8ec4a7921210d05319",
+      "name": "COPYING"
+    },
+    {
+      "mode": 40960,
+      "type": "blob",
+      "id": "11ddc587ddc574bf9ac6e6ab881aaf18429b7444",
+      "name": "README.md"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "05937984ffb63cc984d5cdc4a3881b355d83f528",
+      "name": "SECURITY.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "6b7e63f1023792d9234f71269263dc26eb43c26c",
+      "name": "expat"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "21c87d0719ddb9284992002b28ab2f2b782fc102",
+      "name": "pull_request_template.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "a276db4920425e2dc8842869026206edd89428c9",
+      "name": "testdata"
+    }
+  ]
+}

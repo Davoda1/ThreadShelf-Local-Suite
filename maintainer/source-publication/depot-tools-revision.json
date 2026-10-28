@@ -1,0 +1,38 @@
+{
+  "commit": "c61f9e27ffddc07c383f71f05d733fe326b8e216",
+  "tree": "2de249669fe74f19e9220ebc80c107a1e54d8d46",
+  "parents": [
+    "5405f435ee55be34e855e2d333dd83bc5a2cdc88"
+  ],
+  "author": {
+    "name": "Gavin Mak",
+    "email": "gavinmak@google.com",
+    "time": "Tue Oct 27 22:32:18 2026"
+  },
+  "committer": {
+    "name": "LUCI CQ",
+    "email": "infra-scoped@luci-project-accounts.iam.gserviceaccount.com",
+    "time": "Tue Oct 27 22:32:18 2026"
+  },
+  "message": "git_cl: Validate Gerrit fetch URL and ref in CMDdiff\n\nBug: 557845266\nChange-Id: I71430b008b27d4d4d935fa661ce6b58b757399eb\nReviewed-on: https://chromium-review.googlesource.com/c/chromium/tools/depot_tools/+/8541734\nReviewed-by: Brian Gan <brgan@google.com>\nCommit-Queue: Gavin Mak <gavinmak@google.com>\n",
+  "tree_diff": [
+    {
+      "type": "modify",
+      "old_id": "40321c02b7a7417026d1216e479f5fae4be62851",
+      "old_mode": 33261,
+      "old_path": "git_cl.py",
+      "new_id": "32d60d8e89be9f40c1dbe3ad03bd6d4c47f94c43",
+      "new_mode": 33261,
+      "new_path": "git_cl.py"
+    },
+    {
+      "type": "modify",
+      "old_id": "69d68e9355650eb6fd12e58822964a3983061a25",
+      "old_mode": 33261,
+      "old_path": "tests/git_cl_test.py",
+      "new_id": "7f668daaa8e131759a9e9d165655cf8907a4972b",
+      "new_mode": 33261,
+      "new_path": "tests/git_cl_test.py"
+    }
+  ]
+}

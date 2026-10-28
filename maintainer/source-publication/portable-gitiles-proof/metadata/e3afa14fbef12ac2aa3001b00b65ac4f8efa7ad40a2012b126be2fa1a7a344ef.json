@@ -1,0 +1,53 @@
+{
+  "id": "0a72d86061474475aef90ee297245486a7a6b9eb",
+  "entries": [
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "99c88cf21113576ebfa85c6366d78d7ac9d95d12",
+      "name": "Android.bp"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "2c8db73b0d08c3f0af6a59f2fd8360890ec334b2",
+      "name": "NOTICE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "8f69e505e604712f2a7afe99d256dc7a41536405",
+      "name": "OWNERS"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "76de55fb1cf141289c8bf95fcb13665317ecf4e9",
+      "name": "include"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "aac6b570f3afdc323eca98ddf6c7507868ecd93f",
+      "name": "libsync.map.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "fda1c4c57c0cd9fb6fea08c1310a16817b7fc65a",
+      "name": "sw_sync.h"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "b8c48c7f7602f39cf4c72ef15f5b3604786d438a",
+      "name": "sync.c"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f956ad9113513dc0ea651e7dbba89827df3e71a4",
+      "name": "tests"
+    }
+  ]
+}

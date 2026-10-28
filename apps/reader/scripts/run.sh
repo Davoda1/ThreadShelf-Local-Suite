@@ -4,8 +4,8 @@ project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 latest=0
 action=run
 actions=0
-node_version='24.19.0'
-electron_version='44.9.1'
+node_version='24.22.1'
+electron_version='45.1.0'
 explicit_version=0
 while (($#)); do
   case "$1" in
@@ -18,7 +18,7 @@ while (($#)); do
       shift ;;
     --help|-h)
       echo 'Usage: ./scripts/run.sh [--latest] [--build|--test|--package|--resolve-only]'
-      echo 'Default: exact Node 24.19.0 LTS and Electron 44.9.1.'
+      echo 'Default: exact Node 24.22.1 LTS and Electron 45.1.0.'
       echo '--latest: resolve stable Current Node (not LTS, alpha, beta, or nightly).'
       echo 'Exact reproduction: --node-version X.Y.Z --electron-version X.Y.Z'
       exit 0 ;;
@@ -77,20 +77,22 @@ export PATH="$node_dir/bin:$PATH"
 export TSLR_NODE_VERSION="$node_version" TSLR_NODE_SHA256="$node_sha"
 # Native fetch in supported Node releases honors the same configured proxy as curl.
 if [[ -n "${HTTPS_PROXY:-}${HTTP_PROXY:-}${https_proxy:-}${http_proxy:-}" ]]; then export NODE_USE_ENV_PROXY=1; fi
+node scripts/npm-toolchain.mjs --report
 resolve_args=()
 [[ -z "$electron_version" ]] || resolve_args=(--electron-version "$electron_version")
 export TSLR_ELECTRON_VERSION
 TSLR_ELECTRON_VERSION="$(node scripts/runtime-policy.mjs "${resolve_args[@]}")"
 export ELECTRON_OVERRIDE_DIST_PATH="$tooling_dir/electron-$TSLR_ELECTRON_VERSION-linux-$node_arch/dist"
-echo "Selected Node $(node --version) ($TSLR_NODE_CHANNEL); npm $(npm --version); Electron $TSLR_ELECTRON_VERSION (stable)."
+managed_npm_version="$(node scripts/npm-toolchain.mjs -- --version)"
+echo "Selected Node $(node --version) ($TSLR_NODE_CHANNEL); npm $managed_npm_version; Electron $TSLR_ELECTRON_VERSION (stable)."
 echo 'Exact selections recorded in .tooling/toolchain.json.'
 [[ "$action" != resolve-only ]] || exit 0
-ONNXRUNTIME_NODE_INSTALL=skip ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci --include=optional
+ONNXRUNTIME_NODE_INSTALL=skip ELECTRON_SKIP_BINARY_DOWNLOAD=1 node scripts/npm-toolchain.mjs -- ci --include=optional
 node scripts/ensure-electron.mjs
-npm run build
+node scripts/npm-toolchain.mjs -- run build
 case "$action" in
   build) ;;
-  test) npm test ;;
-  package) npm run package ;;
-  run) npm start ;;
+  test) node scripts/npm-toolchain.mjs -- test ;;
+  package) node scripts/npm-toolchain.mjs -- run package ;;
+  run) node scripts/npm-toolchain.mjs -- start ;;
 esac

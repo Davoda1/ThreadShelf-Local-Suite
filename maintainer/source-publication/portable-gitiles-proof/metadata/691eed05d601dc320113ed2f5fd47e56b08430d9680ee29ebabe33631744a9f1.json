@@ -1,0 +1,65 @@
+{
+  "id": "e27b4cdd20d6f95e62ccb2fe446fc3a566943105",
+  "entries": [
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "f857356a8102929d78142df969160ccfbe09a9be",
+      "name": ".github"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "73b299889044e9a68f02892cee8da81a0fdcc032",
+      "name": ".gitignore"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "09ce80d43a0f76837be2a679e41d6ccdd1d49b56",
+      "name": "CMakeLists.txt"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "eabec6c86a3c7117090954b3756012b37b7c3786",
+      "name": "LICENSE"
+    },
+    {
+      "mode": 33188,
+      "type": "blob",
+      "id": "6cba158626d0b4614bc91aa1dc81a9c360c17f02",
+      "name": "README.md"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "77349f60fbe8fb368a0a516e3c1fc476bab527a6",
+      "name": "bench"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "32cdeefebb5acec2ac4bed88f82c59495d3413d9",
+      "name": "cmake"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "8a5c607deeccd2f639ab328938f1a62fd7788fe5",
+      "name": "include"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "312e79767d9e4410af40f357e934f9b44699c755",
+      "name": "test"
+    },
+    {
+      "mode": 16384,
+      "type": "tree",
+      "id": "54c80722c7b87269d4553ffa3abc50268b2cd54f",
+      "name": "third-party"
+    }
+  ]
+}

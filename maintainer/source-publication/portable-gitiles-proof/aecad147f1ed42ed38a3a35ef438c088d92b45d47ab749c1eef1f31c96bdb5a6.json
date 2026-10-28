@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "archive": "src__third_party__pyelftools-8047437615d66d3267ac0134834b80e70639d572.tar.gz",
+  "archive_bytes": 592857,
+  "archive_sha256": "aecad147f1ed42ed38a3a35ef438c088d92b45d47ab749c1eef1f31c96bdb5a6",
+  "revision": "8047437615d66d3267ac0134834b80e70639d572",
+  "repository": "https://chromium.googlesource.com/chromiumos/third_party/pyelftools.git",
+  "root_git_tree": "7ca32ff7f4352b337a08135d735fa2e273ed7a43",
+  "blob_count": 129,
+  "git_tree_count": 14,
+  "member_count": 142,
+  "regular_file_bytes": 4038800,
+  "symlinks": 0,
+  "gitlinks": [],
+  "git_file_modes": {
+    "100644": 120,
+    "100755": 9
+  },
+  "source_blob_inventory_sha256": "cb0c1b95d42013846c90d67ecc089d0a20007cb11c808620808c8cee06009d66",
+  "archive_mtime_range": [
+    1793146244.795,
+    1793146244.995
+  ],
+  "metadata": [
+    {
+      "file": "metadata/ed9b61d6fac26894de0e433884104a3a42d6ef7b3f26e4b8a3d48630f37bac05.json",
+      "url": "https://chromium.googlesource.com/chromiumos/third_party/pyelftools.git/+/8047437615d66d3267ac0134834b80e70639d572/?format=JSON",
+      "bytes": 2703,
+      "sha256": "85d923a5a591acb2ace471dd3dd9d759c956d03af758cc55111281c6d4fef6ab",
+      "git_tree": "7ca32ff7f4352b337a08135d735fa2e273ed7a43",
+      "receipt": {
+        "file": "metadata/ed9b61d6fac26894de0e433884104a3a42d6ef7b3f26e4b8a3d48630f37bac05.receipt.json",
+        "bytes": 240,
+        "sha256": "cc15d624bcbbf6c374da2d92a41cabfbf55afb24cd278cdbc3998c01e4cd203e"
+      }
+    }
+  ],
+  "scope": "Exact Git source identity, including every blob and tree; gitlink pins are identified but their source contents are separate. Archive extraction safety, full build-source selection and patch application remain separate gates.",
+  "source_inventory": {
+    "file": "inventories/aecad147f1ed42ed38a3a35ef438c088d92b45d47ab749c1eef1f31c96bdb5a6.jsonl.gz",
+    "bytes": 11585,
+    "sha256": "d2dce66f0cd721fa8ddd0e005f9c457e6f3c36ead79674d1543dc5be8f39d015",
+    "encoding": "gzip-jsonl",
+    "schema_version": 1,
+    "jsonl_bytes": 42155,
+    "jsonl_sha256": "6e30b6366730b87d5f91c9e8c903db3ffb96bd0995602c83d93007bfa689af01",
+    "records": 144,
+    "storage": "metadata"
+  },
+  "historical_archive_representation": {
+    "sha256": "3046f994cd00ceb5618646040969e30a2e2169b6864cf00fe9d8b0bdefc23f8f",
+    "bytes": 592820,
+    "matches_current_bytes": false,
+    "scope": "Historical local archive digest; current representation independently reproduces all Git blobs and trees at the exact pinned revision."
+  }
+}
