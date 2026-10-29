@@ -18,6 +18,12 @@ For **1.2.0**, Reader and Alternative supply six new native packages, two HTML p
 
 The release workflow performs its validation and publication gates without requiring an interactive session to wait for CI. After pushing a tag, report the workflow as queued or running until GitHub records its actual result. Do not claim completed packages, passed CI or a published release before those statuses exist. The generated report records only successful native package jobs and their exact evidence. The maintainer may rerun a failed workflow after correcting the cause. Only the publication job receives `contents: write`; build jobs retain read-only repository access.
 
+## Resume publication after a publisher-only failure
+
+If all six native package jobs passed but the publication job failed, run **Publish validated release** (`publish-release.yml`) from `master`, supplying the existing release tag and original package workflow run ID. The workflow uses the corrected publisher from `master` with the unchanged tagged application source. It verifies the original repository, workflow, tag/commit and all six successful package jobs before downloading their existing artifacts. It then repeats assembly and asset verification and publishes the draft. No application rebuild or tag replacement is needed.
+
+Drafts are resolved through the authenticated release list and read/published by numeric release ID. The tag lookup endpoint may return 404 for an existing draft and must not be used to establish that a draft is absent. Existing public releases remain protected against differing replacement assets.
+
 ## Windows checksum verification
 
 Run this PowerShell code in a directory containing the files listed in the chosen release's checksum manifest. It accepts the SHA-256 manifest's two-space separator and fails on a missing file or mismatch. If downloading individual files only, compare their `Get-FileHash -Algorithm SHA256` output with the corresponding manifest entries.

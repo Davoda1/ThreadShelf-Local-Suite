@@ -1,0 +1,69 @@
+name: Publish validated release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish
+        required: true
+        default: v1.3.1
+        type: string
+      source_run:
+        description: Completed package workflow run with six successful package jobs
+        required: true
+        default: '40968487775'
+        type: string
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: release-${{ inputs.tag }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      SOURCE_RUN: ${{ inputs.source_run }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate recovery inputs and publisher safeguards
+        shell: bash
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$SOURCE_RUN" =~ ^[1-9][0-9]*$ ]]
+          python3 -m unittest discover -s tools/tests -p 'test_*release*.py'
+      - name: Check out the original tagged application source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+          path: release-source
+          persist-credentials: false
+      - name: Verify the original native package run
+        shell: bash
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" > "$RUNNER_TEMP/source-run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN/jobs?filter=latest&per_page=100" > "$RUNNER_TEMP/source-jobs.json"
+          python3 tools/validate-release-run.py --run "$RUNNER_TEMP/source-run.json" --jobs "$RUNNER_TEMP/source-jobs.json" --tag "$RELEASE_TAG" --commit "$(git -C release-source rev-parse HEAD)" --repository "$GITHUB_REPOSITORY"
+      - name: Download existing validated package artifacts
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          for app in reader analytics alternative; do
+            for target in linux windows; do
+              name="$app-$target-$version"
+              gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --name "$name" --dir "artifacts/$name"
+            done
+          done
+      - name: Assemble and publish with the corrected publisher
+        run: >-
+          python3 tools/assemble-release.py --artifacts artifacts --out release-assets
+          --source-root "$GITHUB_WORKSPACE/release-source" --tag "$RELEASE_TAG"
+          --repository "$GITHUB_REPOSITORY"
+          --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" --publish

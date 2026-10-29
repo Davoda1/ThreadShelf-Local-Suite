@@ -28,3 +28,9 @@ At source preparation time these CI results are pending. The user requested that
 ## Assets and shared sources
 
 The 1.3.1 release uses new application packages, Reader/Alternative HTML previews, a suite source ZIP/TAR.GZ and one `SHA256SUM.txt`. Unchanged Electron and ONNX source companions retain their original v1.3.0 filenames, URLs and checksums. The native-source companion and manual remain at v1.0.0. The v1.3.0 version-inventory workbook describes the unchanged runtime/toolchain baseline; the MathJax 4.1.3 replacement is recorded here and in its component provenance.
+
+## Publication repair — 2026-10-30
+
+The original commit `bf8f766956e3be24b006a856798738da3890a0d7` passed all three Checks jobs and all six Windows/Linux package jobs, including the focused rendering gates. Run `40968487775` failed only during publication: an existing draft was found, but its `/releases/tags/v1.3.1` lookup returned HTTP 404. The authenticated release list confirmed the draft and all 16 uploaded assets.
+
+The publisher now resolves the draft by numeric release ID, preserving its identity and upload verification. A separate guarded recovery workflow can reuse the successful original artifacts and unchanged tag. Fifteen assembly/publication tests and four recovery-provenance tests passed; the recovery metadata gate also accepts the actual completed build run. Application code and package bytes are unchanged by this repair. Publication recovery is asynchronous and its success must be read from its own workflow result.

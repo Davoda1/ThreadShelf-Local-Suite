@@ -226,29 +226,70 @@ def verify_uploaded(remote, tag, ledger):
             raise ValueError(f'Uploaded asset size/digest not verified: {asset["name"]}')
 
 
+def read_release(repository, release_id, tag):
+    if not isinstance(release_id, int) or isinstance(release_id, bool) or release_id < 1:
+        raise ValueError('GitHub must return a positive numeric release ID.')
+    remote = json.loads(run('gh', 'api', f'repos/{repository}/releases/{release_id}'))
+    if remote.get('id') != release_id or remote.get('tag_name') != tag:
+        raise ValueError('Resolved GitHub release identity does not match the requested tag.')
+    return remote
+
+
+def resolve_release(repository, tag):
+    """Authenticated listing includes drafts that the tag endpoint can omit."""
+    matches = []
+    for page in range(1, 11):
+        records = json.loads(run('gh', 'api', f'repos/{repository}/releases?per_page=100&page={page}'))
+        if not isinstance(records, list):
+            raise ValueError('GitHub release listing did not return an array.')
+        matches.extend(record for record in records if record.get('tag_name') == tag)
+        if len(records) < 100:
+            break
+    else:
+        raise ValueError('Release lookup exceeded its bounded 1,000-release limit.')
+    if len(matches) > 1:
+        raise ValueError('Multiple GitHub releases use this tag; refusing an ambiguous update.')
+    if not matches:
+        return None
+    return read_release(repository, matches[0].get('id'), tag)
+
+
+def publication_event_allowed(tag, environment=os.environ):
+    pushed_tag = (environment.get('GITHUB_EVENT_NAME') == 'push'
+                  and environment.get('GITHUB_REF') == 'refs/tags/' + tag)
+    verified_recovery = (environment.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+                         and environment.get('GITHUB_REF') == 'refs/heads/master'
+                         and environment.get('GITHUB_WORKFLOW') == 'Publish validated release'
+                         and environment.get('RELEASE_TAG') == tag)
+    return pushed_tag or verified_recovery
+
+
 def publish(output, tag, repository, version, ledger):
-    if os.environ.get('GITHUB_EVENT_NAME') != 'push' or os.environ.get('GITHUB_REF') != 'refs/tags/' + tag:
-        raise ValueError('Publication is restricted to the workflow tag-push event.')
+    if not publication_event_allowed(tag):
+        raise ValueError('Publication requires a tag push or the verified master release-recovery workflow.')
     notes = output.parent / f'{tag}-release-notes.md'
     notes.write_text(release_notes(version, repository), encoding='utf-8')
-    exists = subprocess.run(['gh', 'release', 'view', tag, '--repo', repository],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
-    if exists:
-        previous = json.loads(run('gh', 'api', f'repos/{repository}/releases/tags/{tag}'))
-        if previous.get('draft') is not True:
-            # A retry of already published identical bytes is harmless. Never
-            # partially replace a live release if a rebuild produced new bytes.
-            verify_uploaded(previous, tag, ledger)
-            return
-    if not exists:
+    current = resolve_release(repository, tag)
+    if current is not None and current.get('draft') is not True:
+        # A retry of already published identical bytes is harmless. Never
+        # partially replace a live release if a rebuild produced new bytes.
+        verify_uploaded(current, tag, ledger)
+        return
+    if current is None:
         run('gh', 'release', 'create', tag, '--repo', repository, '--verify-tag', '--draft',
             '--title', f'ThreadShelf Local Suite {version}', '--notes-file', notes)
+        current = resolve_release(repository, tag)
+        if current is None or current.get('draft') is not True:
+            raise ValueError('The newly created draft could not be resolved safely.')
+    release_id = current['id']
     run('gh', 'release', 'upload', tag, '--repo', repository, '--clobber',
         *(output / a['name'] for a in ledger))
-    remote = json.loads(run('gh', 'api', f'repos/{repository}/releases/tags/{tag}'))
+    remote = read_release(repository, release_id, tag)
     verify_uploaded(remote, tag, ledger)
-    run('gh', 'release', 'edit', tag, '--repo', repository, '--draft=false', '--latest',
-        '--title', f'ThreadShelf Local Suite {version}', '--notes-file', notes)
+    update = output.parent / f'{tag}-release-update.json'
+    update.write_text(json.dumps({'draft': False, 'make_latest': 'true',
+        'name': f'ThreadShelf Local Suite {version}', 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
+    run('gh', 'api', '--method', 'PATCH', f'repos/{repository}/releases/{release_id}', '--input', update)
 
 
 def main():
@@ -258,6 +299,7 @@ def main():
     parser.add_argument('--platform', choices=('linux', 'win32'))
     parser.add_argument('--artifacts', type=Path)
     parser.add_argument('--out', type=Path, default=ROOT / 'release-assets')
+    parser.add_argument('--source-root', type=Path, default=ROOT)
     parser.add_argument('--tag')
     parser.add_argument('--repository', default=os.environ.get('GITHUB_REPOSITORY', 'Davoda1/ThreadShelf-Local-Suite'))
     parser.add_argument('--run-url', default='Not supplied')
@@ -266,11 +308,12 @@ def main():
     if args.record_inputs:
         if not args.app or not args.platform:
             parser.error('--record-inputs requires --app and --platform')
-        record_inputs(args.record_inputs.resolve(), args.app, args.platform)
+        record_inputs(args.record_inputs.resolve(), args.app, args.platform, args.source_root.resolve())
         return
     if not args.tag or not args.artifacts:
         parser.error('--tag and --artifacts are required for assembly')
-    version, ledger = assemble(args.artifacts.resolve(), args.out.resolve(), args.tag, args.repository, args.run_url)
+    version, ledger = assemble(args.artifacts.resolve(), args.out.resolve(), args.tag, args.repository,
+                               args.run_url, args.source_root.resolve())
     if args.publish:
         publish(args.out.resolve(), args.tag, args.repository, version, ledger)
     print(f'Assembled {len(ledger)} assets for {args.tag}; all six native validation records passed.')

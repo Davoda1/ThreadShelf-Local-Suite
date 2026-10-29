@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 SPEC = importlib.util.spec_from_file_location('assemble_release', Path(__file__).resolve().parents[1] / 'assemble-release.py')
@@ -134,6 +135,98 @@ class ReleaseAssemblyTests(unittest.TestCase):
             self.assertIn('ThreadShelf-Local-Suite-1.3.1-Source/apps/reader/package.json', archive.namelist())
         with self.assertRaisesRegex(ValueError, 'application version'):
             release.version_for_tag('v1.3.0', repository)
+
+
+class ReleasePublicationTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix='threadshelf-publication-fixture-')
+        self.addCleanup(self.temporary.cleanup)
+        self.output = Path(self.temporary.name) / 'assets'
+        self.output.mkdir()
+        (self.output / 'fixture.zip').write_bytes(b'fixture')
+        self.ledger = [{'name': 'fixture.zip', 'bytes': 7, 'sha256': release.digest(self.output / 'fixture.zip')}]
+        self.environment = {'GITHUB_EVENT_NAME': 'push', 'GITHUB_REF': 'refs/tags/v1.3.1'}
+
+    def remote(self, draft, complete=True):
+        asset = self.ledger[0]
+        return {'id': 42, 'tag_name': 'v1.3.1', 'draft': draft, 'assets': [
+            {'name': asset['name'], 'size': asset['bytes'], 'digest': 'sha256:' + asset['sha256']}
+        ] if complete else []}
+
+    def publisher_fixture(self, initially_missing=False):
+        calls = []
+        state = {'exists': not initially_missing, 'uploaded': False}
+        def fake_run(*arguments, **kwargs):
+            args = tuple(map(str, arguments)); calls.append(args)
+            if any('/releases/tags/' in arg for arg in args):
+                raise subprocess.CalledProcessError(1, args, stderr='HTTP 404')
+            if args[:2] == ('gh', 'api') and '/releases?per_page=' in args[2]:
+                return json.dumps([{'id': 42, 'tag_name': 'v1.3.1'}] if state['exists'] else [])
+            if args == ('gh', 'api', 'repos/example/suite/releases/42'):
+                return json.dumps(self.remote(True, state['uploaded']))
+            if args[:3] == ('gh', 'release', 'create'):
+                state['exists'] = True
+                return 'https://example.invalid/releases/42'
+            if args[:3] == ('gh', 'release', 'upload'):
+                state['uploaded'] = True
+                return ''
+            if args[:5] == ('gh', 'api', '--method', 'PATCH', 'repos/example/suite/releases/42'):
+                body = json.loads(Path(args[-1]).read_text())
+                self.assertEqual(body['draft'], False)
+                self.assertEqual(body['make_latest'], 'true')
+                self.assertEqual(body['name'], 'ThreadShelf Local Suite 1.3.1')
+                return json.dumps(self.remote(False))
+            raise AssertionError(f'Unexpected publisher command: {args}')
+        return calls, fake_run
+
+    def test_existing_draft_uses_id_when_tag_endpoint_is_unavailable(self):
+        calls, fake_run = self.publisher_fixture()
+        with patch.object(release, 'run', side_effect=fake_run), patch.dict(release.os.environ, self.environment, clear=True):
+            release.publish(self.output, 'v1.3.1', 'example/suite', '1.3.1', self.ledger)
+        self.assertFalse(any(call[:3] == ('gh', 'release', 'create') for call in calls))
+        self.assertEqual(sum(call == ('gh', 'api', 'repos/example/suite/releases/42') for call in calls), 2)
+        self.assertFalse(any('/releases/tags/' in arg for call in calls for arg in call))
+
+    def test_missing_release_creates_and_resolves_draft_before_upload(self):
+        calls, fake_run = self.publisher_fixture(initially_missing=True)
+        with patch.object(release, 'run', side_effect=fake_run), patch.dict(release.os.environ, self.environment, clear=True):
+            release.publish(self.output, 'v1.3.1', 'example/suite', '1.3.1', self.ledger)
+        actions = [call[2] for call in calls if call[:2] == ('gh', 'release')]
+        self.assertEqual(actions, ['create', 'upload'])
+        self.assertIn('--verify-tag', next(call for call in calls if call[:3] == ('gh', 'release', 'create')))
+
+    def test_existing_public_release_is_identical_noop(self):
+        responses = [json.dumps([{'id': 42, 'tag_name': 'v1.3.1'}]), json.dumps(self.remote(False))]
+        with patch.object(release, 'run', side_effect=responses) as command, patch.dict(release.os.environ, self.environment, clear=True):
+            release.publish(self.output, 'v1.3.1', 'example/suite', '1.3.1', self.ledger)
+        self.assertEqual(command.call_count, 2)
+        self.assertTrue(all(call.args[:2] == ('gh', 'api') for call in command.call_args_list))
+
+    def test_changed_public_release_is_refused_before_mutation(self):
+        previous = self.remote(False)
+        previous['assets'][0]['digest'] = 'sha256:' + 'b' * 64
+        responses = [json.dumps([{'id': 42, 'tag_name': 'v1.3.1'}]), json.dumps(previous)]
+        with patch.object(release, 'run', side_effect=responses) as command, patch.dict(release.os.environ, self.environment, clear=True):
+            with self.assertRaisesRegex(ValueError, 'size/digest'):
+                release.publish(self.output, 'v1.3.1', 'example/suite', '1.3.1', self.ledger)
+        self.assertEqual(command.call_count, 2)
+
+    def test_api_error_does_not_create_a_missing_release(self):
+        failure = subprocess.CalledProcessError(1, ['gh', 'api'], stderr='HTTP 403')
+        with patch.object(release, 'run', side_effect=failure) as command, patch.dict(release.os.environ, self.environment, clear=True):
+            with self.assertRaises(subprocess.CalledProcessError):
+                release.publish(self.output, 'v1.3.1', 'example/suite', '1.3.1', self.ledger)
+        self.assertEqual(command.call_count, 1)
+
+    def test_dispatch_guard_accepts_only_verified_master_recovery(self):
+        valid = {'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/master',
+                 'GITHUB_WORKFLOW': 'Publish validated release', 'RELEASE_TAG': 'v1.3.1'}
+        self.assertTrue(release.publication_event_allowed('v1.3.1', valid))
+        self.assertTrue(release.publication_event_allowed('v1.3.1', self.environment))
+        for key, value in [('GITHUB_REF', 'refs/heads/other'), ('GITHUB_WORKFLOW', 'Build desktop packages'),
+                           ('RELEASE_TAG', 'v1.3.0'), ('GITHUB_EVENT_NAME', 'pull_request')]:
+            with self.subTest(key=key):
+                self.assertFalse(release.publication_event_allowed('v1.3.1', {**valid, key: value}))
 
 
 if __name__ == '__main__':
