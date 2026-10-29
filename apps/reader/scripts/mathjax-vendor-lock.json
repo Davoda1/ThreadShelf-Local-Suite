@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "packages": [
+    {
+      "name": "mathjax",
+      "version": "4.1.3",
+      "tarball": "https://registry.npmjs.org/mathjax/-/mathjax-4.1.3.tgz",
+      "integrity": "sha512-BN/8Pkgn7G1pIDYJqd9md+JHsE/jydSYbyOZnSdSA0WziuVO8mRxdYiWFumkVVly/8U+hm9DpIIoWuvySverzw==",
+      "files": {
+        "package/a11y/assistive-mml.js": "public/mathjax-assistive-mml.js",
+        "package/LICENSE": "licenses/MathJax-Upstream-LICENSE.txt"
+      }
+    },
+    {
+      "name": "@mathjax/mathjax-tex-font",
+      "version": "4.1.3",
+      "tarball": "https://registry.npmjs.org/@mathjax/mathjax-tex-font/-/mathjax-tex-font-4.1.3.tgz",
+      "integrity": "sha512-9B78brBEmmAwyumaREIyM1gF2HgDamDIXA36UyeXWxX7XrpLdmoSB5NLIf/c6tEA4L6xNrIdMxfgY6YX/kcSNw==",
+      "files": {
+        "package/tex-mml-svg-mathjax-tex.js": "public/mathjax-tex-svg.js"
+      }
+    },
+    {
+      "name": "mathjax-full",
+      "version": "3.2.2",
+      "tarball": "https://registry.npmjs.org/mathjax-full/-/mathjax-full-3.2.2.tgz",
+      "integrity": "sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==",
+      "buildTimeOnly": "Original licensed TeX glyph/metric/font tables; no MathJax 3 implementation is shipped",
+      "files": {
+        "package/LICENSE": "licenses/MathJax-Original-TeX-Font-LICENSE.txt"
+      },
+      "generate": {
+        "script": "scripts/build-legacy-mathjax-font.mjs",
+        "output": "public/mathjax-original-tex-font.js",
+        "sha256": "f7568f867ff243dc1fcda5de262f37c7f684fbd46ccfbd452349f424437104b9"
+      }
+    }
+  ]
+}

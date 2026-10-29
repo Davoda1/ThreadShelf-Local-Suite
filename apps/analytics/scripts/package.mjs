@@ -12,7 +12,7 @@ import { ZipReader, ZipWriter, Uint8ArrayReader, Uint8ArrayWriter } from '@zip.j
 import { downloadArtifact, initializeProxy } from '@electron/get';
 import { releaseFilename } from './release-filenames.mjs';
 import { writeVerifiedRuntimeExecutable, verifyRuntimeExecutable } from './runtime-executable.mjs';
-import { walkPackageFiles, verifyNativeSymlinks, assertNoLauncherScripts, LINUX_PORTABLE_LINKS, LINUX_DEB_LINKS } from './package-layout.mjs';
+import { walkPackageFiles, verifyNativeEntrypoint, assertNoLauncherScripts } from './package-layout.mjs';
 import { TOOLCHAIN, ensureNpm, npmEnvironment } from './npm-toolchain.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -106,8 +106,8 @@ async function tarDirectory(source, destination, prefix, excluded = [], ignoreWo
   // false directory-mtime races on managed/overlay filesystems; file changes
   // remain hard errors from tar. Extractors create parent directories.
   const manifest = path.join(staging, `.tar-files-${prefix}`);
-  await fsp.writeFile(manifest, (await walk(source, '', ignoreWorkFiles, false, symlinks)).filter(name => !excluded.includes(name)).map(name => `${prefix}/${name}\0`).join(''));
-  try { run('tar', ['--null', '--no-recursion', '-czf', destination, '-C', path.dirname(source), '--files-from', manifest]); }
+  await fsp.writeFile(manifest, (await walk(source, '', ignoreWorkFiles, false, symlinks)).filter(name => !excluded.includes(name)).map(name => `${prefix ? prefix + '/' : ''}${name}\0`).join(''));
+  try { run('tar', ['--null', '--no-recursion', '-czf', destination, '-C', prefix ? path.dirname(source) : source, '--files-from', manifest]); }
   finally { await fsp.rm(manifest, { force: true }); }
 }
 async function extractZip(archive, destination) {
@@ -247,9 +247,8 @@ async function binary(platform) {
   const name = `${stem}-${platform === 'win32' ? 'Windows-x64-Portable' : 'Linux-amd64'}`;
   const folder = path.join(staging, name);
   await fsp.rm(folder, { recursive: true, force: true }); await fsp.mkdir(folder, { recursive: true });
-  // Windows launches its EXE directly from the extraction root. Linux exposes
-  // a relative root symlink to the native executable beside its runtime assets.
-  const runtime = platform === 'win32' ? folder : path.join(folder, 'app');
+  // Both portable formats launch the real native executable at extraction root.
+  const runtime = folder;
   await fsp.mkdir(runtime, { recursive: true });
   await extractZip(archive, runtime);
   await fsp.rm(path.join(runtime, 'resources/default_app.asar'), { force: true });
@@ -277,17 +276,9 @@ async function binary(platform) {
     const executableFingerprint = await writeVerifiedRuntimeExecutable(path.join(runtime, 'electron'), executable);
     await fsp.rm(path.join(runtime, 'electron'), { force: true });
     if (exists(path.join(runtime, 'electron'))) throw new Error('Redundant original Electron executable remains.');
-    for (const [entry, target] of Object.entries(LINUX_PORTABLE_LINKS)) {
-      await fsp.mkdir(path.dirname(path.join(folder, entry)), {recursive:true});
-      await fsp.symlink(target, path.join(folder, entry));
-    }
-    await fsp.rm(path.join(runtime, 'electron'), { force: true });
-    await assertNoLauncherScripts(folder, path.join(folder,'bin'), runtime);
-    await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
+    await assertNoLauncherScripts(runtime);
     await verifyRuntimeExecutable(executable, executableFingerprint);
-    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron', 'app/resources/default_app.asar'], true, LINUX_PORTABLE_LINKS);
-    await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
-    await verifyRuntimeExecutable(executable, executableFingerprint);
+    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), '', ['electron', 'resources/default_app.asar'], true);
     await deb(runtime);
   }
   await fsp.rm(path.join(runtime, platform === 'win32' ? 'electron.exe' : 'electron'), { force: true });
@@ -320,23 +311,28 @@ async function deb(runtime) {
   const verifiedCopy = await verifyCopiedTree(runtime, installedApp, ['electron', 'resources/default_app.asar']);
   const size = Math.ceil(verifiedCopy.bytes / 1024);
   await fsp.writeFile(path.join(dir, 'DEBIAN/control'), `Package: threadshelf-local-analytics\nVersion: ${pkg.version}\nSection: utils\nPriority: optional\nArchitecture: amd64\nMaintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: ${size}\nDepends: libc6 (>= 2.31), libstdc++6, libgcc-s1, libnss3, libnspr4, libgtk-3-0 | libgtk-3-0t64, libatk1.0-0 | libatk1.0-0t64, libatk-bridge2.0-0 | libatk-bridge2.0-0t64, libcups2 | libcups2t64, libdrm2, libxkbcommon0, libxcomposite1, libxdamage1, libxfixes3, libxrandr2, libgbm1, libasound2 | libasound2t64, libatspi2.0-0 | libatspi2.0-0t64, libx11-6, libxcb1, libxext6, libglib2.0-0 | libglib2.0-0t64, libdbus-1-3, libcairo2, libpango-1.0-0, libexpat1, libudev1\nHomepage: ${pkg.homepage}\nDescription: Offline analytics companion for archived AI conversations\n Capture ThreadShelf Local Reader archives read-only or ingest exports into independent\n Analytics storage. Includes its own Electron runtime and 7-Zip codecs.\n`);
-  // Remove a stale entry retained by a managed staging filesystem before recreating the verified link.
+  // Remove a stale entry retained by a managed staging filesystem before compiling the native entry point.
   await fsp.rm(path.join(dir, 'usr/bin/threadshelf-local-analytics'), { force: true });
-  await fsp.symlink(LINUX_DEB_LINKS['usr/bin/threadshelf-local-analytics'], path.join(dir, 'usr/bin/threadshelf-local-analytics'));
-  await fsp.writeFile(path.join(dir, 'usr/share/applications/threadshelf-local-analytics.desktop'), '[Desktop Entry]\nType=Application\nName=ThreadShelf Local Analytics\nComment=Analyze archived AI conversations read-only\nExec=threadshelf-local-analytics\nIcon=threadshelf-local-analytics\nTerminal=false\nCategories=Utility;Office;\nStartupWMClass=threadshelf-local-analytics\n');
+  const entrypoint = path.join(dir, 'usr/bin/threadshelf-local-analytics');
+  // Keep Electron beside its resources, with a real static ELF command in /usr/bin.
+  run(process.env.CC || 'cc', ['-static', '-Os', '-s', '-Wl,-z,relro,-z,now',
+    '-DTHREADSHELF_EXECUTABLE="/opt/threadshelf-local-analytics/threadshelf-local-analytics"',
+    path.join(root, 'scripts/native-entry.c'), '-o', entrypoint]);
+  await fsp.chmod(entrypoint, 0o755);
+  await fsp.writeFile(path.join(dir, 'usr/share/applications/threadshelf-local-analytics.desktop'), '[Desktop Entry]\nType=Application\nName=ThreadShelf Local Analytics\nComment=Analyze archived AI conversations read-only\nExec=/usr/bin/threadshelf-local-analytics\nIcon=threadshelf-local-analytics\nTerminal=false\nCategories=Utility;Office;\nStartupWMClass=threadshelf-local-analytics\n');
   await fsp.copyFile(path.join(root, 'build/icons/256x256.png'), path.join(dir, 'usr/share/icons/hicolor/256x256/apps/threadshelf-local-analytics.png'));
   await fsp.rm(path.join(installedApp, 'electron'), { force: true });
   if (exists(path.join(installedApp, 'electron'))) throw new Error('Redundant original Electron executable in DEB staging.');
   await removeManagedWorkFiles(dir);
   await assertNoLauncherScripts(path.join(dir, 'usr/bin'), installedApp);
-  await verifyNativeSymlinks(dir, LINUX_DEB_LINKS);
+  await verifyNativeEntrypoint(path.join(dir, 'usr/bin/threadshelf-local-analytics'));
   // Set the sandbox mode in the same native build shell and validate its
   // archived header before accepting the package. Paths are positional arguments.
   run('bash', [path.join(root, 'scripts/build-deb.sh'), dir, path.join(out, releaseFilename(`threadshelf-local-analytics_${pkg.version}_amd64.deb`))]);
 }
 async function refreshBinaryInputs(platform) {
   const name = `${stem}-${platform === 'win32' ? 'Windows-x64-Portable' : 'Linux-amd64'}`;
-  const folder = path.join(staging, name), runtime = platform === 'win32' ? folder : path.join(folder, 'app');
+  const folder = path.join(staging, name), runtime = folder;
   const app = path.join(runtime, 'resources/app');
   if (!exists(path.join(app, 'package.json'))) throw new Error(`Native staging missing; package ${platform} first.`);
   if (flags.has('--refresh-app')) {
@@ -362,9 +358,8 @@ async function refreshBinaryInputs(platform) {
     await assertNoLauncherScripts(folder);
     await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), '', ['electron.exe', 'resources/default_app.asar'], true);
   } else {
-    await assertNoLauncherScripts(folder, path.join(folder,'bin'), runtime);
-    await verifyNativeSymlinks(folder, LINUX_PORTABLE_LINKS);
-    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, ['app/electron', 'app/resources/default_app.asar'], true, LINUX_PORTABLE_LINKS);
+    await assertNoLauncherScripts(runtime);
+    await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), '', ['electron', 'resources/default_app.asar'], true);
     await deb(runtime);
   }
   console.log(`Refreshed final ${flags.has('--refresh-app') ? 'application inputs' : 'human documentation'} and re-archived ${name}`);

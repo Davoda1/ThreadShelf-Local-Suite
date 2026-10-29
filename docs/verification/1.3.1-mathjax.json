@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "runtime": "Electron 45.1.0 native Linux, Ozone headless",
+  "baselineCommit": "afb268b01533e1f61602db3d01d3e4160bb0835b",
+  "baselineMathJax": "3.2.1",
+  "candidateMathJax": "4.1.3",
+  "cases": {
+    "applications": [
+      "reader",
+      "alternative"
+    ],
+    "formulasPerCase": 8,
+    "windowThemePairs": [
+      {
+        "width": 680,
+        "theme": "light"
+      },
+      {
+        "width": 1100,
+        "theme": "dark"
+      }
+    ],
+    "totalFormulaComparisons": 32
+  },
+  "checks": [
+    "Exact SVG bounding boxes, viewBox and glyph paths match baseline",
+    "Accessible MathML text matches baseline and remains visually clipped",
+    "One visible SVG per formula",
+    "Original TeX font adapter active",
+    "Renderer Node/process unavailable",
+    "Production CSP blocks inline scripts, eval, Blob workers and remote fetch"
+  ],
+  "externalRequests": 0,
+  "pageErrors": 0,
+  "pixels": "Not run locally: native headless environment has no usable screenshot compositor. CI runs normal display pixel comparisons when baseline revision is supplied.",
+  "upstreamIntegrity": "Official npm SHA512 verified for mathjax4.1.3 and @mathjax/mathjax-tex-font4.1.3; engine and assistive-MathML bytes match package contents.",
+  "sourceSHA256": {
+    "apps/reader/src/reader/reader.js": "24c1075ff7aad1dc6b56686910babd28ca222e4c345da70a7e7abef33b4217c0",
+    "apps/reader/index.html": "c4da3b0015a2ff09d3129a43d83efa770f775411e89b04c5e1f3936c7d362007",
+    "apps/alternative/vendor/math-config.js": "e3358d97b04272bdcb04050facede228a817fa01007d8148aba0ade988cceade",
+    "apps/alternative/renderer/index.html": "8411656607f7725a9e64a579d8f58ef705aac28b413ec9b969846e4dfb22bfff",
+    "tools/tests/mathjax-migration.mjs": "996cc5b435a6b5ef179aa8aeea2bcc03ca863a3eb1b818e319f4041fbc7a3885",
+    "apps/reader/public/mathjax-tex-svg.js": "6033b303d289a24bf4ae681403ed34ac978992e25ca1d4f86690f038e6565475",
+    "apps/reader/public/mathjax-assistive-mml.js": "9c1166c7c2ca2e57d5d25cc3bf71dc5369d32b9a4260151f998c0bed77d55dc3",
+    "apps/reader/public/mathjax-original-tex-font.js": "f7568f867ff243dc1fcda5de262f37c7f684fbd46ccfbd452349f424437104b9",
+    "apps/reader/public/mathjax-compat.js": "8b46e9f211ddf77ec1682195430aa5f88f7ecfe6d9be1ad97d9ba91a29fb0a3a",
+    "apps/alternative/vendor/mathjax-tex-svg.js": "6033b303d289a24bf4ae681403ed34ac978992e25ca1d4f86690f038e6565475",
+    "apps/alternative/vendor/mathjax-assistive-mml.js": "9c1166c7c2ca2e57d5d25cc3bf71dc5369d32b9a4260151f998c0bed77d55dc3",
+    "apps/alternative/vendor/mathjax-original-tex-font.js": "f7568f867ff243dc1fcda5de262f37c7f684fbd46ccfbd452349f424437104b9",
+    "apps/alternative/vendor/mathjax-compat.js": "8b46e9f211ddf77ec1682195430aa5f88f7ecfe6d9be1ad97d9ba91a29fb0a3a"
+  }
+}

@@ -117,6 +117,16 @@ def verify_native_link_target(stage, name, target):
         raise ValueError(f'Symlink target is not a native AMD64 ELF executable: {name} -> {target}')
 
 
+def verify_regular_elf(path):
+    mode = path.lstat().st_mode
+    if not stat.S_ISREG(mode) or not mode & 0o111:
+        raise ValueError(f'Native entry point must be an executable regular file: {path}')
+    with path.open('rb') as stream:
+        header = stream.read(20)
+    if header[:6] != b'\x7fELF\x02\x01' or len(header) != 20 or struct.unpack_from('<H', header, 18)[0] != 62:
+        raise ValueError(f'Native entry point must be an AMD64 ELF: {path}')
+
+
 def snapshot(stage, approved_links=None):
     approved_links = approved_links or {}
     if approved_links and approved_links not in (LINUX_PORTABLE_LINKS, DEB_LINKS):
@@ -171,7 +181,7 @@ def verify_archive(archive, stage, prefix='', deb=False, approved_links=None):
     # The packager intentionally excludes the original executable and default app.
     # Managed filesystems may show an unlinked original in staging; its presence in
     # an archive is still rejected below as an unexpected file.
-    excluded_originals = {'electron.exe'} if 'Windows' in archive.name else {'app/electron', 'opt/threadshelf-local-reader/electron'}
+    excluded_originals = {'electron.exe'} if 'Windows' in archive.name else {'electron', 'app/electron', 'opt/threadshelf-local-reader/electron'}
     expected = {name: value for name, value in expected.items()
                 if name not in excluded_originals | DEFAULT_APP_PATHS}
     seen = set()
@@ -288,7 +298,16 @@ def verify_archive(archive, stage, prefix='', deb=False, approved_links=None):
     if any(n in {'electron', 'app/electron', 'opt/threadshelf-local-reader/electron'} for n in seen):
         raise ValueError('Redundant original Electron executable included')
     entry_directories = []
-    if approved_links == LINUX_PORTABLE_LINKS:
+    if deb and not approved_links:
+        verify_regular_elf(stage / 'usr/bin/threadshelf-local-reader')
+        verify_regular_elf(stage / 'opt/threadshelf-local-reader/threadshelf-local-reader')
+        entry_directories = ['usr/bin', 'opt/threadshelf-local-reader']
+    elif 'Linux' in archive.name and not approved_links:
+        verify_regular_elf(stage / 'threadshelf-local-reader')
+        if 'threadshelf-local-reader' not in seen:
+            raise ValueError('Portable Linux archive requires its native binary at root')
+        entry_directories = ['.']
+    elif approved_links == LINUX_PORTABLE_LINKS:
         entry_directories = ['.', 'bin', 'app']
     elif approved_links == DEB_LINKS:
         entry_directories = ['usr/bin', 'opt/threadshelf-local-reader']
@@ -541,15 +560,14 @@ def main():
             portable_readmes.append({'platform': 'win32', **verify_readme_inputs(win, portable=True)})
             selected_runtimes.append(('win32', win))
         if 'linux' in platforms:
-            checks.append(verify_archive(args.out / release_name(linux.name + '.tar.gz'), linux, linux.name,
-                                         approved_links=LINUX_PORTABLE_LINKS))
+            checks.append(verify_archive(args.out / release_name(linux.name + '.tar.gz'), linux))
             portable_readmes.append({'platform': 'linux', **verify_readme_inputs(linux, portable=True)})
             debname = release_name(f"threadshelf-local-reader_{pkg['version']}_amd64.deb")
-            checks.append(verify_archive(args.out / debname, stage / 'deb', deb=True, approved_links=DEB_LINKS))
+            checks.append(verify_archive(args.out / debname, stage / 'deb', deb=True))
             deb = subprocess.check_output(['dpkg-deb', '-f', str(args.out / debname), 'Version', 'Architecture'], text=True)
             if f"Version: {pkg['version']}" not in deb or 'Architecture: amd64' not in deb:
                 raise ValueError('DEB version or architecture is incorrect')
-            selected_runtimes.extend([('linux', linux / 'app'), ('deb', stage / 'deb/opt/threadshelf-local-reader')])
+            selected_runtimes.extend([('linux', linux), ('deb', stage / 'deb/opt/threadshelf-local-reader')])
         for platform, runtime in selected_runtimes:
             application_inputs.append({'platform': platform, **verify_application_inputs(runtime)})
         if args.runtime_cache:

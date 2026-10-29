@@ -1,5 +1,5 @@
 /** Product releases and persisted formats deliberately have separate identities. */
-export const PRODUCT_VERSION='1.3.0';
+export const PRODUCT_VERSION='1.3.1';
 export const STORAGE_FORMAT_VERSION=2;
 export const NORMALIZED_SCHEMA_VERSION=2;
 export const LEGACY_STORAGE_OWNER='threadshelf-local-analytics:1';

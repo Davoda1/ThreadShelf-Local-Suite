@@ -111,6 +111,13 @@
     return String(value || 'text').trim().split(/\s/)[0].slice(0, 40).replace(/[^a-zA-Z0-9_+#.\/-]/g, '') || 'text';
   }
   const renderer = window.marked ? new window.marked.Renderer() : null;
+  // Keep file-citation tokens local to this renderer. Source messages, copying,
+  // exports and the shared rich/math renderer retain their original inputs.
+  const markdownParser = window.marked ? new window.marked.Marked({
+    extensions: window.TSAFileCitations
+      ? [window.TSAFileCitations.createFileCitationExtension({style:'chip',classPrefix:'tsa-file'})]
+      : []
+  }) : null;
   if (renderer) {
     renderer.html = token => escape(token.raw || token.text || token);
     renderer.code = token => {
@@ -141,7 +148,10 @@
     const attributes = new Set(['class','title','href','target','rel','align','start','colspan','rowspan','type','disabled','checked','role','aria-label','data-code-language','data-highlight','data-copy-code','data-load-image','data-image-alt','data-image-state']);
     for (const element of [...template.content.querySelectorAll('*')]) {
       if (!allowed.has(element.tagName)) { element.replaceWith(document.createTextNode(element.textContent || '')); continue; }
-      for (const attr of [...element.attributes]) if (!attributes.has(attr.name) || /^on/i.test(attr.name)) element.removeAttribute(attr.name);
+      for (const attr of [...element.attributes]) {
+        const citationAria = element.tagName === 'SPAN' && ['aria-disabled','aria-hidden'].includes(attr.name);
+        if ((!attributes.has(attr.name) && !citationAria) || /^on/i.test(attr.name)) element.removeAttribute(attr.name);
+      }
       if (element.tagName === 'A') {
         const url = safeUrl(element.getAttribute('href'));
         if (url) { element.setAttribute('href',url); element.setAttribute('rel','noopener noreferrer'); element.setAttribute('target','_blank'); } else element.removeAttribute('href');
@@ -157,7 +167,7 @@
     if (!renderer) return `<pre class="tsa-plain-fallback">${escape(text)}</pre>`;
     const protectedMath = rich?.Math?.protectMathInMarkdown(text) || {content: text, ids: []};
     try {
-      const html = sanitize(window.marked.parse(protectedMath.content,{renderer,gfm:true,breaks:true}));
+      const html = sanitize(markdownParser.parse(protectedMath.content,{renderer,gfm:true,breaks:true}));
       return rich?.Math ? rich.Math.restoreMathPlaceholders(html,protectedMath.ids) : html;
     } catch {
       rich?.Math?.discardMathRecords(protectedMath.ids);

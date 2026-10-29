@@ -1,11 +1,12 @@
 import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
 import { isHiddenThoughtsMessage } from './messages.js';
 import { formatJsonResponse } from './json-response.js';
+import { createFileCitationExtension } from './file-citations.js';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
 import { highlighter, normalizeCodeLanguage, getCodeLanguageLabel } from './highlight.js';
 export { normalizeCodeLanguage } from './highlight.js';
 import { tr } from './locale.js';
-import { marked } from 'marked';
+import { Marked, Renderer } from 'marked';
 import { prepareRichMarkdown } from './rich-parser.js';
 import { renderRichHtml } from './rich-renderer.js';
 import { wrapMarkdownImage, mountMarkdownImages, unlinkMarkdownImages, destroyMarkdownImages } from './markdown-images.js';
@@ -39,9 +40,10 @@ function createMessageCollapseChevron() {
   return icon;
 }
 
-marked.setOptions({
+const marked = new Marked({
   breaks: true,
   gfm: true,
+  extensions: [createFileCitationExtension()],
 });
 
 function escapeHtml(value = '') {
@@ -59,7 +61,7 @@ function extractLanguageFromClassName(className = '') {
 }
 
 function createMarkedRenderer() {
-  const renderer = new marked.Renderer();
+  const renderer = new Renderer();
   const defaultLink = renderer.link.bind(renderer);
 
   renderer.code = function code(token) {
@@ -151,7 +153,7 @@ function sanitizeRenderedHtml(html) {
     IMG: new Set(['src', 'alt']),
     PRE: new Set(['data-language']),
     CODE: new Set(['data-language', 'data-highlighted', 'data-original-code']),
-    SPAN: new Set(['data-chatgpt-math-id']),
+    SPAN: new Set(['data-chatgpt-math-id', 'role', 'aria-disabled', 'aria-hidden']),
     DIV: new Set(['data-chatgpt-math-id']),
     TH: new Set(['align', 'colspan', 'rowspan']),
     TD: new Set(['align', 'colspan', 'rowspan']),

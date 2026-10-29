@@ -12,7 +12,7 @@ const output = path.resolve(process.env.MANUAL_SCREENSHOTS || path.join(root, '.
 (async () => {
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'alternative-manual-'));
   let electron;
-  const report = { product: 'ThreadShelf Local Alternative', version: '1.3.0', data: 'Bundled synthetic demo only', screenshots: [], errors: [], requests: [] };
+  const report = { product: 'ThreadShelf Local Alternative', version: '1.3.1', data: 'Bundled synthetic demo only', screenshots: [], errors: [], requests: [] };
   try {
     await fs.mkdir(output, { recursive: true });
     const wrapper = path.join(temporary, 'capture-main.cjs');
@@ -33,7 +33,7 @@ const output = path.resolve(process.env.MANUAL_SCREENSHOTS || path.join(root, '.
     await page.waitForSelector('#app[data-ready="true"]');
     await electron.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setContentSize(1440, 960));
     const info = await page.evaluate(() => alternative.getInfo());
-    assert.equal(info.version, '1.3.0');
+    assert.equal(info.version, '1.3.1');
     assert.equal(Object.hasOwn(info, 'revision'), false);
     const screenshot = async name => {
       await page.evaluate(() => document.fonts.ready);

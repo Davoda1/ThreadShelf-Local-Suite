@@ -1,16 +1,18 @@
-# ThreadShelf Local Analytics 1.3.0
+# ThreadShelf Local Analytics 1.3.1
 
 An offline Electron desktop companion for examining archived AI conversations. It reads ThreadShelf Local Reader storage and supported exported files without writing to the sources. Analytics owns the settings, captures, derived indexes, views and annotations it creates.
 
 This application is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). See the suite manual and [Analytics user guide](docs/User-Guide.md) for the complete workflows.
 
+Version 1.3.1 keeps Analytics aligned with the suite release. Its read-only analysis behaviour and storage formats are unchanged; MathJax is used by Reader and Alternative, not Analytics.
+
 ## Install and start
 
 | Package | Start |
 | --- | --- |
-| `ThreadShelf-Local-Analytics-1.3.0-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
-| `ThreadShelf-Local-Analytics-1.3.0-Linux-amd64.tar.gz` | Extract, then open `bin/threadshelf-local-analytics` or the root executable link. Both point directly to the native executable. |
-| `threadshelf-local-analytics_1.3.0_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.3.0_amd64.deb`, then open the desktop application. |
+| `ThreadShelf-Local-Analytics-1.3.1-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
+| `ThreadShelf-Local-Analytics-1.3.1-Linux-amd64.tar.gz` | Extract, then open the real `threadshelf-local-analytics` executable at the extraction root. |
+| `threadshelf-local-analytics_1.3.1_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.3.1_amd64.deb`, then open the desktop application. |
 
 Ordinary use needs no administrator privileges, separately installed Node, archiver, AI model or network connection. Source scripts are development tools.
 
@@ -35,7 +37,7 @@ Captures contain conversation text on your computer. Default reports exclude evi
 
 Capture history is disabled by default. When enabled, choose count and byte limits in Analytics settings. The active capture and protected recovery predecessor are independent of routine history eviction. Removing a source or clearing that source's cache deletes positively owned Analytics data only.
 
-The candidate application version is 1.3.0. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
+The application version is 1.3.1. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
 
 ## Build from source
 

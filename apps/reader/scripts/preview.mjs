@@ -23,12 +23,22 @@ const holidayBundle=await build({absWorkingDir:root,entryPoints:['scripts/previe
 const holidayScript=holidayBundle.outputFiles[0].text;
 const css=built.outputFiles.filter(f=>f.path.endsWith('.css')).map(f=>f.text).join('\n');
 if(!js||!css)throw new Error('UI and CSS bundle must exist for preview.');
-const assets={};for(const name of ['mathjax-tex-svg.js','mermaid.min.js'])assets[name]='data:text/javascript;base64,'+(await readFile(path.join(root,'public',name))).toString('base64');
+const assets={mathjaxComponentsPreloaded:true};
+for(const name of ['mathjax-tex-svg.js','mathjax-original-tex-font.js','mathjax-compat.js','mermaid.min.js']){
+  let code=await readFile(path.join(root,'public',name),'utf8');
+  if(name==='mathjax-tex-svg.js'){
+    // Register the trusted local accessibility component synchronously before
+    // MathJax's startup microtask. Its loader cannot resolve data-URL paths.
+    code+='\n'+await readFile(path.join(root,'public/mathjax-assistive-mml.js'),'utf8');
+    code+="\nMathJax.loader.preLoaded('a11y/assistive-mml');\n";
+  }
+  assets[name]='data:text/javascript;base64,'+Buffer.from(code).toString('base64');
+}
 const waves={};for(const [theme,name] of Object.entries({dark:'quiet-water-v4-1920x1080-24fps.mp4',light:'05-day-loop.mp4',holiday:'01-multicolour-loop.mp4'}))waves[theme]='data:video/mp4;base64,'+(await readFile(path.join(root,'public/waves',name))).toString('base64');
 const notices=await readFile(path.join(root,'THIRD-PARTY-NOTICES.md'),'utf8');
 const license=await readFile(path.join(root,'LICENSE'),'utf8');
 const holidayNotices=await readFile(path.join(root,'src/desktop/holiday/assets/data/HOLIDAY-LICENSES.txt'),'utf8');
-const rendererLicenses=(await Promise.all(['Mermaid-LICENSE.txt','MathJax-Upstream-LICENSE.txt','highlight.js-LICENSE.txt','marked-LICENSE.md','Ayu-MIT.txt','NotoSansJP-OFL.txt'].map(async name=>`\n\n--- ${name} ---\n${await readFile(path.join(root,'licenses',name),'utf8')}`))).join('');
+const rendererLicenses=(await Promise.all(['Mermaid-LICENSE.txt','MathJax-Upstream-LICENSE.txt','MathJax-Original-TeX-Font-LICENSE.txt','highlight.js-LICENSE.txt','marked-LICENSE.md','Ayu-MIT.txt','NotoSansJP-OFL.txt'].map(async name=>`\n\n--- ${name} ---\n${await readFile(path.join(root,'licenses',name),'utf8')}`))).join('');
 const icon='data:image/svg+xml;base64,'+(await readFile(path.join(root,'build/icon.svg'))).toString('base64');
 const titles=['Reading the complete conversation','Designing a modular controller','Keyboard layout detection','Safer archive imports','Mermaid repair in practice','A small guide to mathematics','The C++ build checklist','Working with saved reading','Making settings accessible','Local search without a model','Color-coded device controls','F13 through F24 on Linux','A portable Windows directory','Understanding a state machine','Collection and source identity','Comparing two display panels','Firmware event timing','Preserving tool output','Thoughts, prompts and answers','A small Rust parser','Normalizing exported records','An offline reading workflow','Planning a multilingual UI','When a server is unavailable','Small-screen navigation','Preserving code block languages','Checking export provenance','Reading in four languages'];
 const providers=['openai','anthropic','grok','gemini','venice','meta','openrouter','lm-studio','google-ai-studio'];

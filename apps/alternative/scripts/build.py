@@ -21,7 +21,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCT = 'ThreadShelf Local Alternative'
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.3.0'
+PREFIX = 'ThreadShelf-Local-Alternative-1.3.1'
 ELECTRON = '45.1.0'
 HASHES = {
     'linux': '9dafab2c57ce209f8f716f8f3e4fddd8ffe0820e2455bfbbfc00b0fc13e03a3b',
@@ -64,7 +64,7 @@ def package_notices(runtime_prefix=''):
     app = runtime_prefix + 'resources/app/'
     return f'''# Distribution notices
 
-ThreadShelf Local Alternative 1.3.0 is an independent application by davoda1.
+ThreadShelf Local Alternative 1.3.1 is an independent application by davoda1.
 Original application code is MIT licensed: [application license]({runtime_prefix}APPLICATION-LICENSE).
 
 The complete component credits and terms are retained in the
@@ -205,7 +205,8 @@ def tar_tree(source: Path, destination: Path, prefix: str, files):
                     info.uid = info.gid = 0
                     info.uname = info.gname = 'root'
                     return info
-                tar.add(source, arcname=prefix, recursive=False, filter=metadata)
+                if prefix:
+                    tar.add(source, arcname=prefix, recursive=False, filter=metadata)
                 for name in sorted(files):
                     tar.add(source / name, arcname=(Path(prefix) / name).as_posix(), recursive=False, filter=metadata)
 
@@ -219,7 +220,7 @@ def windows(args, work: Path, out: Path):
     exe = stage / f'{PRODUCT}.exe'
     subprocess.run([args.node, str(ROOT / 'scripts/rebrand-windows.mjs'), str(stage / 'electron.exe'), str(exe)], check=True)
     (stage / 'electron.exe').unlink()
-    (stage / 'version').write_text('1.3.0\n', encoding='utf-8')
+    (stage / 'version').write_text('1.3.1\n', encoding='utf-8')
     assert_runtime_tree(stage, manifest, 'Windows staging')
     if not args.stage_only:
         artifact = out / f'{PREFIX}-Windows-x64-Portable.zip'
@@ -230,7 +231,7 @@ def windows(args, work: Path, out: Path):
 def linux(args, work: Path, out: Path):
     stage = work / 'stage-linux'
     clean_stage(stage, work)
-    runtime_dir = stage / 'lib' / SLUG
+    runtime_dir = stage
     archive = runtime(args.runtime_cache, 'linux', args.download)
     manifest = runtime_file_manifest(archive, 'linux')
     extract(archive, runtime_dir)
@@ -239,17 +240,11 @@ def linux(args, work: Path, out: Path):
     (runtime_dir / SLUG).chmod(0o755)
     for name in ('chrome_crashpad_handler', 'chrome-sandbox'):
         (runtime_dir / name).chmod(0o755)
-    (runtime_dir / 'version').write_text('1.3.0\n', encoding='utf-8')
-    (stage / 'bin').mkdir()
-    (stage / 'bin' / SLUG).symlink_to(f'../lib/{SLUG}/{SLUG}')
-    (stage / 'README.md').write_text(package_readme(f'lib/{SLUG}/'), encoding='utf-8', newline='\n')
+    (runtime_dir / 'version').write_text('1.3.1\n', encoding='utf-8')
     assert_runtime_tree(runtime_dir, manifest, 'Linux staging')
     if not args.stage_only and args.target in ('all', 'linux'):
         artifact = out / f'{PREFIX}-Linux-amd64.tar.gz'
-        portable = {f'lib/{SLUG}/' + name for name in manifest} | {f'bin/{SLUG}'}
-        if (ROOT / 'README.md').is_file():
-            portable.add('README.md')
-        tar_tree(stage, artifact, f'{PREFIX}-Linux-amd64', portable)
+        tar_tree(stage, artifact, '', manifest)
         print(artifact)
     if args.target in ('all', 'deb'):
         deb(args, work, out, runtime_dir, manifest)
@@ -276,12 +271,17 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     (app / 'chrome-sandbox').chmod(0o4755)
     binary = stage / 'usr/bin'
     binary.mkdir(parents=True)
-    (binary / SLUG).symlink_to(f'/opt/{SLUG}/{SLUG}')
+    subprocess.run([os.environ.get('CC', 'cc'), '-static', '-Os', '-s', '-Wl,-z,relro,-z,now',
+                    f'-DTHREADSHELF_EXECUTABLE="/opt/{SLUG}/{SLUG}"',
+                    str(ROOT / 'scripts/native-entry.c'), '-o', str(binary / SLUG)], check=True)
+    (binary / SLUG).chmod(0o755)
+    if (binary / SLUG).is_symlink() or (binary / SLUG).read_bytes()[:6] != b'\x7fELF\x02\x01':
+        raise SystemExit('Debian entry point must be a regular native AMD64 ELF')
     applications = stage / 'usr/share/applications'
     applications.mkdir(parents=True)
     (applications / f'{SLUG}.desktop').write_text(
         f'[Desktop Entry]\nType=Application\nName={PRODUCT}\nComment=Search and read your ThreadShelf server\n'
-        f'Exec={SLUG}\nIcon={SLUG}\nTerminal=false\nCategories=Office;Utility;\nStartupWMClass={SLUG}\n', encoding='utf-8')
+        f'Exec=/usr/bin/{SLUG}\nIcon={SLUG}\nTerminal=false\nCategories=Office;Utility;\nStartupWMClass={SLUG}\n', encoding='utf-8')
     icons = stage / 'usr/share/icons/hicolor/512x512/apps'
     icons.mkdir(parents=True)
     shutil.copy2(ROOT / 'assets/icon.png', icons / f'{SLUG}.png')
@@ -294,7 +294,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     control.mkdir()
     installed_kib = sum((app / name).stat().st_size for name in manifest) // 1024
     (control / 'control').write_text(
-        f'Package: {SLUG}\nVersion: 1.3.0\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
+        f'Package: {SLUG}\nVersion: 1.3.1\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
         f'Maintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: {installed_kib}\n'
         'Depends: libasound2t64 | libasound2, libatk1.0-0t64 | libatk1.0-0, libatk-bridge2.0-0t64 | libatk-bridge2.0-0, '
         'libatspi2.0-0t64 | libatspi2.0-0, libc6 (>= 2.31), libcairo2, libcups2t64 | libcups2, libdbus-1-3, '
@@ -305,7 +305,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     if not args.stage_only:
         if not shutil.which('dpkg-deb'):
             raise SystemExit('dpkg-deb is required to build the Debian package. Use Linux or WSL.')
-        artifact = out / f'{SLUG}_1.3.0_amd64.deb'
+        artifact = out / f'{SLUG}_1.3.1_amd64.deb'
         expected = {f'opt/{SLUG}/' + name for name in manifest}
         expected.update({f'usr/bin/{SLUG}', f'usr/share/applications/{SLUG}.desktop', f'usr/share/icons/hicolor/512x512/apps/{SLUG}.png'})
         expected.update(f'usr/share/doc/{SLUG}/{name}' for name in ('README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / name).is_file())
@@ -317,7 +317,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
             invalid_types = []
             for member in tar:
                 name = member.name.removeprefix('./')
-                if not (member.isfile() or member.isdir() or (name == f'usr/bin/{SLUG}' and member.issym() and member.linkname == f'/opt/{SLUG}/{SLUG}')):
+                if not (member.isfile() or member.isdir()):
                     invalid_types.append(name)
                 if not member.isdir():
                     actual.append(name)

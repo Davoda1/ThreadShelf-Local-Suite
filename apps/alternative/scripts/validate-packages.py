@@ -16,7 +16,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.3.0'
+PREFIX = 'ThreadShelf-Local-Alternative-1.3.1'
 APP_ROOTS = ('core', 'renderer', 'assets', 'vendor', 'licenses')
 
 def build_module():
@@ -144,28 +144,26 @@ def main():
     if 'linux' in platforms:
         linux = args.directory / f'{PREFIX}-Linux-amd64.tar.gz'
         with tarfile.open(linux) as tar:
-            prefix = f'{PREFIX}-Linux-amd64/'
+            prefix = ''
             names = tar.getnames()
             for member in tar.getmembers():
-                tar_entry_type(member, prefix + 'bin/' + SLUG, f'../lib/{SLUG}/{SLUG}')
+                tar_entry_type(member, None, None)
             no_launchers(names)
-            link = tar.getmember(prefix + 'bin/' + SLUG)
-            assert link.issym() and link.linkname == f'../lib/{SLUG}/{SLUG}'
-            executable = tar.getmember(prefix + f'lib/{SLUG}/{SLUG}')
+            executable = tar.getmember(SLUG)
+            assert executable.isfile()
             assert executable.mode & 0o111
             native_elf(tar.extractfile(executable).read(20))
             read = lambda name: tar.extractfile(name).read()
-            parity(read, prefix + f'lib/{SLUG}/resources/app/', expected)
-            assert read(prefix + 'README.md') == build.package_readme(f'lib/{SLUG}/').encode('utf-8')
-            assert read(prefix + f'lib/{SLUG}/README.md') == build.package_readme().encode('utf-8')
-            assert read(prefix + f'lib/{SLUG}/THIRD-PARTY-NOTICES.md') == build.package_notices().encode('utf-8')
-            assert read(prefix + f'lib/{SLUG}/APPLICATION-LICENSE') == (ROOT / 'LICENSE').read_bytes()
-            for name in ('README.md', f'lib/{SLUG}/README.md', f'lib/{SLUG}/THIRD-PARTY-NOTICES.md'):
+            parity(read, 'resources/app/', expected)
+            assert read('README.md') == build.package_readme().encode('utf-8')
+            assert read('THIRD-PARTY-NOTICES.md') == build.package_notices().encode('utf-8')
+            assert read('APPLICATION-LICENSE') == (ROOT / 'LICENSE').read_bytes()
+            for name in ('README.md', 'THIRD-PARTY-NOTICES.md'):
                 document_links(prefix + name, read(prefix + name), names)
             if runtime_specs:
                 files, hashes = runtime_specs['linux']
-                runtime_prefix = prefix + f'lib/{SLUG}/'
-                wanted = {runtime_prefix + n for n in files} | {prefix + 'README.md', prefix + f'bin/{SLUG}'}
+                runtime_prefix = ''
+                wanted = files
                 exact_names([m.name for m in tar.getmembers() if m.isfile() or m.issym()], wanted, 'Linux portable')
                 runtime_seen = set()
                 for member in tar.getmembers():
@@ -174,13 +172,13 @@ def main():
                         assert stream_hash(tar.extractfile(member)) == hashes[relative], member.name
                         runtime_seen.add(relative)
                 assert runtime_seen == set(hashes), 'Missing Linux runtime hash coverage'
-            report['checks'].append({'package': linux.name, 'bin_symlink_to_native_elf': True, 'no_launcher_scripts': True, 'source_parity': True})
-        deb = args.directory / f'{SLUG}_1.3.0_amd64.deb'
+            report['checks'].append({'package': linux.name, 'native_root_elf': True, 'no_launcher_scripts': True, 'source_parity': True})
+        deb = args.directory / f'{SLUG}_1.3.1_amd64.deb'
         metadata = subprocess.check_output(['dpkg-deb', '-f', str(deb)], text=True)
-        assert 'Package: ' + SLUG in metadata and 'Version: 1.3.0' in metadata and 'Architecture: amd64' in metadata
+        assert 'Package: ' + SLUG in metadata and 'Version: 1.3.1' in metadata and 'Architecture: amd64' in metadata
         # Stream the archive to avoid loading the 400+ MB runtime in memory.
         process = subprocess.Popen(['dpkg-deb', '--fsys-tarfile', str(deb)], stdout=subprocess.PIPE)
-        checks = {'link': False, 'elf': False, 'sandbox': False, 'desktop': False, 'readme': False}
+        checks = {'entrypoint': False, 'elf': False, 'sandbox': False, 'desktop': False, 'readme': False}
         seen = set()
         data_names = []
         runtime_seen = set()
@@ -197,7 +195,7 @@ def main():
         with tarfile.open(fileobj=process.stdout, mode='r|') as tar:
             for member in tar:
                 name = member.name.removeprefix('./')
-                tar_entry_type(member, f'usr/bin/{SLUG}', f'/opt/{SLUG}/{SLUG}')
+                tar_entry_type(member, None, None)
                 if member.isfile() or member.issym():
                     data_names.append(name)
                 no_launchers([name])
@@ -211,8 +209,9 @@ def main():
                     assert stream_hash(content, initial) == linux_hashes[runtime_relative], name
                     runtime_seen.add(runtime_relative)
                 if name == 'usr/bin/' + SLUG:
-                    assert member.issym() and member.linkname == f'/opt/{SLUG}/{SLUG}'
-                    checks['link'] = True
+                    assert member.isfile() and member.mode & 0o111
+                    native_elf(tar.extractfile(member).read(20))
+                    checks['entrypoint'] = True
                 if name == f'opt/{SLUG}/{SLUG}':
                     assert member.mode & 0o111
                     if not runtime_specs:
@@ -222,7 +221,7 @@ def main():
                     assert member.mode == 0o4755
                     checks['sandbox'] = True
                 if name == f'usr/share/applications/{SLUG}.desktop':
-                    assert f'Exec={SLUG}\n' in tar.extractfile(member).read().decode()
+                    assert f'Exec=/usr/bin/{SLUG}\n' in tar.extractfile(member).read().decode()
                     checks['desktop'] = True
                 if name == f'usr/share/doc/{SLUG}/README.md':
                     checks['readme'] = True
@@ -246,7 +245,7 @@ def main():
             wanted.update(f'usr/share/doc/{SLUG}/{n}' for n in ('README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / n).is_file())
             exact_names(data_names, wanted, 'Debian data archive')
             assert runtime_seen == set(linux_hashes)
-        report['checks'].append({'package': deb.name, 'usr_bin_symlink_to_native_elf': True, 'root_ownership': True, 'sandbox_mode_4755': True, 'desktop_entry': True, 'no_launcher_scripts': True, 'source_parity': True})
+        report['checks'].append({'package': deb.name, 'usr_bin_regular_native_elf': True, 'root_ownership': True, 'sandbox_mode_4755': True, 'desktop_entry': True, 'no_launcher_scripts': True, 'source_parity': True})
     if runtime_specs:
         report['official_runtime_files_and_hashes_verified'] = True
     report['packaged_document_links_verified'] = True

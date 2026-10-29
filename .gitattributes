@@ -46,3 +46,9 @@ maintainer/onnx-source-inputs/** -text
 # Preserve exact source-publication proof and retained upstream input bytes.
 maintainer/source-publication/** -text
 maintainer/PUBLICATION-SOURCE-INPUTS.json -text
+
+# Preserve pinned upstream and generated MathJax component hashes.
+apps/reader/public/mathjax-*.js -text
+apps/alternative/vendor/mathjax-*.js -text
+apps/reader/licenses/MathJax-*.txt -text
+apps/alternative/vendor/licenses/MathJax-*.txt -text

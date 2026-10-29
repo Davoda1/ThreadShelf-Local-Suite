@@ -1,16 +1,18 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.3.0 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.3.1 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
 Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The original [ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf) provides the optional server. See the suite's illustrated Gopher manual for the full user guide.
 
+Version 1.3.1 uses bundled MathJax 4.1.3 with compatibility settings that preserve the established equation appearance. Exported ChatGPT/Codex file references display as readable file cards with consistent document icons; original message copy and export remain unchanged.
+
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.3.0-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.3.0-Linux-amd64.tar.gz` and run `bin/threadshelf-local-reader`. It links directly to the native executable; preserve the directory structure and symlinks.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.3.0_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.3.0_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.3.1-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.3.1-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.3.1_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.3.1_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js or npm. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -28,7 +30,7 @@ Supported import adapters include ChatGPT, Claude/Anthropic, Gemini/Google AI St
 
 Local and Server are independent sources. Reading from a server does not automatically import that server's archive. Explicit server import copies selected data into the local archive. Enter your own server URL in Settings; the default is `http://localhost:3000/`.
 
-Complete cursor-paged server search needs the suite's [ThreadShelf 1.3.0 server patch](https://github.com/Davoda1/ThreadShelf-Local-Suite/tree/master/server-patch). The bundled `server-support/README.md` points to the patch instructions. The original server is obtained separately from the upstream repository.
+Complete cursor-paged server search needs the suite's [ThreadShelf 1.3.1 server patch](https://github.com/Davoda1/ThreadShelf-Local-Suite/tree/master/server-patch). The bundled `server-support/README.md` points to the patch instructions. The original server is obtained separately from the upstream repository.
 
 The standalone Local Analytics application can capture supported Reader archive data through Analytics' read-only adapter. Reader's integrated **Activity** and server **Insights** views are separate features.
 

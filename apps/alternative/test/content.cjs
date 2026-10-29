@@ -1,3 +1,4 @@
+const {pathToFileURL}=require('node:url');
 /* Browser-level safety/rendering regressions. Run with PLAYWRIGHT_PATH and CHROMIUM_PATH if not installed locally. */
 const assert = require('node:assert/strict');
 const path = require('node:path');
@@ -11,9 +12,11 @@ const root=path.resolve(__dirname,'..');
  const page=await browser.newPage({viewport:{width:1100,height:850}});const errors=[];const requests=[];
  await page.route('https://example.com/sample.png',route=>route.fulfill({status:404,body:'Missing synthetic fixture'}));
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
+ await page.goto(pathToFileURL(path.join(root,'test/empty.html')).href);
  await page.setContent('<!doctype html><html data-theme="light"><head></head><body><main style="max-width:760px;margin:30px auto;font-family:system-ui" id="content"></main></body></html>');
  await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;},process.env.CONTENT_THEME||'light');
- for(const f of ['vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js']) await page.addScriptTag({path:path.join(root,f)});
+ await page.evaluate(href=>{const base=document.createElement('base');base.href=href;document.head.prepend(base);},pathToFileURL(path.join(root,'renderer/')).href);
+ for(const f of ['vendor/mathjax-original-tex-font.js','vendor/mathjax-compat.js','vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js']) await page.addScriptTag({path:path.join(root,f)});
  if(fs.existsSync(path.join(root,'renderer/app.css')))await page.addStyleTag({path:path.join(root,'renderer/app.css')});
  await page.addStyleTag({path:path.join(root,'renderer/content.css')});
  await page.addStyleTag({path:path.join(root,'renderer/code-themes.css')});

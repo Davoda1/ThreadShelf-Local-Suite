@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.1 — 2026-10-29
+
+- Upgrade Reader and Alternative to pinned MathJax 4.1.3 with local assets, the original TeX font data and a version-checked compatibility layer that preserves established mathematical layout.
+- Retain strict renderer isolation, offline math rendering and assistive MathML without enabling remote font loading or worker-based speech features.
+- Render exported ChatGPT/Codex file citations as readable file cards, with broad extension labels and consistent document icons. Preserve original message copy/export and existing link restrictions.
+- Restore the required native package layout: a real top-level Linux portable binary and a regular native `/usr/bin` executable in each DEB; Windows portable EXEs remain at the archive root.
+- Align Reader, Analytics and Alternative at application version 1.3.1. Analytics functionality, application profiles, storage/schema identifiers and the Electron/Node/npm/ONNX pins remain unchanged.
+- Put the real Linux portable executable at archive root and install a regular native ELF command in `/usr/bin` for DEB packages, with no symlink or script launcher. Windows portable EXEs remain at archive root.
+- Update current binary, preview, source and checksum links. Reuse the unchanged v1.3.0 runtime/ONNX source companions and v1.0.0 native-source/manual assets.
+- Record the bounded validation performed for this patch in [the 1.3.1 review](maintainer/REVIEW-1.3.1.md).
+
 ## 1.3.0 — 2026-10-28
 
 - Align Reader, Analytics and Alternative application versions at 1.3.0 without changing persisted data/schema identifiers.

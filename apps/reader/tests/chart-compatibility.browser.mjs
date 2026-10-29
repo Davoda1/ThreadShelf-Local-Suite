@@ -40,7 +40,7 @@ page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(5000);
 await context.route('**/*',async route=>{
  const u=new URL(route.request().url());if(u.origin!=='http://reader-chart.test'){requests.push(u.href);return route.abort();}
  if(u.pathname==='/')return route.fulfill({contentType:'text/html',body:'<!doctype html><html><head><link rel="stylesheet" href="/test.css"><style>#host{position:absolute;inset:0;min-width:0;min-height:0}#outside{position:fixed;right:0;bottom:0;width:8px;height:8px}</style></head><body><div id="host"></div><button id="outside" aria-label="Outside chart"></button><script src="/test.js"></script></body></html>'});
- const name=decodeURIComponent(u.pathname.slice(1));const directory=['mathjax-tex-svg.js','mermaid.min.js'].includes(name)?path.join(root,'public'):tmp;
+ const name=decodeURIComponent(u.pathname.slice(1));const directory=['mathjax-tex-svg.js','mathjax-assistive-mml.js','mathjax-original-tex-font.js','mathjax-compat.js','mermaid.min.js'].includes(name)?path.join(root,'public'):tmp;
  const file=path.resolve(directory,name);if(!file.startsWith(directory+path.sep))return route.abort();
  try{return route.fulfill({contentType:file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream',body:await fs.readFile(file)});}catch{return route.fulfill({status:404,body:'Not found'});}
 });

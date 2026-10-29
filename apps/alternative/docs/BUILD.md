@@ -1,6 +1,6 @@
 # Build and package
 
-Application version: **1.3.0**. This is an independent product.
+Application version: **1.3.1**. This is an independent product.
 
 ## Requirements
 
@@ -57,7 +57,7 @@ py -3 scripts/build.py --target windows --download
 
 Or use `scripts\build.ps1 --target windows --download` / `scripts\build.cmd
 --target windows --download`. Linux tarball and Debian builds should be performed
-on Linux or WSL, where symlink creation and Unix file permissions are preserved.
+on Linux or WSL, where the static native entry point can be compiled and Unix file permissions are preserved.
 
 ## Outputs and staging
 
@@ -74,12 +74,11 @@ after validation; change the source and rebuild instead.
 ## Package entry points
 
 - Windows: `ThreadShelf Local Alternative.exe` at the ZIP root. Native x64 PE.
-- Linux portable: `bin/threadshelf-local-alternative`, a relative symlink to the
-  native ELF at `lib/threadshelf-local-alternative/threadshelf-local-alternative`.
-- Debian: `/usr/bin/threadshelf-local-alternative`, a symlink to the native ELF
-  under `/opt/threadshelf-local-alternative/`. A desktop menu entry is included.
+- Linux portable: the real `threadshelf-local-alternative` ELF and runtime files at archive root.
+- Debian: a regular static ELF `/usr/bin/threadshelf-local-alternative` entry point
+  executes the runtime under `/opt/threadshelf-local-alternative/` without a shell. A desktop menu entry is included.
 
-No runtime launchers or shell wrappers are created. Chromium's renderer sandbox
+No script launchers or shell wrappers are created. Chromium's renderer sandbox
 remains enabled. The portable Linux package requires a desktop environment that
 supports Electron's sandbox. The Debian package installs the upstream sandbox
 helper with root ownership and the required setuid mode; it uses no maintainer
@@ -91,14 +90,14 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.3.0.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.3.1.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 
 ## Verification
 
 `validate-packages.py` confirms the native Windows root EXE, native Linux targets,
-symlink destinations, Debian metadata and ownership, desktop entry, runtime
+regular ELF entry points, Debian metadata and ownership, desktop entry, runtime
 license files, absence of launcher scripts and build tools, and exact SHA-256
 parity between every included application file and the source tree. It does not
 claim to replace native Windows execution or Linux distribution installation

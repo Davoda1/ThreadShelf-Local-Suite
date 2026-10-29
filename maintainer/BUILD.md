@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds **1.3.0 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds **1.3.1 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -10,7 +10,7 @@ The current tree builds **1.3.0 packages** for Reader, Analytics and Alternative
 | npm | **12.2.1**, managed copy with bundled **Undici 6.29.1** |
 | Electron (all three applications) | **45.1.0** |
 | Python | 3.10 or newer |
-| Debian packaging | GNU/Linux with `dpkg-deb`, `tar`, `gzip` |
+| Debian packaging | GNU/Linux with `dpkg-deb`, `tar`, `gzip`, and `cc` with static libc development files (for example `build-essential` on Debian/Ubuntu) |
 | Manual build | PHP CLI with ctype; see `manual/README.md` |
 
 Electron's embedded Node.js belongs to the Electron runtime and can differ from the Node.js used to build the application. Electron uses supported stable release lines; the term LTS above applies to the development Node.js toolchain.
@@ -86,7 +86,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0) supplies the exact tagged suite source, six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
+The [1.3.1 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.1) supplies the exact tagged application source. The unchanged Electron and ONNX source companions remain in [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0): six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
 
 Verify all downloaded assets against their original release's `SHA256SUM.txt`. Keep numbered source ZIPs together and extract only the metadata ZIPs into a separate directory. Both use the `source-publication/` namespace. The ordinary application packagers use official pinned Electron/ONNX binaries; rebuilding those dependencies is separate.
 
@@ -106,7 +106,7 @@ The manifests preserve the selected Linux/Windows Git dependency union, source-b
 - `package-lock.json`, runtime pins and official runtime checksum verification.
 - Bundled fonts, renderer libraries, codecs, notices, the suite Source archive, the scoped Native-Sources companion, every Runtime/ONNX source part and both metadata ZIPs.
 - Windows EXE at the portable ZIP root.
-- Linux `bin/` or `/usr/bin/` links resolving directly to the native executable.
+- Linux portable native executables at archive root and regular static ELF entry points in Debian `/usr/bin/`; no symlink or script launchers.
 - Correct native executable permissions and DEB sandbox-helper mode.
 - Application data-format/schema identifiers; they are not release-version strings.
 

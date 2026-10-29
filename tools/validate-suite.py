@@ -96,13 +96,9 @@ def staged_runtime(app, platform, version):
     slug = 'threadshelf-local-' + app
     if app == 'alternative':
         runtime = project / '.build' / ('stage-windows' if platform == 'win32' else 'stage-linux')
-        if platform == 'linux':
-            runtime = runtime / 'lib' / slug
     else:
         suffix = '-Windows-x64-Portable' if platform == 'win32' else '-Linux-amd64'
         runtime = project / '.packaging' / (product.replace(' ', '-') + '-' + version + suffix)
-        if platform == 'linux':
-            runtime = runtime / 'app'
     executable = runtime / (product + '.exe' if platform == 'win32' else slug)
     return runtime, executable
 
@@ -209,20 +205,19 @@ def packaged_gui(app, out, manifest, platform, env, replacements):
                 entry = runtime / (product + '.exe')
             elif kind == 'TAR':
                 # The preceding archive validator has already checked every
-                # path, byte, mode and approved native executable symlink.
+                # path, byte, mode and regular native executable.
                 with tarfile.open(archive, 'r:gz') as package:
                     extraction = {'filter': 'fully_trusted'} if hasattr(tarfile, 'fully_trusted_filter') else {}
                     package.extractall(relocated, **extraction)
-                portable = relocated / (stem + '-Linux-amd64')
-                runtime = portable / ('app' if app == 'reader' else 'lib/' + slug)
-                entry = portable / 'bin' / slug
+                runtime = relocated
+                entry = runtime / slug
             else:
                 run_checked(['dpkg-deb', '--extract', str(archive), str(relocated)],
                             ROOT, env, local_replacements, timeout=180)
                 runtime = relocated / 'opt' / slug
-                # Absolute /usr/bin links in a DEB resolve only after a system
-                # installation. Their exact target is checked by the archive
-                # validator; exercise the extracted native target directly here.
+                # The static /usr/bin entry point targets the installed absolute
+                # /opt location. The archive validator verifies it is native ELF;
+                # exercise the extracted Electron payload before installation.
                 entry = runtime / slug
             archived_manifest = json.loads((runtime / 'resources/app/package.json').read_text(encoding='utf-8'))
             if (archived_manifest.get('name'), archived_manifest.get('version')) != (manifest['name'], version):

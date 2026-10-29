@@ -11,11 +11,14 @@ import './rich-layout.css';
 import './rich-charts.css';
 
 let assetsReady;
+function assetURL(name) {
+  const embedded = window.__READER_ASSETS?.[name];
+  return typeof embedded === 'string' && embedded.startsWith('data:text/javascript;base64,') ? embedded : new URL(name, document.baseURI).href;
+}
 function loadScript(name) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    const embedded = window.__READER_ASSETS?.[name];
-    script.src = typeof embedded === 'string' && embedded.startsWith('data:text/javascript;base64,') ? embedded : new URL(name, document.baseURI).href;
+    script.src = assetURL(name);
     script.onload = resolve;
     script.onerror = () => reject(new Error(`Bundled renderer asset could not load: ${name}`));
     document.head.append(script);
@@ -25,12 +28,28 @@ function loadAssets() {
   if (!assetsReady) assetsReady = (async () => {
     window.hljs = hljs;
     window.MathJax = {
-      options: { enableMenu: false }, startup: { typeset: false, ready() {
+      // Retain the v3 visual and screen-reader behavior. MathJax 4's new
+      // speech/explorer defaults require workers; this reader uses local,
+      // clipped assistive MathML and deliberately permits no renderer workers.
+      loader: { load: window.__READER_ASSETS?.mathjaxComponentsPreloaded === true ? [] : ['a11y/assistive-mml'], source: { 'a11y/assistive-mml': assetURL('mathjax-assistive-mml.js') } },
+      options: {
+        enableMenu: false, enableEnrichment: false, enableSpeech: false, enableBraille: false,
+        enableExplorer: false, enableAssistiveMml: true,
+        menuOptions: { settings: { enrich: false, speech: false, braille: false, assistiveMml: true } },
+      },
+      output: { displayOverflow: 'overflow', linebreaks: { inline: false } },
+      startup: { typeset: false, ready() {
+        // Preserve Reader's original TeX package surface. V4's combined file
+        // additionally enables textmacros, which changes existing text input.
+        window.MathJax.config.tex.packages=['base','ams','newcommand','noundefined','require','autoload','configmacros'];
         const Menu = window.MathJax._.ui.menu.Menu.Menu;
         window.MathJax.config.options.MenuClass = class extends Menu { mergeUserSettings() {} saveUserSettings() {} };
+        window.ThreadShelfOriginalTeXFont.install(window.MathJax);
+        window.ThreadShelfMathJaxCompatibility.install(window.MathJax);
         window.MathJax.startup.defaultReady();
-      } }, svg: { fontCache: 'local' },
+      } }, svg: { fontCache: 'local', blacker: 3 },
     };
+    await Promise.all([loadScript('mathjax-original-tex-font.js'), loadScript('mathjax-compat.js')]);
     await Promise.all([loadScript('mathjax-tex-svg.js'), loadScript('mermaid.min.js')]);
     await window.MathJax?.startup?.promise;
   })();

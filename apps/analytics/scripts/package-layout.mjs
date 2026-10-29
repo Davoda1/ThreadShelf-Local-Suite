@@ -82,3 +82,17 @@ export async function assertNoLauncherScripts(...directories) {
     }
   }
 }
+
+// Current releases use a regular ELF entry point, never a symbolic link.
+export async function verifyNativeEntrypoint(file) {
+  const info = await fs.lstat(file);
+  if (!info.isFile() || !(info.mode & 0o111)) throw new Error(`Entry point must be an executable regular file: ${file}`);
+  const handle = await fs.open(file, 'r');
+  try {
+    const header = Buffer.alloc(20);
+    const { bytesRead } = await handle.read(header, 0, header.length, 0);
+    if (bytesRead !== 20 || !header.subarray(0, 6).equals(Buffer.from([0x7f, 0x45, 0x4c, 0x46, 2, 1])) || header.readUInt16LE(18) !== 62) {
+      throw new Error(`Entry point must be a native AMD64 ELF executable: ${file}`);
+    }
+  } finally { await handle.close(); }
+}

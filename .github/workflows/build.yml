@@ -71,6 +71,39 @@ jobs:
         run: python tools/build-suite.py --app ${{ matrix.app }} --target ${{ matrix.target }} --out release
       - name: Verify packages, native runtime and graphical application
         run: python tools/validate-suite.py --app ${{ matrix.app }} --platform ${{ matrix.platform }} --out release
+      - name: Build Reader offline preview
+        if: runner.os == 'Linux' && matrix.app == 'reader'
+        run: |
+          node apps/reader/scripts/preview.mjs
+          cp "apps/reader/release/ThreadShelf-Local-Reader-${{ steps.component.outputs.version }}-Preview.html" release/
+      - name: Build Alternative offline demo
+        if: runner.os == 'Linux' && matrix.app == 'alternative'
+        run: python apps/alternative/scripts/build-demo.py --output "release/ThreadShelf-Local-Alternative-${{ steps.component.outputs.version }}-Demo.html"
+      - name: Verify MathJax migration and Reader file citations
+        if: runner.os == 'Linux' && matrix.app == 'reader'
+        timeout-minutes: 10
+        env:
+          THREADSHELF_PLAYWRIGHT_MODULE: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core/index.mjs
+          READER_ELECTRON: ${{ github.workspace }}/apps/reader/node_modules/electron/dist/electron
+          READER_EVIDENCE: ${{ github.workspace }}/release/verification
+          MATHJAX_BASELINE_REV: afb268b01533e1f61602db3d01d3e4160bb0835b
+        run: |
+          node apps/reader/scripts/ensure-electron.mjs
+          git fetch --no-tags --depth=1 origin "$MATHJAX_BASELINE_REV"
+          xvfb-run -a node tools/tests/mathjax-migration.mjs > release/verification/reader-linux-mathjax.json
+          xvfb-run -a node apps/reader/tests/file-citations.browser.mjs
+          mv release/verification/file-citations-native.json release/verification/reader-linux-file-citations.json
+      - name: Verify Alternative file citations
+        if: runner.os == 'Linux' && matrix.app == 'alternative'
+        timeout-minutes: 10
+        env:
+          PLAYWRIGHT_PATH: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core
+          CITATION_REPORT: ${{ github.workspace }}/release/verification/alternative-linux-file-citations.json
+        run: |
+          node tools/mermaid-bundle/node_modules/playwright-core/cli.js install chromium
+          node apps/alternative/test/file-citations.browser.cjs
+      - name: Record exact publication inputs
+        run: python tools/assemble-release.py --record-inputs release --app ${{ matrix.app }} --platform ${{ matrix.platform }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.app }}-${{ matrix.target }}-${{ steps.component.outputs.version }}
@@ -78,7 +111,46 @@ jobs:
             release/*.zip
             release/*.tar.gz
             release/*.deb
+            release/*.html
             release/SHA256SUM.txt
             release/verification/*.json
           if-no-files-found: error
           retention-days: 14
+
+  publish:
+    name: Publish validated tagged release
+    needs: packages
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check release assembly safeguards
+        run: python3 -m unittest discover -s tools/tests -p test_assemble_release.py
+      - name: Download the six validated platform artifacts
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          for app in reader analytics alternative; do
+            for target in linux windows; do
+              name="$app-$target-$version"
+              gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$name" --dir "artifacts/$name"
+            done
+          done
+      - name: Assemble, verify uploads and publish this tag
+        run: >-
+          python3 tools/assemble-release.py --artifacts artifacts --out release-assets
+          --tag "$RELEASE_TAG" --repository "$GITHUB_REPOSITORY"
+          --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          --publish

@@ -526,5 +526,25 @@ class DebRuntimeProvenanceTests(unittest.TestCase):
         self.assertNotIn('omittedDefaultApp', result)
 
 
+
+class RegularNativeLayoutTests(unittest.TestCase):
+    def test_flat_portable_archive_requires_regular_root_elf(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            stage = root / 'stage'
+            stage.mkdir()
+            native = stage / 'threadshelf-local-analytics'
+            shutil.copyfile('/bin/true', native)
+            native.chmod(0o755)
+            archive = root / 'fixture-Linux.tar.gz'
+            with tarfile.open(archive, 'w:gz') as output:
+                output.add(native, arcname=native.name)
+            report = VALIDATOR.verify_archive(archive, stage)
+            self.assertEqual(report['launcherScriptDirectoriesChecked'], ['.'])
+            native.unlink()
+            native.symlink_to('/bin/true')
+            with self.assertRaisesRegex(ValueError, 'symlink'):
+                VALIDATOR.verify_archive(archive, stage)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

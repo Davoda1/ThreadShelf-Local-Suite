@@ -1,6 +1,6 @@
 # Third-party notices
 
-ThreadShelf Local Alternative 1.3.0 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
+ThreadShelf Local Alternative 1.3.1 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
 
 The server protocol is derived from inspection of Chrystian Schutz's ThreadShelf 1.3.0 and the suite's Reader pagination extension. ThreadShelf is MIT licensed; the notice is retained in `licenses/ThreadShelf-MIT.txt`. The server is independently installed and is not included in this application.
 

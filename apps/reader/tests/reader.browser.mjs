@@ -61,7 +61,7 @@ try {
  assert.ok(await page.locator('.language-ada .hljs-keyword').count());
  assert.equal(await page.locator('.message.tool .message-role').textContent(),'Tool');
  assert.equal(await page.evaluate(()=>window.pwned),undefined);
- assert.equal(await page.locator('script').count(),3); // test bundle plus local MathJax and Mermaid
+ assert.equal(await page.locator('script').count(),6); // test bundle, local font/compatibility, MathJax, assistive MathML and Mermaid
  passed.push('Markdown/table, full grammar highlighting, math, tool roles, inert archived HTML');
  assert.equal(await page.locator('.message.user').first().getAttribute('class'),'message user is-long-prompt is-prompt-collapsed');
  assert.ok((await page.locator('.message.thinking').getAttribute('class')).includes('is-reasoning-collapsed'));

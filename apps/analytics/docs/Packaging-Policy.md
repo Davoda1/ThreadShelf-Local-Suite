@@ -1,12 +1,12 @@
 # Packaging policy
 
-The unreleased 1.3.0 candidate produces these native packages:
+Version 1.3.1 produces these native packages:
 
-- `ThreadShelf-Local-Analytics-1.3.0-Windows-x64-Portable.zip`
-- `ThreadShelf-Local-Analytics-1.3.0-Linux-amd64.tar.gz`
-- `threadshelf-local-analytics_1.3.0_amd64.deb`
+- `ThreadShelf-Local-Analytics-1.3.1-Windows-x64-Portable.zip`
+- `ThreadShelf-Local-Analytics-1.3.1-Linux-amd64.tar.gz`
+- `threadshelf-local-analytics_1.3.1_amd64.deb`
 
-The Windows EXE is at the archive root. The Linux archive contains `bin/threadshelf-local-analytics` and a root link, each pointing directly to `app/threadshelf-local-analytics`. The DEB installs a native executable under `/opt/threadshelf-local-analytics` and a direct `/usr/bin` link. Runtime packages contain no GUI launcher scripts.
+The Windows EXE is at the archive root. The Linux archive contains the real `threadshelf-local-analytics` executable and its runtime files at root. The DEB installs a native executable under `/opt/threadshelf-local-analytics` and a regular static ELF entry point in `/usr/bin`. Runtime packages contain no GUI launcher scripts.
 
 ## Toolchain
 
@@ -29,6 +29,6 @@ python3 scripts/validate-packages.py --binaries --out release --runtime-cache .p
 
 On Windows use `scripts/run.ps1 -Build`, `scripts/run.ps1 -Test`, and `node scripts/package.mjs --win32 --out release`. The `run.cmd` wrapper forwards the same actions. With Node 24.22.1 already selected, `node scripts/npm-toolchain.mjs --report` prepares and verifies the managed npm profile; use `node scripts/npm-toolchain.mjs -- ci`, `node scripts/npm-toolchain.mjs -- run build` and `node scripts/npm-toolchain.mjs -- test` for direct source installation, build and tests. `--runtime-cache /path/to/cache` can reuse verified Electron ZIPs and their checksum file. Build commands require access to the official Node/Electron downloads and npm registry unless those inputs are already cached.
 
-The package script uses the renderer already produced by the build step, stages only production dependencies, bundles the original 7-Zip executable and required license/source offer, and creates native archives. The Linux package verifies expected native symlinks and rejects launcher scripts. The validator checks package structure, runtime contents, native executable identities, required resources, notices, and checksums.
+The package script uses the renderer already produced by the build step, stages only production dependencies, bundles the original 7-Zip executable and required license/source offer, and creates native archives. The Linux package verifies regular native ELF entry points and rejects symlinks and launcher scripts at those entry points. The validator checks package structure, runtime contents, native executable identities, required resources, notices, and checksums.
 
 The suite release uses one combined source archive and a release checksum manifest. Component `--source` packaging and the synthetic browser preview are optional development conveniences, not additional required releases. Exclude `node_modules`, runtime/build caches, personal profiles, environment files and private captures from the source archive.
