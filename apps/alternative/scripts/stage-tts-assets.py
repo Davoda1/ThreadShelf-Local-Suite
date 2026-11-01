@@ -49,7 +49,7 @@ def stage(assets,platform,destination):
         target.chmod(mode)
         if sha256(target)!=expected:raise RuntimeError(f'Incomplete copied TTS asset: {relative}')
         result[relative]={'sha256':expected,'size':source.stat().st_size,'mode':mode}
-    (destination/'PACKAGED-ASSETS.json').write_text(json.dumps({'schema':1,'platform':platform,'files':result},indent=2)+'\n')
+    (destination/'PACKAGED-ASSETS.json').write_bytes((json.dumps({'schema':1,'platform':platform,'files':result},indent=2)+'\n').encode('utf-8'))
     print(json.dumps({'platform':platform,'files':len(result),'bytes':sum(row['size'] for row in result.values())}))
 
 def main():

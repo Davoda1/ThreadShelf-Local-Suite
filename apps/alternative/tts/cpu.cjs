@@ -124,9 +124,10 @@ async function synthesizeCPU({provider,voice,text,assetsDir,workDir,signal,strea
   await Promise.all(required.map(file => regularFile(path.join(assetsDir,file),'speech model asset')));
   await fs.mkdir(workDir,{recursive:true});
   const temporary = await fs.mkdtemp(path.join(workDir,'cpu-'));
-  const output = path.join(temporary,'speech.wav');
   const threads = Math.max(1,Math.min(4,os.availableParallelism?.() || os.cpus().length || 1));
   try {
+    // The worker reports canonical paths, including expanded Windows short names.
+    const output = path.join(await fs.realpath(temporary),'speech.wav');
     const result = await runWorker(executable,script,{engine:provider,voice,text,threads,stream:!!streamingEnabled,output_path:output,model_root:path.join(assetsDir,'models'),engine_root:path.join(assetsDir,'engines'),cache_root:path.join(temporary,'cache')},{cwd:temporary,env:workerEnvironment(assetsDir,temporary,threads),signal,onAudio});
     if (signal?.aborted) throw aborted();
     let completed = false;

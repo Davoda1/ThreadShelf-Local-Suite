@@ -534,3 +534,43 @@ test('recording selection bounds retries when pin state repeatedly changes durin
  const cache={entries:new Map([[key,entry]]),available:async()=>{probes++;entry.pinned=!entry.pinned;return true;}};
  assert.equal(await new RecordingResolver().select({settings,identity,cache,sessionCache:new SessionAudioCache()}),null);assert.equal(probes,4);
 });
+
+async function cpuWorkerFixture(t, {alias = false, wrongResult = false} = {}) {
+ const {PassThrough,Writable}=require('node:stream'),vm=require('node:vm');
+ const root=await directory(t),assetsDir=path.join(root,'assets'),physicalWork=path.join(root,'physical-session');
+ await fs.mkdir(physicalWork,{recursive:true});
+ const workDir=alias?path.join(root,'session-alias'):physicalWork;
+ if(alias)await fs.symlink(physicalWork,workDir,process.platform==='win32'?'junction':'dir');
+ for(const relative of [process.platform==='win32'?'runtime/python/python.exe':'runtime/python/bin/python3','models/pocket/model.safetensors','models/pocket/tokenizer.json','models/pocket/english_2026-10.upstream.yaml','models/pocket/voices/alba.safetensors',`engines/pocket/pocket-tts${process.platform==='win32'?'.exe':''}`]){
+  const file=path.join(assetsDir,relative);await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,'test asset');
+ }
+ const audio=wav(Buffer.alloc(480,7));let requestedOutput,canonicalOutput;
+ const spawn=()=>{
+  const child=new EventEmitter();child.stdout=new PassThrough();child.stderr=new PassThrough();let input='';
+  child.stdin=new Writable({write(chunk,encoding,callback){input+=chunk;callback();},final(callback){
+   void(async()=>{
+    const request=JSON.parse(input);requestedOutput=request.output_path;
+    canonicalOutput=path.join(await fs.realpath(path.dirname(request.output_path)),path.basename(request.output_path));
+    await fs.writeFile(canonicalOutput,audio);
+    child.stdout.end(JSON.stringify({type:'result',ok:true,output_path:wrongResult?path.join(path.dirname(canonicalOutput),'unrelated.wav'):canonicalOutput})+'\r\n');
+   })().then(()=>{callback();child.emit('close',0);},error=>{callback(error);child.emit('close',1);});
+  }});
+  return child;
+ };
+ const module={exports:{}};
+ vm.runInNewContext(await fs.readFile(path.join(__dirname,'cpu.cjs'),'utf8'),{module,exports:module.exports,require:name=>name==='node:child_process'?{spawn}:require(name),__dirname,Buffer,process,setTimeout,clearTimeout},{filename:'cpu.cjs'});
+ return {synthesize:()=>module.exports.synthesizeCPU({provider:'pocket',voice:'alba',text:'Offline speech test.',assetsDir,workDir}),workDir,audio,paths:()=>({requestedOutput,canonicalOutput})};
+}
+
+test('CPU worker completion accepts canonical paths through an aliased session directory',async t=>{
+ const fixture=await cpuWorkerFixture(t,{alias:true});
+ assert.deepEqual(await fixture.synthesize(),fixture.audio);
+ assert.equal(fixture.paths().requestedOutput,fixture.paths().canonicalOutput);
+ assert.deepEqual(await fs.readdir(fixture.workDir),[]);
+});
+
+test('CPU worker completion still rejects an unrelated output path and cleans its session',async t=>{
+ const fixture=await cpuWorkerFixture(t,{wrongResult:true});
+ await assert.rejects(fixture.synthesize(),/did not complete its audio output/);
+ assert.deepEqual(await fs.readdir(fixture.workDir),[]);
+});

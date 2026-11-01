@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -45,6 +46,26 @@ class TtsPackaging(unittest.TestCase):
             self.assertEqual(actual, hashes)
             with self.assertRaisesRegex(RuntimeError, 'must be empty'):
                 BUILD._tts_stage.stage(self.assets, platform, target)
+
+    def test_manifest_bytes_match_validation_on_windows_text_writes(self):
+        original_open = Path.open
+
+        def windows_text_open(path, mode='r', *args, **kwargs):
+            if 'w' in mode and 'b' not in mode and kwargs.get('newline') is None:
+                kwargs['newline'] = '\r\n'
+            return original_open(path, mode, *args, **kwargs)
+
+        for platform in ('win32', 'linux'):
+            with self.subTest(platform=platform):
+                target = self.base / ('windows-text-' + platform)
+                with patch.object(Path, 'open', windows_text_open):
+                    BUILD._tts_stage.stage(self.assets, platform, target)
+                manifest = (target / 'PACKAGED-ASSETS.json').read_bytes()
+                self.assertNotIn(b'\r\n', manifest)
+                expected = VALIDATE.tts_payload_hashes(BUILD, self.assets, platform)
+                actual = {'resources/tts-assets/' + item.relative_to(target).as_posix(): BUILD.digest(item)
+                          for item in target.rglob('*') if item.is_file()}
+                self.assertEqual(actual, expected)
 
     def test_corrupt_and_unlisted_assets_are_rejected(self):
         model = self.assets / 'common/models/voice.bin'

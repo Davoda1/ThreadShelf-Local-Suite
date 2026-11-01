@@ -40,7 +40,16 @@ class TtsAssetTests(unittest.TestCase):
             stager = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(stager)
             payload = runtime / 'resources/tts-assets'
-            stager.stage(prepared, 'win32', payload)
+            original_open = Path.open
+
+            def windows_text_open(path, mode='r', *args, **kwargs):
+                if 'w' in mode and 'b' not in mode and kwargs.get('newline') is None:
+                    kwargs['newline'] = '\r\n'
+                return original_open(path, mode, *args, **kwargs)
+
+            with patch.object(Path, 'open', windows_text_open):
+                stager.stage(prepared, 'win32', payload)
+            self.assertNotIn(b'\r\n', (payload / 'PACKAGED-ASSETS.json').read_bytes())
             self.assertTrue(VALIDATOR.verify_tts_assets(runtime, prepared, 'win32')['completeInventoryVerified'])
             model = payload / 'models/example.bin'
             model.write_bytes(b'wrong')
