@@ -1,0 +1,41 @@
+{
+  "version": "1.4.0",
+  "baselineVersion": "1.3.1",
+  "baselineCommit": "62f474fa7e635b1831fcffdefa689969d04306bf",
+  "method": "Synthetic rich-integration-storage regression with the exact public baseline source and current source.",
+  "passed": true,
+  "cases": [
+    {
+      "synthetic": true,
+      "profile": "7z",
+      "schema": 3,
+      "threadHash": "eb744dd794a9445807ba8ff44fbe1aa7c1356bb957f879ded3a0d2fb268b417c",
+      "turnsHash": "90568c07dcc666dfee0e067c0f4797cc18a08a9f30096418799d5ad361422f73",
+      "rawHash": "cc28ffe2471697242fe65888b6dc78d8d288df986c4a472532deabf9f6d76b92",
+      "passagesHash": "44bca1e20c408fab6e67cfd3ed5157d7b1a882c1baed1903f3a760167a71f8ef",
+      "analyticsReportHash": "3a81e885bae4d1449722b8e856d2c6ff0cf2f1b56c7be35b37f1f7e4ddc5f7df",
+      "analyticsReadOnlyAccesses": 53,
+      "sourceArchive": true,
+      "backupRestore": true,
+      "renameMerge": true,
+      "concurrentJournalWrite": true,
+      "mergeRemoved": 1
+    },
+    {
+      "synthetic": true,
+      "profile": "zip6",
+      "schema": 3,
+      "threadHash": "ae23fb16364c0092a4d0a90b8388a8601570fc397f4ac61789a4e56a36015bae",
+      "turnsHash": "90568c07dcc666dfee0e067c0f4797cc18a08a9f30096418799d5ad361422f73",
+      "rawHash": "cc28ffe2471697242fe65888b6dc78d8d288df986c4a472532deabf9f6d76b92",
+      "passagesHash": "a54e1407fe07cd0a072d58539fa365f15a6a80c4820ec537f2dc74700c650783",
+      "analyticsReportHash": "75e4da0af39f6a516395bea3e41db8c0e1ecfe82d5d516c332795012c27b1ac6",
+      "analyticsReadOnlyAccesses": 50,
+      "sourceArchive": true,
+      "backupRestore": true,
+      "renameMerge": true,
+      "concurrentJournalWrite": true,
+      "mergeRemoved": 1
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { japanese } from './i18n-ja.js';
 // All application chrome is localized; archive content remains in its original language.
 const rows = [
+["textToSpeech", "Text-to-Speech", "Szövegfelolvasás", "Sprachausgabe", "Synthèse vocale"],
 ["resourcesCacheCorrupt", "The image cache could not be read. Delete the cache to reset it.", "A képgyorsítótár nem olvasható. Az alaphelyzetbe állításhoz törölje a gyorsítótárat.", "Der Bildcache konnte nicht gelesen werden. Löschen Sie den Cache, um ihn zurückzusetzen.", "Le cache des images n’a pas pu être lu. Supprimez le cache pour le réinitialiser."],
 ["resourcesCacheUnavailable", "The image cache is unavailable.", "A képgyorsítótár nem érhető el.", "Der Bildcache ist nicht verfügbar.", "Le cache des images est indisponible."],
 

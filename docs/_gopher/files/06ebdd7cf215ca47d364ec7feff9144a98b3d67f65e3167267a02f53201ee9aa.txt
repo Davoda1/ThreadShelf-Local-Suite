@@ -22,7 +22,7 @@ Find acts on visible/available rendered content in the current thread; it does n
 
 Code blocks use offline syntax highlighting with VS Code Light+ or Dark+ colors following the application appearance. Each code block can be copied independently. Highlighting decorates the original text; it does not execute code or correct the program.
 
-Supported mathematical notation renders locally. Mermaid diagrams render from their retained source. If a diagram has a common supported formatting defect, deterministic repair candidates may make it render. The interface identifies a repaired diagram and allows inspection of original/repaired source. Ordinary copying and Markdown export preserve the archived source; **Copy repaired** is a separate, deliberate action.
+Supported mathematical notation renders locally with the bundled MathJax 4 assets. Mermaid diagrams render from their retained source. If a diagram has a common supported formatting defect, deterministic repair candidates may make it render. The interface identifies a repaired diagram and allows inspection of original/repaired source. Ordinary copying and Markdown export preserve the archived source; **Copy repaired** is a separate, deliberate action.
 
 Not every invalid diagram can be repaired. A readable source/error fallback is preferable to silently inventing a different diagram. Inspect the source if the display does not represent what you expected.
 
@@ -30,7 +30,13 @@ Not every invalid diagram can be repaired. A readable source/error fallback is p
 
 The renderer supports applicable tables, charts, cards, citations, math, diagrams and image-placeholder behavior from the suite’s conversation renderer. These features depend on metadata actually supplied by the server. A normalized export may not contain all provider-specific fields needed to reproduce the original web interface.
 
-Unavailable images use visible placeholders. External links and image links open only when selected. The application does not infer hidden reasoning or reconstruct missing attachments. **Show reasoning when available** displays only reasoning that exists in the retained conversation.
+Available images load within the conversation according to **Settings → Reading & appearance → Images**: Click to load only or Load automatically. Unavailable images retain visible placeholders. Alternative does not provide Reader’s persistent image resource cache. External destination links require an explicit action. The application does not infer hidden reasoning or reconstruct missing attachments. **Show reasoning when available** displays only reasoning that exists in the retained conversation.
+
+Useful JSON-only assistant and reasoning responses render as formatted, syntax-highlighted JSON; empty or internal-only responses remain hidden. Whole-message copying and export retain the source. Exported file citations use readable filename chips and a document icon; a label does not create access to a missing attachment.
+
+## Listen to a message
+
+The desktop application can read an individual message through the optional [Text-to-Speech controls](08-Text-to-Speech.md). Enable speech in Settings, choose a voice and select a message speaker button. This does not create a new answer or change the retained server conversation.
 
 ## Copy or export
 

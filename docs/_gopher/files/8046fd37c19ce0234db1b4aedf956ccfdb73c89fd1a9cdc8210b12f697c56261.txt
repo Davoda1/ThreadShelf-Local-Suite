@@ -1,6 +1,6 @@
 # Screenshot guides
 
-Fresh captures show the released 1.0.0 interface with synthetic demonstration content. Each gallery identifies how the images were made and which operations the preview does not validate. No old screenshot has been relabelled, recolored or redrawn.
+Fresh captures show the released 1.4.0 interface with synthetic demonstration content. Each gallery identifies how the images were made and which operations the preview does not validate. No old screenshot has been relabelled, recolored or redrawn.
 
 - [Local Reader](reader-gallery.md)
 - [Local Analytics](analytics-gallery.md)

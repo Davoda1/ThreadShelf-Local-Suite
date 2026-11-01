@@ -1,6 +1,7 @@
 // Complete Japanese application chrome. Conversation and code content remain unchanged.
 // Theme and product names intentionally retain their established names.
 export const japanese = Object.freeze({
+  "textToSpeech": "テキスト読み上げ",
   "resourcesCacheCorrupt": "画像キャッシュを読み取れませんでした。キャッシュを削除してリセットしてください。",
   "resourcesCacheUnavailable": "画像キャッシュを利用できません。",
   "resourcesCacheLimit": "キャッシュが上限（{size}）に達しました。新しい画像は読み込めますが、保存済みの画像を削除するまで新たに保存されません。",

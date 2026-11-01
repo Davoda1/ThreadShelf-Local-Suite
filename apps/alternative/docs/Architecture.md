@@ -1,6 +1,6 @@
 # Architecture and scope
 
-Public version 1.2.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
+Version 1.4.0. Alternative is an independent desktop client within ThreadShelf Local Suite.
 
 ## Components
 
@@ -8,7 +8,8 @@ Public version 1.2.0. Alternative is an independent desktop client within Thread
 - `preload.cjs`: narrow functions and one resolved startup-theme value exposed to a sandboxed renderer. No filesystem or Node API is exposed.
 - `core/server.cjs`: read-only ThreadShelf HTTP adapter, bounded responses/timeouts, exact archive identity, search capability negotiation and cursor cache.
 - `core/state.cjs`: app-owned preferences, pins, saved searches, history and reading positions, atomic state writes.
-- `renderer/`: editorial workspace and rich conversation content rendering.
+- `renderer/`: reading workspace, rich conversation rendering, speech settings and audio playback.
+- `tts/`: validated speech service, provider adapters, bounded session/disk caches, encrypted optional credentials, and isolated CPU worker management. CPU models and runtimes are verified and staged as separate application resources.
 - `vendor/`: offline rendering dependencies and licensed Reader parser components. `vendor/build/` is development tooling only.
 - `scripts/`: build, demo creation, package validation and test tooling.
 
@@ -67,3 +68,9 @@ The message-visibility helper recognizes only bounded, complete, empty ChatGPT t
 The bounded JSON formatter runs only for assistant and reasoning objects/arrays after the existing visibility filter. It preserves token spelling, duplicate keys and key order instead of parsing and serializing source data. Formatting and conservative repairs affect only the rendered code block. HTML, rich tags, Markdown and TeX inside JSON stay literal; ordinary Markdown, fenced or indented code, and user/tool/system messages retain their existing path. Source indexes, copying, exports and stored records are unchanged.
 
 Native startup loads the canonical file URL used by the IPC trust checks. Path comparisons decode once and retain case, host, query, fragment, frame and owner checks; a literal POSIX backslash is accepted as a filename character without accepting encoded Windows separators.
+
+## Speech boundary
+
+The sandboxed renderer invokes a narrow TTS allowlist through preload. Provider requests, credentials, cache files and CPU workers remain in the main process. Speech is disabled by default; a message or audio-test action explicitly starts generation. Remote providers receive only the requested text and required speech options. No browser fetch permission is added for speech: audio arrives through the desktop bridge and plays from in-memory blobs/PCM.
+
+Shutdown, renderer loss and main-frame navigation cancel active generation. Conversation changes stop renderer playback. TTS preferences and optional cache/key files remain within Alternative's independent profile. The section navigation in Settings is separate from the selected scrolling pane, so content cannot paint behind the tabs.

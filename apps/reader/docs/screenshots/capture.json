@@ -1,7 +1,7 @@
 {
   "application": "ThreadShelf Local Reader",
-  "version": "1.0.0",
-  "method": "Production renderer in synthetic offline browser preview; native storage, network and OS-region operations are not exercised.",
+  "version": "1.4.0",
+  "method": "Production renderer in synthetic offline browser preview; TTS uses generated test tones. Native storage, network, CPU speech and OS-region operations are not exercised.",
   "viewport": {
     "width": 1360,
     "height": 900
@@ -15,7 +15,34 @@
     "reader-activity.png",
     "reader-holiday-settings.png",
     "reader-rich-rendering.png",
+    "reader-tts-playback.png",
+    "reader-tts-providers.png",
+    "reader-tts-test.png",
+    "reader-tts-player.png",
+    "reader-tts-cache.png",
     "reader-about.png"
+  ],
+  "layoutChecks": [
+    {
+      "name": "prefer-api-default-and-save-persistence",
+      "passed": true
+    },
+    {
+      "name": "playback-after-cache-deletion",
+      "before": {
+        "height": 423,
+        "content": 423,
+        "width": 575,
+        "statusHidden": true
+      },
+      "after": {
+        "height": 423,
+        "content": 423,
+        "width": 575,
+        "statusHidden": true
+      },
+      "passed": true
+    }
   ],
   "pageErrors": []
 }

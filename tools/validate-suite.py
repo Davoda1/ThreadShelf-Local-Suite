@@ -289,12 +289,39 @@ def analytics_gui(out, manifest, env, replacements):
         return sanitize(report, local_replacements)
 
 
+def cpu_speech(runtime, executable, app, platform, manifest, env, replacements):
+    """Exercise the bundled speech module and native workers without a server."""
+    project = ROOT / 'apps' / app
+    assets = runtime / 'resources/tts-assets'
+    module = runtime / 'resources/app/tts/cpu.cjs'
+    if not assets.is_dir() or not module.is_file():
+        raise ValueError('Native speech validation requires the packaged module and assets.')
+    with tempfile.TemporaryDirectory(prefix='threadshelf-cpu-validation-') as temporary:
+        temp = Path(temporary)
+        local_replacements = replacements + [(temp, '<synthetic-test>')]
+        test_env = {**env, 'ELECTRON_RUN_AS_NODE': '1', 'THREADSHELF_CPU_MODULE': str(module),
+                    'TMPDIR': str(temp), 'TMP': str(temp), 'TEMP': str(temp)}
+        cases = {}
+        for name, script in [('buffered', 'test_cpu.cjs'), ('streaming', 'test_cpu_streaming.cjs')]:
+            output = run_checked([str(executable), str(project / 'tts/cpu' / script),
+                                  '--assets', str(assets)], project, test_env,
+                                 local_replacements, timeout=1200)
+            report = json.loads(output)
+            if report.get('ok') is not True or report.get('platform') != platform or report.get('onnxruntime') != '1.31.1':
+                raise ValueError(f'Packaged CPU speech {name} did not complete on the selected native host.')
+            cases[name] = sanitize(report, local_replacements)
+        return {'passed': True, 'application': app, 'version': manifest['version'],
+                'platform': platform, 'packagedModuleExecuted': True, 'cases': cases}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app', choices=APPS, required=True)
     parser.add_argument('--platform', choices=('win32', 'linux'), required=True)
     parser.add_argument('--out', type=Path, default=ROOT / 'release')
     parser.add_argument('--runtime-cache', type=Path, default=ROOT / '.cache/electron')
+    parser.add_argument('--tts-assets', type=Path,
+                        default=Path(os.environ.get('THREADSHELF_TTS_ASSETS', ROOT / '.cache/tts-assets')))
     args = parser.parse_args()
     if sys.platform != args.platform:
         parser.error('Native validation must run on the selected Windows or Linux platform.')
@@ -312,6 +339,7 @@ def main():
     env = os.environ.copy()
     env.pop('NODE_OPTIONS', None)
     env.pop('ELECTRON_RUN_AS_NODE', None)
+    env['THREADSHELF_TTS_ASSETS'] = str(args.tts_assets.resolve())
     try:
         print(f'Validating {args.app} archives and native {args.platform} runtime.', flush=True)
         summary['runtimeArchive'] = prepare_runtime_cache(args.app, manifest['devDependencies']['electron'], args.platform, cache)
@@ -322,6 +350,11 @@ def main():
         summary['packageReport'] = package_report.name
         runtime, executable = staged_runtime(args.app, args.platform, manifest['version'])
         summary['nativeRuntime'] = native_identity(runtime, executable, manifest, args.platform, env, replacements)
+        if args.app in ('reader', 'alternative'):
+            speech = cpu_speech(runtime, executable, args.app, args.platform, manifest, env, replacements)
+            speech_report = reports / (prefix + '-tts.json')
+            speech_report.write_text(json.dumps(speech, indent=2) + '\n', encoding='utf-8')
+            summary['ttsReport'] = speech_report.name
         if args.app == 'reader':
             storage = reader_storage(runtime, executable, manifest, args.platform, env, replacements)
             storage_report = reports / (prefix + '-storage.json')

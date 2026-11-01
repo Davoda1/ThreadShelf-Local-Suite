@@ -36,6 +36,6 @@ Keyboard actions do not override a currently open modal dialog. Esc closes the r
 
 ## A useful issue report
 
-Report the app version **1.0.0**, operating system, package filename, source type, steps, expected result, actual result and exact nonsecret error. State whether it happens in the native desktop app or standalone demo. Supply a minimal synthetic conversation if that reproduces the issue. Review screenshots and copied URLs before posting them.
+Report the app version **1.4.0**, operating system, package filename, source type, steps, expected result, actual result and exact nonsecret error. State whether it happens in the native desktop app or standalone demo. Supply a minimal synthetic conversation if that reproduces the issue. Review screenshots and copied URLs before posting them.
 
 Use the [suite issue tracker](https://github.com/Davoda1/ThreadShelf-Local-Suite/issues). Issues in the unmodified server itself belong to the [upstream ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf); explain whether the search patch is applied.

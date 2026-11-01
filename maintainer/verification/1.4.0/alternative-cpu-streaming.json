@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "platform": "linux",
+  "onnxruntime": "1.31.1",
+  "results": [
+    {
+      "provider": "pocket",
+      "voice": "alba",
+      "firstAudioMs": 537,
+      "completionMs": 4338,
+      "audioSeconds": 24.68,
+      "chunks": 50,
+      "streamMatchesFinal": true
+    },
+    {
+      "provider": "pocket",
+      "voice": "vera",
+      "firstAudioMs": 528,
+      "completionMs": 4972,
+      "audioSeconds": 25.24,
+      "chunks": 51,
+      "streamMatchesFinal": true
+    },
+    {
+      "provider": "kokoro",
+      "voice": "am_michael",
+      "firstAudioMs": 3209,
+      "completionMs": 12647,
+      "audioSeconds": 29.644,
+      "chunks": 60,
+      "streamMatchesFinal": true
+    },
+    {
+      "provider": "kokoro",
+      "voice": "bf_emma",
+      "firstAudioMs": 3121,
+      "completionMs": 11671,
+      "audioSeconds": 25.74,
+      "chunks": 52,
+      "streamMatchesFinal": true
+    }
+  ],
+  "cancelAfterFirstChunk": true,
+  "bufferedPath": true,
+  "temporaryFilesRemoved": true
+}

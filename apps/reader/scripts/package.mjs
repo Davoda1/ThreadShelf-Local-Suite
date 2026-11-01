@@ -6,12 +6,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { Readable } from 'node:stream';
-import { ZipReader, ZipWriter, Uint8ArrayReader, Uint8ArrayWriter } from '@zip.js/zip.js';
+import { ZipReader, Uint8ArrayReader, Uint8ArrayWriter } from '@zip.js/zip.js';
 import { downloadArtifact, initializeProxy } from '@electron/get';
 import { releaseFilename } from './release-filenames.mjs';
 import { selectedElectronVersion, assertSelectedNode } from './runtime-policy.mjs';
-import { createBoundedArchiveSink, writeVerifiedArchive } from './archive-output.mjs';
 import { writeVerifiedRuntimeExecutable, verifyRuntimeExecutable } from './runtime-executable.mjs';
 import { walkPackageFiles, verifyNativeEntrypoint, assertNoLauncherScripts } from './package-layout.mjs';
 import { TOOLCHAIN, ensureNpm, npmEnvironment } from './npm-toolchain.mjs';
@@ -26,6 +24,7 @@ const value = (name, fallback) => { const i = process.argv.indexOf(name); return
 const out = value('--out', path.join(root, 'release'));
 const staging = path.join(root, '.packaging');
 const runtimeCache = value('--runtime-cache', process.env.TSLR_RUNTIME_CACHE || path.join(staging, 'runtime-cache'));
+const ttsAssets = value('--tts-assets', process.env.THREADSHELF_TTS_ASSETS || path.join(root, 'tts-assets'));
 const all = flags.has('--all') || !['--source', '--linux', '--win32'].some(x => flags.has(x));
 const targets = [...(all || flags.has('--linux') ? ['linux'] : []), ...(all || flags.has('--win32') ? ['win32'] : [])];
 const hash = data => createHash('sha256').update(data).digest('hex');
@@ -96,30 +95,12 @@ async function walk(dir, prefix = '', ignoreWorkFiles = false, allowFileLinks = 
   });
 }
 async function zipDirectory(source, destination, prefix, excluded = [], ignoreWorkFiles = false) {
-  const output = createBoundedArchiveSink();
-  const writer = new ZipWriter(output.writable, { level: 6, useWebWorkers: false });
-  const expectedEntries = new Map();
-  try {
-    for (const relative of (await walk(source, '', ignoreWorkFiles)).filter(name => !excluded.includes(name))) {
-      const full = path.join(source, relative);
-      const st = await fsp.stat(full);
-      const name = prefix ? `${prefix}/${relative}` : relative;
-      await writer.add(name, Readable.toWeb(fs.createReadStream(full)), {
-        lastModDate: st.mtime, executable: Boolean(st.mode & 0o111), unixMode: st.mode, zip64: false
-      });
-      expectedEntries.set(name, st.size);
-    }
-  } finally { await writer.close(); }
-  const bytes = output.completeBytes();
-  const reader = new ZipReader(new Uint8ArrayReader(bytes), { useWebWorkers: false });
-  try {
-    const entries = await reader.getEntries();
-    if (entries.length !== expectedEntries.size || entries.some(entry => expectedEntries.get(entry.filename) !== entry.uncompressedSize)) {
-      throw new Error('Finalized release ZIP has an incomplete central directory or entry.');
-    }
-  } finally { await reader.close(); }
-  const verified = await writeVerifiedArchive(destination, bytes);
-  console.log(`Verified complete ZIP output: ${path.basename(destination)} (${expectedEntries.size} entries, ${verified.bytes} bytes${verified.repairedAfterRename ? ', repaired managed rename' : ''}).`);
+  // Stream large model payloads and verify every archived entry before publishing.
+  const manifest = path.join(staging, `.zip-input-${path.basename(destination)}.json`);
+  const files = (await walk(source, '', ignoreWorkFiles)).filter(name => !excluded.includes(name));
+  await fsp.writeFile(manifest, JSON.stringify({ source, destination, prefix, files }));
+  try { run(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), [path.join(root, 'scripts/stream-release-archive.py'), '--manifest', manifest]); }
+  finally { await fsp.rm(manifest, { force: true }); }
 }
 async function tarDirectory(source, destination, prefix, excluded = [], ignoreWorkFiles = false, symlinks = {}) {
   // Archive the explicit file snapshot. Omitting directory records avoids
@@ -273,7 +254,8 @@ async function binary(platform) {
   await extractZip(archive, runtime);
   await fsp.rm(path.join(runtime, 'resources/default_app.asar'), { force: true });
   const app = path.join(runtime, 'resources/app'); await fsp.mkdir(app, { recursive: true });
-  for (const p of ['package.json', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
+  for (const p of ['package.json', 'tts', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
+  run(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), [path.join(root, 'scripts/stage-tts-assets.py'), '--assets', ttsAssets, '--platform', platform, '--destination', path.join(runtime, 'resources/tts-assets')]);
   await fsp.cp(modules, path.join(app, 'node_modules'), { recursive: true, dereference: true });
   await removeTransformersPrebuiltBundles(path.join(app, 'node_modules'));
   // Verify the complete native dependency tree before accepting the binary
@@ -287,7 +269,7 @@ async function binary(platform) {
   const portableReadme = (await fsp.readFile(path.join(root, 'README.md'), 'utf8'))
     .replaceAll('[LICENSE](LICENSE)', '[application LICENSE](APPLICATION-LICENSE)');
   await fsp.writeFile(path.join(folder, 'README.md'), portableReadme);
-  for (const p of ['ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
+  for (const p of ['tts/README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
   if (platform === 'win32') {
     const exe = path.join(runtime, 'ThreadShelf Local Reader.exe');
     await fsp.rename(path.join(runtime, 'electron.exe'), exe);
@@ -360,7 +342,7 @@ async function source() {
   const name = `${stem}-Source`, folder = path.join(staging, name);
   await fsp.rm(folder, { recursive: true, force: true }); await fsp.mkdir(folder, { recursive: true });
   // Explicit allow-list excludes all exports, user state, caches and binaries.
-  for (const p of ['package.json', 'package-lock.json', 'index.html', 'src', 'public', 'build', 'vendor', 'scripts', 'tests', 'docs', 'server-support', 'README.md', 'ARCHITECTURE.md', 'CHANGELOG.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
+  for (const p of ['package.json', 'package-lock.json', 'index.html', 'tts', 'src', 'public', 'build', 'vendor', 'scripts', 'tests', 'docs', 'server-support', 'README.md', 'ARCHITECTURE.md', 'CHANGELOG.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
   await removeManagedWorkFiles(folder);
   await zipDirectory(folder, path.join(out, releaseFilename(`${name}.zip`)), name, [], true);
   await tarDirectory(folder, path.join(out, releaseFilename(`${name}.tar.gz`)), name, [], true);

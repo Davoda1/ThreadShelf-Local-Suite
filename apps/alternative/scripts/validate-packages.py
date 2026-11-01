@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import posixpath
 import re
 import stat
@@ -16,7 +17,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.3.1'
+PREFIX = 'ThreadShelf-Local-Alternative-1.4.0'
 APP_ROOTS = ('core', 'renderer', 'assets', 'vendor', 'licenses')
 
 def build_module():
@@ -37,12 +38,8 @@ def document_links(document_path, data, names):
         assert exists, f'Broken packaged document link: {document_path} -> {target}'
 
 def expected_files():
-    files = [ROOT / name for name in ('main.cjs', 'preload.cjs', 'package.json', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / name).is_file()]
-    for directory in APP_ROOTS:
-        if not (ROOT / directory).exists():
-            continue
-        files += [p for p in (ROOT / directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and not p.suffix == '.map' and not (directory == 'vendor' and p.relative_to(ROOT / directory).parts[0] in {'build', 'highlight-source', 'reader-source'})]
-    return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+    return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+            for name in build_module().production_file_paths()}
 
 def parity(read, prefix, expected):
     for name, sha in expected.items():
@@ -62,7 +59,9 @@ def verify_mermaid_bundle(app):
 
 def no_launchers(names):
     for name in names:
-        if name.endswith(('.sh', '.cmd', '.bat', '.ps1', '.py')):
+        cpu_worker = name.endswith('/resources/app/tts/cpu/voice_light.py') or name == 'resources/app/tts/cpu/voice_light.py'
+        cpu_payload = '/resources/tts-assets/' in '/' + name
+        if name.endswith(('.sh', '.cmd', '.bat', '.ps1', '.py')) and not (cpu_worker or cpu_payload):
             raise AssertionError(f'Runtime package contains script: {name}')
         if any(f'/vendor/{directory}/' in name for directory in ('build', 'highlight-source', 'reader-source')):
             raise AssertionError('Build-only tooling leaked into runtime')
@@ -77,10 +76,10 @@ def stream_hash(stream, initial=b''):
         sha.update(chunk)
     return sha.hexdigest()
 
-def official_runtime(cache, platform):
+def official_runtime(cache, platform, assets):
     build = build_module()
     archive = build.runtime(cache, platform, False)  # Always verifies the pinned ZIP hash.
-    expected = build.runtime_file_manifest(archive, platform)
+    expected = build.runtime_file_manifest(archive, platform, assets)
     hashes = {}
     with zipfile.ZipFile(archive) as z:
         for entry in z.infolist():
@@ -90,6 +89,17 @@ def official_runtime(cache, platform):
             with z.open(entry) as content:
                 hashes[name] = stream_hash(content)
     return expected, hashes
+
+def tts_payload_hashes(build, assets, platform):
+    entries = build._tts_stage.inventory(assets, platform)
+    record = json.loads(entries['asset-inventory.json'].read_text())
+    modes = {row['path']: row.get('mode', 493 if row['path'] in ('runtime/python/bin/python3', 'engines/pocket/pocket-tts') and platform == 'linux' else 420) for row in record['files']}
+    files = {name: {'sha256': build.digest(source), 'size': source.stat().st_size, 'mode': modes.get(name, 420)} for name, source in entries.items()}
+    hashes = {'resources/tts-assets/' + name: row['sha256'] for name, row in files.items()}
+    manifest = json.dumps({'schema': 1, 'platform': platform, 'files': files}, indent=2) + '\n'
+    hashes['resources/tts-assets/PACKAGED-ASSETS.json'] = hashlib.sha256(manifest.encode()).hexdigest()
+    return hashes
+
 
 def exact_names(actual, expected, label):
     assert len(actual) == len(set(actual)), f'{label}: duplicate archive entries'
@@ -104,13 +114,15 @@ def main():
     parser.add_argument('--report', type=Path)
     parser.add_argument('--platform', choices=('win32', 'linux'), help='Validate only Windows ZIP or Linux tarball plus Debian package; default validates all platforms.')
     parser.add_argument('--runtime-cache', type=Path, help='Verify official runtime hashes and reject all unexpected archive files.')
+    parser.add_argument('--tts-assets', type=Path, default=Path(os.environ.get('THREADSHELF_TTS_ASSETS', ROOT / 'tts-assets')), help='Prepared CPU speech assets for runtime file parity.')
     args = parser.parse_args()
     expected = expected_files()
     build = build_module()
     report = {'checks': [], 'application_files_compared_per_package': len(expected),
               'mermaidBundle': verify_mermaid_bundle(ROOT)}
     platforms = (args.platform,) if args.platform else ('win32', 'linux')
-    runtime_specs = {p: official_runtime(args.runtime_cache, p) for p in platforms} if args.runtime_cache else {}
+    tts_hashes = {p: tts_payload_hashes(build, args.tts_assets, p) for p in platforms}
+    runtime_specs = {p: official_runtime(args.runtime_cache, p, args.tts_assets) for p in platforms} if args.runtime_cache else {}
     if 'win32' in platforms:
         windows = args.directory / f'{PREFIX}-Windows-x64-Portable.zip'
         with zipfile.ZipFile(windows) as z:
@@ -128,6 +140,10 @@ def main():
             assert 'electron.exe' not in names and 'resources/default_app.asar' not in names
             no_launchers(names)
             parity(z.read, 'resources/app/', expected)
+            exact_names([name for name in names if name.startswith('resources/tts-assets/') and not name.endswith('/')], tts_hashes['win32'], 'Windows TTS assets')
+            for name, sha in tts_hashes['win32'].items():
+                with z.open(name) as content:
+                    assert stream_hash(content) == sha, name
             assert 'LICENSE' in names and 'LICENSES.chromium.html' in names
             assert z.read('README.md') == build.package_readme().encode('utf-8')
             assert z.read('THIRD-PARTY-NOTICES.md') == build.package_notices().encode('utf-8')
@@ -155,6 +171,9 @@ def main():
             native_elf(tar.extractfile(executable).read(20))
             read = lambda name: tar.extractfile(name).read()
             parity(read, 'resources/app/', expected)
+            exact_names([member.name for member in tar.getmembers() if member.isfile() and member.name.startswith('resources/tts-assets/')], tts_hashes['linux'], 'Linux TTS assets')
+            for name, sha in tts_hashes['linux'].items():
+                assert stream_hash(tar.extractfile(name)) == sha, name
             assert read('README.md') == build.package_readme().encode('utf-8')
             assert read('THIRD-PARTY-NOTICES.md') == build.package_notices().encode('utf-8')
             assert read('APPLICATION-LICENSE') == (ROOT / 'LICENSE').read_bytes()
@@ -173,9 +192,9 @@ def main():
                         runtime_seen.add(relative)
                 assert runtime_seen == set(hashes), 'Missing Linux runtime hash coverage'
             report['checks'].append({'package': linux.name, 'native_root_elf': True, 'no_launcher_scripts': True, 'source_parity': True})
-        deb = args.directory / f'{SLUG}_1.3.1_amd64.deb'
+        deb = args.directory / f'{SLUG}_1.4.0_amd64.deb'
         metadata = subprocess.check_output(['dpkg-deb', '-f', str(deb)], text=True)
-        assert 'Package: ' + SLUG in metadata and 'Version: 1.3.1' in metadata and 'Architecture: amd64' in metadata
+        assert 'Package: ' + SLUG in metadata and 'Version: 1.4.0' in metadata and 'Architecture: amd64' in metadata
         # Stream the archive to avoid loading the 400+ MB runtime in memory.
         process = subprocess.Popen(['dpkg-deb', '--fsys-tarfile', str(deb)], stdout=subprocess.PIPE)
         checks = {'entrypoint': False, 'elf': False, 'sandbox': False, 'desktop': False, 'readme': False}
@@ -191,7 +210,7 @@ def main():
             f'usr/share/doc/{SLUG}/LICENSE': (ROOT / 'LICENSE').read_bytes(),
         }
         documents_seen = set()
-        linux_hashes = runtime_specs['linux'][1] if runtime_specs else {}
+        linux_hashes = {**(runtime_specs['linux'][1] if runtime_specs else {}), **tts_hashes['linux']}
         with tarfile.open(fileobj=process.stdout, mode='r|') as tar:
             for member in tar:
                 name = member.name.removeprefix('./')
@@ -235,6 +254,8 @@ def main():
                         assert hashlib.sha256(tar.extractfile(member).read()).hexdigest() == expected[local], name
                         seen.add(local)
         assert process.wait() == 0 and all(checks.values()) and seen == set(expected)
+        exact_names([name.removeprefix(f'opt/{SLUG}/') for name in data_names if name.startswith(f'opt/{SLUG}/resources/tts-assets/')], tts_hashes['linux'], 'Debian TTS assets')
+        assert set(tts_hashes['linux']).issubset(runtime_seen), 'Missing CPU payload hash coverage'
         assert documents_seen == set(document_expected), 'Missing packaged documentation or application license'
         for name, content in document_expected.items():
             if name.endswith('.md'):
@@ -249,6 +270,7 @@ def main():
     if runtime_specs:
         report['official_runtime_files_and_hashes_verified'] = True
     report['packaged_document_links_verified'] = True
+    report['tts_assets_and_inventory_hashes_verified'] = True
     report['limitations'] = ['Static packaging validation does not demonstrate native Windows launch or installation on every Linux distribution.']
     result = json.dumps(report, indent=2) + '\n'
     print(result)

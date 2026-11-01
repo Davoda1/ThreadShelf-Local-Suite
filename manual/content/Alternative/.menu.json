@@ -21,6 +21,10 @@
     },
     {
       "path": "07-Troubleshooting.md"
+    },
+    {
+      "path": "08-Text-to-Speech.md",
+      "label": "Text-to-Speech"
     }
   ]
 }

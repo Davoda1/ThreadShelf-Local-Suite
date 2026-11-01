@@ -1,6 +1,6 @@
-# Local Analytics 1.0.0 — screenshot guide
+# Local Analytics 1.4.0 — screenshot guide
 
-These new images show the exact compiled 1.0.0 application renderer with the built-in synthetic demo bridge, captured in UTC. The preview banner labels the demonstration. They are unaltered browser screenshots of the actual interface, not generated illustrations. Native file dialogs, imported personal profiles and operating-system packaging are not tested by these images.
+These new images show the exact compiled 1.4.0 application renderer with the built-in synthetic demo bridge, captured in UTC. The preview banner labels the demonstration. They are unaltered browser screenshots of the actual interface, not generated illustrations. Native file dialogs, imported profiles and operating-system packaging are not tested by these images. Analytics retains its existing functionality in 1.4.0; it has no Text-to-Speech settings.
 
 ## Overview: scope before interpretation
 

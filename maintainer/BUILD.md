@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds **1.3.1 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch and manual are unchanged. No GitHub release is implied by building this tree.
+The current tree builds **1.4.0 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch is unchanged; the manual covers the new speech features. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -9,7 +9,7 @@ The current tree builds **1.3.1 packages** for Reader, Analytics and Alternative
 | Node.js | **24.22.1**, LTS development toolchain |
 | npm | **12.2.1**, managed copy with bundled **Undici 6.29.1** |
 | Electron (all three applications) | **45.1.0** |
-| Python | 3.10 or newer |
+| Python | 3.11.8 or newer for CPU speech asset preparation |
 | Debian packaging | GNU/Linux with `dpkg-deb`, `tar`, `gzip`, and `cc` with static libc development files (for example `build-essential` on Debian/Ubuntu) |
 | Manual build | PHP CLI with ctype; see `manual/README.md` |
 
@@ -55,9 +55,21 @@ python3 tools/build-suite.py --app reader --target linux --out release
 
 The equivalent development entry points are `tools/build-suite.sh`, `tools/build-suite.ps1` and `tools/build-suite.cmd`. They invoke the same Python helper. They are development scripts, not GUI launchers.
 
-Use `--runtime-cache <directory>` to keep downloaded Electron ZIPs between builds. The helper creates a version-specific subdirectory for each runtime. Internet access is required for missing npm dependencies and runtime archives. Alternative's renderer dependencies are already vendored and it needs no npm installation.
+Use `--runtime-cache <directory>` to keep downloaded Electron ZIPs between builds. The helper creates a version-specific subdirectory for each runtime. Internet access is required for missing npm dependencies, runtime archives and the explicit CPU speech asset preparation step. Alternative's renderer dependencies are already vendored and it needs no npm installation.
 
 `--skip-tests` is available for a local packaging iteration after the exact current sources have already passed tests. Do not use it as the only release verification.
+
+### Bundled CPU speech assets
+
+Reader and Alternative packages require the complete pinned Pocket/Kokoro payload. The suite helper prepares it once in `.cache/tts-assets/` before packaging either application. This is a build-time download; the installed application never downloads these models. Use `--tts-assets <directory>` or `THREADSHELF_TTS_ASSETS` to select a previously prepared payload. Every file is checked against the complete inventory when staged; a missing or altered payload stops packaging.
+
+For direct component packaging, first run from the repository root:
+
+```sh
+python3 apps/reader/tts/cpu/prepare_assets.py --output /absolute/path/to/tts-assets
+```
+
+Set `THREADSHELF_TTS_ASSETS` to that directory before running either component packager. The shared payload contains `common/`, `linux-x64/` and `win32-x64/`; only common files and the selected platform are copied into each desktop package. The prepared asset cache and full model files do not belong in application source archives. Original notices, voice attribution and corresponding GPL source archives travel in each package under `resources/tts-assets/`. See [CPU speech build details](../apps/reader/tts/cpu/README.md).
 
 ## Direct component commands
 
@@ -86,7 +98,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [1.3.1 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.1) supplies the exact tagged application source. The unchanged Electron and ONNX source companions remain in [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0): six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
+The [1.4.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.0) supplies the exact tagged application source. The unchanged Electron and ONNX source companions remain in [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0): six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
 
 Verify all downloaded assets against their original release's `SHA256SUM.txt`. Keep numbered source ZIPs together and extract only the metadata ZIPs into a separate directory. Both use the `source-publication/` namespace. The ordinary application packagers use official pinned Electron/ONNX binaries; rebuilding those dependencies is separate.
 

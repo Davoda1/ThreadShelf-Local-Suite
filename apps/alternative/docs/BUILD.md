@@ -1,10 +1,10 @@
 # Build and package
 
-Application version: **1.3.1**. This is an independent product.
+Application version: **1.4.0**. This is an independent product.
 
 ## Requirements
 
-- Python 3.10 or newer.
+- Python 3.11.8 or newer for preparing the bundled CPU speech assets. The packaging script itself supports Python 3.10 or newer.
 - Node.js 24.22.1 LTS and npm 12.2.1 for Windows executable branding and the development tests.
 - Debian/Ubuntu tooling (`dpkg-deb`) on Linux or WSL for the `.deb`.
 - The two official Electron 45.1.0 x64 runtime ZIPs. The packaging script verifies
@@ -22,13 +22,29 @@ archives. They can be downloaded by the build script or provided in a cache.
 adapter in `vendor/reader-rich.js` from the included, unchanged Reader source.
 This build helper and the corresponding source are excluded from runtime packages.
 
+## Prepare CPU speech assets
+
+Native packages include Pocket TTS, Kokoro, their models, a Python runtime and
+required notices. Prepare the hash-pinned payload once before packaging:
+
+```bash
+python3 tts/cpu/prepare_assets.py --output /path/to/tts-assets
+```
+
+This explicit build step downloads and verifies the pinned inputs. Inference
+never downloads models. Both Reader and Alternative can reuse the same prepared
+`common/`, `linux-x64/` and `win32-x64/` tree. Pass its location with `--tts-assets`
+or `THREADSHELF_TTS_ASSETS`; the default is `tts-assets/` in the application source.
+The builder rejects missing, extra or altered payload files before packaging.
+Prepared models, download caches and runtimes are excluded from source archives.
+
 ## Linux / WSL
 
 From the source directory:
 
 ```bash
-python3 scripts/build.py --target all --download --include-source
-python3 scripts/validate-packages.py dist --runtime-cache .cache/electron
+python3 scripts/build.py --target all --download --include-source --tts-assets /path/to/tts-assets
+python3 scripts/validate-packages.py dist --runtime-cache .cache/electron --tts-assets /path/to/tts-assets
 ```
 
 The equivalent development entry point is `scripts/build.sh`. It is included in
@@ -37,7 +53,7 @@ source only, never in a portable or installed application package.
 To use previously downloaded runtimes without network access:
 
 ```bash
-python3 scripts/build.py --target all --runtime-cache /path/to/electron-cache
+python3 scripts/build.py --target all --runtime-cache /path/to/electron-cache --tts-assets /path/to/tts-assets
 ```
 
 That cache must contain:
@@ -52,7 +68,8 @@ electron-v45.1.0-win32-x64.zip
 Build the Windows portable package in PowerShell:
 
 ```powershell
-py -3 scripts/build.py --target windows --download
+py -3 tts/cpu/prepare_assets.py --output C:\build\tts-assets
+py -3 scripts/build.py --target windows --download --tts-assets C:\build\tts-assets
 ```
 
 Or use `scripts\build.ps1 --target windows --download` / `scripts\build.cmd
@@ -68,7 +85,9 @@ source` creates the ZIP and tar.gz source archives.
 
 The application files are copied into `resources/app/`, using an explicit
 production allowlist. `scripts/`, tests, build dependencies, evidence, and source
-development files do not enter runtime packages. Do not edit a staged runtime
+development files do not enter runtime packages. The isolated speech worker is
+part of the application runtime; CPU engines, models, runtime dependencies and
+their licenses are staged separately under `resources/tts-assets/`. Do not edit a staged runtime
 after validation; change the source and rebuild instead.
 
 ## Package entry points
@@ -90,7 +109,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.3.1.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.4.0.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 
@@ -105,6 +124,8 @@ tests. With `--runtime-cache`, it also derives the exact runtime file inventory
 from the verified official Electron ZIPs, checks the unchanged runtime bytes,
 and rejects unexpected files, duplicate paths and unsupported entry types.
 The builder uses that same explicit inventory for runtime copies and archives.
+CPU payload files and their packaged manifest are checked against the prepared,
+hash-verified input for every package, including checks without `--runtime-cache`.
 Build evidence records which runtime hashes were used. In a platform-specific CI
 job, add `--platform win32` to validate only the Windows ZIP, or `--platform linux`
 to validate both the Linux tarball and Debian package. Runtime-cache verification
@@ -116,7 +137,14 @@ packages. Package verification reports belong with the suite release documentati
 
 ## Optional GUI and server tests
 
-`node scripts/test.cjs` runs isolated unit tests without a browser or server.
+`node scripts/test.cjs` runs isolated application, trusted-IPC and TTS tests
+without a browser or external server. TTS protocol tests use local test servers
+and generated audio; they do not require provider credentials.
+`python3 test/tts-packaging.test.py` checks asset staging, corruption rejection,
+platform isolation and package payload hashes.
+For genuine CPU inference after staging, run `node tts/cpu/test_cpu.cjs --assets
+/path/to/resources/tts-assets` and `node tts/cpu/test_cpu_streaming.cjs --assets
+/path/to/resources/tts-assets`. Native Windows execution requires Windows.
 `test/integration-server.cjs` and `test/start-gui-server.cjs` accept
 `THREADSHELF_TEST_SERVER_ROOT` pointing to an existing ThreadShelf 1.3.0 code and
 dependency tree. `THREADSHELF_TEST_MODEL_CACHE` may point to a complete cached
@@ -170,3 +198,13 @@ No such wrapper enters delivered runtime
 packages. The root-only test harness passes `--no-sandbox`; production startup
 does not. This means normal OS sandbox/single-instance behavior remains a
 target-machine acceptance check.
+
+### Speech UI regression
+
+`node test/tts-ui.cjs` runs the four speech settings sections and real audio-player
+controls against an isolated generated-PCM bridge. It requires Playwright and
+Chromium; `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` can select existing installations.
+`TTS_QA_OUTPUT` selects the screenshots and JSON report directory. The test makes
+no provider requests and contains no API keys. `TTS_ELECTRON_BROWSER=1` runs the
+same browser checks in an isolated, offscreen Electron window selected by
+`CHROMIUM_PATH`; this does not alter the application entry point.

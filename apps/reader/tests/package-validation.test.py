@@ -23,6 +23,38 @@ VALIDATOR = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = VALIDATOR
 SPEC.loader.exec_module(VALIDATOR)
 
+class TtsAssetTests(unittest.TestCase):
+    def test_verified_payload_rejects_changed_missing_and_extra_files(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            prepared, runtime = base / 'prepared', base / 'runtime'
+            rows = []
+            for name, data in [('models/example.bin', b'model'), ('engines/pocket/pocket-tts.exe', b'engine'), ('runtime/python/python.exe', b'python')]:
+                item = prepared / 'win32-x64' / name
+                item.parent.mkdir(parents=True, exist_ok=True)
+                item.write_bytes(data)
+                rows.append({'path':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'mode':420})
+            (prepared / 'common').mkdir()
+            (prepared / 'win32-x64/asset-inventory.json').write_text(json.dumps({'schema':1,'platform':'win32-x64','onnxruntime':'1.31.1','files':rows}))
+            spec = importlib.util.spec_from_file_location('tts_stager_test', VALIDATOR.ROOT / 'scripts/stage-tts-assets.py')
+            stager = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(stager)
+            payload = runtime / 'resources/tts-assets'
+            stager.stage(prepared, 'win32', payload)
+            self.assertTrue(VALIDATOR.verify_tts_assets(runtime, prepared, 'win32')['completeInventoryVerified'])
+            model = payload / 'models/example.bin'
+            model.write_bytes(b'wrong')
+            with self.assertRaisesRegex(ValueError, 'hash/size mismatch'):
+                VALIDATOR.verify_tts_assets(runtime, prepared, 'win32')
+            model.unlink()
+            with self.assertRaisesRegex(ValueError, 'inventory differs'):
+                VALIDATOR.verify_tts_assets(runtime, prepared, 'win32')
+            model.write_bytes(b'model')
+            (payload / 'unexpected.bin').write_bytes(b'extra')
+            with self.assertRaisesRegex(ValueError, 'inventory differs'):
+                VALIDATOR.verify_tts_assets(runtime, prepared, 'win32')
+
+
 class MermaidManifestTests(unittest.TestCase):
     def test_exact_bundle_bytes_match_the_recorded_manifest(self):
         self.check_bundle_mutation(False)
@@ -521,6 +553,7 @@ class PlatformSelectionTests(unittest.TestCase):
              patch.object(VALIDATOR, 'verify_archive', side_effect=lambda archive, *a, **kw: {'file': archive.name}), \
              patch.object(VALIDATOR, 'verify_readme_inputs', return_value={'localLinksChecked': 13}), \
              patch.object(VALIDATOR, 'verify_application_inputs', return_value={'result': 'PASS'}), \
+             patch.object(VALIDATOR, 'verify_tts_assets', return_value={'completeInventoryVerified': True}), \
              patch.object(VALIDATOR, 'verify_runtime', side_effect=lambda cache, platform, *a: {'platform': platform}), \
              patch.object(VALIDATOR, 'verify_deb_runtime', return_value={'package': 'deb'}), \
              patch.object(VALIDATOR.subprocess, 'check_output', return_value='Version: 1.0.0\nArchitecture: amd64\n') as deb:

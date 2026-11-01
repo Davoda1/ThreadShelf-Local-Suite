@@ -1,0 +1,27 @@
+/* Suppression only: no rule here creates a focus highlight. Preserve outline
+   geometry, normal shadows, hover paint, selected tabs, and checked switches. */
+[data-ts-focus-idle]:focus,
+[data-ts-focus-idle]:focus-visible {
+  outline-color: transparent !important;
+}
+
+/* Reader's transparent checkbox paints its focus ring on the visible track. */
+.wave-background-switch[data-ts-focus-idle]:focus-visible + .wave-background-switch-track {
+  outline-color: transparent !important;
+}
+
+/* Alternative also outlines the bar while a control inside it has focus. */
+.tts-pill:focus-within:has([data-ts-focus-idle]:focus) {
+  outline-color: transparent !important;
+}
+
+/* Calendar days use an outline for selection/hover as well as focus. Restore
+   those original states when only the keyboard-focus decoration expires. */
+.analytics-workspace .mosaic-day[data-ts-focus-idle]:hover {
+  outline: 1px solid var(--text) !important;
+  outline-offset: 1px;
+}
+.analytics-workspace .mosaic-day.selected[data-ts-focus-idle] {
+  outline: 2px solid var(--text) !important;
+  outline-offset: 1px;
+}

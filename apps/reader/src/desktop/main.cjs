@@ -7,6 +7,7 @@ const os=require('node:os');
 const {Worker}=require('node:worker_threads');
 const {pathToFileURL}=require('node:url');
 const {isTrustedMainFrame}=require('./trusted-entry.cjs');
+const {createTtsService}=require('../../tts/index.cjs');
 
 app.setName('ThreadShelf Local Reader');
 const dataDir=process.env.THREADSHELF_READER_TEST_DATA || path.join(process.platform==='win32'?(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming')):(process.env.XDG_CONFIG_HOME||path.join(os.homedir(),'.config')),'ThreadShelf Local Reader');
@@ -19,6 +20,7 @@ const root=path.resolve(__dirname,'../..');
 const page=path.join(root,'dist','index.html');
 const pageUrl=pathToFileURL(page).href;
 let win,worker,sequence=0,quitting=false,workerFailure=null;
+const tts=createTtsService({profileDir:dataDir,assetsDir:app.isPackaged?path.join(process.resourcesPath,'tts-assets'):path.join(root,'tts-assets'),onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('reader:tts',value);}});
 let startupHoliday=Promise.resolve({isHoliday:false});
 const pending=new Map();const selectedPaths=new Set();const selectedBackups=new Set();
 function failWorker(error){workerFailure=error;for(const p of pending.values())p.reject(error);pending.clear();}
@@ -45,6 +47,7 @@ function markdown(thread){
   const title=String(thread.title||'Conversation');return '# '+title+'\n\n'+thread.turns.map(t=>{const role=Object.hasOwn(t,'user')?'User':Object.hasOwn(t,'thinking')?'Thinking':t.source_role==='tool'?'Tool':t.source_role==='system'?'System':'Assistant';return '## '+role+(t.model?' · '+t.model:'')+'\n\n'+String(t.user??t.thinking??t.ai??'');}).join('\n\n---\n\n')+'\n';
 }
 async function invoke(action,args){
+  if(typeof action==='string'&&action.startsWith('tts.'))return tts.invoke(action,args);
   if(typeof action==='string'&&action.startsWith('resources.')){
     const {validateResourceRequest}=await import('../core/resource-requests.mjs');
     validateResourceRequest(action,args);
@@ -132,6 +135,8 @@ app.whenReady().then(async()=>{
   session.defaultSession.setPermissionRequestHandler((_web,_permission,callback)=>callback(false));
   win.webContents.setWindowOpenHandler(({url})=>{void external(url).catch(()=>{});return {action:'deny'};});
   win.webContents.on('will-navigate',(event,url)=>{if(url!==pageUrl){event.preventDefault();void external(url).catch(()=>{});}});
+  win.webContents.on('render-process-gone',()=>{void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame)void tts.invoke('tts.cancel',{}).catch(()=>{});});
   ipcMain.handle('reader:invoke',(event,action,args={})=>{if(!isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}))throw new Error('Untrusted application request.');return invoke(action,args);});
   win.on('ready-to-show',()=>{if(b.maximized)win.maximize();if(b.fullscreen)win.setFullScreen(true);win.show();});
   win.on('close',saveWindow);
@@ -142,5 +147,5 @@ app.whenReady().then(async()=>{
   }
 }).catch(e=>{console.error(e);app.exit(1);});
 app.on('window-all-closed',()=>app.quit());
-app.on('before-quit',event=>{if(quitting||!worker)return;event.preventDefault();quitting=true;saveWindow();request('shutdown').catch(error=>console.error('Archive shutdown:',error.message)).finally(async()=>{await worker.terminate().catch(()=>{});app.quit();});});
+app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;saveWindow();Promise.resolve(tts.dispose()).catch(()=>{}).then(()=>worker?request('shutdown'):null).catch(error=>console.error('Archive shutdown:',error.message)).finally(async()=>{if(worker)await worker.terminate().catch(()=>{});app.quit();});});
 }

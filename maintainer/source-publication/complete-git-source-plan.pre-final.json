@@ -442,7 +442,7 @@
     "archive_url": "https://codeload.github.com/electron/electron/tar.gz/45d20ec03000aac41e73b2abdb707936b4f98ed0",
     "archive_prefix": "electron-45d20ec03000aac41e73b2abdb707936b4f98ed0/",
     "expected_sha256": "023fec7887359eeff6981ba34485b7849e0bb258f2e4f7e97474023cd6f8e54d",
-    "local_file": "/workspace/scratch/7f980e25f779/runtime-source-seeds/electron-45d20ec03000aac41e73b2abdb707936b4f98ed0.tar.gz",
+    "local_file": "runtime-source-seeds/electron-45d20ec03000aac41e73b2abdb707936b4f98ed0.tar.gz",
     "planning_estimate_bytes": 20561358
   },
   {

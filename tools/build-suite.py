@@ -46,6 +46,8 @@ def main():
     parser.add_argument('--target', choices=('all', 'windows', 'linux'), default='windows' if os.name == 'nt' else 'all')
     parser.add_argument('--out', type=Path, default=ROOT / 'release')
     parser.add_argument('--runtime-cache', type=Path, default=ROOT / '.cache' / 'electron')
+    parser.add_argument('--tts-assets', type=Path, default=Path(os.environ['THREADSHELF_TTS_ASSETS']) if os.environ.get('THREADSHELF_TTS_ASSETS') else None,
+                        help='Use an already prepared CPU speech payload instead of downloading it.')
     parser.add_argument('--skip-tests', action='store_true')
     args = parser.parse_args()
     if args.target != 'windows' and sys.platform != 'linux':
@@ -66,10 +68,21 @@ def main():
     env['ONNXRUNTIME_NODE_INSTALL'] = 'skip'
     env['TSLR_NODE_VERSION'] = NODE
     env['TSL_NPM_CACHE'] = str(ROOT / '.tooling' / 'npm')
+    env['PYTHON'] = sys.executable
     # Child processes receive the verified CLI; packagers independently use
     # the same managed bootstrap instead of guessing beside Node.
     env['npm_execpath'] = str(npm_cli)
-    for app in APPS if args.app == 'all' else (args.app,):
+    selected = APPS if args.app == 'all' else (args.app,)
+    if any(app in ('reader', 'alternative') for app in selected):
+        if sys.version_info < (3, 11, 8):
+            parser.error('CPU speech asset preparation requires Python 3.11.8 or newer.')
+        assets = (args.tts_assets or ROOT / '.cache' / 'tts-assets').resolve()
+        if args.tts_assets is None:
+            platform = {'linux': 'linux-x64', 'windows': 'win32-x64', 'all': 'all'}[args.target]
+            run([sys.executable, ROOT / 'apps/reader/tts/cpu/prepare_assets.py',
+                 '--output', assets, '--platform', platform], env=env)
+        env['THREADSHELF_TTS_ASSETS'] = str(assets)
+    for app in selected:
         project = ROOT / 'apps' / app
         package = json.loads((project / 'package.json').read_text(encoding='utf-8'))
         if package['version'] != VERSIONS[app]:

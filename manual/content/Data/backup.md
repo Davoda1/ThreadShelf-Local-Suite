@@ -63,7 +63,7 @@ Portable program folders do not contain the normal profile. Moving just the extr
 
 ## Updating or moving this public release
 
-The public release is **1.0.0**. Application version and archive schema are separate. Reader uses `threadshelf-local-storage-v2`, archive format 2, catalog schema 3 and `reading-v2.json`; those numbers do not require editing when the application version changes.
+The public release is **1.4.0**. Application version and archive schema are separate. Reader uses `threadshelf-local-storage-v2`, archive format 2, catalog schema 3 and `reading-v2.json`; those numbers do not require editing when the application version changes.
 
 1. Create a managed Local backup and close Reader.
 2. Preserve the complete existing profile as an additional backup when moving machines or testing a future release.
@@ -71,7 +71,7 @@ The public release is **1.0.0**. Application version and archive schema are sepa
 4. Launch one Reader instance and confirm the active data folder.
 5. Verify collections, bookmarks, reading positions and appearance before removing the old program folder.
 
-Appearance, wave-background and prompt-button preferences belong to the application profile. Replacing program files does not move that profile. Future releases may introduce explicit migration instructions; follow the documentation packaged with the target release. Do not run two different versions against the same profile simultaneously.
+Appearance, wave-background, prompt-button and Text-to-Speech preferences belong to the application profile. A Local archive backup does not include the complete speech profile, encrypted keys or optional generated-audio cache; preserve a closed full-profile copy if those are needed. Replacing program files does not move that profile. Future releases may introduce explicit migration instructions; follow the documentation packaged with the target release. Do not run two different versions against the same profile simultaneously.
 
 An unsupported archive or backup schema needs matching software or a supported export/import route. Do not alter format markers to force it open. Keep the original exports and the untouched old profile until you have verified a transfer.
 

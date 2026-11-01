@@ -9822,7 +9822,8 @@
     {
       "file": "source-publication/GITILES-INTEGRATION.json",
       "bytes": 6298,
-      "sha256": "36fd273aa8791819f4cb8a707cbbf974098925709ab8c668a0309d07e7018c4e"
+      "sha256": "36fd273aa8791819f4cb8a707cbbf974098925709ab8c668a0309d07e7018c4e",
+      "storage": "metadata"
     },
     {
       "file": "source-publication/README-RUNTIME-SOURCES.txt",
@@ -9952,7 +9953,8 @@
     {
       "file": "source-publication/complete-git-source-plan.pre-final.json",
       "bytes": 110602,
-      "sha256": "968d707f0432a7e4494bdadb33f9383f52ef610eb55fbc2bc0269e9c5ac95744"
+      "sha256": "968d707f0432a7e4494bdadb33f9383f52ef610eb55fbc2bc0269e9c5ac95744",
+      "storage": "metadata"
     },
     {
       "file": "source-publication/depot-tools-revision.json",

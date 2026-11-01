@@ -1,4 +1,4 @@
-# ThreadShelf Local Alternative 1.0.0
+# ThreadShelf Local Alternative 1.4.0
 
 Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server. It combines a conversation shelf, full-thread reading, prompt outline, server search, pins and saved searches. The warm paper/teal visual design offers System, Light and Dark appearance modes.
 
@@ -13,6 +13,7 @@ It reads the server through supported read APIs. It does not import provider exp
 5. [Configure appearance and maintain local state](05-Settings-and-Data.md).
 6. [Explore the built-in demo](06-Demo.md).
 7. [Troubleshoot and use keyboard controls](07-Troubleshooting.md).
+8. [Set up voices, speech playback and audio caching](08-Text-to-Speech.md).
 
 ## A first successful session
 

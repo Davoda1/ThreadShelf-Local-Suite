@@ -108,6 +108,14 @@ def collect_inputs(artifacts, version, commit):
             if gui.get('passed') is not True or gui.get('nativeGUIExecuted') is not True:
                 raise ValueError(f'{prefix}: native GUI evidence is not successful.')
             publication = records.get(prefix + '-publication.json', {})
+            if app in ('reader', 'alternative'):
+                speech = records.get(summary.get('ttsReport', ''), {})
+                if any(speech.get(k) != v for k, v in {'passed': True, 'application': app,
+                        'version': version, 'platform': platform, 'packagedModuleExecuted': True}.items()):
+                    raise ValueError(f'{prefix}: successful packaged CPU speech validation is required.')
+                if set(speech.get('cases', {})) != {'buffered', 'streaming'} or any(
+                        case.get('ok') is not True for case in speech['cases'].values()):
+                    raise ValueError(f'{prefix}: buffered and streaming CPU speech must both pass.')
             if any(publication.get(k) != v for k, v in {'application': app, 'version': version,
                     'platform': platform, 'commit': commit}.items()):
                 raise ValueError(f'{prefix}: inputs were not produced from the tagged commit.')
@@ -136,8 +144,10 @@ def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     return f'''Reader, Analytics and Alternative are now **{version}**.
 
-- Reader and Alternative use pinned **MathJax 4.1.3**, bundled locally with compatibility settings preserving established equation appearance.
-- Exported ChatGPT/Codex file citations display as readable file cards with consistent document icons.
+- Reader and Alternative add speech playback with bundled offline **Pocket TTS** and **Kokoro** CPU voices, optional provider connections, streaming, per-message controls and an audio cache.
+- TTS settings retain fixed navigation above scrollable content, including after cache deletion.
+- The illustrated manual and application screenshots are refreshed; an updated offline manual ZIP is included.
+- Existing MathJax 4.1.3 rendering and readable ChatGPT/Codex file citations are preserved.
 - Analytics retains its read-only behaviour. Profiles, archive/schema identifiers and the Electron/Node/npm/ONNX pins are unchanged.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 
@@ -148,9 +158,9 @@ All six Windows/Linux package jobs passed their archive, native runtime and GUI 
 The release includes the exact tagged suite source as ZIP and TAR.GZ. Unchanged dependency source companions retain their original filenames and checksums:
 
 - [Electron/ONNX source parts and metadata (v1.3.0)](https://github.com/{repository}/releases/tag/v1.3.0), with the [v1.3.0 checksum manifest]({base}/v1.3.0/SHA256SUM.txt).
-- [Native sharp/libvips sources (v1.0.0)]({base}/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) and [offline manual]({base}/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Manual.zip), with the [v1.0.0 checksum manifest]({base}/v1.0.0/SHA256SUM.txt).
+- [Native sharp/libvips sources (v1.0.0)]({base}/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz), with the [v1.0.0 checksum manifest]({base}/v1.0.0/SHA256SUM.txt).
 
-Keep every numbered source part with its matching metadata/assembler ZIP. Windows packages remain unsigned. DEB payloads are validated and exercised after extraction; system-wide installation and every Linux distribution are not claimed tested. TTS is outside this release.
+Keep every numbered source part with its matching metadata/assembler ZIP. Speech payloads include their own notices, voice attribution and corresponding GPL source archives. Windows packages remain unsigned. DEB payloads are validated and exercised after extraction; system-wide installation and every Linux distribution are not claimed tested. Remote speech services require a configured endpoint and any credentials required by that provider; their availability and output are not verified by the offline package gates.
 '''
 
 
@@ -172,6 +182,8 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
     for fmt, suffix in [('zip', '.zip'), ('tar.gz', '.tar.gz')]:
         run('git', 'archive', f'--format={fmt}', f'--prefix={stem}-Source/',
             f'--output={output / (stem + "-Source" + suffix)}', commit, cwd=root)
+    run('git', 'archive', '--format=zip', f'--prefix={stem}-Manual/',
+        f'--output={output / (stem + "-Manual.zip")}', f'{commit}:docs', cwd=root)
     with zipfile.ZipFile(output / (stem + '-Verification-Evidence.zip'), 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, path in sorted(evidence.items()):
             archive.write(path, 'verification/' + name)
@@ -185,15 +197,15 @@ Commit: `{commit}`
 
 Package workflow: {run_url}
 
-This report is generated only after all six package jobs complete successfully. Input ledgers bind every published package and HTML preview to the exact tagged commit and SHA-256 digest. Nine native packages and two HTML previews were collected; two suite source archives were created using `git archive` from that commit.
+This report is generated only after all six package jobs complete successfully. Input ledgers bind every published package and HTML preview to the exact tagged commit and SHA-256 digest. Nine native packages and two HTML previews were collected; two suite source archives and the offline manual ZIP were created using `git archive` from that commit.
 
 | Application | Native host | Package/runtime validation | Native GUI |
 | --- | --- | --- | --- |
 {rows}
 
-The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Package jobs run the existing source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation browser checks before publication. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
+The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation browser checks before publication. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
 
-The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md). Historical personal-edition results are not counted as executions of this release.
+The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md).
 
 ## Limits
 
@@ -202,11 +214,11 @@ The independent Checks workflow has its own status and is not asserted successfu
 - Focused rendering checks use synthetic test harnesses and test-only browser flags. The separate packaged-GUI validators check the unchanged applications with Chromium's sandbox enabled.
 - Windows packages are unsigned. No byte-identical rebuild of Electron/ONNX is claimed.
 - Analytics functionality and the existing application storage/schema identifiers are unchanged.
-- No TTS functionality is included.
+- Speech checks exercise bundled CPU engines with synthetic text. External provider accounts and real remote-service availability are not tested by these offline gates.
 
 ## Sources and checksums
 
-Use this release's `SHA256SUM.txt` for every attached asset. Unchanged Electron/ONNX sources remain at v1.3.0 and native sharp/libvips sources/manual at v1.0.0, with their original manifests. The v1.3.0 dependency inventory remains the runtime/toolchain baseline; Reader/Alternative MathJax is now 4.1.3.
+Use this release's `SHA256SUM.txt` for every attached asset, including the refreshed manual. Unchanged Electron/ONNX sources remain at v1.3.0 and native sharp/libvips sources at v1.0.0, with their original manifests. The v1.3.0 dependency inventory remains the existing runtime/toolchain baseline; MathJax remains 4.1.3. Added speech models, runtimes and sources are pinned in each application's `tts/cpu/assets-manifest.json`, with notices and corresponding GPL sources retained in the packaged speech payload.
 '''
     (output / (stem + '-Verification.md')).write_text(report, encoding='utf-8')
     ledger = [{'name': p.name, 'bytes': p.stat().st_size, 'sha256': digest(p)} for p in sorted(output.iterdir())]

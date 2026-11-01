@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "platform": "linux",
+  "arch": "x64",
+  "onnxruntime": "1.31.1",
+  "results": [
+    {
+      "provider": "pocket",
+      "voice": "alba",
+      "bytes": 167084,
+      "milliseconds": 1207
+    },
+    {
+      "provider": "pocket",
+      "voice": "marius",
+      "bytes": 147884,
+      "milliseconds": 1074
+    },
+    {
+      "provider": "pocket",
+      "voice": "javert",
+      "bytes": 190124,
+      "milliseconds": 1174
+    },
+    {
+      "provider": "pocket",
+      "voice": "anna",
+      "bytes": 178604,
+      "milliseconds": 1170
+    },
+    {
+      "provider": "pocket",
+      "voice": "charles",
+      "bytes": 159404,
+      "milliseconds": 1226
+    },
+    {
+      "provider": "pocket",
+      "voice": "vera",
+      "bytes": 159404,
+      "milliseconds": 1057
+    },
+    {
+      "provider": "kokoro",
+      "voice": "am_michael",
+      "bytes": 156716,
+      "milliseconds": 3022
+    },
+    {
+      "provider": "kokoro",
+      "voice": "af_heart",
+      "bytes": 144428,
+      "milliseconds": 3005
+    },
+    {
+      "provider": "kokoro",
+      "voice": "bf_emma",
+      "bytes": 138284,
+      "milliseconds": 3066
+    }
+  ],
+  "longPathRelocation": {
+    "dataPathBytes": 226,
+    "bytes": 156716,
+    "unicodeSpacesAndApostrophes": true,
+    "streamedChunks": 7
+  },
+  "cancellation": true,
+  "temporaryFilesRemoved": true
+}

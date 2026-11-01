@@ -1,6 +1,6 @@
-# Local Reader 1.0.0 — screenshot guide
+# Local Reader 1.4.0 — screenshot guide
 
-These new 1360 × 900 screenshots show the exact production 1.0.0 renderer in the explicitly labelled synthetic offline browser preview. Native file operations, live server calls and model operations are simulated in that preview; the images demonstrate the controls and rendering, not successful native/server execution. They are unaltered captures of real application UI.
+These new 1360 × 900 screenshots show the exact production 1.4.0 renderer in the explicitly labelled synthetic offline browser preview. Native file operations, live server calls and model operations are simulated in that preview; TTS preview playback uses a labelled synthetic test tone rather than synthesized speech; the images demonstrate the controls and rendering, not successful native/server execution. They are unaltered captures of real application UI.
 
 ## Library and conversation: light and dark
 
@@ -42,8 +42,34 @@ The screenshot shows the real dependent settings for optional holidays and appea
 
 ## About and version
 
-Use About when preparing a support report. The public application version is 1.0.0; internal storage schema labels can legitimately use different numbers.
+Use About when preparing a support report. The public application version is 1.4.0; internal storage schema labels can legitimately use different numbers.
 
 The footer lists the inherited rendering adapters and their own source versions; those attribution numbers are independent of Local Reader’s public version at the top.
 
-![Reader About showing version 1.0.0](../Images/reader-about.png)
+![Reader About showing version 1.4.0](../Images/reader-about.png)
+
+## Text-to-Speech playback settings
+
+The Playback section controls speaker buttons, reasoning, code/citation reading, streaming, speed, volume and temporary audio memory. The settings layout keeps each section within its own panel. The [speech guide](../Reader/text-to-speech.md) explains the controls and privacy choices.
+
+![Reader Text-to-Speech Playback settings](../Images/reader-tts-playback.png)
+
+## Providers, voices and audio test
+
+Choose a bundled CPU engine or configure an optional remote service. Audio test uses draft choices without saving them and has its own player and output-level meter.
+
+![Reader speech provider and voice settings](../Images/reader-tts-providers.png)
+
+![Reader Audio test passage and controls](../Images/reader-tts-test.png)
+
+## Message playback bar
+
+Speaker buttons open playback for one message. The bar offers transport controls and progress, with optional speed, volume and settings controls. This browser preview illustrates the real interface using a synthetic test tone, not a provider-generated voice.
+
+![Reader message speech playback bar in the synthetic preview](../Images/reader-tts-player.png)
+
+## Audio cache
+
+Audio cache is separate from Reader's image resource cache and conversation archive. Pinned recordings take priority for an unchanged full message and are never overwritten by a voice change. Prefer API recordings is on by default. Review cleanup scopes before deleting audio; pinned and playing clips are protected.
+
+![Reader Audio cache settings and cleanup controls](../Images/reader-tts-cache.png)

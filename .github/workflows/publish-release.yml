@@ -5,12 +5,11 @@ on:
       tag:
         description: Existing release tag to publish
         required: true
-        default: v1.3.1
+        default: v1.4.0
         type: string
       source_run:
         description: Completed package workflow run with six successful package jobs
         required: true
-        default: '40968487775'
         type: string
 permissions:
   contents: read

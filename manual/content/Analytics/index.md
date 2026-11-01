@@ -1,10 +1,10 @@
-# ThreadShelf Local Analytics 1.0.0
+# ThreadShelf Local Analytics 1.4.0
 
 Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations branch, and which observations support a chart. It works from local captures and supported export files, with separate settings, saved views and annotations.
 
 Analytics and Reader have different jobs. Reader is the conversation-reading application. Analytics is the measurement and evidence application. Analytics does not edit original conversations, synchronize bookmarks, provide chat generation, or require a running server. The optional evidence pane is a way to inspect the records behind a measure; it is not a replacement for Reader.
 
-This manual describes Local Analytics **1.0.0**. The Analytics interface has 17 palettes; Reader also offers Platinum Plus and Professional. Small relationship density grids stay compact while preserving every cell and the corresponding contributor evidence. Application release numbers and internal storage-format numbers are separate concepts.
+This manual describes Local Analytics **1.4.0**. The Analytics interface has 17 palettes; Reader also offers Platinum Plus and Professional. Small relationship density grids stay compact while preserving every cell and the corresponding contributor evidence. Application release numbers and internal storage-format numbers are separate concepts.
 
 ## Start here
 

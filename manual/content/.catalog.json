@@ -44,7 +44,7 @@
     },
     "Alternative/05-Settings-and-Data.md": {
       "title": "Alternative: settings and local data",
-      "description": "Open Settings on the navigation rail or Reading in the bottom status bar to open Reading & appearance. Unlike Reader and Analytics settings forms, these Alternative controls save automatically when changed. Done closes the…",
+      "description": "Set appearance, image loading and optional speech preferences, understand automatic saving and maintain Alternative’s independent local profile.",
       "tags": [
         "Alternative"
       ]
@@ -64,14 +64,14 @@
       ]
     },
     "Alternative/index.md": {
-      "title": "ThreadShelf Local Alternative 1.0.0",
+      "title": "ThreadShelf Local Alternative 1.4.0",
       "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
       "tags": [
         "Alternative"
       ]
     },
     "Alternative": {
-      "title": "ThreadShelf Local Alternative 1.0.0",
+      "title": "ThreadShelf Local Alternative 1.4.0",
       "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
       "tags": [
         "Alternative"
@@ -134,14 +134,14 @@
       ]
     },
     "Analytics/index.md": {
-      "title": "ThreadShelf Local Analytics 1.0.0",
+      "title": "ThreadShelf Local Analytics 1.4.0",
       "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
       "tags": [
         "Analytics"
       ]
     },
     "Analytics": {
-      "title": "ThreadShelf Local Analytics 1.0.0",
+      "title": "ThreadShelf Local Analytics 1.4.0",
       "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
       "tags": [
         "Analytics"
@@ -212,14 +212,14 @@
     },
     "Reader/index.md": {
       "title": "Local Reader manual",
-      "description": "Use these chapters for the Reader workspace, supported imports, text/meaning search, server access and appearance settings.",
+      "description": "Use Reader to import, organize, search, read and hear archived conversations; configure server access, appearance and optional speech providers.",
       "tags": [
         "Reader"
       ]
     },
     "Reader": {
       "title": "Local Reader manual",
-      "description": "Use these chapters for the Reader workspace, supported imports, text/meaning search, server access and appearance settings.",
+      "description": "Use Reader to import, organize, search, read and hear archived conversations; configure server access, appearance and optional speech providers.",
       "tags": [
         "Reader"
       ]
@@ -295,36 +295,36 @@
       ]
     },
     "Screenshots/alternative-gallery.md": {
-      "title": "Local Alternative 1.0.0 — screenshot guide",
-      "description": "Actual Local Alternative 1.0.0 screenshots with synthetic demo data. Electron 44.4.5 identifies the historical capture environment; final desktop packages use Electron 44.9.1.",
+      "title": "Local Alternative 1.4.0 — screenshot guide",
+      "description": "View the real Local Alternative 1.4.0 interface with synthetic demo records, including refreshed reading, search, connection and speech settings captures.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/analytics-gallery.md": {
-      "title": "Local Analytics 1.0.0 — screenshot guide",
-      "description": "View the real compiled Local Analytics 1.0.0 interface using synthetic demo data, with light and dark screenshots of Overview, Explorer, evidence and settings.",
+      "title": "Local Analytics 1.4.0 — screenshot guide",
+      "description": "View the real compiled Local Analytics 1.4.0 interface using synthetic demo data, with light and dark screenshots of Overview, Explorer, evidence and settings.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/index.md": {
       "title": "Screenshot guides",
-      "description": "Explore screenshots of the 1.0.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "description": "Explore screenshots of the 1.4.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots": {
       "title": "Screenshot guides",
-      "description": "Explore screenshots of the 1.0.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "description": "Explore screenshots of the 1.4.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/reader-gallery.md": {
-      "title": "Local Reader 1.0.0 — screenshot guide",
-      "description": "View unaltered captures of the Local Reader 1.0.0 renderer in the labeled synthetic offline browser preview. Native, server and model operations are simulated.",
+      "title": "Local Reader 1.4.0 — screenshot guide",
+      "description": "View unaltered Local Reader 1.4.0 production-renderer captures with synthetic preview data, including speech settings and audio cache controls.",
       "tags": [
         "Screenshots"
       ]
@@ -394,16 +394,32 @@
     },
     "Start/installation.md": {
       "title": "Installation and first session",
-      "description": "Each desktop application is released as 1.0.0 for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for…",
+      "description": "Install the 1.4.0 Windows portable ZIP, Linux portable TAR.GZ or DEB, verify checksums, and begin with Reader, Analytics or Alternative.",
       "tags": [
         "Start"
       ]
     },
     "index.md": {
       "title": "ThreadShelf Local Suite",
-      "description": "ThreadShelf Local Suite provides three separate desktop applications: Local Reader, Local Analytics and Local Alternative, plus a search-integration patch for ThreadShelf 1.3.0. This manual covers the public 1.0.0 GUI builds.…",
+      "description": "ThreadShelf Local Suite 1.4.0 manual: Reader, Analytics and Alternative, optional Text-to-Speech, data management and ThreadShelf 1.3.0 server search integration.",
       "tags": [
         "Suite"
+      ]
+    },
+    "Reader/text-to-speech.md": {
+      "title": "Text-to-Speech in Reader",
+      "description": "Configure bundled CPU voices or remote speech providers, test audio, control per-message playback, protect API keys and manage session memory and saved recordings.",
+      "tags": [
+        "Reader",
+        "Text-to-Speech"
+      ]
+    },
+    "Alternative/08-Text-to-Speech.md": {
+      "title": "Alternative: Text-to-Speech",
+      "description": "Use Alternative’s automatically saved speech settings, provider choices, audio test, playback bar, encrypted keys and protected audio cache cleanup.",
+      "tags": [
+        "Alternative",
+        "Text-to-Speech"
       ]
     }
   }

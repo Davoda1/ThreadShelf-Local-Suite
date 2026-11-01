@@ -4,10 +4,10 @@
 
 ## Install and start
 
-On Windows, extract the portable ZIP into a normal writable application folder and open **ThreadShelf Local Analytics.exe** at the archive root. Keep the supporting application files together. On GNU/Linux, extract the portable TAR.GZ and open **bin/threadshelf-local-analytics**, the direct symlink to the native executable. The Debian package installs the native application and desktop integration; install the supplied package with your package manager, for example:
+On Windows, extract the portable ZIP into a normal writable application folder and open **ThreadShelf Local Analytics.exe** at the archive root. Keep the supporting application files together. On GNU/Linux, extract the portable TAR.GZ and open **threadshelf-local-analytics**, the real native executable at the archive root. The Debian package installs a regular native executable in `/usr/bin` and desktop integration; install the supplied package with your package manager, for example:
 
 ```bash
-sudo apt install ./threadshelf-local-analytics_1.0.0_amd64.deb
+sudo apt install ./threadshelf-local-analytics_1.4.0_amd64.deb
 ```
 
 Ordinary application use does not require administrator privileges, a separately installed Node runtime, an external archiver, an AI model or a network connection. Build scripts in the source archive are development tools; they are not the launchers for the packaged desktop app.
@@ -26,7 +26,7 @@ Choose **Add source** and select the route matching the material you actually ha
 
 Do not point Export directory at a Reader profile. Reader storage has specific consistency and ownership rules, and the export route deliberately refuses it. Do not select Analytics' own application-data directory as an input source.
 
-The source contract supports Reader’s **local-storage-v2** archive. Reader 1.0.0 retains this version-2 storage format and catalog schema 3. The format and coherent archive contents determine compatibility. Analytics does not migrate older unsupported Reader schemas. A familiar folder name alone is not proof that the contents are compatible.
+The source contract supports Reader’s **local-storage-v2** archive. Reader 1.4.0 retains this version-2 storage format and catalog schema 3. The format and coherent archive contents determine compatibility. Analytics does not migrate older unsupported Reader schemas. A familiar folder name alone is not proof that the contents are compatible.
 
 ## Automatic Reader discovery
 
@@ -87,6 +87,6 @@ Capture time tells you when Analytics observed the source. Activity charts use o
 
 ## Application version and captured formats
 
-The public application version is **1.0.0**. The internal capture/catalog formats have independent schema versions. Do not rename or edit their markers to match the application version. Analytics validates a source format before reading it; an unsupported schema is reported rather than automatically repaired. Unknown saved filter fields remain stored and produce a visible partial-selection warning if they cannot be applied.
+The public application version is **1.4.0**. The internal capture/catalog formats have independent schema versions. Do not rename or edit their markers to match the application version. Analytics validates a source format before reading it; an unsupported schema is reported rather than automatically repaired. Unknown saved filter fields remain stored and produce a visible partial-selection warning if they cannot be applied.
 
 Continue with [filters and saved selections](02-Selections.md).

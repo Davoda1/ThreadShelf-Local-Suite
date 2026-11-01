@@ -7,9 +7,12 @@ Open **Settings** on the navigation rail or **Reading** in the bottom status bar
 | Color theme | System, Light, Dark | System follows the operating system; explicit modes remain selected |
 | Reading size | 14–24 px | Changes conversation text size |
 | Reading width | Compact 640 px, Comfortable 820 px, Wide 1040 px | Sets the preferred maximum reading width within available space |
+| Images | Click to load only, Load automatically | Controls loading of available linked images within the conversation; missing images retain placeholders |
 | Show reasoning when available | On/off | Displays reasoning included in retained content |
 
 The reading-width values are preferences, not a minimum window width. A small window constrains the actual content width. Code colors follow Light/Dark automatically; Alternative does not offer Reader’s full interface/code-theme catalogs.
+
+The **Text-to-Speech** tab has its own Playback, Providers & voices, Audio test and Audio cache sections. Its valid preference changes also save automatically. Explicit key actions and reviewed audio deletion use their own buttons. See [Text-to-Speech](08-Text-to-Speech.md) for setup and privacy.
 
 ## Where state is stored
 
@@ -37,4 +40,4 @@ Close Alternative and preserve the existing profile before recovery. Restore a k
 
 A later save failure after a successful initial load is a separate problem: new choices may not survive restart. Check the reported error, directory permissions and free storage, and keep the existing state before making repairs.
 
-No telemetry or automatic update requests are part of this release. Server requests occur for the selected archive operations; deliberate external links open through the operating system/browser. See [privacy](../Data/privacy.md) and [troubleshooting](07-Troubleshooting.md).
+No telemetry or automatic update requests are part of this release. Server requests occur for selected archive operations; linked images can load when requested or automatically according to the Images preference. Optional remote speech and model/voice discovery contact the selected speech provider. Deliberate external links open through the operating system/browser. See [privacy](../Data/privacy.md) and [troubleshooting](07-Troubleshooting.md).

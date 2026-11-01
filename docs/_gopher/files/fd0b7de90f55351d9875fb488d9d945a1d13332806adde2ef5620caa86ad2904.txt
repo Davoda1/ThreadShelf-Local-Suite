@@ -46,7 +46,7 @@ A code block's **Copy** button copies that block's code. The language label is u
 
 ## Markdown, mathematics and diagrams
 
-The renderer supports Markdown text, headings, lists, tables, code and mathematics with bundled rendering assets. Large tables and code use contained scroll regions. Mermaid diagrams render locally where the retained source can be interpreted. The renderer can apply bounded repairs as a reading aid.
+The renderer supports Markdown text, headings, lists, tables, code and mathematics with bundled rendering assets, including MathJax 4. Large tables and code use contained scroll regions. Mermaid diagrams render locally where the retained source can be interpreted. The renderer can apply bounded repairs as a reading aid.
 
 A repaired Mermaid diagram can expose a **Repaired / Original** source toggle. The diagram-level Copy control copies the displayed Mermaid source. Whole-message Copy and conversation export preserve the original source text; they do not silently replace it with the repaired diagram code. If a diagram remains unsupported or malformed, readable source is retained instead of inventing a missing diagram.
 
@@ -65,13 +65,25 @@ For supported data charts:
 
 A suffix such as `%` or a unit is presentation metadata; it does not authorize multiplying a saved numeric value. A saved static SVG illustration may look like a chart but has no inferred data table or interactive series unless an actual supported chart contract is present.
 
+## JSON-only responses
+
+Useful JSON-only assistant and reasoning responses render as indented, syntax-highlighted JSON. Empty or internal-only responses remain hidden. Original message copying and export preserve the retained source, while copying a formatted code block uses its displayed text. Embedded HTML inside JSON remains literal text.
+
 ## Missing images, citations and dynamic content
 
+Available linked images follow **Settings → Reading → Online images**: load automatically or click the placeholder to load. Embedded images display directly. Reader’s separate **Database Manager → Resources cache** can retain loaded images for offline reuse. The image cache is independent of the speech audio cache.
+
 Query-only image exports display local theme-aware placeholders: **Corner aperture** beside text and **Soft horizon** in full-width layouts. Their saved size, aspect ratio and description help preserve the layout. They do not trigger an image search or fetch a guessed photograph.
+
+Exported ChatGPT/Codex file citations display a readable filename, document icon and known file-type label where available. These display-only labels do not grant access to a missing file or invent a download destination.
 
 A citation opens a destination only when the retained message's metadata binds the citation’s exact identifier to a safe explicit URL. Otherwise the compact citation pill retains the original identifier and indicates that the source is unavailable. The renderer does not infer a URL from a similar title, unrelated message or source-list order.
 
 Automation suggestions, maps, dynamic components and unsupported markup remain passive labels or safe source where no supported local representation exists. No schedule is created by reading an old automation suggestion. No map tiles, live exchange rates or missing interactive data are invented.
+
+## Listen to a message
+
+Enable the optional [Text-to-Speech](text-to-speech.md) feature to add speaker buttons to readable messages. Each button opens the playback bar for that message; saved or retained matching audio can be reused. Speech controls do not alter the archive, copying or export.
 
 ## Export the open conversation
 

@@ -80,7 +80,9 @@ Video respects application animation, operating-system reduced-motion and visibi
 
 ## Reading settings
 
-**Settings → Reading** offers Pages or Continuous scrolling, page sizes 20/25/50/100/200, ordinary list sort order, Compact conversation layout and a shortcut to Saved reading. Compact conversation layout affects long user prompts and reasoning collapses. It is not a setting that removes assistant replies or decreases the actual archive contents.
+**Settings → Reading** offers Pages or Continuous scrolling, page sizes 20/25/50/100/200, ordinary list sort order, Compact conversation layout and a shortcut to Saved reading. **Online images** chooses automatic or click-to-load behavior for available linked images; embedded images display directly. **Database Manager → Resources cache → Cache loaded images** separately controls persistent image reuse. Its per-conversation and all-cache deletion controls leave conversations and source images unchanged.
+
+Compact conversation layout affects long user prompts and reasoning collapses. It is not a setting that removes assistant replies or decreases the actual archive contents.
 
 ## Practical accessibility choices
 

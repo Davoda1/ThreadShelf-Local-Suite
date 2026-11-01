@@ -9,6 +9,7 @@ sections after branding. This does not execute the Windows application.
 from __future__ import annotations
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import posixpath
@@ -491,7 +492,7 @@ def verify_readme_inputs(directory, *, portable=False):
 def verify_application_inputs(runtime):
     """Reject stale binary staging after any shipped application input changes."""
     app = runtime / 'resources/app'
-    inputs = ['package.json', 'src/core', 'src/desktop', 'dist', 'build', 'vendor',
+    inputs = ['package.json', 'tts', 'src/core', 'src/desktop', 'dist', 'build', 'vendor',
               'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md',
               'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md',
               'docs/Storage.md', 'docs/DATABASE-MANAGER.md', 'server-support', 'LICENSE',
@@ -522,6 +523,32 @@ def verify_application_inputs(runtime):
             'readme': verify_readme_inputs(app)}
 
 
+def verify_tts_assets(runtime, prepared, platform):
+    """Bind every packaged CPU byte to the complete verified preparation tree."""
+    spec = importlib.util.spec_from_file_location('tts_stager', ROOT / 'scripts/stage-tts-assets.py')
+    stage = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(stage)
+    entries = stage.inventory(prepared, platform)
+    destination = runtime / 'resources/tts-assets'
+    actual = snapshot(destination)
+    expected = {name: FileEntry(*file_digest(source)) for name, source in entries.items()}
+    if set(actual) != set(expected) | {'PACKAGED-ASSETS.json'}:
+        raise ValueError('Packaged TTS file inventory differs from the prepared payload')
+    for name, value in expected.items():
+        if actual[name] != value:
+            raise ValueError('Packaged TTS asset hash/size mismatch: ' + name)
+    record = json.loads(entries['asset-inventory.json'].read_text())
+    metadata = json.loads((destination / 'PACKAGED-ASSETS.json').read_text())
+    modes = {row['path']: row.get('mode', 493 if platform == 'linux' and row['path'] in ('runtime/python/bin/python3','engines/pocket/pocket-tts') else 420) for row in record['files']}
+    wanted = {'schema':1,'platform':platform,'files':{name:{'sha256':row.sha256,'size':row.size,'mode':modes.get(name,420)} for name,row in expected.items()}}
+    if metadata != wanted:
+        raise ValueError('Packaged TTS inventory metadata differs from the prepared payload')
+    if platform == 'linux':
+        for name in ('runtime/python/bin/python3','engines/pocket/pocket-tts'):
+            verify_regular_elf(destination / name)
+    return {'files':len(actual),'bytes':sum(entry.size for entry in actual.values()),'preparedHashesMatch':True,'completeInventoryVerified':True}
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     group = p.add_mutually_exclusive_group()
@@ -529,6 +556,7 @@ def main():
     group.add_argument('--source', action='store_true')
     p.add_argument('--out', type=Path, default=ROOT / 'release')
     p.add_argument('--runtime-cache', type=Path)
+    p.add_argument('--tts-assets', type=Path, default=Path(os.environ.get('THREADSHELF_TTS_ASSETS', ROOT / 'tts-assets')))
     p.add_argument('--platform', action='append', choices=['win32', 'linux'],
                    help='Validate only these binary platforms; repeatable; Linux includes TAR.GZ and DEB. Defaults to both.')
     p.add_argument('--electron-version', help='Exact stable runtime selected for packaging; defaults to TSLR_ELECTRON_VERSION or the manifest pin')
@@ -569,7 +597,7 @@ def main():
                 raise ValueError('DEB version or architecture is incorrect')
             selected_runtimes.extend([('linux', linux), ('deb', stage / 'deb/opt/threadshelf-local-reader')])
         for platform, runtime in selected_runtimes:
-            application_inputs.append({'platform': platform, **verify_application_inputs(runtime)})
+            application_inputs.append({'platform': platform, **verify_application_inputs(runtime), 'ttsAssets': verify_tts_assets(runtime, args.tts_assets, 'linux' if platform == 'deb' else platform)})
         if args.runtime_cache:
             for platform, runtime in selected_runtimes:
                 if platform == 'deb':
@@ -578,7 +606,7 @@ def main():
                     runtimes.append({'package': platform, **verify_runtime(args.runtime_cache, platform, runtime, electron_version)})
     if not args.binaries:
         source = stage / (stem + '-Source')
-        source_inputs = ['package.json', 'package-lock.json', 'index.html', 'src', 'public', 'build', 'vendor', 'scripts', 'tests', 'docs', 'server-support', 'README.md', 'ARCHITECTURE.md', 'CHANGELOG.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']
+        source_inputs = ['package.json', 'package-lock.json', 'index.html', 'tts', 'src', 'public', 'build', 'vendor', 'scripts', 'tests', 'docs', 'server-support', 'README.md', 'ARCHITECTURE.md', 'CHANGELOG.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']
         actual_inputs = snapshot(source)
         expected_inputs = {}
         for name in source_inputs:

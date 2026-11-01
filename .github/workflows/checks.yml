@@ -21,6 +21,8 @@ jobs:
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Repository hygiene
         run: python3 tools/check-public-tree.py
+      - name: Release assembly and native speech gate regressions
+        run: python3 -m unittest discover -s tools/tests -p 'test_*release*.py'
       - name: Source companion integrity and assembly regressions
         run: |
           python3 maintainer/test-verify-release-sources.py
@@ -44,6 +46,7 @@ jobs:
       - name: Package validator regression tests
         run: |
           python3 apps/reader/tests/package-validation.test.py
+          python3 apps/reader/tests/stream-release-archive.test.py
           python3 apps/analytics/test/package-validation.test.py
       - name: Server patch installer safety
         run: node --test server-patch/tests/installer.test.mjs

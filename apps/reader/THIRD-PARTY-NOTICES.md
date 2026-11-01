@@ -157,3 +157,14 @@ Original license grants continue to apply. Chromium's Blink
 an “or later” option; the new source was checked and its hash retained. The
 old per-file license-selection index cannot be reused as evidence for the new
 Chromium source. Preserve original notices and complete corresponding sources.
+
+## Text-to-Speech components
+
+The speech controls include Lucide 0.468.0 icon geometry under the ISC license
+retained in `licenses/Lucide-ISC.txt`. The bundled CPU speech payload includes
+Pocket TTS, Kokoro, Python, ONNX Runtime and eSpeak NG dependencies. Exact pinned
+inputs are listed in `tts/cpu/assets-manifest.json`; support-file hashes are in
+`tts/cpu/support-manifest.json`. Each binary package retains the selected
+payload's licenses, model/voice attribution and matching GPL component source
+archives in `resources/tts-assets/licenses` and `resources/tts-assets/sources`.
+See `tts/cpu/README.md` for reconstruction and verification.

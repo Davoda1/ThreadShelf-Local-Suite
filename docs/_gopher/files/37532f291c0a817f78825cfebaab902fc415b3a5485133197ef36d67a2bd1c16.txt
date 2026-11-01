@@ -18,7 +18,7 @@ Open the appearance/settings dialog or **Sources & settings → Appearance**. Ch
 | Reduced motion | On/off | Reduces motion effects |
 | Reduced transparency | On/off | Uses more solid interface surfaces |
 
-The 17 interface themes are **Default, Ocean, Forest, Ember, Amethyst, OLED, Modern, Modern OLED, Platinum, Vellum, Prism, Nocturne, Garnet, Smoked Glass, Harbor Haze, Amber Room and Opal Daylight**. The Reader-specific Professional and Platinum Plus themes are not part of Analytics 1.0.0.
+The 17 interface themes are **Default, Ocean, Forest, Ember, Amethyst, OLED, Modern, Modern OLED, Platinum, Vellum, Prism, Nocturne, Garnet, Smoked Glass, Harbor Haze, Amber Room and Opal Daylight**. The Reader-specific Professional and Platinum Plus themes are not part of Analytics 1.4.0.
 
 Default and Modern share Reader-inspired base light/dark colors; Modern adds neutral depth effects. The four Glassy palettes use gradient backdrops, translucent fills and frosted blur on panels such as the header, navigation, dialogs and evidence. Transparency affects decorative surfaces, not text opacity. High contrast, reduced transparency, forced colors or unsupported blur rendering can cause solid fallbacks. A solid surface under those settings is expected behavior.
 

@@ -16,9 +16,17 @@ The interface and rich rendering do not recreate a provider session. Opening an 
 | Copy from server | Reads selected collections from that server into Local |
 | Ollama detection/test/index/search/download/remove | Contacts the configured local/private-network Ollama service |
 | External conversation link | Opens the explicit supported destination through the system's external-link action |
+| Linked online images | Loads the retained image URL when requested, or automatically according to the image preference; Reader can optionally reuse its separate image cache |
+| Pocket TTS / Kokoro generation | Uses packaged CPU engines and models locally |
+| Remote speech generation or audio test | Sends extracted text and synthesis options to the configured provider |
+| Speech model/voice discovery | Queries the selected speech service |
 | Source build scripts | Download/check selected toolchain and dependencies as documented by the source project |
 
 Do not confuse a local application with a guarantee that every optional action is offline. Before indexing an archive with Ollama, check the configured Ollama address because message chunks are sent there for embeddings. The Ollama test action is narrower and uses only a synthetic sentence.
+
+Replaying reusable speech audio does not send a new generation request. Pins take priority for an unchanged full message, and the default Prefer API recordings option can reuse an earlier API reading after provider, voice or code/citation settings change. Reused audio retains its original text selection. Alternative’s playback subtitle and Reader’s playback-label tooltip identify the original provider/voice of the recording being heard.
+
+Saved speech audio can contain the spoken content of private conversations. Its cache is not encrypted by the API-key passphrase. Optional saved API keys are encrypted separately; session-only keys are discarded when the app exits. Review the [speech privacy and key controls](../Reader/text-to-speech.md#api-keys-and-privacy) before enabling a remote provider or sharing a full profile.
 
 ## Source text and display transformations
 
@@ -34,7 +42,7 @@ A Local backup is a recovery artifact, not a redacted publication. Keep it in st
 
 ## Profiles and logs
 
-The application profile includes conversation storage, settings, saved reading, indexes, downloaded models and Chromium session/log/crash-report data. A full-profile copy can therefore contain more personal material than a data-only backup. Use **Open data folder** to inspect the actual destination rather than assuming portable programs store all data beside the EXE.
+The application profile includes conversation storage, settings, saved reading, indexes, downloaded models, optional cached images/audio, encrypted speech credentials and Chromium session/log/crash-report data. A full-profile copy can therefore contain more personal material than a data-only backup. Use **Open data folder** to inspect the actual destination rather than assuming portable programs store all data beside the EXE.
 
 For support, prefer a concise description, application version, exact error and a synthetic minimal example where possible. If a private export is needed to reproduce a parser problem, retain it securely and understand the export’s contents before handing it to anyone.
 

@@ -6,6 +6,7 @@ All filesystem writes stay inside the explicitly selected work/output/cache path
 """
 from __future__ import annotations
 import argparse
+import importlib.util
 import gzip
 import hashlib
 import json
@@ -18,17 +19,21 @@ import tarfile
 import urllib.request
 import zipfile
 
+_tts_spec = importlib.util.spec_from_file_location('tts_stage', Path(__file__).parent / 'stage-tts-assets.py')
+_tts_stage = importlib.util.module_from_spec(_tts_spec)
+_tts_spec.loader.exec_module(_tts_stage)
+
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCT = 'ThreadShelf Local Alternative'
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.3.1'
+PREFIX = 'ThreadShelf-Local-Alternative-1.4.0'
 ELECTRON = '45.1.0'
 HASHES = {
     'linux': '9dafab2c57ce209f8f716f8f3e4fddd8ffe0820e2455bfbbfc00b0fc13e03a3b',
     'win32': '55eaba17abff7b5bba6c3bbc85068967379024fe742fe9c7fdba9118922ccbe2',
 }
-EXCLUDE_DIRS = {'.git', '.cache', '.build', 'dist', 'node_modules', '__pycache__', 'screenshots', '.verification'}
-APP_FILES = ['package.json', 'main.cjs', 'preload.cjs', 'core', 'renderer', 'assets', 'vendor', 'licenses', 'LICENSE', 'THIRD-PARTY-NOTICES.md']
+EXCLUDE_DIRS = {'.git', '.cache', '.build', 'dist', 'node_modules', '__pycache__', 'screenshots', '.verification', 'tts-assets'}
+APP_FILES = ['package.json', 'main.cjs', 'preload.cjs', 'core', 'tts', 'renderer', 'assets', 'vendor', 'licenses', 'LICENSE', 'THIRD-PARTY-NOTICES.md']
 SOURCE_ONLY_VENDOR = {'build', 'highlight-source', 'reader-source'}
 REPOSITORY = 'https://github.com/Davoda1/ThreadShelf-Local-Suite'
 
@@ -64,7 +69,7 @@ def package_notices(runtime_prefix=''):
     app = runtime_prefix + 'resources/app/'
     return f'''# Distribution notices
 
-ThreadShelf Local Alternative 1.3.1 is an independent application by davoda1.
+ThreadShelf Local Alternative 1.4.0 is an independent application by davoda1.
 Original application code is MIT licensed: [application license]({runtime_prefix}APPLICATION-LICENSE).
 
 The complete component credits and terms are retained in the
@@ -89,12 +94,14 @@ def production_file_paths():
             relative = item.relative_to(ROOT)
             if not item.is_file() or '__pycache__' in relative.parts or item.suffix == '.map':
                 continue
+            if name == 'tts' and not (relative.as_posix() == 'tts/cpu/voice_light.py' or (len(relative.parts) == 2 and item.suffix == '.cjs' and item.name != 'test.cjs')):
+                continue
             if name == 'vendor' and len(relative.parts) > 1 and relative.parts[1] in SOURCE_ONLY_VENDOR:
                 continue
             files.add(relative.as_posix())
     return files
 
-def runtime_file_manifest(archive: Path, platform: str):
+def runtime_file_manifest(archive: Path, platform: str, assets: Path):
     # Derive the runtime allowlist from the verified upstream ZIP, not from a
     # mutable staging directory. Include only explicit product additions.
     with zipfile.ZipFile(archive) as z:
@@ -104,6 +111,8 @@ def runtime_file_manifest(archive: Path, platform: str):
     files.difference_update({original, 'resources/default_app.asar'})
     files.add(renamed)
     files.update('resources/app/' + name for name in production_file_paths())
+    files.update('resources/tts-assets/' + name for name in _tts_stage.inventory(assets, platform))
+    files.add('resources/tts-assets/PACKAGED-ASSETS.json')
     files.update({'README.md', 'THIRD-PARTY-NOTICES.md', 'APPLICATION-LICENSE'})
     return files
 
@@ -214,13 +223,14 @@ def windows(args, work: Path, out: Path):
     stage = work / 'stage-windows'
     clean_stage(stage, work)
     archive = runtime(args.runtime_cache, 'win32', args.download)
-    manifest = runtime_file_manifest(archive, 'win32')
+    manifest = runtime_file_manifest(archive, 'win32', args.tts_assets)
     extract(archive, stage)
     copy_app(stage)
+    _tts_stage.stage(args.tts_assets, 'win32', stage / 'resources/tts-assets')
     exe = stage / f'{PRODUCT}.exe'
     subprocess.run([args.node, str(ROOT / 'scripts/rebrand-windows.mjs'), str(stage / 'electron.exe'), str(exe)], check=True)
     (stage / 'electron.exe').unlink()
-    (stage / 'version').write_text('1.3.1\n', encoding='utf-8')
+    (stage / 'version').write_text('1.4.0\n', encoding='utf-8')
     assert_runtime_tree(stage, manifest, 'Windows staging')
     if not args.stage_only:
         artifact = out / f'{PREFIX}-Windows-x64-Portable.zip'
@@ -233,14 +243,15 @@ def linux(args, work: Path, out: Path):
     clean_stage(stage, work)
     runtime_dir = stage
     archive = runtime(args.runtime_cache, 'linux', args.download)
-    manifest = runtime_file_manifest(archive, 'linux')
+    manifest = runtime_file_manifest(archive, 'linux', args.tts_assets)
     extract(archive, runtime_dir)
     copy_app(runtime_dir)
+    _tts_stage.stage(args.tts_assets, 'linux', runtime_dir / 'resources/tts-assets')
     (runtime_dir / 'electron').rename(runtime_dir / SLUG)
     (runtime_dir / SLUG).chmod(0o755)
     for name in ('chrome_crashpad_handler', 'chrome-sandbox'):
         (runtime_dir / name).chmod(0o755)
-    (runtime_dir / 'version').write_text('1.3.1\n', encoding='utf-8')
+    (runtime_dir / 'version').write_text('1.4.0\n', encoding='utf-8')
     assert_runtime_tree(runtime_dir, manifest, 'Linux staging')
     if not args.stage_only and args.target in ('all', 'linux'):
         artifact = out / f'{PREFIX}-Linux-amd64.tar.gz'
@@ -294,7 +305,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     control.mkdir()
     installed_kib = sum((app / name).stat().st_size for name in manifest) // 1024
     (control / 'control').write_text(
-        f'Package: {SLUG}\nVersion: 1.3.1\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
+        f'Package: {SLUG}\nVersion: 1.4.0\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
         f'Maintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: {installed_kib}\n'
         'Depends: libasound2t64 | libasound2, libatk1.0-0t64 | libatk1.0-0, libatk-bridge2.0-0t64 | libatk-bridge2.0-0, '
         'libatspi2.0-0t64 | libatspi2.0-0, libc6 (>= 2.31), libcairo2, libcups2t64 | libcups2, libdbus-1-3, '
@@ -305,7 +316,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     if not args.stage_only:
         if not shutil.which('dpkg-deb'):
             raise SystemExit('dpkg-deb is required to build the Debian package. Use Linux or WSL.')
-        artifact = out / f'{SLUG}_1.3.1_amd64.deb'
+        artifact = out / f'{SLUG}_1.4.0_amd64.deb'
         expected = {f'opt/{SLUG}/' + name for name in manifest}
         expected.update({f'usr/bin/{SLUG}', f'usr/share/applications/{SLUG}.desktop', f'usr/share/icons/hicolor/512x512/apps/{SLUG}.png'})
         expected.update(f'usr/share/doc/{SLUG}/{name}' for name in ('README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / name).is_file())
@@ -333,9 +344,9 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
             raise
         print(artifact)
 
-def source_archives(out: Path, work: Path, cache: Path):
+def source_archives(out: Path, work: Path, cache: Path, assets: Path):
     files = []
-    excluded_paths = tuple(p.resolve() for p in (out, work, cache) if p.resolve().is_relative_to(ROOT))
+    excluded_paths = tuple(p.resolve() for p in (out, work, cache, assets) if p.resolve().is_relative_to(ROOT))
     for item in sorted(ROOT.rglob('*')):
         if any(item.resolve().is_relative_to(excluded) for excluded in excluded_paths):
             continue
@@ -365,12 +376,14 @@ def main():
     parser.add_argument('--runtime-cache', type=Path, default=ROOT / '.cache/electron')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'dist')
     parser.add_argument('--work-dir', type=Path, default=ROOT / '.build')
+    parser.add_argument('--tts-assets', type=Path, default=Path(os.environ.get('THREADSHELF_TTS_ASSETS', ROOT / 'tts-assets')), help='Prepared common and platform CPU speech assets; required for native packages.')
     parser.add_argument('--node', default='node')
     parser.add_argument('--download', action='store_true', help='Fetch missing official Electron runtimes; always verify pinned hashes.')
     parser.add_argument('--stage-only', action='store_true', help='Prepare runtime trees without writing archives.')
     parser.add_argument('--include-source', action='store_true')
     args = parser.parse_args()
     args.runtime_cache = args.runtime_cache.resolve()
+    args.tts_assets = args.tts_assets.resolve()
     work, out = args.work_dir.resolve(), args.output_dir.resolve()
     if ROOT in (work, out, args.runtime_cache) or work == out:
         parser.error('Work/output directories must be separate from each other; work/output/cache cannot be the source root.')
@@ -381,7 +394,7 @@ def main():
     if args.target in ('all', 'linux', 'deb'):
         linux(args, work, out)
     if args.target == 'source' or args.include_source:
-        source_archives(out, work, args.runtime_cache)
+        source_archives(out, work, args.runtime_cache, args.tts_assets)
 
 if __name__ == '__main__':
     main()

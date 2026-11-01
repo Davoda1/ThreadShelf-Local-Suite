@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 
 
 def main() -> int:
@@ -29,9 +30,28 @@ def main() -> int:
             if not (output / ".gopher-http-build.json").is_file():
                 parser.error("docs/ exists without the Gopher build marker; move it aside before building")
             build.append("--replace")
-        subprocess.run(build, check=True)
+        # Repository media and historical verification are not generated manual content.
+        # Retain these published directories when Gopher replaces its output tree.
+        with tempfile.TemporaryDirectory(prefix="threadshelf-manual-") as temporary:
+            preserved = Path(temporary)
+            for name in ("extras", "verification"):
+                if (output / name).is_dir():
+                    shutil.copytree(output / name, preserved / name, symlinks=True)
+            try:
+                subprocess.run(build, check=True)
+            finally:
+                for name in ("extras", "verification"):
+                    if (preserved / name).is_dir():
+                        shutil.copytree(preserved / name, output / name, dirs_exist_ok=True, symlinks=True)
         # Preserve Gopher's underscore-prefixed local assets on branch-based Pages.
         (output / ".nojekyll").write_text("", encoding="utf-8")
+        # The generated site is also distributed as a standalone manual archive.
+        for source, name in (
+            (root / "LICENSE", "LICENSE"),
+            (root / "builder" / "LICENSE", "GOPHER-LICENSE.txt"),
+            (root / "THIRD-PARTY-NOTICES.md", "THIRD-PARTY-NOTICES.md"),
+        ):
+            shutil.copyfile(source, output / name)
         subprocess.run([sys.executable, str(root / "verify.py"), str(output)], check=True)
     except subprocess.CalledProcessError as error:
         return error.returncode

@@ -104,7 +104,7 @@
       "sha256": "1e157398c306d6c11c27db96951fd42a57ecdcc174060506b4aeee38d37ae625"
     },
     "source_identity_proof": {
-      "file": "/workspace/scratch/7f980e25f779/source-companion-review/source-git-transport/search-engines/3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727.verified.json",
+      "file": "source-git-transport/search-engines/3de830eef2d8fc9d559fb8c48f28ad6d9225853be5be70fc64d29fcf04396727.verified.json",
       "bytes": 1912,
       "sha256": "0ac8ab7c173893ce846550f1d7427f1857b3c65de502f29e870eef1834a6b897",
       "root_git_tree": "d730002eeda3425fe70c59aedffa9942888128d8"

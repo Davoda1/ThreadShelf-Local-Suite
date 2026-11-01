@@ -27,9 +27,20 @@ def inline_script(value):
 
 def build(output):
     html=(ROOT/'renderer/index.html').read_text(encoding='utf-8')
+    tts=(ROOT/'scripts/preview-tts.mjs').read_text(encoding='utf-8').replace('export function createTtsPreview()', 'function createTtsPreview()', 1)
+    tts+='\nwindow.__THREADSHELF_TTS_PREVIEW=createTtsPreview();\n'
+    html=html.replace('<script src="tts.js"></script>', '<script>\n'+re.sub(r'</script', r'<\\/script', tts, flags=re.I)+'\n</script><script src="tts.js"></script>')
     html=re.sub(r'<link\s+rel="stylesheet"\s+href="([^"]+)"\s*/?>',lambda m:'<style>\n'+local_file(m[1]).replace('</style','<\\/style')+'\n</style>',html)
     html=re.sub(r'<script\s+src="([^"]+)"\s*></script>',lambda m:'<script>\n'+inline_script(m[1])+'\n</script>',html)
     html=html.replace("script-src 'self'", "script-src 'unsafe-inline'")
+    html=html.replace(' · Built-in guides and sample conversations',' · TTS test tone · No network requests')
+    lucide_license=(ROOT/'licenses/Lucide-ISC.txt').read_text(encoding='utf-8')
+    if '--' in lucide_license:
+        raise ValueError('Lucide license cannot be embedded verbatim in an HTML comment')
+    before,closing,after=html.rpartition('</body>')
+    if not closing:
+        raise ValueError('The demo has no closing body element')
+    html=before+'<!-- Lucide icon license\n'+lucide_license+'\n-->\n'+closing+after
     if re.search(r'<script[^>]+src=|<link[^>]+rel="stylesheet"',html):
         raise ValueError('The demo still has external code or stylesheet dependencies')
     output.parent.mkdir(parents=True,exist_ok=True)
@@ -37,5 +48,5 @@ def build(output):
     print(output)
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output',type=Path,default=ROOT/'dist/ThreadShelf-Local-Alternative-1.3.1-Demo.html')
+    parser.add_argument('--output',type=Path,default=ROOT/'dist/ThreadShelf-Local-Alternative-1.4.0-Demo.html')
     build(parser.parse_args().output.resolve())

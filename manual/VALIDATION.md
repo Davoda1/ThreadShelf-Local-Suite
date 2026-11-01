@@ -1,39 +1,48 @@
 # Manual validation
 
-The public 1.0.0 manual was rebuilt and checked on 2026-10-21 using the supplied
-Gopher HTTP **3.0.0** engine with PHP CLI 8.3.6 and ctype. Browser validation used
-Chromium 151.0.7922.34. The editable publisher source and license are included;
-these documentation-validation runtimes are not distributed with the manual.
+The public 1.4.0 manual was rebuilt and checked on 2026-11-01 using the supplied
+Gopher HTTP **3.0.0** publisher with PHP CLI **8.3.6** and ctype. Browser checks used
+Chromium **156.0.8078.79**. These documentation-validation tools are not packaged
+with the static manual.
 
-- 49 authored Markdown chapters, approximately 36,900 words.
-- 26 newly captured screenshots with synthetic data; individual provenance in
-  `SCREENSHOTS.md` and the screenshot galleries.
-- Gopher strict content check: 86 nodes, zero warnings.
-- Static generation: 99 HTML pages and 75 original content/image assets.
-- Generated HTML validation: 2,405 local links/assets/fragments, zero missing
-  targets, zero broken fragments and zero root-relative navigation URLs.
-- Chromium browser checks passed for both direct `file:` browsing and HTTP
-  serving beneath `/ThreadShelf-Local-Suite/`.
-- Static full-text search returned five entries for `cursor`, including server
-  chapters, in both delivery modes and both viewport/color settings.
-- All 26 screenshots loaded with valid dimensions across the three application
-  galleries in both delivery modes and both viewport/color settings.
-- Light desktop (1440 × 1000) and dark mobile (390 × 844) layouts were checked.
-  All 24 tested page/viewport combinations had no horizontal document overflow.
-  Desktop, mobile, search and gallery screenshots were visually inspected.
-- The 40 browser checks passed with no page errors, console errors, HTTP errors,
-  failed requests or external HTTP(S) requests.
-- Content scan found no removed personal website/email, private workspace
-  directory, private host address or superseded public GUI version label.
+- 51 authored Markdown chapters, including dedicated Reader and Alternative
+  Text-to-Speech guides and current image, rendering, privacy and installation
+  instructions.
+- 35 fresh application screenshots using synthetic data: Reader 13, Analytics 13,
+  Alternative 9. Routes, resolutions and limits are in `SCREENSHOTS.md` and the
+  individual application capture reports.
+- Gopher strict source validation: 97 nodes, zero warnings.
+- Static generation: 111 HTML pages and 86 original content/image assets.
+- Generated HTML validation: 2,704 local links/assets/fragments, with no missing
+  targets, broken fragments or root-relative navigation.
+- Browser validation: 32 page/delivery/layout combinations, covering direct
+  `file:` browsing and HTTP serving beneath `/ThreadShelf-Local-Suite-Manual/`;
+  light desktop at 1440 × 1000 and dark mobile at 390 × 844.
+- The home page, installation, both speech chapters, all three screenshot
+  galleries and static search passed in both delivery modes and layouts. All
+  gallery images loaded, and search found both new speech chapters.
+- No tested page had horizontal document overflow, page/console/HTTP errors,
+  broken images or external HTTP(S) requests. Representative desktop/mobile
+  documentation views were visually inspected.
+- Each speech chapter was checked against its application's implementation,
+  including the different save/key/cleanup workflows and pinned/API/exact-match
+  recording reuse priority, full-message versus legacy matching, preserved
+  code/citation selection and separately stored replacements for damaged pins.
+- Generated output includes the suite MIT license, Gopher license and website
+  notices. The build preserves repository media in `docs/extras/` and historical
+  records in `docs/verification/` while replacing generated manual files.
 
-These checks validate documentation generation/navigation and the illustrated
-interface. They do not establish native Windows execution, a reader's local
-server deployment, model configuration or a specific private export format.
-See the root and component validation records for application/package tests.
+These checks validate documentation content, generation, navigation and rendering.
+Synthetic previews and screenshot captures do not establish live speech-provider
+access, a user's server configuration, native Windows execution or a private
+archive format. Application and package verification are recorded separately.
 
-Reproduce strict content and generated-link checks with:
+Reproduce the strict content, generation and local-link checks from the suite root:
 
 ```sh
 python3 manual/build.py
 python3 manual/verify.py
 ```
+
+Use `--php PATH` when PHP CLI is outside PATH. Browser results are recorded in
+`capture-reports/manual-browser.json`.

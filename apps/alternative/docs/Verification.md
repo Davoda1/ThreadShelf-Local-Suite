@@ -1,3 +1,18 @@
+# Alternative 1.4.0 verification
+
+The 1.4.0 candidate adds optional speech and separate scrolling TTS settings panes while preserving public image-request privacy, corrupted-preference recovery, server APIs and existing renderers.
+
+- 129 Node tests passed, with no failures or skips, including the existing app regressions and speech service, credential, cache, cancellation and trusted-bridge checks.
+- Four Python packaging tests passed, covering required TTS asset staging, inventory parity and fail-closed behavior for missing or modified payloads.
+- Speech browser acceptance passed 14 groups: disabled defaults, all four memory limits, draft voice testing, real PCM playback and analyser output, cancellation, silent input, pause before audio arrival, seek/replay, streamed completion, volume and 24 repeated pointer play/pause interactions, API recording preference auto-save/reopening and correct recording-provider playback labels.
+- All four TTS sections were checked after scrolling in light/dark at 1280 × 850 and 680 × 540. The tab rows remain outside the scrolling content; hit testing confirms content cannot paint over them. Playback bars and dialogs remain within the viewport. No renderer errors or network requests occurred in these isolated browser checks.
+- Native Linux screenshots were captured from the actual Electron 45.1.0 app with a temporary profile and bundled synthetic conversations: nine views include all four TTS settings pages. No renderer errors or HTTP(S) requests occurred.
+- The self-contained HTML demo builds successfully and labels its generated test tone. It neither invokes native speech engines nor contacts speech services.
+
+Remote-provider tests use isolated fixtures, not live paid API requests. CPU execution and final Windows/Linux package validation are reported by the suite build. The historical verification sections below are retained with their original version/runtime context.
+
+---
+
 # Alternative 1.2.0 source verification
 
 Prepared 26 October 2026. This update adds display-only JSON formatting and canonical special-character native paths. Existing public image credential controls, corrupt-state protection, profile identity, server API, synthetic demo and pinned runtime remain preserved. No conversation or settings migration is introduced.

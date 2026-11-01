@@ -20,6 +20,12 @@ Text search operates on the invented examples. Semantic mode uses an explicitly 
 
 Pins, recent entries and saved searches are isolated to the demo scope. Changing a preference such as text size can still be useful while learning the application, but it does not modify a Reader or Analytics profile.
 
+## Speech in demos
+
+In the native desktop app, the built-in demonstration messages can use the configured speech provider just like other readable messages. A remote provider can still receive that selected synthetic text and charge for generation.
+
+The standalone HTML preview instead uses a clearly labelled synthetic test tone for TTS layout and playback inspection. It does not synthesize spoken text, contact a provider or preserve API keys. Test-tone playback is not evidence of model quality or provider connectivity.
+
 ## Leave the demo
 
 Choose **Connect a server** in the banner, enter your server address and connect. The desktop application then reads that server’s collection list. A standalone HTML demo cannot establish a real server connection; use the native desktop build for that workflow.

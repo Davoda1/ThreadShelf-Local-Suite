@@ -2,17 +2,17 @@
 
 ## Select the right package
 
-Each desktop application is released as **1.0.0** for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for your system. Source archives are for development; an HTML demonstration is not a persistent desktop installation.
+Each desktop application is released as **1.4.0** for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for your system. Source archives are for development; an HTML demonstration is not a persistent desktop installation.
 
 | Application | Windows executable | Linux entry point |
 | --- | --- | --- |
-| Reader | `ThreadShelf Local Reader.exe` | `bin/threadshelf-local-reader` |
-| Analytics | `ThreadShelf Local Analytics.exe` | `bin/threadshelf-local-analytics` |
-| Alternative | `ThreadShelf Local Alternative.exe` | `bin/threadshelf-local-alternative` |
+| Reader | `ThreadShelf Local Reader.exe` | `threadshelf-local-reader` |
+| Analytics | `ThreadShelf Local Analytics.exe` | `threadshelf-local-analytics` |
+| Alternative | `ThreadShelf Local Alternative.exe` | `threadshelf-local-alternative` |
 
 Use the consolidated `SHA256SUM.txt` delivered with the release packages to verify the exact bytes you downloaded. On Linux, run `sha256sum -c SHA256SUM.txt` from the package directory. Missing-file messages mean that a manifest entry is not present locally; every package you intend to install must match. On Windows, compare the full SHA-256 value from `Get-FileHash -Algorithm SHA256` with the corresponding manifest line.
 
-The release also provides the suite Source archive, the `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz` companion and all numbered `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` parts. These supply application and dependency sources, build inputs and rebuild references. When redistributing the binaries, keep the suite Source archive, the Native-Sources companion and **every Runtime-Sources part** available from the same release/download location. Follow [native dependency sources and runtime rebuilds](../Reference/development.md#native-dependency-sources-and-runtime-rebuilds) for verification, extraction and build requirements. Ordinary app installation uses the native packages above and does not require these source downloads.
+The release provides the suite Source archive and source-access references for its bundled dependencies. The unchanged Electron and ONNX source collections remain associated with v1.3.0; the original Native-Sources companion is reused only for its unchanged sharp/libvips scope. Do not substitute the historical Electron source collection for the current runtime. Follow [native dependency sources and runtime rebuilds](../Reference/development.md#native-dependency-sources-and-runtime-rebuilds) and the packaged source-access notices when rebuilding or redistributing. Ordinary installation uses the desktop packages and does not require these development sources.
 
 ## Windows portable installation
 
@@ -28,10 +28,10 @@ Ordinary use needs no separately installed Node.js, npm or Python. The portable 
 Extract the TAR.GZ with an archive tool that preserves symbolic links and executable permissions. From the extracted directory, run the matching entry point, for example:
 
 ```sh
-./bin/threadshelf-local-reader
+./threadshelf-local-reader
 ```
 
-The entry is a relative symlink to the real native executable. Preserve the complete extracted directory structure. It can move as a unit; no shell launcher is needed.
+The entry is the real native executable at the archive root. Preserve the complete extracted directory structure. It can move as a unit; no shell launcher is needed.
 
 Use an ordinary desktop account with an X11 or Wayland session and the required Electron/GTK/NSS/ALSA system libraries. A distribution must also support Chromium’s normal sandbox mechanism. If portable startup reports a sandbox problem, prefer the DEB and check the distribution’s user-namespace policy. Disabling the sandbox is not a normal installation step.
 
@@ -40,10 +40,10 @@ Use an ordinary desktop account with an X11 or Wayland session and the required 
 Use the graphical package manager, or install the selected package:
 
 ```sh
-sudo apt install ./threadshelf-local-reader_1.0.0_amd64.deb
+sudo apt install ./threadshelf-local-reader_1.4.0_amd64.deb
 ```
 
-Replace `reader` with `analytics` or `alternative` for the other packages. Launch the application from the desktop menu or by running the installed command. The installed command points directly to a native executable. These desktop packages do not install a server or background daemon.
+Replace `reader` with `analytics` or `alternative` for the other packages. Launch the application from the desktop menu or by running the installed command. The installed command is a regular native executable in `/usr/bin`, not a symlink or launcher script. These desktop packages do not install a server or background daemon.
 
 ## Reader: first Local session
 
@@ -83,6 +83,6 @@ Use **Explore demo** to learn the interface without a server. Demo content is in
 
 ## Profiles, window size and updates
 
-Each application stores preferences under a separate named profile in `%APPDATA%` on Windows or the XDG configuration location on Linux. Reader and Analytics also own their respective archive/capture data. Alternative stores navigation and reading state but does not automatically archive full server conversations.
+Each application stores preferences under a separate named profile in `%APPDATA%` on Windows or the XDG configuration location on Linux. Reader and Analytics also own their respective archive/capture data. Alternative stores navigation and reading state but does not automatically archive full server conversations. Reader and Alternative can also retain optional generated speech in their own separate audio caches.
 
 All three GUIs support a minimum window of **680 × 540**. Lists, conversations, settings and analytical workspaces scroll within their own panes. If a control is out of view, scroll the containing pane. Keep the original exports and back up application data before replacing program files or moving machines. Application release numbers and internal storage-schema numbers are independent.

@@ -4,7 +4,7 @@ The suite source archive is an editable repository tree. Extract it and read the
 
 ## Build documentation
 
-Follow the root maintainer instructions for the pinned Node.js 24.19.0 LTS/npm 11.9.0 toolchain, dependency installation, native packaging and release checks. All three public 1.0.0 applications use Electron **44.9.1** with Chromium **152.0.7977.167**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
+Follow the root maintainer instructions for the pinned Node.js 24.22.1/npm 12.2.1 toolchain, dependency installation, native packaging and release checks. All three public 1.4.0 applications use Electron **45.1.0** with Chromium **156.0.8078.49**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
 
 The source uses build scripts for development; the delivered Windows/Linux GUI packages launch native executables. A build script is not a portable-app launcher.
 
@@ -19,38 +19,33 @@ The source uses build scripts for development; the delivered Windows/Linux GUI p
 
 ## Native dependency sources and runtime rebuilds
 
-The [v1.0.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0) provides the suite Source archive, a separate [Native-Sources companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz) and all numbered Runtime-Sources parts beside the desktop packages. Verify each download with the release’s `SHA256SUM.txt` before using the archive contents. The packaged applications already include their runtime; ordinary installation does not require these development sources.
+The current application source archive contains the editable suite, manual, dependency lockfiles, build tools and retained notices. The desktop packages include their runtime, so normal installation does not require development source downloads.
 
-| Download | Contents and purpose |
+This release preserves the pinned runtime and existing native dependencies. Their matching source offers remain at the releases where they were introduced:
+
+| Source material | Matching offer and scope |
 | --- | --- |
-| `ThreadShelf-Local-Suite-1.0.0-Source.tar.gz` | The editable suite repository: application and server-patch code, build/branding tools, retained notices and this manual |
-| `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz` | The covered native dependency sources, patches, build material, original notices and provenance identified by the companion’s manifests |
-| **All numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` parts | The complete pinned Git source trees selected by Electron’s Linux x64 and Windows x64 dependency graph, plus the accompanying runtime package sources and build inputs |
-| Application ZIP, TAR.GZ or DEB | The native application and runtime, with packaged source-access instructions and license notices |
+| Application source | The 1.4.0 suite Source archive, including the speech service and its preparation/build instructions |
+| Electron 45.1.0 / Chromium 156.0.8078.49 | All six numbered `ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip` through `-06.zip`, plus the Runtime-Sources-Metadata ZIP, in the [v1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0) |
+| Reader ONNX Runtime 1.31.1 | The source/provenance companion identified by Reader's `licenses/ONNX-SOURCE-ACCESS.md`, associated with v1.3.0 |
+| Unchanged Reader sharp/libvips dependencies | The [v1.0.0 Native-Sources companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz), reused only for its verified unchanged sharp/libvips scope |
+| Speech engines, model assets and their runtime dependencies | The TTS preparation instructions, pinned asset inventory and third-party notices in each speech-enabled application's source/package |
 
-The Native-Sources companion covers the identified Reader sharp/libvips dependencies and selected Electron runtime source sets. The companion’s `electron-runtime/` directory includes the complete Electron 44.9.1 source archive and patch/build inputs, the matching Chromium FFmpeg fork and associated Opus/NASM material, Blink renderer/interfaces/tools sources, and the identified Chromium-modified Mozilla subsets. The manifests state the exact versions, source URLs, archive hashes, recovered-snapshot evidence and any provenance limits.
+Verify downloaded source parts with the checksum manifest from the release that supplies them. The old Electron 44.9.1 collection does **not** establish source coverage for Electron 45.1.0; similarly, the historical native companion does not establish ONNX Runtime 1.31.1 source coverage.
 
-The Runtime-Sources parts provide the complete matching Electron/Chromium Git source graph for the two released platforms, including Node.js, V8, recursive dependencies and Electron’s ordered patches. They also retain runtime JavaScript package sources, source-bearing build packages, Rust standard-library sources with vendored dependencies, and the exact Linux, Windows and V8 release optimization profiles. The manifests identify the revisions, source URLs, hashes, component destinations, supplemental material and separately obtained tool/SDK requirements.
-
-Download **every numbered Runtime-Sources part** and extract all parts into the same parent directory. They merge into `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources/`. From that directory, verify the inner archives with Python 3:
-
-```sh
-python assemble-runtime-sources.py
-```
-
-To assemble an inspectable source tree with Electron’s patches applied, choose a new, empty destination and run:
+For the current Electron collection, retain **all six numbered ZIPs** together. Extract only the metadata ZIP, which creates `source-publication/`. The assembler reads the numbered ZIPs directly; do not extract their repeated `PART-MANIFEST.json` files over one another. With Python 3.10+:
 
 ```sh
-python assemble-runtime-sources.py --destination ../electron-source --apply-patches
+python source-publication/assemble-runtime-sources.py --manifest source-publication/final-runtime/SOURCE-MANIFEST.json --parts-dir /path/to/source-parts
 ```
 
-Assembly requires Git and considerable free disk space. The helper verifies archive hashes, extracts the pinned source trees and applies the original patches in order; it does not download or execute the source. Read the mirror’s `README.md` and `SOURCE-MANIFEST.json` before assembling or building. The source archives do not replace a compiler, platform SDK, normal build utilities or package-manager installation.
+To assemble a new inspectable source tree with the retained Electron patches, add `--destination /path/to/new-source-tree --apply-patches`. Git, symlink support and enough space for expanded sources are required. The assembler verifies and extracts retained data; it does not download sources, run upstream hooks or compile the runtime.
 
-Complete source-access and platform build requirements are documented in each application’s **`licenses/ELECTRON-SOURCE-ACCESS.md`**. In the source repository, use the [Reader](https://github.com/Davoda1/ThreadShelf-Local-Suite/blob/v1.0.0/apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md), [Analytics](https://github.com/Davoda1/ThreadShelf-Local-Suite/blob/v1.0.0/apps/analytics/licenses/ELECTRON-SOURCE-ACCESS.md) or [Alternative](https://github.com/Davoda1/ThreadShelf-Local-Suite/blob/v1.0.0/apps/alternative/licenses/ELECTRON-SOURCE-ACCESS.md) copy. The same instructions accompany the packaged application’s license files; Reader’s `licenses/SOURCE-AND-REBUILD.md` adds the Reader-specific sharp/libvips references.
+Read each application's **`licenses/ELECTRON-SOURCE-ACCESS.md`** for exact source revisions and platform build requirements. Reader additionally includes **`licenses/SOURCE-AND-REBUILD.md`** and **`licenses/ONNX-SOURCE-ACCESS.md`**. These guides distinguish source preservation from rebuilding and explain compatible replacement procedures. Keep source inventories, provenance, original notices and build inputs together. A source collection does not replace platform compilers, SDKs or ordinary build utilities, and does not claim byte-identical reproduction of upstream binaries.
 
-Those guides explain how to obtain the platform build tools, retrieve the pinned sources directly from upstream if preferred, rebuild an individual shared component or the full runtime, and replace compatible components in a separate copy of an extracted application. Preserve the `resources/app` payload, branding inputs and original notices when following a runtime replacement procedure. A full native runtime rebuild or byte-identical reproduction of the upstream binaries is not claimed by the source-preservation checks.
+Reader and Alternative source builds must prepare and verify the required CPU speech assets before packaging. A source-only checkout is not an installed speech runtime. Follow the component build guide and retain engine/model licenses; do not omit required assets to produce a package that advertises unavailable built-in voices.
 
-When redistributing the applications, keep the suite Source archive, the Native-Sources companion and **every Runtime-Sources part** available from the same release/download location as the binaries. Keep the exact source-access directions and license files inside each application package. Preserve the original component notices, manifests, patches, provenance and build inputs. Consult the application’s source-access guide for the specific license selections and retained exceptions; the suite’s MIT license does not replace third-party terms.
+When redistributing desktop binaries, preserve the application source, all required matching source companions or their documented accessible offers, and the source-access instructions and licenses inside each package. The suite's MIT license does not replace third-party terms.
 
 ## Rebuild the manual
 
@@ -66,9 +61,9 @@ Use `--check-only` to validate content without rebuilding, or `--php` to select 
 
 ## Publish the GitHub repository and website
 
-The intended repository is [Davoda1/ThreadShelf-Local-Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). Commit the extracted source tree, then use the included maintainer guide to configure GitHub Actions, the public release and GitHub Pages. Upload the individual native application packages, the suite Source archive, the Native-Sources companion, every numbered Runtime-Sources part and `SHA256SUM.txt` as release assets. Keep all source downloads and source-access links available alongside the corresponding binaries.
+The intended repository is [Davoda1/ThreadShelf-Local-Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). Commit the extracted source tree, then use the included maintainer guide to configure GitHub Actions, the public release and GitHub Pages. Upload the current native application packages, suite Source archive, manual and preview assets and consolidated `SHA256SUM.txt`. Preserve the matching dependency-source offers and access links described above alongside the corresponding binaries; do not relabel historical runtime sources as a new dependency version.
 
-The hosted manual is available at [davoda1.github.io/ThreadShelf-Local-Suite-Manual](https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/). A separate public [manual website repository](https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual) publishes the generated `docs/` files and required notices. Application sources and desktop releases remain in the main suite repository, which can stay private while the manual is public. The built site uses relative navigation and supports the website subdirectory as well as offline browsing. After rebuilding the manual, synchronize the generated files with the website repository as described in the maintainer guide.
+The hosted manual is available at [davoda1.github.io/ThreadShelf-Local-Suite-Manual](https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/). A separate public [manual website repository](https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual) publishes the generated `docs/` files and required notices. Application sources and desktop releases remain in the public main suite repository. The built site uses relative navigation and supports the website subdirectory as well as offline browsing. After rebuilding the manual, synchronize the generated files with the website repository as described in the maintainer guide.
 
 ## Upstream and licensing
 

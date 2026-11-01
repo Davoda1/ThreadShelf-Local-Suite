@@ -1,7 +1,7 @@
 # ThreadShelf Local Suite manual
 
-The complete user manual covers Local Reader 1.0.0, Local Analytics 1.0.0,
-Local Alternative 1.0.0 and the optional search patch for upstream ThreadShelf
+The complete user manual covers Local Reader 1.4.0, Local Analytics 1.4.0,
+Local Alternative 1.4.0 and the optional search patch for upstream ThreadShelf
 1.3.0. Open `../docs/index.html` directly in a browser; no web server is required.
 The release bundle includes the same generated site under `manual/index.html`.
 
@@ -40,8 +40,7 @@ relative paths. It works from a file URL or at the hosted manual address:
 `https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/`.
 The public `Davoda1/ThreadShelf-Local-Suite-Manual` repository publishes a copy of
 the generated files and required notices through GitHub Pages. Application
-sources and releases stay in the main suite repository, which can remain private
-while the manual is public.
+sources and releases stay in the public main suite repository.
 
 The `base_url` in `content/.site.json` controls canonical, feed and sitemap URLs;
 change it when publishing elsewhere. No visitor account, analytics service or
@@ -52,19 +51,17 @@ underscore-prefixed assets when using branch-based GitHub Pages. See
 
 ## Screenshot provenance
 
-All screenshots were remade from the released 1.0.0 interfaces with synthetic
-data; old screenshots and personal exports were excluded. Details and individual
-captions are in `content/Screenshots/` and `SCREENSHOTS.md`.
+Screenshots are captured from the 1.4.0 application interfaces using synthetic
+records. The individual routes, dimensions and runtime information are recorded
+in `SCREENSHOTS.md`, `capture-reports/` and the galleries in `content/Screenshots/`.
 
-Reader and Analytics use their actual compiled production renderer and explicit
-synthetic preview bridges. These captures illustrate real UI controls and do not
-claim native file, live-server or model execution. Alternative uses the actual
-native Electron window and built-in synthetic demo. The recorded Electron 44.4.5
-is the historical capture environment; the final desktop packages use Electron
-44.9.1. Images are captured pixels,
-not mockups or AI-generated replacements. Do not add private profile directories,
-conversation exports, hostnames, real account details or personal paths to the
-manual inputs.
+Reader and Analytics use their compiled production renderer and explicit synthetic
+preview bridges. Alternative uses the actual native Electron window and bundled
+demo. Captures illustrate the controls and rendering; preview audio, file, server
+or model simulations do not establish successful production provider execution.
+Images are captured pixels, not mockups. Keep private application profiles,
+conversation exports, hostnames, account details and personal paths out of manual
+inputs.
 
 ## License
 
@@ -76,28 +73,19 @@ component third-party notices.
 
 ## Dependency and runtime source companions
 
-The separate release asset
-[ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz)
-contains the covered dependency sources, patches, build material and provenance
-listed in the companion manifests. It accompanies the application source archive
-and portable/installed binaries. This companion preserves the identified native
-library sources and build material.
+The current application runtime remains Electron 45.1.0. Its complete matching
+source offer is the six numbered v1.3.0 Runtime-Sources ZIPs and metadata ZIP,
+with checksums and assembler instructions in each application's
+`licenses/ELECTRON-SOURCE-ACCESS.md`. Reader's ONNX Runtime 1.31.1 source companion
+is also associated with v1.3.0. The old v1.0.0 Native-Sources companion is reused
+only for its unchanged sharp/libvips scope; its old Electron source material is
+not the current runtime's source offer.
 
-The [release page](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.0.0)
-also provides **all numbered**
-`ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` parts. Together they
-preserve the complete pinned Electron/Chromium Git dependency trees selected for
-Linux x64 and Windows x64, supplemental build sources and release build data.
-Extract every part into the same parent directory, then run
-`python assemble-runtime-sources.py` from the merged
-`ThreadShelf-Local-Suite-1.0.0-Runtime-Sources/` directory to verify the inner
-archives. The mirror's manifest, audit and README describe coverage and assembly;
-normal compiler, SDK and build-utility prerequisites remain separate.
+Reader and Alternative retain preparation instructions, pinned asset inventories
+and original notices for their bundled CPU speech engines/models. Source builds
+must prepare and verify those required assets before packaging.
 
-Each native application includes `licenses/ELECTRON-SOURCE-ACCESS.md` with exact
-Electron 44.9.1 source retrieval and rebuild/replacement directions. Reader also
-includes `licenses/SOURCE-AND-REBUILD.md` for sharp/libvips. Preserve these
-instructions, original notices, the suite Source archive, the Native-Sources
-companion and every Runtime-Sources part alongside redistributed binaries.
-The manual’s [developer reference](content/Reference/development.md) explains the
-separate downloads and their purposes.
+See [the developer reference](content/Reference/development.md) and the packaged
+source-access notices for verification, extraction, rebuilding and redistribution
+requirements. Retain the correct dependency versions and their existing source
+links rather than renaming historical companions to the application version.

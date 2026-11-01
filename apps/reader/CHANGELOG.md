@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- Add optional per-message speech with Pocket TTS, Kokoro, self-hosted servers, ElevenLabs, OpenAI Realtime and OpenRouter.
+- Add streaming/buffered playback, progress, seeking, replay, volume, speed, and optional thinking/code/citation reading.
+- Keep up to three completed recordings in bounded session memory; optionally save verified audio to disk with pinning, expiry and reviewed deletion.
+- Add provider discovery, isolated audio testing and passphrase-encrypted saved API keys.
+- Prefer pinned recordings, then saved API audio by default, before exact settings matches or new generation. Reuse preserves the original reading of an unchanged full message across voice and text-inclusion changes.
+- Preserve pinned originals while saving replacements separately when needed; recheck cache eligibility after concurrent changes and reselect completed playback after cache changes.
+- Preserve the Playback page layout after audio cache deletion and other settings status updates.
+
 ## 1.2.0
 
 - Display standalone assistant and reasoning JSON as indented, syntax-highlighted code while preserving exact original message text for whole-message copying and export.

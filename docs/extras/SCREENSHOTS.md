@@ -1,16 +1,24 @@
 # README screenshots
 
-These screenshots show the public application renderers with their bundled synthetic demonstration data. They were captured at **1600 × 1000** pixels from freshly generated offline previews, with no changes to the application HTML, CSS or rendered content.
+The current README gallery uses fresh 1.4.0 application captures with bundled
+synthetic demonstration records. No version labels or controls were edited into
+an older image.
 
-| File | Application | View |
-| --- | --- | --- |
-| `reader-dark.png` | Reader 1.1.0 | Dark Platinum Plus theme, rich conversation layout |
-| `reader-cache-light.png` | Reader 1.1.0 | Light Platinum Plus theme, independent image resource cache |
-| `alternative-dark.png` | Alternative 1.1.0 | Dark theme, bundled Paper Observatory conversation |
-| `analytics-light.png` | Analytics 1.0.0 | Light theme, overview of the synthetic archive |
+| File | Application | Capture and view | Resolution |
+| --- | --- | --- | --- |
+| `reader-dark.png` | Reader 1.4.0 | Production renderer preview; dark conversation | 1360 × 900 |
+| `reader-tts-cache.png` | Reader 1.4.0 | Production renderer preview; Text-to-Speech Audio cache | 1360 × 900 |
+| `alternative-dark.png` | Alternative 1.4.0 | Native Electron 45.1.0 on Linux; dark bundled demo | 1440 × 960 |
+| `analytics-light.png` | Analytics 1.4.0 | Production renderer and synthetic bridge; light overview | 1440 × 1000 |
 
-The preview generators use the production renderers and styles. Reader's archive and cache services are session-only simulations in this preview; Analytics uses its synthetic bridge and the production calculation worker; Alternative uses its built-in demo. These captures illustrate the interface, not native storage, operating-system integration or live network behavior.
+Reader and Analytics browser previews use Chromium 156.0.8078.79. Their native
+storage, live-server and model operations are simulated. Alternative's capture
+uses the desktop application with its bundled demo and no live server. The
+images illustrate actual UI controls and rendering, not provider availability
+or a user's archive contents. Automation-only sandbox accommodations are listed
+in the complete [manual capture provenance](https://github.com/Davoda1/ThreadShelf-Local-Suite/blob/master/manual/SCREENSHOTS.md).
 
-Each capture used an isolated browser context with English locale and UTC time zone. The date was fixed to 2026-10-01 for deterministic preview behavior. All HTTP and HTTPS access was blocked; the run recorded zero external requests and zero page errors. No real archive, personal edition, account, server or user profile was opened. Screenshots contain only PNG pixel chunks, with no text or EXIF metadata, and were visually checked before publication.
-
-To generate the input previews, use `apps/reader/scripts/preview.mjs`, `apps/analytics/scripts/preview.mjs` after its renderer build, and `apps/alternative/scripts/build-demo.py`. Navigate through the normal appearance and conversation controls to the views above.
+The full 35-image gallery, capture reports and reproduction instructions are in
+`manual/`. The historical `reader-cache-light.png` image is retained for existing
+links; it is not a 1.4.0 screenshot and is not used in the current README gallery.
+The banner and original build-recording media are also retained unchanged.

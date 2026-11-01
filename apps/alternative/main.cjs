@@ -7,6 +7,7 @@ const {StateStore}=require('./core/state.cjs');
 const {ServerClient}=require('./core/server.cjs');
 const {allowRendererRequest,imageRequestHeaders,imageResponseHeaders}=require('./core/image-policy.cjs');
 const {isTrustedMainFrame}=require('./core/trusted-entry.cjs');
+const {createTtsService}=require('./tts/index.cjs');
 const PRODUCT='ThreadShelf Local Alternative';
 app.setName(PRODUCT);
 app.setAppUserModelId('io.github.davoda1.threadshelf-local-alternative');
@@ -15,7 +16,8 @@ app.commandLine.appendSwitch('disable-http-cache');
 // This profile is deliberately independent of Reader, Analytics, and the server.
 app.setPath('userData',path.join(app.getPath('appData'),'ThreadShelf Local Alternative'));
 const store=new StateStore(app.getPath('userData'));
-let win,client,connectionEpoch=0,appearancePreference='system';
+let win,client,connectionEpoch=0,appearancePreference='system',ttsQuitting=false;
+const tts=createTtsService({profileDir:app.getPath('userData'),assetsDir:app.isPackaged?path.join(process.resourcesPath,'tts-assets'):path.join(__dirname,'tts-assets'),onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('alternative:tts-event',value);}});
 const backgroundFor=theme=>(theme==='dark'||(theme==='system'&&nativeTheme.shouldUseDarkColors))?'#141c1d':'#f3f1eb';
 function applyWindowAppearance(theme){
   appearancePreference=['system','light','dark'].includes(theme)?theme:'system';
@@ -55,6 +57,8 @@ async function start(){
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   win.webContents.on('will-navigate',(event,url)=>{if(url!==trustedURL)event.preventDefault();});
   win.webContents.on('will-attach-webview',event=>event.preventDefault());
+  win.webContents.on('render-process-gone',()=>{void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame)void tts.invoke('tts.cancel',{}).catch(()=>{});});
   win.once('ready-to-show',()=>win.show());
   let closing=false;
   win.on('close',event=>{
@@ -71,6 +75,7 @@ async function start(){
   });
   nativeTheme.on('updated',()=>{if(win&&!win.isDestroyed())win.setBackgroundColor(backgroundFor(appearancePreference));});
   handle('load-state',()=>{const state=store.load();if(store.error)throw new Error(store.error);return state;});
+  handle('tts',(action,args)=>tts.invoke(action,args));
   handle('save-state',state=>{const saved=store.save(state);applyWindowAppearance(saved.theme);return saved;});
   handle('connect',async url=>{const epoch=++connectionEpoch;const next=new ServerClient(url);try{const collections=await next.collections();if(epoch!==connectionEpoch){next.dispose();throw new Error('A newer connection request replaced this one.');}client?.dispose();client=next;return collections;}catch(e){next.dispose();throw e;}});
   handle('request',async(method,args)=>{if(!methods.has(method))throw new Error('Unsupported server operation.');if(!client)throw new Error('Connect to a ThreadShelf server first.');return client[method](args||{});});
@@ -83,7 +88,7 @@ async function start(){
     if(result.canceled||!result.filePath)return {canceled:true};
     await fs.writeFile(result.filePath,value.text,'utf8');return {canceled:false};
   });
-  handle('info',()=>({name:PRODUCT,version:'1.3.1',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
+  handle('info',()=>({name:PRODUCT,version:'1.4.0',electron:process.versions.electron,platform:process.platform,settingsWarning:store.error,profile:app.getPath('userData')}));
   // Use the same canonical URL for loading and trust checks. Electron's legacy
   // loadFile conversion can misencode literal percent signs and POSIX backslashes.
   await win.loadURL(trustedURL);
@@ -92,4 +97,5 @@ if(!app.requestSingleInstanceLock())app.quit();else{
   app.on('second-instance',()=>{if(win){if(win.isMinimized())win.restore();win.show();win.focus();}});
   app.whenReady().then(start).catch(error=>{dialog.showErrorBox(PRODUCT,'The application could not start: '+error.message);app.quit();});
   app.on('window-all-closed',()=>{client?.dispose();app.quit();});
+  app.on('before-quit',event=>{if(ttsQuitting)return;event.preventDefault();ttsQuitting=true;Promise.resolve(tts.dispose()).catch(()=>{}).finally(()=>app.quit());});
 }

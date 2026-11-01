@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.0 — 2026-11-01
+
+- Add text-to-speech to Reader and Alternative, including bundled Pocket TTS and Kokoro CPU engines, provider connections, voice selection, per-message playback controls, streaming, text inclusion options and audio caching.
+- Keep speech models and CPU runtimes inside the desktop packages with pinned checksums, notices and the corresponding source material required by their components. No model download occurs on first use.
+- Reuse pinned speech recordings for unchanged full messages across provider, voice and text-inclusion changes. Add a default-on preference for existing API recordings, with source- and content-scoped matching and verified legacy-cache compatibility.
+- Preserve missing or corrupt pinned originals while allowing separately stored replacements. Recheck cache eligibility after asynchronous reads and reselect completed playback after cache changes.
+- Keep the TTS settings navigation separate from scrollable panels and reset panel scroll when changing tabs or refreshing cache contents.
+- Refresh the illustrated manual and screenshots for 1.4.0, and include the updated offline manual in the release.
+- Align Reader, Analytics and Alternative at application version 1.4.0. Analytics functionality, existing profiles, archive/schema identifiers and the Electron/Node/npm pins remain unchanged.
+- Retain MathJax 4.1.3, file-citation rendering and the current ONNX Runtime 1.31.1 baseline. Existing runtime/native source companions retain their original filenames and versions.
+
 ## 1.3.1 — 2026-10-29
 
 - Upgrade Reader and Alternative to pinned MathJax 4.1.3 with local assets, the original TeX font data and a version-checked compatibility layer that preserves established mathematical layout.
@@ -38,7 +49,7 @@
 
 - Reader adds controlled image loading and a separate resource cache, with settings and theme-aware image placeholders.
 - Reader filters empty reasoning and unusable JSON-only content from conversation display and navigation, and removes the version from the native window title.
-- Reader's About window describes this desktop application without references to separate personal web readers.
+- Reader's About window describes its desktop features and supported data workflows.
 - Alternative loads requested images within the conversation, offers automatic or click-to-load behavior, provides failure placeholders, and fits images to the reading area.
 - Alternative suppresses unusable JSON-only responses. It does not add Reader's persistent resource cache.
 - Existing public profile names and data/schema identifiers are retained. Public defaults, synthetic examples and hardened offline rendering dependencies are preserved.

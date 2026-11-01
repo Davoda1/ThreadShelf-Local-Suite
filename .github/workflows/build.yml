@@ -49,6 +49,9 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24.22.1
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Install pinned native GUI test driver
@@ -137,7 +140,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Check release assembly safeguards
-        run: python3 -m unittest discover -s tools/tests -p test_assemble_release.py
+        run: python3 -m unittest discover -s tools/tests -p 'test_*release*.py'
       - name: Download the six validated platform artifacts
         shell: bash
         run: |

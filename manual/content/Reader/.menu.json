@@ -32,6 +32,10 @@
     {
       "path": "holidays.md",
       "label": "Welcome-page holiday fireworks"
+    },
+    {
+      "path": "text-to-speech.md",
+      "label": "Text-to-Speech"
     }
   ]
 }

@@ -8,6 +8,6 @@ const tests = (await readdir(path.join(root, 'tests')))
   .filter(name => name.endsWith('.test.mjs') && !/(?:browser|electron|ui)[.-]test\.mjs$/.test(name))
   .sort().map(name => path.join('tests', name));
 if (!tests.length) throw new Error('No unit or integration tests found in tests/*.test.mjs.');
-const result = spawnSync(process.execPath, ['--test', ...process.argv.slice(2), ...tests], { cwd: root, stdio: 'inherit' });
+const result = spawnSync(process.execPath, ['--test', ...process.argv.slice(2), ...tests, 'tts/test.cjs'], { cwd: root, stdio: 'inherit' });
 if (result.error) throw result.error;
 process.exitCode = result.status ?? 1;

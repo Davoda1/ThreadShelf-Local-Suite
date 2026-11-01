@@ -1,20 +1,20 @@
 # ThreadShelf Local Alternative
 
-**Version 1.3.1 · Windows x64 and GNU/Linux amd64**
+**Version 1.4.0 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
 The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for ThreadShelf 1.3.0.
 
-Version 1.3.1 uses bundled MathJax 4.1.3 with compatibility settings that preserve the established equation appearance. Exported ChatGPT/Codex file references display as readable file cards with consistent document icons; original message copy and export remain unchanged.
+Version 1.4.0 adds optional Text-to-Speech, with bundled CPU voices, provider profiles, playback controls and audio-cache management. It retains bundled MathJax 4.1.3 with compatibility settings that preserve the established equation appearance. Exported ChatGPT/Codex file references display as readable file cards with consistent document icons; original message copy and export remain unchanged.
 
 ## Install and start
 
 | Platform | Package | Start |
 | --- | --- | --- |
-| Windows x64 | `ThreadShelf-Local-Alternative-1.3.1-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
-| Linux amd64 | `ThreadShelf-Local-Alternative-1.3.1-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
-| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.3.1_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.3.1_amd64.deb`, then use the application menu. |
+| Windows x64 | `ThreadShelf-Local-Alternative-1.4.0-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
+| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.0-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
+| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.0_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.0_amd64.deb`, then use the application menu. |
 
 The Windows executable is unsigned. Native packages contain the application runtime; ordinary use does not require Node.js or Python. Linux needs a compatible x86-64 graphical desktop and the declared Chromium/GTK dependencies. Portable Linux requires a working user-namespace sandbox; the Debian package installs Electron's sandbox helper. The desktop entry points are regular native binaries, with no symlink or script launchers.
 
@@ -45,6 +45,19 @@ To explore without a server, select **Explore demo**. Thirteen synthetic convers
 - Empty internal ChatGPT thoughts envelopes are hidden from rendered messages and complete search hits. Useful JSON, code examples and original copied/exported text are preserved.
 - Repaired Mermaid diagrams are labelled. The original source stays available; **Copy repaired** is separate from ordinary copy/export, which preserves archived text.
 
+## Text-to-Speech
+
+Open **Settings → Text-to-Speech**. Speech is off by default. Enable it to add a speaker button to eligible messages; choosing one opens the floating TTS bar. Play/pause, stop, replay and seek control audio without changing the conversation. Optional speed, volume and settings controls can be shown in the bar. Switching conversations stops playback.
+
+- **Playback** controls speech, reasoning, streaming, volume and speed. Code and citation reading are optional. Temporary audio memory can be set to 32, 64, 128 or 256 MB (64 MB by default), with up to three completed recordings retained for the session.
+- **Providers & voices** offers bundled Pocket TTS and Kokoro CPU voices, an OpenAI-compatible local or remote endpoint, ElevenLabs, OpenAI Realtime and OpenRouter. Each provider keeps its own model, voice and options.
+- **Audio test** auditions the current settings without enabling conversation speech or saving the test to the audio cache. Its meter reflects the played signal.
+- **Audio cache** optionally saves generated speech. Review clips, pin recordings, choose size/age limits and preview the scope before confirming deletion. Pinned recordings remain protected unless explicitly included.
+
+**Prefer API recordings** is on by default. For the same conversation and unchanged full message, playback chooses a valid pinned recording first, then available API audio, then an exact match for the spoken text and selected generation settings. Disabling this option keeps pinned recordings first and otherwise uses only exact matches. API audio includes self-hosted speech endpoints, ElevenLabs, OpenAI and OpenRouter; this preference never makes a new provider request by itself. A reused recording preserves its original voice and code/citation selection, even if those settings have changed. To hear a different reading, unpin the recording and turn this preference off. New recordings use the unchanged full message for cross-settings reuse; an exact spoken-text and generation-settings match remains reusable after excluded-content edits. Older recordings are reused only when their stored spoken-text or synthesis identity proves a match. Pinned files are never overwritten; a replacement for a missing or corrupt pinned recording can be saved separately when caching and space permit. Persistent files are considered only while the disk cache is enabled; eligible session recordings can be reused with disk caching off.
+
+Settings save automatically. API keys are session-only by default. To retain a key, choose encrypted storage and supply a passphrase; the passphrase is not saved and must be entered after restarting. Forgotten passphrases require replacing the saved key. Built-in CPU speech works offline using the model/runtime files in the application package; it needs no account or separately installed Python. Remote speech sends selected text only after an explicit speech or test request, and provider usage may be billed.
+
 ## Appearance and shortcuts
 
 Reading & appearance offers System, Light and Dark themes; reading text from 14–24 px; Compact (640 px), Comfortable (820 px), or Wide (1040 px) reading width; a switch for reasoning already present in an export; and **Images** options for click-to-load or automatic loading. Settings save automatically. The startup cover uses the saved appearance before revealing the workspace.
@@ -64,6 +77,8 @@ The minimum native window is 680 × 540. The shelf, reading pane, and dialogs sc
 
 Alternative reads server APIs. It does not import, reindex, edit, or delete server conversations. Full thread contents are held in memory; an explicit Markdown export creates a file at the chosen destination. No telemetry or automatic-update requests are made. Remote image loading contacts the saved HTTP(S) image host only after activation or when automatic loading is selected. Embedded raster images need no network. Image loading never opens a browser, sends no referrer, cookies or authentication headers, discards response cookies, and has no persistent image cache; Chromium’s HTTP cache is disabled.
 
+Speech preferences, optional encrypted API keys and opt-in audio-cache files use this same independent application profile. Audio caches can contain spoken conversation content.
+
 Settings, pins, saved searches, recent history, and reading positions are stored in the app's independent `alternative-state.json`:
 
 - Windows: `%APPDATA%\ThreadShelf Local Alternative\alternative-state.json`
@@ -71,7 +86,7 @@ Settings, pins, saved searches, recent history, and reading positions are stored
 
 Those preferences can contain conversation titles and queries. Close the application before backing up or replacing the profile. If the saved state is unreadable, Alternative preserves the original and keeps all changes in memory for that session, including on close. Settings displays recovery guidance: close the app, restore a backup or move aside only Alternative's own profile, then restart. Alternative does not discover or modify Reader or Analytics profiles. Demo state is separately scoped.
 
-URL credentials, redirects, reverse-proxy login, and bearer-token authentication are not supported. Use the final permitted server address. Private archives should remain in a trusted local environment with appropriate server access controls.
+For the ThreadShelf archive connection, URL credentials, redirects, reverse-proxy login, and bearer-token authentication are not supported. Use the final permitted server address. Private archives should remain in a trusted local environment with appropriate server access controls.
 
 ## Troubleshooting
 
@@ -87,9 +102,9 @@ URL credentials, redirects, reverse-proxy login, and bearer-token authentication
 
 ## Source and builds
 
-See [docs/BUILD.md](docs/BUILD.md) for pinned Node.js LTS, Electron hashes, Windows/Linux commands, and package validation. `node scripts/test.cjs` runs the isolated server-adapter, state, message-visibility, JSON-formatting and native-path tests. The application is packaged directly from source files without a transpilation step. Development scripts are excluded from native runtime packages.
+See [docs/BUILD.md](docs/BUILD.md) for pinned Node.js LTS, Electron hashes, Windows/Linux commands, and package validation. `node scripts/test.cjs` runs the isolated server-adapter, state, message-visibility, JSON-formatting, native-path and speech-service tests. The application is packaged directly from source files without a transpilation step. Development scripts are excluded from native runtime packages.
 
-`python3 scripts/build-demo.py` produces a self-contained offline HTML demonstration from the exact application renderer. It supports fictional search, pins, preferences, outline, and exports; it is not a live-server browser client.
+`python3 scripts/build-demo.py` produces a self-contained offline HTML demonstration from the exact application renderer. It supports fictional search, pins, preferences, outline, and exports; it is not a live-server browser client. Its speech controls play a labeled synthetic test tone for UI exploration; actual voice generation requires the desktop application.
 
 The complete illustrated manual is in the suite's `docs/` website. Build, server patch, and publishing instructions are included in the suite source archive. Report suite issues at [ThreadShelf-Local-Suite/issues](https://github.com/Davoda1/ThreadShelf-Local-Suite/issues).
 

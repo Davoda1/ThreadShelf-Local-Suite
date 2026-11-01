@@ -1,6 +1,6 @@
 # Third-party notices
 
-ThreadShelf Local Alternative 1.3.1 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
+ThreadShelf Local Alternative 1.4.0 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
 
 The server protocol is derived from inspection of Chrystian Schutz's ThreadShelf 1.3.0 and the suite's Reader pagination extension. ThreadShelf is MIT licensed; the notice is retained in `licenses/ThreadShelf-MIT.txt`. The server is independently installed and is not included in this application.
 
@@ -32,3 +32,14 @@ Original license grants continue to apply. Chromium's Blink
 an “or later” option; the new source was checked and its hash retained. The
 old per-file license-selection index cannot be reused as evidence for the new
 Chromium source. Preserve original notices and complete corresponding sources.
+
+## Bundled CPU Text-to-Speech
+
+Pocket TTS and Kokoro model licenses, voice attribution, Python package notices, native runtime licenses and required source offers accompany every native package under `resources/tts-assets/licenses`, `runtime/packages` and `sources`. The source package includes pinned download provenance in `tts/cpu`. All ONNX Runtime components use 1.31.1.
+
+## Text-to-Speech controls
+
+The sliders-horizontal settings icon uses the Lucide 0.468.0 SVG geometry under
+the ISC license. Original copyright and license text are retained in
+`licenses/Lucide-ISC.txt`. This is an embedded vector asset; the application adds
+no Lucide runtime dependency.
