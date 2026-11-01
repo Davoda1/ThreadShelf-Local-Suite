@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 import zipfile
 
 SPEC = importlib.util.spec_from_file_location('assemble_release', Path(__file__).resolve().parents[1] / 'assemble-release.py')
@@ -112,7 +113,8 @@ class ReleaseAssemblyTests(unittest.TestCase):
 
     def test_uploaded_assets_require_exact_github_digest(self):
         ledger = [{'name': 'asset.zip', 'bytes': 7, 'sha256': 'a' * 64}]
-        remote = {'tag_name': 'v1.4.0', 'assets': [{'name': 'asset.zip', 'size': 7, 'digest': 'sha256:' + 'a' * 64}]}
+        remote = {'tag_name': 'v1.4.0', 'assets': [{'name': 'asset.zip', 'size': 7,
+                  'digest': 'sha256:' + 'a' * 64, 'state': 'uploaded'}]}
         release.verify_uploaded(remote, 'v1.4.0', ledger)
         remote['assets'][0]['digest'] = None
         with self.assertRaisesRegex(ValueError, 'size/digest'):
@@ -171,51 +173,174 @@ class ReleasePublicationTests(unittest.TestCase):
 
     def remote(self, draft, complete=True):
         asset = self.ledger[0]
-        return {'id': 42, 'tag_name': 'v1.4.0', 'draft': draft, 'assets': [
-            {'name': asset['name'], 'size': asset['bytes'], 'digest': 'sha256:' + asset['sha256']}
+        return {'id': 42, 'tag_name': 'v1.4.0', 'draft': draft,
+                'upload_url': 'https://uploads.github.com/repos/example/suite/releases/42/assets{?name,label}', 'assets': [
+            {'id': 101, 'name': asset['name'], 'size': asset['bytes'],
+             'digest': 'sha256:' + asset['sha256'], 'state': 'uploaded'}
         ] if complete else []}
 
-    def publisher_fixture(self, initially_missing=False):
+    def publisher_fixture(self, initially_missing=False, existing_assets=None,
+                          create_changes=None, upload_changes=None, publish_changes=None,
+                          upload_failure=False, remote_tag='refs/tags/v1.4.0'):
         calls = []
-        state = {'exists': not initially_missing, 'uploaded': False}
+        remote = self.remote(True, complete=False)
+        remote['assets'] = existing_assets or []
         def fake_run(*arguments, **kwargs):
             args = tuple(map(str, arguments)); calls.append(args)
+            self.assertEqual(args[:2], ('gh', 'api'))
             if any('/releases/tags/' in arg for arg in args):
                 raise subprocess.CalledProcessError(1, args, stderr='HTTP 404')
-            if args[:2] == ('gh', 'api') and '/releases?per_page=' in args[2]:
-                return json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}] if state['exists'] else [])
+            if '/releases?per_page=' in args[2]:
+                # A newly created draft can be absent from a subsequent listing.
+                return json.dumps([] if initially_missing else [{'id': 42, 'tag_name': 'v1.4.0'}])
             if args == ('gh', 'api', 'repos/example/suite/releases/42'):
-                return json.dumps(self.remote(True, state['uploaded']))
-            if args[:3] == ('gh', 'release', 'create'):
-                state['exists'] = True
-                return 'https://example.invalid/releases/42'
-            if args[:3] == ('gh', 'release', 'upload'):
-                state['uploaded'] = True
+                return json.dumps(remote)
+            if args == ('gh', 'api', 'repos/example/suite/git/ref/tags/v1.4.0'):
+                return json.dumps({'ref': remote_tag, 'object': {'type': 'tag', 'sha': 'a' * 40}})
+            if args[:5] == ('gh', 'api', '--method', 'POST', 'repos/example/suite/releases'):
+                self.assertIn('Content-Type: application/json', args)
+                body = json.loads(Path(args[args.index('--input') + 1]).read_text())
+                self.assertEqual(body['tag_name'], 'v1.4.0')
+                self.assertIs(body['draft'], True)
+                self.assertEqual(body['name'], 'ThreadShelf Local Suite 1.4.0')
+                return json.dumps({**remote, **(create_changes or {})})
+            if args[:4] == ('gh', 'api', '--method', 'POST') and args[4].startswith('https://uploads.github.com/'):
+                url = urlsplit(args[4])
+                self.assertEqual(url.path, '/repos/example/suite/releases/42/assets')
+                name = parse_qs(url.query)['name'][0]
+                asset = next(item for item in self.ledger if item['name'] == name)
+                path = Path(args[args.index('--input') + 1])
+                self.assertEqual(path, self.output / name)
+                self.assertEqual(release.digest(path), asset['sha256'])
+                self.assertIn('Content-Type: application/octet-stream', args)
+                self.assertIn('Content-Length: ' + str(asset['bytes']), args)
+                if upload_failure:
+                    raise subprocess.CalledProcessError(1, args, stderr='HTTP 502')
+                uploaded = {'id': 200 + len(remote['assets']), 'name': name, 'size': asset['bytes'],
+                            'digest': 'sha256:' + asset['sha256'], 'state': 'uploaded'}
+                uploaded.update(upload_changes or {})
+                remote['assets'].append(uploaded)
+                return json.dumps(uploaded)
+            if args[:4] == ('gh', 'api', '--method', 'DELETE'):
+                asset_id = int(args[4].rsplit('/', 1)[-1])
+                self.assertEqual(args[4], 'repos/example/suite/releases/assets/' + str(asset_id))
+                self.assertEqual(sum(a['id'] == asset_id for a in remote['assets']), 1)
+                remote['assets'] = [a for a in remote['assets'] if a['id'] != asset_id]
                 return ''
             if args[:5] == ('gh', 'api', '--method', 'PATCH', 'repos/example/suite/releases/42'):
-                body = json.loads(Path(args[-1]).read_text())
+                self.assertIn('Content-Type: application/json', args)
+                body = json.loads(Path(args[args.index('--input') + 1]).read_text())
                 self.assertEqual(body['draft'], False)
                 self.assertEqual(body['make_latest'], 'true')
                 self.assertEqual(body['name'], 'ThreadShelf Local Suite 1.4.0')
-                return json.dumps(self.remote(False))
+                remote['draft'] = False
+                return json.dumps({**remote, **(publish_changes or {})})
             raise AssertionError(f'Unexpected publisher command: {args}')
         return calls, fake_run
 
-    def test_existing_draft_uses_id_when_tag_endpoint_is_unavailable(self):
-        calls, fake_run = self.publisher_fixture()
+    @staticmethod
+    def mutation_calls(calls, method=None):
+        return [call for call in calls if call[:3] == ('gh', 'api', '--method')
+                and (method is None or call[3] == method)]
+
+    def invoke_publisher(self, fake_run):
         with patch.object(release, 'run', side_effect=fake_run), patch.dict(release.os.environ, self.environment, clear=True):
             release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
-        self.assertFalse(any(call[:3] == ('gh', 'release', 'create') for call in calls))
+
+    def test_existing_draft_uses_id_when_tag_endpoint_is_unavailable(self):
+        calls, fake_run = self.publisher_fixture()
+        self.invoke_publisher(fake_run)
+        self.assertFalse(any(call[4] == 'repos/example/suite/releases' for call in self.mutation_calls(calls, 'POST')))
         self.assertEqual(sum(call == ('gh', 'api', 'repos/example/suite/releases/42') for call in calls), 2)
         self.assertFalse(any('/releases/tags/' in arg for call in calls for arg in call))
 
-    def test_missing_release_creates_and_resolves_draft_before_upload(self):
+    def test_missing_release_uses_created_id_despite_stale_listing(self):
         calls, fake_run = self.publisher_fixture(initially_missing=True)
-        with patch.object(release, 'run', side_effect=fake_run), patch.dict(release.os.environ, self.environment, clear=True):
-            release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
-        actions = [call[2] for call in calls if call[:2] == ('gh', 'release')]
-        self.assertEqual(actions, ['create', 'upload'])
-        self.assertIn('--verify-tag', next(call for call in calls if call[:3] == ('gh', 'release', 'create')))
+        self.invoke_publisher(fake_run)
+        self.assertEqual(sum('/releases?per_page=' in call[2] for call in calls), 1)
+        creations = [call for call in self.mutation_calls(calls, 'POST') if call[4] == 'repos/example/suite/releases']
+        self.assertEqual(len(creations), 1)
+        tag_read = ('gh', 'api', 'repos/example/suite/git/ref/tags/v1.4.0')
+        self.assertLess(calls.index(tag_read), calls.index(creations[0]))
+        self.assertEqual(len(self.mutation_calls(calls, 'PATCH')), 1)
+
+    def test_missing_remote_tag_prevents_release_creation(self):
+        calls, fake_run = self.publisher_fixture(initially_missing=True, remote_tag='refs/tags/v1.3.0')
+        with self.assertRaises(ValueError):
+            self.invoke_publisher(fake_run)
+        self.assertEqual(self.mutation_calls(calls), [])
+
+    def test_invalid_created_release_prevents_upload_and_publication(self):
+        for changes in ({'id': None}, {'id': True}, {'id': 0}, {'id': '42'},
+                        {'tag_name': 'v1.3.0'}, {'draft': False}):
+            with self.subTest(changes=changes):
+                calls, fake_run = self.publisher_fixture(initially_missing=True, create_changes=changes)
+                with self.assertRaises(ValueError):
+                    self.invoke_publisher(fake_run)
+                self.assertEqual(len(self.mutation_calls(calls)), 1)
+                self.assertEqual(self.mutation_calls(calls)[0][4], 'repos/example/suite/releases')
+
+    def test_partial_draft_keeps_verified_asset_and_uploads_only_missing_asset(self):
+        existing = self.remote(True)['assets']
+        (self.output / 'second.zip').write_bytes(b'second')
+        self.ledger.append({'name': 'second.zip', 'bytes': 6, 'sha256': release.digest(self.output / 'second.zip')})
+        calls, fake_run = self.publisher_fixture(existing_assets=existing)
+        self.invoke_publisher(fake_run)
+        uploads = self.mutation_calls(calls, 'POST')
+        self.assertEqual(len(uploads), 1)
+        self.assertEqual(parse_qs(urlsplit(uploads[0][4]).query)['name'], ['second.zip'])
+        self.assertEqual(self.mutation_calls(calls, 'DELETE'), [])
+
+    def test_corrupt_draft_asset_is_replaced_by_id_before_publication(self):
+        existing = self.remote(True)['assets']
+        existing[0]['digest'] = 'sha256:' + 'b' * 64
+        calls, fake_run = self.publisher_fixture(existing_assets=existing)
+        self.invoke_publisher(fake_run)
+        mutations = self.mutation_calls(calls)
+        self.assertEqual([call[3] for call in mutations], ['DELETE', 'POST', 'PATCH'])
+        self.assertEqual(mutations[0][4], 'repos/example/suite/releases/assets/101')
+
+    def test_unexpected_or_duplicate_draft_assets_prevent_mutation(self):
+        valid = self.remote(True)['assets'][0]
+        for assets in ([{**valid, 'name': 'unrelated.zip'}], [valid, {**valid, 'id': 102}]):
+            with self.subTest(assets=assets):
+                calls, fake_run = self.publisher_fixture(existing_assets=assets)
+                with self.assertRaises(ValueError):
+                    self.invoke_publisher(fake_run)
+                self.assertEqual(self.mutation_calls(calls), [])
+
+    def test_upload_failure_leaves_release_as_draft(self):
+        calls, fake_run = self.publisher_fixture(upload_failure=True)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.invoke_publisher(fake_run)
+        self.assertEqual(self.mutation_calls(calls, 'PATCH'), [])
+
+    def test_invalid_uploaded_asset_prevents_publication(self):
+        for changes in ({'name': 'wrong.zip'}, {'size': 8}, {'digest': None},
+                        {'digest': 'sha256:' + 'b' * 64}, {'state': 'starter'}):
+            with self.subTest(changes=changes):
+                calls, fake_run = self.publisher_fixture(upload_changes=changes)
+                with self.assertRaises(ValueError):
+                    self.invoke_publisher(fake_run)
+                self.assertEqual(self.mutation_calls(calls, 'PATCH'), [])
+
+    def test_asset_name_is_encoded_without_changing_uploaded_file(self):
+        name = 'fixture name+#.zip'
+        (self.output / 'fixture.zip').rename(self.output / name)
+        self.ledger[0]['name'] = name
+        calls, fake_run = self.publisher_fixture()
+        self.invoke_publisher(fake_run)
+        url = self.mutation_calls(calls, 'POST')[0][4]
+        self.assertEqual(parse_qs(urlsplit(url).query)['name'], [name])
+        self.assertEqual(urlsplit(url).fragment, '')
+
+    def test_publication_response_must_confirm_release_identity_and_assets(self):
+        for changes in ({'id': 43}, {'tag_name': 'v1.3.0'}, {'draft': True}, {'assets': []}):
+            with self.subTest(changes=changes):
+                calls, fake_run = self.publisher_fixture(publish_changes=changes)
+                with self.assertRaises(ValueError):
+                    self.invoke_publisher(fake_run)
+                self.assertEqual(len(self.mutation_calls(calls, 'PATCH')), 1)
 
     def test_existing_public_release_is_identical_noop(self):
         responses = [json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}]), json.dumps(self.remote(False))]

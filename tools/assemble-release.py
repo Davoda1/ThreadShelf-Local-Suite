@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from urllib.parse import quote
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -229,22 +230,29 @@ Use this release's `SHA256SUM.txt` for every attached asset, including the refre
 
 
 def verify_uploaded(remote, tag, ledger):
-    if remote.get('tag_name') != tag or {a['name'] for a in remote.get('assets', [])} != {a['name'] for a in ledger}:
+    if (remote.get('tag_name') != tag or len(remote.get('assets', [])) != len(ledger)
+            or {a['name'] for a in remote.get('assets', [])} != {a['name'] for a in ledger}):
         raise ValueError('Uploaded release asset names do not match the complete local ledger.')
     uploaded = {a['name']: a for a in remote['assets']}
     for asset in ledger:
         found = uploaded[asset['name']]
-        if found.get('size') != asset['bytes'] or found.get('digest') != 'sha256:' + asset['sha256']:
+        if (found.get('state') != 'uploaded' or found.get('size') != asset['bytes']
+                or found.get('digest') != 'sha256:' + asset['sha256']):
             raise ValueError(f'Uploaded asset size/digest not verified: {asset["name"]}')
 
 
-def read_release(repository, release_id, tag):
+def validate_release_identity(remote, release_id, tag):
     if not isinstance(release_id, int) or isinstance(release_id, bool) or release_id < 1:
         raise ValueError('GitHub must return a positive numeric release ID.')
-    remote = json.loads(run('gh', 'api', f'repos/{repository}/releases/{release_id}'))
-    if remote.get('id') != release_id or remote.get('tag_name') != tag:
+    if not isinstance(remote, dict) or remote.get('id') != release_id or remote.get('tag_name') != tag:
         raise ValueError('Resolved GitHub release identity does not match the requested tag.')
     return remote
+
+
+def read_release(repository, release_id, tag):
+    validate_release_identity({'id': release_id, 'tag_name': tag}, release_id, tag)
+    remote = json.loads(run('gh', 'api', f'repos/{repository}/releases/{release_id}'))
+    return validate_release_identity(remote, release_id, tag)
 
 
 def resolve_release(repository, tag):
@@ -276,6 +284,50 @@ def publication_event_allowed(tag, environment=os.environ):
     return pushed_tag or verified_recovery
 
 
+def create_draft(repository, tag, version, notes):
+    reference = json.loads(run('gh', 'api', f'repos/{repository}/git/ref/tags/{tag}'))
+    if reference.get('ref') != 'refs/tags/' + tag:
+        raise ValueError('The release tag must already exist in the remote repository.')
+    request = notes.with_name(f'{tag}-release-create.json')
+    request.write_text(json.dumps({'tag_name': tag, 'draft': True,
+        'name': f'ThreadShelf Local Suite {version}', 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
+    remote = json.loads(run('gh', 'api', '--method', 'POST', f'repos/{repository}/releases',
+        '--header', 'Content-Type: application/json', '--input', request))
+    validate_release_identity(remote, remote.get('id') if isinstance(remote, dict) else None, tag)
+    if remote.get('draft') is not True:
+        raise ValueError('GitHub did not return the requested draft release.')
+    # Use the creation response: release listings can lag behind a successful POST.
+    return remote
+
+
+def upload_assets(output, repository, current, ledger):
+    release_id = current['id']
+    assets = current.get('assets', [])
+    existing = {asset['name']: asset for asset in assets}
+    expected_names = {asset['name'] for asset in ledger}
+    if len(existing) != len(assets) or set(existing) - expected_names:
+        raise ValueError('The draft contains duplicate or unexpected release assets.')
+    for asset in ledger:
+        previous = existing.get(asset['name'])
+        if previous is not None:
+            if (previous.get('state') == 'uploaded' and previous.get('size') == asset['bytes']
+                    and previous.get('digest') == 'sha256:' + asset['sha256']):
+                print(f'Reusing verified asset: {asset["name"]}', flush=True)
+                continue
+            asset_id = previous.get('id')
+            if not isinstance(asset_id, int) or isinstance(asset_id, bool) or asset_id < 1:
+                raise ValueError('GitHub must return a positive numeric asset ID before replacement.')
+            run('gh', 'api', '--method', 'DELETE', f'repos/{repository}/releases/assets/{asset_id}')
+        # gh api streams --input from disk, including multi-gigabyte packages.
+        endpoint = (f'https://uploads.github.com/repos/{repository}/releases/{release_id}/assets'
+                    f'?name={quote(asset["name"], safe="")}')
+        print(f'Uploading asset: {asset["name"]}', flush=True)
+        uploaded = json.loads(run('gh', 'api', '--method', 'POST', endpoint,
+            '--header', 'Content-Type: application/octet-stream',
+            '--header', f'Content-Length: {asset["bytes"]}', '--input', output / asset['name']))
+        verify_uploaded({'tag_name': current['tag_name'], 'assets': [uploaded]}, current['tag_name'], [asset])
+
+
 def publish(output, tag, repository, version, ledger):
     if not publication_event_allowed(tag):
         raise ValueError('Publication requires a tag push or the verified master release-recovery workflow.')
@@ -288,20 +340,20 @@ def publish(output, tag, repository, version, ledger):
         verify_uploaded(current, tag, ledger)
         return
     if current is None:
-        run('gh', 'release', 'create', tag, '--repo', repository, '--verify-tag', '--draft',
-            '--title', f'ThreadShelf Local Suite {version}', '--notes-file', notes)
-        current = resolve_release(repository, tag)
-        if current is None or current.get('draft') is not True:
-            raise ValueError('The newly created draft could not be resolved safely.')
+        current = create_draft(repository, tag, version, notes)
     release_id = current['id']
-    run('gh', 'release', 'upload', tag, '--repo', repository, '--clobber',
-        *(output / a['name'] for a in ledger))
+    upload_assets(output, repository, current, ledger)
     remote = read_release(repository, release_id, tag)
     verify_uploaded(remote, tag, ledger)
     update = output.parent / f'{tag}-release-update.json'
     update.write_text(json.dumps({'draft': False, 'make_latest': 'true',
         'name': f'ThreadShelf Local Suite {version}', 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
-    run('gh', 'api', '--method', 'PATCH', f'repos/{repository}/releases/{release_id}', '--input', update)
+    published = json.loads(run('gh', 'api', '--method', 'PATCH', f'repos/{repository}/releases/{release_id}',
+        '--header', 'Content-Type: application/json', '--input', update))
+    validate_release_identity(published, release_id, tag)
+    if published.get('draft') is not False:
+        raise ValueError('GitHub did not confirm publication of the verified release.')
+    verify_uploaded(published, tag, ledger)
 
 
 def main():
