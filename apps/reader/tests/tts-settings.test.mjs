@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 // Exercise the controller's real status and deletion handlers without a renderer.
 const source = fs.readFileSync(new URL('../src/ui/tts.js', import.meta.url), 'utf8')
-  .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+  .replace(/^import .*;\r?\n/gm, '').replace(/^export /gm, '');
 const Controller = vm.runInNewContext(source + '\nTtsController;');
 
 test('cache deletion keeps the empty settings status out of the Playback layout', async () => {

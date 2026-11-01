@@ -4,11 +4,20 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {webcrypto} from 'node:crypto';
 
-const source=fs.readFileSync(new URL('../src/ui/tts.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
+const rawSource=fs.readFileSync(new URL('../src/ui/tts.js',import.meta.url),'utf8');
+const controllerScript=value=>value.replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'');
+const source=controllerScript(rawSource);
 const Player=class{setVolume(){}setRate(){}dispose(){}snapshot(){return {ended:true};}};
 const Controller=vm.runInNewContext(source+'\nTtsController;',{crypto:webcrypto,TextEncoder,setTimeout,clearTimeout,ThreadShelfTtsPlayer:Player,document:{createTextNode:text=>({textContent:text})}});
 const proof={version:1,sha256:'a'.repeat(64)};
 const deferred=()=>{let resolve;const promise=new Promise(done=>resolve=done);return {promise,resolve};};
+for(const [label,newline]of [['LF','\n'],['CRLF','\r\n']])test(`controller test harness loads ${label} source checkouts`,()=>{
+  const checkedOutSource=rawSource.replace(/\r?\n/g,newline);
+  const CheckoutController=vm.runInNewContext(controllerScript(checkedOutSource)+'\nTtsController;');
+  const controller=new CheckoutController({invoke:async()=>{},getContext:()=>({})});
+  assert.equal(controller.config.enabled,false);
+  assert.equal(controller.config.provider,'pocket');
+});
 function message(id,text='Spoken text.',code=''){
   const node={dataset:{messageId:id,role:'assistant',turnIndex:'0'},sourceText:text+code,text,code,getBoundingClientRect:()=>({height:100,top:0,bottom:100})};
   node.querySelector=selector=>selector==='[data-tts-read]'?{}:{cloneNode:()=>{

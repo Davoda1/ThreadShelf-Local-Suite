@@ -52,3 +52,6 @@ apps/reader/public/mathjax-*.js -text
 apps/alternative/vendor/mathjax-*.js -text
 apps/reader/licenses/MathJax-*.txt -text
 apps/alternative/vendor/licenses/MathJax-*.txt -text
+
+# Preserve every speech support file covered by support-manifest.json.
+apps/*/tts/cpu/support/** -text
