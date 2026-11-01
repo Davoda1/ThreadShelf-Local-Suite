@@ -1,6 +1,6 @@
 # Security reporting
 
-The supported public release is **1.0.0**. Runtime and dependency maintenance is tracked through repository releases.
+The supported public version is the [latest stable release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/latest). Runtime and dependency maintenance is tracked through repository releases.
 
 Use the repository's **Security → Report a vulnerability** feature when private reporting is enabled. Maintainer setup instructions explain how to enable it. If that feature is unavailable, open an issue asking for a private reporting channel without posting exploit details or private data.
 

@@ -1,137 +1,98 @@
-# Publish ThreadShelf Local Suite on GitHub
+# Maintain ThreadShelf Local Suite on GitHub
 
-This guide targets the existing repository **https://github.com/Davoda1/ThreadShelf-Local-Suite**. The suite is an independent repository with component subdirectories. Upstream attribution is supplied through documentation and dependency notices.
+The application repository is [Davoda1/ThreadShelf-Local-Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The generated manual is published from [Davoda1/ThreadShelf-Local-Suite-Manual](https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual) at **https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/**. Both repositories are public and use `master` as their only branch.
 
-## 1. Extract the correct archive
+## 1. Work from the existing repository
 
-Extract `ThreadShelf-Local-Suite-1.0.0-Source.tar.gz`. Enter the resulting `ThreadShelf-Local-Suite` directory; `README.md`, `apps/`, `server-patch/` and `docs/` must be directly inside it. Commit this extracted tree. Upload the native application packages separately as release assets.
-
-Windows PowerShell and Linux Bash both support:
+Clone the repository to preserve its history and release tags:
 
 ```text
-tar -xzf ThreadShelf-Local-Suite-1.0.0-Source.tar.gz
+git clone https://github.com/Davoda1/ThreadShelf-Local-Suite.git
 cd ThreadShelf-Local-Suite
+git switch master
+git pull --ff-only
 ```
 
-Install Git if it is not already available. The source archive contains no `.git` history.
+For an existing checkout, confirm that the working tree is clean before updating it. On Windows, use a short checkout path and enable Git's long-path support before checkout when needed: `git -c core.longpaths=true clone https://github.com/Davoda1/ThreadShelf-Local-Suite.git`.
 
-## 2. Choose a public-safe Git identity
-
-Git commits carry an author name and email address. On GitHub, open **Settings → Emails**, enable **Keep my email addresses private**, and copy the exact GitHub-provided `noreply` address shown for your account. The address can contain an account-specific numeric prefix; do not guess it. Enable the option to block command-line pushes that expose your personal email if available.
-
-Initialize the repository and set identity locally for this repository. Replace the placeholder with the exact GitHub `noreply` address before running the email command:
+The published source archive is also available for inspection and builds. Its root directory includes the version and `-Source` suffix:
 
 ```text
-git init -b master
+tar -xzf ThreadShelf-Local-Suite-1.4.0-Source.tar.gz
+cd ThreadShelf-Local-Suite-1.4.0-Source
+```
+
+The source archive has no `.git` history. Make repository updates in a clone; do not initialize a replacement repository or force-push over the existing history.
+
+## 2. Set a public-safe Git identity
+
+Git commits expose their author name and email address. In GitHub's account email settings, enable email privacy and copy the exact GitHub-provided `noreply` address. Configure it locally in the clone:
+
+```text
 git config --local user.name davoda1
 git config --local user.email "YOUR_GITHUB_NOREPLY_ADDRESS"
 git config --local user.useConfigOnly true
-git remote add origin https://github.com/Davoda1/ThreadShelf-Local-Suite.git
 ```
 
-On Windows, also run `git config --local core.longpaths true` before staging the supplied synthetic test fixtures. Use a short checkout directory.
+Replace the email placeholder before committing. Use Git Credential Manager, GitHub CLI authentication, or an SSH key. Never put credentials in remote URLs, source files, committed scripts or environment files.
 
-For authentication, use Git Credential Manager, GitHub CLI authentication, or an SSH key. Never place a token in a remote URL, source file, script or `.env` committed to this repository.
+Before committing, run the appropriate tests and `python tools/check-public-tree.py`. Stage the intended files, inspect `git diff --cached`, and check `git log -1 --format=fuller` before pushing. Preserve the supplied `.gitignore`: Alternative intentionally retains vendored build dependencies, while ordinary dependencies, build outputs and private state remain excluded.
 
-## 3. Inspect and make the first push
+## 3. Repository settings
 
-From the extracted repository root:
+Keep `master` as the default branch, Issues enabled, and the application repository's **About → Website** field set to the hosted manual URL. Keep application and manual repositories public so download and documentation links remain available.
 
-```text
-python tools/check-public-tree.py
-git add .
-git diff --cached --stat
-git status
-git commit -m "Release ThreadShelf Local Suite 1.0.0"
-git log -1 --format=fuller
-git push -u origin master
-```
+Under the security settings, enable private vulnerability reporting if offered. This provides the reporting route described in [SECURITY.md](../SECURITY.md) without publishing a personal email address.
 
-Review the displayed commit identity before pushing. If it is wrong and the commit has not been pushed, correct the local configuration and use `git commit --amend --reset-author --no-edit`, then check it again.
+Under **Settings → Actions → General**, permit the actions used by the checked-in workflows. Keep default workflow permissions read-only; publication jobs request their required write permissions explicitly. Fork pull requests must not receive secrets or write tokens. Ordinary builds and publication use GitHub's workflow token and require no personal access token in repository secrets.
 
-The supplied source tree includes required vendored source and assets. The included `.gitignore` keeps ordinary dependencies, build output and private state out of Git while retaining Alternative's intentional vendored build dependencies. Do not replace it with a blanket rule that drops those files.
+## 4. Checks and package builds
 
-If GitHub rejects a push because the remote already contains commits, inspect the remote history first. For a repository initialized with a README/license through the website, clone that repository into a new directory and copy the extracted source contents into the clone; review and commit there. Do not force-push over history you intend to keep.
+The workflows pin external actions to full commit IDs and Node.js to 24.22.1. The verified managed npm 12.2.1/Undici 6.29.1 profile is documented in [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md).
 
-The delivered source has been checked for oversized files. If future work introduces a large asset, decide whether it belongs in release assets or Git LFS before committing it; document any new retrieval prerequisite.
+- **Checks** runs source, public-tree, integration and packaging regressions on pushes to `master`, pull requests, or manual dispatch.
+- **Build desktop packages** builds Reader, Analytics and Alternative on Windows and Linux when a version tag is pushed. Manual dispatch can build all components or a selected subset.
+- A **manual package build uploads workflow artifacts only**. Its publication job is skipped by design.
+- A **tag push builds and validates all six application/platform combinations, then automatically publishes** after the release assembly and upload checks pass.
 
-## 4. Configure the repository
+For a new release, update application versions, `tools/release-versions.json`, release documentation and screenshots as needed. Review the completed source checks and any preparatory native builds before pushing an annotated stable `vX.Y.Z` tag at the reviewed commit. The publisher requires that the tag match every application's version. Pushing that tag authorizes automatic publication; do not use a release tag merely to request a trial build.
 
-Use the **About** settings on the repository home page:
+The published `v1.4.0` tag must remain unchanged. Its release contains nine native packages, two HTML previews, suite source ZIP/TAR.GZ, the offline manual ZIP, verification report/evidence ZIP and one `SHA256SUM.txt`. Existing dependency-source companions retain their original versions and download locations; see the source-access table in [README.md](../README.md).
 
-- **Description:** `Desktop readers, local archive analytics, and search integration tools for ThreadShelf, with an illustrated user manual.`
-- **Website:** `https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/`
-- **Topics:** `threadshelf`, `chat-archive`, `desktop`, `electron`, `local-first`, `analytics`, `windows`, `linux`, `semantic-search`.
+## 5. Recover a failed publication
 
-Under **Settings → General**, keep **Issues** enabled so the provided templates are available. Enable Discussions only if you want a separate discussion space. Confirm that `master` is the default branch. After validation, the repository's visibility can be changed to public through the visibility controls. Review GitHub's confirmation dialog before making that change.
+Use **Publish validated release** from `master` when the tagged build's six package jobs succeeded but publication failed. Supply:
 
-Under the repository's security settings, enable **private vulnerability reporting** if offered. This activates the reporting route described in `SECURITY.md` without requiring a personal email address.
+- `tag`: the existing stable release tag, such as `v1.4.0`.
+- `source_run`: the numeric ID of that completed **tag-push** package workflow run.
 
-## 5. Use the supplied Actions workflows
+The recovery workflow checks the repository, tag, commit and all six successful package jobs, then downloads their existing artifacts. A manually dispatched package build is not an accepted recovery source. Corrected publisher code comes from `master`; application sources and documentation are archived from the original tag.
 
-The workflows pin external actions to full commit IDs and Node.js to 24.22.1. They prepare the verified managed npm 12.2.1/Undici 6.29.1 profile described in [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md). They need no personal secret for ordinary builds.
+Recovery reuses matching draft assets and verifies names, sizes and SHA-256 digests before publication. It refuses to replace a published release with different bytes. Do not move the tag or remove a draft simply to retry publication. If a package job failed or an artifact expired, resolve that condition before choosing the next release action.
 
-Under **Settings → Actions → General**, permit the GitHub-owned actions used by the workflows. Keep default workflow permissions at **Read repository contents**. Fork pull requests must not receive secrets or a write token.
+After publication, review the release assets, verification report and checksums. For a complete local download, run `sha256sum -c SHA256SUM.txt` on Linux. Verify native startup on the supported systems; external speech-provider availability is separate from the offline package checks.
 
-- **Checks:** validates the public tree and runs component checks.
-- **Build desktop packages:** builds Windows and Linux artifacts when a version tag matching `v*` is pushed. It can also be run manually from the Actions tab.
+## 6. Update the hosted manual
 
-The build workflow uploads workflow artifacts for review. It does not create a GitHub Release or change repository visibility. Download the artifacts, review job results and test native startup on the target systems before publishing a later release.
+Editable manual sources and the builder live under `manual/` in the application repository. The generated site lives in `docs/`; it requires no PHP or Node.js to read. Build and validate it using [manual/README.md](../manual/README.md), then commit the editable sources and generated output together.
 
-## 6. Publish the manual with GitHub Pages
+The manual repository publishes the contents of `docs/` at its root, including `.nojekyll`. In **Settings → Pages**, use **Deploy from a branch**, `master`, and `/(root)`. Keep HTTPS enforced and leave the custom domain empty.
 
-The hosted manual is **https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/**. The public website repository, **https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual**, contains only generated documentation and required notices. The main suite repository can remain private. Pages is disabled on the main repository because the current account plan does not support Pages from a private repository.
+To synchronize a manual update:
 
-The static site is built in `docs/`; reading it does not require PHP or Node.js. It includes `.nojekyll` and uses relative navigation suitable for the website path. `manual/content/.site.json` sets the matching canonical base URL.
+1. Clone or update the manual repository in a separate directory.
+2. Copy the generated **contents** of `docs/` into that repository's root, removing obsolete generated files. Do not add an enclosing `docs/` directory.
+3. Retain the website `README.md` and the generated suite `LICENSE`, Gopher `GOPHER-LICENSE.txt` and `THIRD-PARTY-NOTICES.md`.
+4. Review the diff and commit to `master`. Copy only generated documentation and its required assets/notices; application sources, release packages, profiles and credentials belong outside this website repository.
+5. Check the completed Pages deployment and verify live navigation, search, screenshots and a deep-linked chapter.
 
-The website repository uses these settings:
-
-1. Under **Settings → Pages**, select **Deploy from a branch**.
-2. Choose **master** and **/(root)**, then **Save**.
-3. Keep HTTPS enforced and leave the custom-domain field empty.
-4. Wait for **pages-build-deployment** to succeed.
-5. Check navigation, search, screenshots and a deep-linked chapter beneath `/ThreadShelf-Local-Suite-Manual/`.
-
-After editing the manual:
-
-1. Run the rebuild command in `manual/README.md`, then commit both the editable manual source and refreshed `docs/` output in the main suite repository.
-2. Clone or update the manual website repository in a separate directory.
-3. Replace the previously published generated files with the **contents** of `docs/`, including `.nojekyll`; do not add a surrounding `docs` directory. Remove generated files that no longer exist in the rebuilt output.
-4. Retain the website's `README.md`, suite `LICENSE`, Gopher `GOPHER-LICENSE.txt` and `THIRD-PARTY-NOTICES.md`. Review any changed asset notices before publishing.
-5. Review the diff for private data and unintended files. Commit and push the website repository's `master` branch, then wait for Pages deployment and verify the live site.
-
-Copy only generated documentation and required notices into the public website repository. Do not copy the main repository's `.git`, application sources, release packages, environment files, local state or credentials. GitHub serves the published manual publicly, even while the main repository is private. Links to the main repository and desktop downloads become available to unauthenticated visitors when that repository is made public.
-
-Keep the main repository's **About → Website** field set to the hosted manual URL. Publishing the main repository later does not require moving the manual or changing that URL.
-
-## 7. Create release 1.0.0
-
-Extract `ThreadShelf-Local-Suite-1.0.0-Releases.tar.gz` into a separate directory. It contains nine native packages, an offline manual, release notes and one `SHA256SUM.txt`.
-
-Verify it on Linux:
-
-```text
-sha256sum -c SHA256SUM.txt
-```
-
-On Windows PowerShell, use the validation script in `maintainer/RELEASE.md`.
-
-Create an annotated tag from the reviewed commit:
-
-```text
-git tag -a v1.0.0 -m "ThreadShelf Local Suite 1.0.0"
-git push origin v1.0.0
-```
-
-On GitHub, open **Releases → Draft a new release**, choose `v1.0.0`, use the title **ThreadShelf Local Suite 1.0.0**, and copy the prepared release notes. Attach the **nine individual application packages**, `ThreadShelf-Local-Suite-1.0.0-Source.tar.gz`, `ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz`, **every numbered** `ThreadShelf-Local-Suite-1.0.0-Runtime-Sources-*.tar.gz` part, and `SHA256SUM.txt`. Keep the suite source and both complete source companions available beside the binary downloads. You may also attach the combined release TAR.GZ as a convenience download. GitHub automatically offers source archives of the tag; those are separate from the supplied validated source archive and dependency companions.
-
-Save the release as a draft while reviewing the release assets. Check that the version, target architecture, download names and manual link are correct, then publish when ready.
+The hosted manual URL remains the same across application releases. No Pages site is needed in the application repository.
 
 ## Official GitHub references
 
-- [Adding locally hosted code](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github)
+- [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
 - [Setting your commit email address](https://docs.github.com/en/account-and-profile/how-tos/email-preferences/setting-your-commit-email-address)
 - [Configuring a Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [Managing releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
 
-These instructions were updated on 2026-10-21. GitHub may change menu labels; the linked official documentation is the reference for later changes.
+These instructions describe the workflows and repository layout used for 1.4.0. Review the checked-in workflow definitions when changing the release process.
