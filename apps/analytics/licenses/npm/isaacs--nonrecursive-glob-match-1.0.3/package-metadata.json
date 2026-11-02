@@ -1,0 +1,9 @@
+{
+  "name": "@isaacs/nonrecursive-glob-match",
+  "version": "1.0.3",
+  "license": "BlueOak-1.0.0",
+  "repository": null,
+  "retainedNotices": [
+    "LICENSE.md"
+  ]
+}

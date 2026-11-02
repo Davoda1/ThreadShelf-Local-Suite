@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1 — 2026-11-02
+
+- Fix the minimatch and glob build dependency vulnerabilities and replace vulnerable deepmerge in the offline holiday engine.
+- Keep existing holiday data, application behavior, profiles and archive formats unchanged.
+
 ## 1.4.0
 
 - Add optional per-message speech with Pocket TTS, Kokoro, self-hosted servers, ElevenLabs, OpenAI Realtime and OpenRouter.

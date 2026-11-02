@@ -145,11 +145,11 @@ def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     return f'''Reader, Analytics and Alternative are now **{version}**.
 
-- Reader and Alternative add speech playback with bundled offline **Pocket TTS** and **Kokoro** CPU voices, optional provider connections, streaming, per-message controls and an audio cache.
-- TTS settings retain fixed navigation above scrollable content, including after cache deletion.
-- The illustrated manual and application screenshots are refreshed; an updated offline manual ZIP is included.
-- Existing MathJax 4.1.3 rendering and readable ChatGPT/Codex file citations are preserved.
-- Analytics retains its read-only behaviour. Profiles, archive/schema identifiers and the Electron/Node/npm/ONNX pins are unchanged.
+- Update the Reader and Analytics build dependencies to patched **minimatch 11.0.2**, addressing **CVE-2026-118764 / GHSA-g3hv-75wg-m249**.
+- Replace vulnerable **deepmerge** in Reader's holiday tooling and bundled holiday engine with a prototype-safe merge adapter, addressing **CVE-2026-93753 / GHSA-gcqx-w48m-w2h4**.
+- Update the same build dependency chain to **glob 14.0.3**, addressing cancellation bypass **CVE-2026-118773 / GHSA-3g3m-2fjr-6pw4**.
+- This is a security maintenance release. Existing interfaces, speech playback, settings, archive formats and Electron/Node/npm/ONNX runtime pins are unchanged.
+- The included offline manual and screenshots retain their 1.4.0 content, which also applies to this patch release.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 
 Choose one of the nine native packages for your application and OS. The Reader Preview and Alternative Demo HTML files contain synthetic examples. Native packages include their runtime and do not require Node.js or npm.
@@ -219,7 +219,7 @@ The independent Checks workflow has its own status and is not asserted successfu
 
 ## Sources and checksums
 
-Use this release's `SHA256SUM.txt` for every attached asset, including the refreshed manual. Unchanged Electron/ONNX sources remain at v1.3.0 and native sharp/libvips sources at v1.0.0, with their original manifests. The v1.3.0 dependency inventory remains the existing runtime/toolchain baseline; MathJax remains 4.1.3. Added speech models, runtimes and sources are pinned in each application's `tts/cpu/assets-manifest.json`, with notices and corresponding GPL sources retained in the packaged speech payload.
+Use this release's `SHA256SUM.txt` for every attached asset, including the bundled manual. Unchanged Electron/ONNX sources remain at v1.3.0 and native sharp/libvips sources at v1.0.0, with their original manifests. The v1.3.0 dependency inventory remains the existing runtime/toolchain baseline; MathJax remains 4.1.3. Added speech models, runtimes and sources are pinned in each application's `tts/cpu/assets-manifest.json`, with notices and corresponding GPL sources retained in the packaged speech payload.
 '''
     (output / (stem + '-Verification.md')).write_text(report, encoding='utf-8')
     ledger = [{'name': p.name, 'bytes': p.stat().st_size, 'sha256': digest(p)} for p in sorted(output.iterdir())]

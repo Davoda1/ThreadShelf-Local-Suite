@@ -34,7 +34,7 @@ Return value:
 
 ## Coverage and rules
 
-The data is derived reproducibly from **date-holidays 3.38.0**, data version **2026-10-24**, using **date-holidays-parser 3.4.7**. It contains **207 country/territory entries** and **3,288 national public rule entries**. The precise supported code list is in `metadata.supportedCountries`; each country's English name and rules are in `holidays`. Countries absent from this list are unsupported, and no national holiday data has been fabricated for them.
+The data is derived reproducibly from **date-holidays 3.38.0**, data version **2026-10-24**, using **date-holidays-parser 3.4.7**. The parser’s merge import is replaced by the prototype-safe local adapter described in `README.md`, using `@fastify/deepmerge` 3.2.4. It contains **207 country/territory entries** and **3,288 national public rule entries**. The precise supported code list is in `metadata.supportedCountries`; each country's English name and rules are in `holidays`. Countries absent from this list are unsupported, and no national holiday data has been fabricated for them.
 
 Only the upstream **country-level `public`** rules are retained. States, provinces, regions, and their distinct holidays are removed; shared country rule references are resolved first. Other upstream observance, bank, optional, and school categories are excluded. Dates, active periods, substitutions, multiday durations, and known one-off government dates are preserved. English names are retained to keep the JSON small. A federal holiday classification follows the upstream dataset; it does not assert that every worker or business is legally entitled to a day off.
 

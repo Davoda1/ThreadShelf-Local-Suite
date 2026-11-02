@@ -1,10 +1,10 @@
 {
-  "name": "minimatch",
-  "version": "10.2.6",
+  "name": "path-scurry",
+  "version": "3.0.0",
   "license": "BlueOak-1.0.0",
   "repository": {
     "type": "git",
-    "url": "git@github.com:isaacs/minimatch"
+    "url": "git+https://github.com/isaacs/path-scurry"
   },
   "retainedNotices": [
     "LICENSE.md"

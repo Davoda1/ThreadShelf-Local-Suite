@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 — 2026-11-02
+
+- Address the minimatch glob-pattern amplification and glob cancellation vulnerabilities in Reader and Analytics build dependencies (GHSA-g3hv-75wg-m249 and GHSA-3g3m-2fjr-6pw4).
+- Replace the vulnerable deepmerge implementation in Reader's holiday tooling and bundled holiday engine with a prototype-safe merge adapter (GHSA-gcqx-w48m-w2h4). Retain the existing holiday rules and dates.
+- Add regression coverage for hostile patterns, cancelled filesystem traversal, Electron archive packaging and malicious merge keys.
+- Align Reader, Analytics and Alternative at 1.4.1. Interfaces, features, speech playback, existing profiles, archive formats and runtime/toolchain pins remain unchanged. Retain the illustrated 1.4.0 manual and screenshot provenance for this security patch.
+
 ## 1.4.0 — 2026-11-01
 
 - Add text-to-speech to Reader and Alternative, including bundled Pocket TTS and Kokoro CPU engines, provider connections, voice selection, per-message playback controls, streaming, text inclusion options and audio caching.

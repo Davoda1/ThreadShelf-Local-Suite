@@ -4,18 +4,19 @@
     "ThreadShelf startup bootstrap integration",
     "Test dependency injection for startup loader",
     "Build output/import paths",
-    "Removed private media container titles; video/audio stream payloads preserved"
+    "Removed private media container titles; video/audio stream payloads preserved",
+    "Replaced vulnerable deepmerge with a prototype-safe holiday parser adapter using @fastify/deepmerge 3.2.4"
   ],
   "upstream": {
     "holidayRules": "https://github.com/commenthol/date-holidays",
     "timezoneData": "https://data.iana.org/time-zones/tzdb/"
   },
   "bundledFiles": {
-    "src/desktop/holiday/src/holiday-engine.mjs": "8ef68f28c9fd6f8820048b16b28187d8c1b55ac33c8359ccd9e26969858a1579",
+    "src/desktop/holiday/src/holiday-engine.mjs": "d74b0c936a75c46f48a99acce7592e228fa80b73060ac68c7258ba0b0f677f4a",
     "src/desktop/holiday/src/startup-region.mjs": "c128927f97f974f0850969d4baa0146304d8f43613c70cbecd6ec08c8e39a6a8",
     "src/desktop/holiday/src/timezone-countries.mjs": "c51235b0e57fe3b454cf5c0db9304a70b5cc9abe8e9968c231a42e91f012c7fa",
-    "src/desktop/holiday/assets/data/holiday-rules.json": "ec62f0263fcdf6491f999612f6e3eaad93abc7531d195813d52a1d10dc221a7b",
-    "src/desktop/holiday/assets/data/HOLIDAY-LICENSES.txt": "60247b020841afcebecb974e0e07ade8e3ec3a73d95c9acb11d3bf33a1045123",
+    "src/desktop/holiday/assets/data/holiday-rules.json": "214c8407c961bede6723b231d36d853c0990742342c6867bb63516b0865171b7",
+    "src/desktop/holiday/assets/data/HOLIDAY-LICENSES.txt": "bce645bfd0e0dbe44e3144a23b39bca6ade1d9e4361c71fd0d4770ca2fd311e8",
     "public/waves/01-multicolour-loop.mp4": "a2cff625b574c191f97eb03b1baaf1d3686154398af6fde6530cf0560124d137"
   }
 }

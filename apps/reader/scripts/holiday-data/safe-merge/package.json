@@ -1,0 +1,11 @@
+{
+  "name": "@threadshelf/holiday-merge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prototype-safe merge adapter for the pinned holiday parser",
+  "main": "index.cjs",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/deepmerge": "3.2.4"
+  }
+}

@@ -43,6 +43,12 @@ jobs:
           node "${{ github.workspace }}/tools/npm.mjs" -- run check
           node node_modules/playwright-core/cli.js install --with-deps chromium
           node "${{ github.workspace }}/tools/npm.mjs" -- test
+      - name: Holiday engine prototype safety and generation regressions
+        working-directory: apps/reader/scripts/holiday-data
+        run: |
+          node "${{ github.workspace }}/tools/npm.mjs" -- ci --ignore-scripts
+          node "${{ github.workspace }}/tools/npm.mjs" -- run check
+          git diff --exit-code -- . ../../src/desktop/holiday ../../licenses/HOLIDAY-LICENSES.txt
       - name: Package validator regression tests
         run: |
           python3 apps/reader/tests/package-validation.test.py
@@ -71,6 +77,8 @@ jobs:
           node "${{ github.workspace }}/tools/npm.mjs" -- test
           node "${{ github.workspace }}/tools/npm.mjs" -- run build
 
+      - name: Patched minimatch and archive packaging regressions
+        run: node --test tools/tests/minimatch-security.test.mjs
       - name: Check out the exact public Reader 1.0.0 baseline
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -133,6 +141,8 @@ jobs:
           node "${{ github.workspace }}/tools/npm.mjs" -- ci
           node "${{ github.workspace }}/tools/npm.mjs" -- test
           node "${{ github.workspace }}/tools/npm.mjs" -- run build
+      - name: Patched minimatch and archive packaging regressions
+        run: node --test tools/tests/minimatch-security.test.mjs
       - name: Check out the exact public Reader 1.0.0 baseline
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
