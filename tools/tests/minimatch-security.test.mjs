@@ -87,16 +87,17 @@ for (const app of ['reader', 'analytics']) {
       }
       const { globSync } = require('glob');
       assert.deepEqual(globSync('**/*.{js,json}', { cwd: input }).sort(),
-        ['package.json', 'src/app.js', 'src/nested/data.json']);
+        ['package.json', path.join('src', 'app.js'), path.join('src', 'nested', 'data.json')]);
       const asar = await import(pathToFileURL(asarPath).href);
       await asar.createPackageWithOptions(input, archive, { unpack: '**/*.node' });
       for (const [name, contents] of fixtures) {
-        assert.equal(asar.extractFile(archive, name).toString(), contents, name);
+        const relative = path.join(...name.split('/'));
+        assert.equal(asar.extractFile(archive, relative).toString(), contents, name);
       }
-      assert.equal(asar.statFile(archive, 'native/module.node').unpacked, true);
+      assert.equal(asar.statFile(archive, path.join('native', 'module.node')).unpacked, true);
       assert.equal(await readFile(path.join(`${archive}.unpacked`, 'native', 'module.node'), 'utf8'),
         fixtures.get('native/module.node'));
-      assert.equal(Boolean(asar.statFile(archive, 'src/app.js').unpacked), false);
+      assert.equal(Boolean(asar.statFile(archive, path.join('src', 'app.js')).unpacked), false);
     } finally {
       await rm(temporary, { recursive: true, force: true });
     }
