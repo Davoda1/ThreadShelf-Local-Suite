@@ -10,7 +10,7 @@ node server-patch/manage.mjs check ../ThreadShelf
 
 Read the result. A supported unpatched state is eligible for installation. An already-applied state needs no second patch. A mismatch means that the current files are not one of the recognized states; resolve that mismatch before proceeding.
 
-Do not bypass a mismatch by editing the expected hashes or renaming another server version to 1.3.0. Obtain the correct upstream baseline or preserve and reconcile local source changes deliberately.
+Do not bypass a mismatch by editing the expected hashes or renaming another server version to a supported version. Obtain the correct upstream baseline or preserve and reconcile local source changes deliberately.
 
 ## 2. Preview installation
 

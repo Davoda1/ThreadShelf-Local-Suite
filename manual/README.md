@@ -2,7 +2,7 @@
 
 The complete user manual covers Local Reader 1.4.0, Local Analytics 1.4.0,
 Local Alternative 1.4.0 and the optional search patch for upstream ThreadShelf
-1.3.0. Open `../docs/index.html` directly in a browser; no web server is required.
+1.3.0 and 1.4.1. Open `../docs/index.html` directly in a browser; no web server is required.
 The release bundle includes the same generated site under `manual/index.html`.
 
 ## Edit and build

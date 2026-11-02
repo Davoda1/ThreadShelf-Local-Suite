@@ -16,6 +16,10 @@ node server-patch/manage.mjs uninstall ../ThreadShelf
 
 Do not remove or edit the patch backup while relying on it for restoration. If affected files were changed after installation, preserve that work and inspect the reported conflict instead of forcing a blind overwrite. A full server backup remains separate from this source-file rollback.
 
+Uninstall the patch **before upgrading upstream**, then use the target matching
+the new source version. The shared dispatcher recognizes an existing 1.3.0
+installation and its original backup after this directory reorganization.
+
 ## Common installation problems
 
 | Symptom | Meaning or action |

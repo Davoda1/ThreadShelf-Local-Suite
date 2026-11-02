@@ -13,7 +13,7 @@ Version **1.4.1** is a security maintenance release: it updates the affected `mi
 | **ThreadShelf Local Reader** | A full reading workspace with a local archive, optional server connection, search, rich conversation rendering, and extensive appearance settings. |
 | **ThreadShelf Local Analytics** | Read-only analysis of a Reader archive through captures, filters, charts, relationships, and exportable reports. |
 | **ThreadShelf Local Alternative** | A separate, focused server-reading interface with saved searches, pins, a prompt outline, and a built-in demonstration. |
-| **Server patch** | Complete paginated search integration for the desktop clients on the exact supported upstream ThreadShelf 1.3.0 baseline. |
+| **Server patch** | Complete paginated search integration for the desktop clients on the exact supported upstream ThreadShelf 1.3.0 and 1.4.1 baselines. |
 
 ## Download and start
 
@@ -67,7 +67,9 @@ Reader and Alternative include Pocket TTS and Kokoro for local CPU speech. Their
 
 ## Server integration
 
-Acquire ThreadShelf itself from [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf). Read [server-patch/README.md](server-patch/README.md) before applying the supplied patcher. It checks the supported baseline, offers a dry run, backs up affected files, detects a previously applied patch, and supports rollback.
+Acquire ThreadShelf itself from [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf). Read [server-patch/README.md](server-patch/README.md) before applying the supplied patcher. Separate [1.3.0](server-patch/1.3.0/README.md) and [1.4.1](server-patch/1.4.1/README.md) targets share the same root command. It checks the selected baseline, offers a dry run, backs up affected files, detects a previously applied patch, and supports rollback.
+
+The 1.4.1 server target is available in the current `master` source tree; existing desktop release archives remain unchanged.
 
 This repository contains the integration changes and patching tools. Configuration and archive data belong to each person's own server installation.
 
@@ -78,7 +80,7 @@ This repository contains the integration changes and patching tools. Configurati
 | `apps/reader/` | Reader source, tests, assets and native packaging tools |
 | `apps/analytics/` | Analytics source, tests, assets and native packaging tools |
 | `apps/alternative/` | Alternative source, offline renderer dependencies and native packaging tools |
-| `server-patch/` | Version-bound integration patch, patcher and tests |
+| `server-patch/` | Versioned 1.3.0 and 1.4.1 integration patches, shared dispatcher and tests |
 | `manual/` | Editable manual content, fresh screenshots and Gopher 3.0.0 publisher |
 | `docs/` | Generated static user manual; README banner and screenshots in `docs/extras/` |
 | `maintainer/` | GitHub setup, builds, release procedure and verification |

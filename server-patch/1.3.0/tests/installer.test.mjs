@@ -59,7 +59,8 @@ test('install, repeat, check and uninstall preserve exact originals and modes', 
   f.pass('install'); f.pass('check');
   assert.deepEqual(await fs.readFile(path.join(f.root, changed[0])), before);
   f.pass('uninstall'); await f.unchanged();
-  assert.equal((await fs.stat(path.join(f.root, changed[0]))).mode & 0o777, 0o640);
+  if (process.platform !== 'win32')
+    assert.equal((await fs.stat(path.join(f.root, changed[0]))).mode & 0o777, 0o640);
   await assert.rejects(fs.stat(path.join(f.root, added)), { code: 'ENOENT' });
   await assert.rejects(fs.stat(path.join(f.root, backup)), { code: 'ENOENT' });
 }));
@@ -105,7 +106,7 @@ test('known partial installation can be safely rolled back', () => fixture(async
   await fs.unlink(path.join(f.root, added)); f.fail(/Incomplete patch/, 'check');
   f.pass('uninstall'); await f.unchanged();
 }));
-test('source-file symlink is refused', () => fixture(async f => {
+test('source-file symlink is refused', { skip: process.platform === 'win32' }, () => fixture(async f => {
   const outside = path.join(f.tmp, 'outside'); await fs.writeFile(outside, f.originals[changed[0]]);
   await fs.unlink(path.join(f.root, changed[0])); await fs.symlink(outside, path.join(f.root, changed[0]));
   f.fail(/ordinary file/, 'install'); assert.deepEqual(await fs.readFile(outside), f.originals[changed[0]]);

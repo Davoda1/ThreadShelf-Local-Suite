@@ -1,0 +1,33 @@
+{
+  "formatVersion": 1,
+  "patchVersion": "1.1.0",
+  "extensionVersion": 1,
+  "upstream": {
+    "name": "threadshelf",
+    "version": "1.4.1",
+    "repository": "https://github.com/ChrystianSchutz/ThreadShelf",
+    "tag": "v1.4.1",
+    "commit": "d8e59473e465180fcdd7d690cfb61b35c00a6efe"
+  },
+  "sourceHashes": {
+    "package.json": "a5a16232c2bd8ca31e965a79bb6eea9f080895ead4e45d7526b2296571eb9079",
+    "package-lock.json": "6872f59154e17c3da06e587b11b690e224ee490f1c3e58d35a4533a162adcfd5",
+    "src/store.ts": "f7bb3c5a816ba3e2bcc3f7b483928b0168a1ffa149dbc31de2964a582ca90fed",
+    "src/routes/index.ts": "c8df564c7b69e4a5ec279375fc361b23f82c889b8384ecff707dea60872944aa",
+    "src/routes/stream-abort.ts": "e5ff5d37dc289f4b02dc10e3fd18845126afc0e2e481c87ffd48dcbd9f03fa21",
+    "src/services/search.ts": "475df5db151388adbc032e44cb22e7b2050758be5c5a286d75c5f7fc092026e8",
+    "src/services/collections.ts": "ce62bd92e877b813ada9422398e0a2bb4750eb15d4382ee519a48fc8a83c858e",
+    "src/validation.ts": "a6a910ca33d5217c7ec3751f3dc9f73dc32d9cfbc6361f25f66e0c8b07ffa3fd",
+    "src/embedding.ts": "c5eb51c117590f07496c6a2a226ee9b0dd3095539ba7718cae1e3b96bbe2347b",
+    "src/paths.ts": "1c20827ea6f29460739cb5ee5aa93d099adcad06cfb5f37bcec8319a025ca93b",
+    "src/chunking.ts": "b57a72f65799ea298b370df7153c33f04d25a17f0739b2936e5559c872b8769f",
+    "src/model-label.ts": "1bf466bbd77408fd18e89474c0c7a79272c4368a76e9da03338b83525605fd40",
+    "src/server.ts": "984f5bfd7247e4c718bbb18f932c9c66b27be409f47d2ccd05853e1630286b19",
+    "src/routes/local-origin.ts": "ac5422003934b26f80cf89f7ea52c8d86d1c2db80233a41afb5794cf44430496",
+    "src/routes/search.ts": "559840993a8a0f8703d660493eb5ce139cdc663a6e50ac56ef3d0154a0f37d97"
+  },
+  "payloadHashes": {
+    "payload/reader-store.ts.inc": "34405d3dae0d24a07e1dc26c6990b6a8b050589768846de846f6309496ae748e",
+    "payload/reader-search.ts": "fd18568ed81a12ca12dcad1b42746d46e367b1ba6181e2907d6df16a185ea33d"
+  }
+}

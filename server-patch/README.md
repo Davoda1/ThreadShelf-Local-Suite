@@ -1,103 +1,128 @@
-# ThreadShelf 1.3.0 search integration patch
+# ThreadShelf server search patches
 
-**ThreadShelf Local Suite patch 1.0.0 · Copyright (c) 2026 davoda1 · MIT**
+**Patch bundle 1.1.0 · Reader search API version 1 · MIT**
 
-This optional extension gives Local Reader and Local Alternative cursor-paged
-server search with exact hit totals. It adds `/api/reader/capabilities` and
-`/api/reader/search` to an existing ThreadShelf server. The applications detect
-the capability when a new server search starts. Local Analytics reads Reader
-captures and does not require this patch directly.
+This optional server extension gives ThreadShelf Local Reader and Local
+Alternative complete, cursor-paged search with exact hit totals. It is built
+for the actual upstream ThreadShelf **1.4.1** source release and preserves the
+original 1.3.0 runtime patch as a separate target.
 
-The upstream server is a separate project by Chrystian Schutz:
-[ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
-Obtain it from that repository. This folder contains the extension and patcher,
-not a server installation, environment file, database, launcher or hosted reader.
+The upstream project is [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
+This directory contains both patches, the dispatcher, reproducible tests,
+validation reports and licenses. It does not contain a full server installation, database,
+conversation export, environment configuration, model weights or dependencies.
 
-## Exact supported source
+## Supported sources
 
-| Item | Required value |
+| Target | Exact upstream commit | Target patch version |
+| --- | --- | --- |
+| **ThreadShelf 1.4.1** | `d8e59473e465180fcdd7d690cfb61b35c00a6efe` (`v1.4.1`) | `1.1.0` |
+| ThreadShelf 1.3.0, preserved legacy target | `3430dd04f50218fdea916b104709d24a651017fc` (`v1.3.0`) | `1.0.0` |
+
+Use a source checkout containing `src/`, `package.json` and `package-lock.json`.
+The root `manage.mjs` selects the correct target and then verifies its exact
+source fingerprints and payload hashes. Version text alone never authorizes an
+installation. The new target fingerprints 15 files, including the existing
+server, ordinary search route and Host/Origin guard.
+
+**Do not apply these patches to ThreadShelf Enhanced.** Enhanced already provides
+the extension. Unsupported versions, altered required files, CRLF-converted
+source and npm/npx or compiled-only installations are refused.
+
+The patcher uses Node.js built-ins only. The supported upstream server requires
+Node.js 20.19 or later; local validation used Node.js 24.22.1 and the
+unchanged upstream dependency lockfile. No runtime dependency is added.
+
+## Directory layout
+
+| Path | Purpose |
 | --- | --- |
-| Package | `threadshelf` |
-| Version | `1.3.0` |
-| Upstream tag | `v1.3.0` |
-| Verified commit | `3430dd04f50218fdea916b104709d24a651017fc` |
-| Target | Source checkout containing `src/`, `package.json` and `package-lock.json` |
-| Patcher runtime | Node.js 24 LTS recommended; tested with 24.19.0 |
-| Additional patch dependencies | None |
+| [`1.3.0/`](1.3.0/README.md) | Original 1.3.0 installer, payload, fingerprints and tests |
+| [`1.4.1/`](1.4.1/README.md) | Validated 1.4.1 installer, payload, fingerprints and tests |
+| `manage.mjs` | Select the matching target without changing the existing command |
+| `tests/` | Shared integrity, dispatcher and real-server checks |
+| `SHA256SUMS.txt` | One manifest covering this entire directory |
 
-`supported-source.json` records SHA-256 fingerprints for the affected files and
-the upstream helpers they use. It also verifies the payload files. The patcher
-refuses unknown versions, altered required files, conflicting route files and
-symlinked affected files/directories. Unrelated files, private configuration and
-data may remain in the checkout and are not read by the patcher.
+Use `server-patch/` from the current `master` source tree. Previously published
+desktop packages and tagged source archives remain unchanged; this addition does
+not require a new desktop release.
 
-The npm/npx distribution contains compiled files rather than the required
-source tree. Do not patch an npm cache. Use the pinned source checkout and
-configure it to use the intended persistent data paths.
+## What the 1.4.1 target changes
 
-## New server: obtain the source
+Installation changes only these server files:
 
-Install Git and Node.js 24 LTS using their official installation instructions.
-The suite build documentation records exact pinned build-tool versions; a
-compatible maintained Node LTS patch release can run this installer.
+| File | Change |
+| --- | --- |
+| `src/store.ts` | Append the complete indexed-passage snapshot function. |
+| `src/routes/index.ts` | Import and mount the additional router. |
+| `src/routes/reader-search.ts` | Add capabilities, paginated search and snapshot release endpoints. |
 
-These commands work in a terminal on Linux and in PowerShell on Windows:
+The 1.4.1 target reuses upstream's updated filter builder, portable model labels,
+searchable-document checks, readiness masks, metadata compatibility and ranking
+functions. It does not replace upstream's existing search implementation.
+`/api/search`, the web interface, package version, lockfile, and Host/Origin
+middleware remain unchanged.
+
+A dedicated native read handle pins each collection scan to one table version.
+Its count and result scan therefore see the same rows while ingestion continues
+through the server's separate normal handle. After construction, pages are
+served from a fixed in-memory result snapshot. An all-collections search reads
+collections sequentially; it is not a global transactional database snapshot.
+
+## Obtain a clean 1.4.1 source checkout
+
+For a new installation, these commands work in Linux shells and PowerShell:
 
 ```sh
-git clone --config core.autocrlf=false https://github.com/ChrystianSchutz/ThreadShelf.git ThreadShelf
-cd ThreadShelf
-git checkout --detach 3430dd04f50218fdea916b104709d24a651017fc
-git rev-parse HEAD
+git clone --config core.autocrlf=false --branch v1.4.1 --depth 1 https://github.com/ChrystianSchutz/ThreadShelf.git ThreadShelf
+git -C ThreadShelf rev-parse HEAD
 ```
 
-The last command must print the commit listed above. Run the patch preflight
-before modifying the source or dependency lockfile. Keep the Suite repository
-and this server checkout as separate directories.
+The commit must be `d8e59473e465180fcdd7d690cfb61b35c00a6efe`. The clone setting
+preserves LF bytes on Windows; exact-byte fingerprints deliberately reject a
+checkout silently converted to CRLF. Do not alter the expected hashes to make a
+different checkout pass.
 
-The clone setting preserves the upstream LF line endings on Windows as well as
-Linux. Fingerprints compare exact bytes; a checkout converted to CRLF is refused
-even when the code looks identical in an editor. Use the clean checkout above
-instead of changing hashes to accept a different representation.
+An existing matching checkout can be used directly. Keep the suite checkout
+and its patch files outside the server folder. Do not overwrite an existing server directory
+or copy a new checkout over its private configuration and data.
 
-## Check and install
+## Check, install and restart
 
-The examples assume `ThreadShelf-Local-Suite` and `ThreadShelf` are sibling
-directories. Replace the example paths for your installation. All commands
-below run from the **Suite repository root**.
+Run the examples below from the **ThreadShelf-Local-Suite repository root**.
+They assume that the `ThreadShelf` source checkout is a sibling of the suite.
+The root command automatically selects 1.3.0 or 1.4.1 and verifies its hashes.
 
 Linux:
 
 ```sh
 node server-patch/manage.mjs check ../ThreadShelf
 node server-patch/manage.mjs install ../ThreadShelf --dry-run
-# Stop an existing ThreadShelf process/service using the normal stop command.
+# Stop the existing server through its normal service manager, if running.
 node server-patch/manage.mjs install ../ThreadShelf
 ```
 
-PowerShell:
+Windows PowerShell:
 
 ```powershell
 node .\server-patch\manage.mjs check ..\ThreadShelf
 node .\server-patch\manage.mjs install ..\ThreadShelf --dry-run
-# Stop an existing ThreadShelf process/service using the normal stop command.
+# Stop the existing server through its normal service manager, if running.
 node .\server-patch\manage.mjs install ..\ThreadShelf
 ```
 
-`check` and `install --dry-run` are read-only. A successful check reports the
-verified upstream commit. Installation changes exactly `src/store.ts` and
-`src/routes/index.ts`, and adds `src/routes/reader-search.ts`. It saves exact
-originals and their file modes in `.threadshelf-local-suite-backup-v1/` inside
-the server checkout before changing any source file. A repeated install checks
-integrity and reports that the patch is already installed.
+Quote paths containing spaces. `check` and `install --dry-run` are read-only.
+Repeated installation verifies the existing patch and backup and makes no
+further source changes.
 
-The installer neither stops nor starts server processes. It never reads or
-modifies `.env`, settings, uploaded files, collections or database contents.
-Before changing a production server, retain your normal data/configuration
-backup as well as the patcher's source backup.
+Before any source write, the installer preserves the exact original files and
+their modes in `.threadshelf-local-suite-backup-v1/` inside the target checkout.
+Keep that backup until uninstalling. The installer never reads or modifies
+`.env`, server settings, uploaded files, collections or databases, and it does
+not start or stop processes.
 
-## Install dependencies and start
-
-For a new source checkout, after the patch succeeds:
+For a **new** source installation, install the upstream dependencies and build
+the web interface after the patch succeeds:
 
 ```sh
 cd ../ThreadShelf
@@ -106,165 +131,177 @@ npm run build:client
 npm start
 ```
 
-On the verified upstream version, `npm start` uses `tsx src/server.ts`, so it
-loads the patched TypeScript directly. The client build is needed for a fresh
-checkout's web interface; changing this server-only extension does not require
-rebuilding an already built client. Upstream's default address is
-`http://localhost:3000`; the documented alternate-port syntax is
-`npm start -- 3001`.
+`npm start` runs the patched TypeScript through `tsx`. An already configured
+source deployment needs its normal restart; an existing built web interface
+does not need rebuilding for this server-only patch. Preserve the deployment's
+existing data-path and environment configuration. Do not launch a second server
+on the same port.
 
-For an existing installation, preserve the environment and data-path
-configuration and restart it through the same service manager. Do not start a
-second process on the same port. If `npm ci` is needed, it installs the existing
-upstream lockfile without adding dependencies for this patch.
+If the deployment executes compiled `dist/` files, rebuild the server with
+`npm run build:server` and deploy the generated output through the existing
+process. A fresh complete package can use `npm run build:package`. For a
+container, apply the patch in its source build context and rebuild/recreate the
+service while retaining its environment and data volumes. Patching `src/` alone
+cannot update an already compiled server or a published npm cache.
 
-For a deployment that runs `dist/`, run `npm run build` in the patched source
-checkout and deploy the rebuilt output using your existing process. Editing
-`src/` does not update an already compiled server. For containers, apply the
-patch to the image's source build context, then rebuild/recreate that service
-while preserving the service's environment, mounts, data volumes and port mapping.
+## Verify and use it
 
-## Verify the connection
-
-Open the existing server's address followed by:
+At the server's existing URL, request:
 
 ```text
 /api/reader/capabilities
 ```
 
-For example, `http://localhost:3000/api/reader/capabilities` should return a
-`readerSearch` object containing:
+For example, `http://localhost:3000/api/reader/capabilities` returns:
 
 ```json
 {
-  "version": 1,
-  "path": "/api/reader/search",
-  "maxPageSize": 50,
-  "modes": ["keyword", "semantic"],
-  "cursor": true,
-  "providerFilter": true,
-  "snapshotTtlSeconds": 900,
-  "exactTotal": true
+  "readerSearch": {
+    "version": 1,
+    "path": "/api/reader/search",
+    "maxPageSize": 50,
+    "modes": ["keyword", "semantic"],
+    "cursor": true,
+    "providerFilter": true,
+    "snapshotTtlSeconds": 900,
+    "exactTotal": true
+  }
 }
 ```
 
-In Reader or Alternative, configure the server URL and start a **new** search.
-Use Next/Load more where the selected application exposes it. More than 50
-matching indexed chunks should remain accessible. One conversation may produce
-several chunk hits; the reported hit total is not a unique-conversation count.
-Semantic search still needs the server's existing working embedding model.
+Configure Reader or Alternative with that same server URL and start a **new**
+search so the client detects the capability. Existing compatible adapters need
+no changes. Analytics does not query this extension directly.
 
-The patch keeps the server's existing Host/Origin and network-access boundary.
-It introduces no new port or authentication bypass. When the desktop and server
-are on different computers, use the server's real reachable URL and follow
-upstream's network configuration instructions. An access refusal is not solved
-by disabling those controls.
+For a headless server reached from another computer, use its existing LAN URL.
+The new routes are behind the same upstream Host/Origin guard and listener as
+the other API routes. They add no port or authentication bypass. Keep the
+existing `HOST`/`ALLOWED_HOSTS` configuration appropriate for that deployment.
+The patcher does not edit network settings.
 
-## Search behavior and limits
+## Search semantics and limits
 
-- Keyword mode applies upstream's case-insensitive substring matching and
-  occurrence/date ranking across all eligible indexed chunks.
-- Semantic mode uses the existing embedding function and LanceDB cosine
-  distance, bypassing the approximate vector index so later matches are not
-  lost behind a small candidate window. Optional keyword boost is preserved.
-- Collection, role, provider, model, date and origin filters apply before
-  pagination. Pending-index masks and searchable-document checks are retained.
-- Each network page contains at most 50 hits. The response supplies `total`,
-  `hasMore` and `nextCursor`; a client may combine pages for a larger display.
-- A search builds a stable snapshot. Continuing that cursor keeps the same
-  results even if indexed data changes. Start a new search to see new data.
-- Snapshots expire after 15 minutes. At most eight sessions and 128 MiB of
-  serialized result data are cached across them; JavaScript/native overhead is
-  additional. At most two snapshot builds run concurrently.
-- An oversized single snapshot fails with HTTP 503 and asks for narrower
-  filters. It is never silently truncated and labeled complete.
-- An expired or evicted cursor returns HTTP 410. A cursor used with different
-  filters/query returns HTTP 400. Restart the search in either case.
-- Cancelling a client request stops work between embedding, collection and
-  native result batches. An operation already running may finish first.
+| Property | Behavior |
+| --- | --- |
+| Text search | Case-insensitive literal substring search over indexed passages; `%`, `_`, backslash and quotes remain literal query characters. |
+| Meaning search | The server's existing local embedding model and native LanceDB cosine distance; the approximate vector index is bypassed for complete enumeration. |
+| Smart search | Semantic distance ranking with the existing optional keyword boost. |
+| Filters | Collection, provider, role, model, date range and origin apply before totals and pagination. |
+| Paging | Maximum 50 hits per HTTP response; `total`, `hasMore` and `nextCursor` describe the complete snapshot. |
+| Candidate limits | No fixed 50-, 200- or 12,800-result ceiling in the extension. |
+| Snapshot lifetime | Fixed 15 minutes; access does not extend expiry. Restarting the server invalidates all cursors. |
+| Cache | At most eight snapshots and 128 MiB of serialized cached result data. Native/JavaScript overhead and in-progress builds are additional. |
+| Concurrent builds | At most two new searches at once. Existing cached pages do not require re-embedding. |
+| Resource failures | HTTP 503 explicitly requests a retry or narrower filters; no partial set is labeled complete. |
+| Cursor failures | HTTP 400 for invalid/mismatched query or filters; HTTP 410 for expired, released or evicted snapshots. |
+
+Totals count **indexed passages**, not unique messages or conversations. One
+long message can produce several hits. Reader's unpatched text-search fallback
+scans live messages; after capability detection it uses indexed-passage search.
+This change in search scope and hit counts is intentional. Unindexed material
+does not become searchable merely by installing the patch.
+
+Meaning-search totals count every eligible indexed passage ranked by cosine
+distance. The extension introduces no minimum-similarity threshold.
+
+There is no patch-specific database migration, reindexing or re-embedding.
+Runtime search uses upstream's existing metadata-schema helper for older
+collections; that helper may add missing optional metadata columns as it
+normally does. Semantic queries still require a working upstream embedding
+model, which upstream downloads on first use if it is not already cached.
+
+An exhaustive first query can take longer and use more memory than a limited
+top-results query. Later pages use the cached results. Cancelling a request
+stops work between embedding, collection and native result batches; an already
+running native/model operation may finish first.
+
+## API contract
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /api/reader/capabilities` | Advertise the extension contract |
-| `GET /api/reader/search` | Start or continue a paged keyword/semantic search |
-| `DELETE /api/reader/search?cursor=...` | Release the cursor's cached snapshot |
+| `GET /api/reader/capabilities` | Advertise extension version 1. |
+| `GET /api/reader/search` | Start or continue keyword/semantic search. |
+| `DELETE /api/reader/search?cursor=...` | Release an existing snapshot. |
 
-The existing `/api/search` response and validation contract are unchanged.
-No database reindex or new storage migration is introduced by installing the
-source patch. Runtime reads reuse upstream's existing metadata-schema helper
-for older collections.
+Search parameters: `q`, `collection`, `mode`, `n`, `roles`, `provider`, `model`,
+`from`, `to`, `origin`, `keywordBoost`, and `cursor`. Existing upstream validation
+rules apply. `origin` accepts `archive` or `threadshelf`. The response is:
+
+```json
+{"results": [], "total": 0, "hasMore": false, "nextCursor": null}
+```
+
+Cursors remain 48 lowercase hexadecimal characters, a dot and a numeric offset.
+They are bound to the normalized query and filters. Page size is excluded from
+that binding, permitting resized pages and Alternative's rewind to offset zero.
+Results include stable passage identity and collection/thread metadata.
 
 ## Uninstall and recovery
 
-Stop the server, then run from the Suite root:
+Stop the server, then run from the suite repository root:
 
 ```sh
 node server-patch/manage.mjs uninstall ../ThreadShelf
 ```
 
-Original changed files are restored byte-for-byte and the added route is
-removed. Rebuild compiled/container deployments if applicable, then restart
-normally. Private configuration and indexed data remain in place.
+This restores both original files byte-for-byte, removes the added route and
+removes the verified backup. Rebuild compiled/container deployments if needed,
+then restart normally. Uninstall the extension **before upgrading upstream**.
 
-Do not delete the backup before uninstalling. The patcher verifies every saved
-original against the upstream fingerprint and every installed file against the
-known original/patched bytes. It refuses to overwrite later user edits, corrupted
-backups or unexpected extra files in the backup directory. Preserve those files
-and merge/recover manually when a refusal identifies them; there is no force flag.
+The installer refuses to overwrite later edits, corrupt backups, unexpected
+files in the backup, or unknown source bytes. It also refuses affected file or
+directory symlinks. There is no force flag. Preserve any named later edits and
+the backup before reconciling a refusal.
 
-A partially applied install or uninstall can be recovered with `uninstall`
-when all affected files are still in a recognized original/patched state and
-the backup is complete. If interruption happened while the backup itself was
-being created, no source writes had begun; inspect the backup and compare the
-affected originals before removing that incomplete backup directory manually.
+A complete backup can recover a partially applied install/uninstall when all
+affected files remain in recognized original or installed states. If a process
+stops while the backup itself is being created, no source writes have begun;
+inspect and compare the originals before manually clearing an incomplete backup.
 
-Concurrent patch operations are excluded by an empty directory named
-`.threadshelf-local-suite-patch.lock`. A process killed abruptly may leave it.
-Only after confirming no installer is running, remove that **empty** directory
-with `rmdir`, then rerun `check` and follow the reported result. Never recursively
-remove an unknown directory to clear a lock.
+An empty `.threadshelf-local-suite-patch.lock` directory excludes concurrent
+patch operations. If a killed process leaves it behind, first establish that
+no patcher is running, then remove only that empty directory with `rmdir` and
+rerun `check`. Never recursively remove an unknown directory to clear a lock.
 
-Remove the extension before upgrading ThreadShelf. A later upstream release
-requires a separately reviewed patch; changing the expected version or hashes
-to force this patch onto different code is not supported.
+## Included verification
 
-## Troubleshooting
+See `VALIDATION.md` for the exact executed results and platform limits.
 
-| Symptom | Action |
-| --- | --- |
-| Unsupported or locally modified source | Check the commit and named file. Use a clean pinned checkout or review your local changes before proceeding. |
-| Missing `src/` | Obtain the upstream source checkout; do not patch the npm cache or compiled-only package. |
-| Capability URL returns 404 | Confirm the URL/process; restart the patched source deployment or rebuild the compiled image. |
-| Desktop still shows limited server search | Verify the capability endpoint, then start a new search using the same server URL. |
-| HTTP 400 on continuation | Restart with the intended query/filters; never reuse a cursor after changing them. |
-| HTTP 410 | The snapshot expired or was evicted; start the search again. |
-| HTTP 503 | Wait for ongoing searches or narrow the collection/query/date/model filters. |
-| Semantic search fails while text works | Check the upstream server's model installation/configuration and logs locally. |
-| Modified installed source during uninstall | Preserve the later edits and backup; reconcile the named files manually. |
-
-## Tests and provenance
-
-Run installer safety tests without a server or dependencies:
+Run installer and dispatch tests without server dependencies:
 
 ```sh
-node --test server-patch/tests/installer.test.mjs
+node --test server-patch/tests/integrity.test.mjs server-patch/tests/dispatcher.test.mjs server-patch/1.4.1/tests/installer.test.mjs server-patch/1.3.0/tests/installer.test.mjs
 ```
 
-After installing upstream dependencies and this patch, run the real native
-LanceDB/HTTP test from the Suite root:
+After applying the patch and installing upstream dependencies, run the
+deterministic native LanceDB/HTTP tests:
 
 ```sh
-node server-patch/tests/run-native.mjs ../ThreadShelf
+node server-patch/1.4.1/tests/run-native.mjs ../ThreadShelf
 ```
 
-The native runner copies only source files into temporary test storage and uses
-synthetic rows. It never connects to the running server or uses that server's
-databases.
-Deterministic query vectors exercise real LanceDB semantic ranking without
-downloading a model; this does not validate a particular embedding-model setup.
-See `VALIDATION.md` for the executed checks and platform limits.
+The full-server runner exercises the actual server entry point, ingestion and
+the real embedding model. Its invocation and optional current desktop adapter
+checks are documented in `VALIDATION.md`. Both runners use copied source and
+isolated synthetic test data rather than a running production database.
 
-`threadshelf-1.3.0-reader-search.patch` is the human-reviewable unified diff.
-Use `manage.mjs` for installation so compatibility, backup and rollback checks
-are applied. `ThreadShelf-LICENSE.txt` preserves upstream's MIT terms;
-`THIRD-PARTY-NOTICES.md` explains attribution and runtime dependencies.
+The human-reviewable diff is
+`1.4.1/threadshelf-1.4.1-reader-search.patch`. Use `manage.mjs` for actual
+installation so compatibility, backup and rollback checks run.
+
+`SHA256SUMS.txt` covers all files under `server-patch/` except itself. Run
+`node --test server-patch/tests/integrity.test.mjs` from the suite root on either
+platform, or `sha256sum -c SHA256SUMS.txt` from inside `server-patch/` with GNU
+coreutils. Git preserves the exact bytes of this directory on both platforms.
+
+## Preserved 1.3.0 target
+
+`1.3.0/` retains the original installer, runtime payload, source fingerprints,
+reviewable diff and license notices byte-for-byte. Documentation paths were
+updated for the versioned layout, and installer tests account for Windows
+permissions and file-symlink privileges. Its original validation report is
+historical; the root `VALIDATION.md` records the current checks.
+
+The new dispatcher can check and uninstall an existing 1.3.0 installation using
+its original backup. The 1.4.1 target does not relax the old target's checks.
+There is no force option for applying either target to another upstream version.

@@ -4,7 +4,7 @@
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
-The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for ThreadShelf 1.3.0.
+The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for the exact supported ThreadShelf 1.3.0 and 1.4.1 sources.
 
 Version 1.4.1 aligns Alternative with the security maintenance release without changing its interface or behaviour. It retains optional Text-to-Speech, with bundled CPU voices, provider profiles, playback controls and audio-cache management. It retains bundled MathJax 4.1.3 with compatibility settings that preserve the established equation appearance. Exported ChatGPT/Codex file references display as readable file cards with consistent document icons; original message copy and export remain unchanged.
 
@@ -20,7 +20,7 @@ The Windows executable is unsigned. Native packages contain the application runt
 
 ## First use
 
-1. Start your ThreadShelf 1.3.0 server and ensure it already contains indexed conversations.
+1. Start your supported ThreadShelf server and ensure it already contains indexed conversations.
 2. Open Alternative and choose **Connect your server**.
 3. Enter the final HTTP(S) address, for example `http://localhost:3000`. Retain any required path prefix.
 4. Choose a collection, or browse **All collections**. An empty query browses conversations; Filters provides collection and sorting controls.

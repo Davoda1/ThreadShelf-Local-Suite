@@ -2,7 +2,7 @@
 
 ## User manual · public release 1.4.0
 
-ThreadShelf Local Suite provides three separate desktop applications: **Local Reader**, **Local Analytics** and **Local Alternative**, plus a search-integration patch for **ThreadShelf 1.3.0**. This manual covers the public 1.4.0 GUI builds. English control labels are used; changing an interface language does not translate archived conversations.
+ThreadShelf Local Suite provides three separate desktop applications: **Local Reader**, **Local Analytics** and **Local Alternative**, plus a search-integration patch for **ThreadShelf 1.3.0 and 1.4.1**. This manual covers the public 1.4.0 GUI builds. English control labels are used; changing an interface language does not translate archived conversations.
 
 The suite is an independent project maintained by **davoda1**. The original [ThreadShelf server](https://github.com/ChrystianSchutz/ThreadShelf) is a separate upstream project. Obtain the server source there, then follow this manual if you need the suite’s search integration. The suite is not a fork of that repository and does not distribute a configured server installation.
 

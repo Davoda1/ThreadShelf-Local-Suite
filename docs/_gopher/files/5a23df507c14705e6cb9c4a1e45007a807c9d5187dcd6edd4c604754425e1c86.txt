@@ -34,7 +34,7 @@ This scan does not copy the records into Local storage and needs no Reader model
 
 When a server exposes only the first 50 ranked passages and no continuation cursor, the client cannot request further ranked results through that endpoint. Reader does not invent an offset parameter that merely repeats those same results. It shows a **Server search setup** explanation when continuation support is needed.
 
-The suite’s separate `server-patch/` package adds the cursor-pagination integration to the verified ThreadShelf 1.3.0 source baseline. With that extension active, Reader detects it and follows the server's result cursors for text and meaning search. Individual requests remain at most 50 passages, but the overall ranked result set can continue beyond the first 50.
+The suite’s separate `server-patch/` package adds the cursor-pagination integration to the verified ThreadShelf 1.3.0 and 1.4.1 source baselines. With that extension active, Reader detects it and follows the server's result cursors for text and meaning search. Individual requests remain at most 50 passages, but the overall ranked result set can continue beyond the first 50.
 
 Open **Settings → Sources & files → Server search setup → Open setup files** for the public setup reference. Follow the [server integration manual](../Server/index.md) and obtain the separate `server-patch/` directory from the suite repository. The patcher checks the supported source and creates backups. Apply it on the server host, then rebuild/restart as directed. Reader does not patch a remote server automatically.
 

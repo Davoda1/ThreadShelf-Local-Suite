@@ -331,7 +331,7 @@
     },
     "Server/01-Prerequisites.md": {
       "title": "Server integration: prerequisites",
-      "description": "Obtain the verified upstream ThreadShelf 1.3.0 source, prepare a backup, check the runtime requirements and preserve the server environment and network configuration.",
+      "description": "Obtain the verified upstream ThreadShelf 1.3.0 and 1.4.1 source, prepare a backup, check the runtime requirements and preserve the server environment and network configuration.",
       "tags": [
         "Server"
       ]
@@ -359,14 +359,14 @@
     },
     "Server/index.md": {
       "title": "ThreadShelf server search integration",
-      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 server. Learn how to prepare, apply, verify and roll back the search integration.",
+      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 and 1.4.1 server. Learn how to prepare, apply, verify and roll back the search integration.",
       "tags": [
         "Server"
       ]
     },
     "Server": {
       "title": "ThreadShelf server search integration",
-      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 server. Learn how to prepare, apply, verify and roll back the search integration.",
+      "description": "The suite provides a patcher and integration files for an independently obtained ThreadShelf 1.3.0 and 1.4.1 server. Learn how to prepare, apply, verify and roll back the search integration.",
       "tags": [
         "Server"
       ]
@@ -401,7 +401,7 @@
     },
     "index.md": {
       "title": "ThreadShelf Local Suite",
-      "description": "ThreadShelf Local Suite 1.4.0 manual: Reader, Analytics and Alternative, optional Text-to-Speech, data management and ThreadShelf 1.3.0 server search integration.",
+      "description": "ThreadShelf Local Suite 1.4.0 manual: Reader, Analytics and Alternative, optional Text-to-Speech, data management and ThreadShelf 1.3.0 and 1.4.1 server search integration.",
       "tags": [
         "Suite"
       ]

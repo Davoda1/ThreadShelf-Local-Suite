@@ -55,8 +55,8 @@ jobs:
           python3 apps/reader/tests/stream-release-archive.test.py
           python3 apps/alternative/test/tts-packaging.test.py
           python3 apps/analytics/test/package-validation.test.py
-      - name: Server patch installer safety
-        run: node --test server-patch/tests/installer.test.mjs
+      - name: Server patch integrity, dispatch and installer safety
+        run: node --test server-patch/tests/integrity.test.mjs server-patch/tests/dispatcher.test.mjs server-patch/1.3.0/tests/installer.test.mjs server-patch/1.4.1/tests/installer.test.mjs
       - name: Alternative tests
         run: node apps/alternative/scripts/test.cjs
       - name: Reader tests and build
@@ -118,6 +118,8 @@ jobs:
           node-version: 24.22.1
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
+      - name: Server patch integrity, dispatch and installer safety
+        run: node --test server-patch/tests/integrity.test.mjs server-patch/tests/dispatcher.test.mjs server-patch/1.3.0/tests/installer.test.mjs server-patch/1.4.1/tests/installer.test.mjs
       - name: Alternative source tests
         run: node apps/alternative/scripts/test.cjs
       - name: Managed npm integrity and security regressions
@@ -163,7 +165,17 @@ jobs:
         run: node tools/check-feature-regressions.mjs integration
 
   server-integration:
+    name: Server patch ${{ matrix.version }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: '1.3.0'
+            commit: 3430dd04f50218fdea916b104709d24a651017fc
+          - version: '1.4.1'
+            commit: d8e59473e465180fcdd7d690cfb61b35c00a6efe
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -177,7 +189,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ChrystianSchutz/ThreadShelf
-          ref: 3430dd04f50218fdea916b104709d24a651017fc
+          ref: ${{ matrix.commit }}
           path: .verification/upstream
           persist-credentials: false
       - name: Install upstream locked dependencies
@@ -185,9 +197,23 @@ jobs:
         env:
           ONNXRUNTIME_NODE_INSTALL: skip
         run: node "${{ github.workspace }}/tools/npm.mjs" -- ci --ignore-scripts
-      - name: Apply, query and roll back the patch with synthetic data
+      - name: Check and install the matching patch
+        id: install
         run: |
+          node server-patch/manage.mjs check .verification/upstream
+          node server-patch/manage.mjs install .verification/upstream --dry-run
+          git -C .verification/upstream apply --check "${{ github.workspace }}/server-patch/${{ matrix.version }}/threadshelf-${{ matrix.version }}-reader-search.patch"
           node server-patch/manage.mjs install .verification/upstream
-          node server-patch/tests/run-native.mjs .verification/upstream
+      - name: Query the actual patched server with synthetic data
+        run: node server-patch/${{ matrix.version }}/tests/run-native.mjs .verification/upstream
+      - name: Type-check the patched upstream source
+        working-directory: .verification/upstream
+        run: node node_modules/typescript/bin/tsc --noEmit
+      - name: Roll back and verify the original source
+        if: always() && steps.install.outcome == 'success'
+        run: |
           node server-patch/manage.mjs uninstall .verification/upstream
           node server-patch/manage.mjs check .verification/upstream
+          git -C .verification/upstream diff --exit-code
+          test ! -e .verification/upstream/src/routes/reader-search.ts
+          test ! -e .verification/upstream/.threadshelf-local-suite-backup-v1

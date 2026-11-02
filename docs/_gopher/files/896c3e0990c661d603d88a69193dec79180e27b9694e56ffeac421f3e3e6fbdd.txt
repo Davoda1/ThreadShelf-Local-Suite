@@ -2,21 +2,25 @@
 
 ## Supported upstream source
 
-Use the original [ThreadShelf v1.3.0 source](https://github.com/ChrystianSchutz/ThreadShelf/tree/v1.3.0). The supported commit is:
+Use one of the exact source baselines from the original ThreadShelf project:
 
-```text
-3430dd04f50218fdea916b104709d24a651017fc
-```
+| Version | Upstream source | Supported commit |
+| --- | --- | --- |
+| **1.4.1** | [v1.4.1](https://github.com/ChrystianSchutz/ThreadShelf/tree/v1.4.1) | `d8e59473e465180fcdd7d690cfb61b35c00a6efe` |
+| **1.3.0** | [v1.3.0](https://github.com/ChrystianSchutz/ThreadShelf/tree/v1.3.0) | `3430dd04f50218fdea916b104709d24a651017fc` |
 
-For a new source checkout:
+For a new 1.4.1 source checkout:
 
 ```sh
-git clone --config core.autocrlf=false https://github.com/ChrystianSchutz/ThreadShelf.git ThreadShelf
-git -C ThreadShelf checkout --detach 3430dd04f50218fdea916b104709d24a651017fc
+git clone --config core.autocrlf=false --branch v1.4.1 --depth 1 https://github.com/ChrystianSchutz/ThreadShelf.git ThreadShelf
 git -C ThreadShelf rev-parse HEAD
 ```
 
-Compare the printed commit with the value above. Alternatively download the matching upstream source archive and extract it. The suite patcher validates the expected files whether the source came from Git or an archive.
+For an intentionally retained 1.3.0 deployment, select `--branch v1.3.0` instead.
+Compare the printed commit with the matching table entry. Alternatively extract
+the matching upstream source archive. The patcher validates the expected files
+whether the source came from Git or an archive. Do not install a different
+server version over an existing installation's configuration or data.
 
 The clone option preserves upstream LF line endings on Windows. Exact fingerprints reject a CRLF-converted checkout even when it looks identical in an editor. Do not edit fingerprints to force a mismatch through.
 
@@ -41,9 +45,9 @@ The patcher’s own backup protects files it changes. It is not a complete backu
 
 ## Environment and network configuration
 
-These settings belong to the **upstream server**, not to a GUI preference or the patcher. The exact supported release documents them in the [upstream configuration reference](https://github.com/ChrystianSchutz/ThreadShelf/blob/3430dd04f50218fdea916b104709d24a651017fc/README.md#configuration-optional-env-vars). Keep real secrets and private paths outside the suite repository. Preserve an existing server’s configuration when applying the patch.
+These settings belong to the **upstream server**, not to a GUI preference or the patcher. The [1.4.1 configuration reference](https://github.com/ChrystianSchutz/ThreadShelf/blob/d8e59473e465180fcdd7d690cfb61b35c00a6efe/README.md#configuration-optional-env-vars) and [1.3.0 configuration reference](https://github.com/ChrystianSchutz/ThreadShelf/blob/3430dd04f50218fdea916b104709d24a651017fc/README.md#configuration-optional-env-vars) document their supported releases. Keep real secrets and private paths outside the suite repository. Preserve an existing server’s configuration when applying the patch.
 
-| Setting | Default in ThreadShelf 1.3.0 | When to configure it |
+| Setting | Default in the supported sources | When to configure it |
 | --- | --- | --- |
 | `PORT` | `3000` | Select a different listening port; a positional port passed to `npm start -- 3001` takes precedence |
 | `HOST` | `127.0.0.1` | Keep loopback for the same computer; for deliberate trusted-LAN use, select the server’s required listening interface |
@@ -56,6 +60,6 @@ A source checkout normally uses `.lancedb`, `.uploads` and `.collections.json` u
 
 For same-computer use, the normal `http://localhost:3000` connection needs no LAN changes. A localhost URL always reaches the computer running the GUI. For another computer, configure the server’s listening interface and firewall deliberately, permit the exact hostname/IP used in the desktop’s server URL, then enter that reachable URL in Reader or Alternative. Loopback names and the configured non-wildcard `HOST` are already allowed; `ALLOWED_HOSTS` adds further names. An Origin header identifies the web page initiating a browser request and can differ from the API server’s hostname; when present, the Origin host must also be allowed. Enter hostnames/IPs without a URL scheme or path. This is neither a client-account list nor a client-IP access list. Native requests without Origin are checked by Host. Binding broadly does not automatically permit every Host/Origin name.
 
-The upstream [`.env.example`](https://github.com/ChrystianSchutz/ThreadShelf/blob/3430dd04f50218fdea916b104709d24a651017fc/.env.example) shows optional OpenRouter, gated-model and GitHub-download token settings. None is required merely to install this search patch or read an already working archive. Do not replace an existing `.env` with that sample or put real tokens into the suite. Semantic search still needs the server’s own working embedding-model setup; a local model API key for `/v1` is not a new authentication option in Reader or Alternative.
+The upstream [1.4.1 `.env.example`](https://github.com/ChrystianSchutz/ThreadShelf/blob/d8e59473e465180fcdd7d690cfb61b35c00a6efe/.env.example) (or the file from your matching 1.3.0 checkout) shows optional OpenRouter, gated-model and GitHub-download token settings. None is required merely to install this search patch or read an already working archive. Do not replace an existing `.env` with that sample or put real tokens into the suite. Semantic search still needs the server’s own working embedding-model setup; a local model API key for `/v1` is not a new authentication option in Reader or Alternative.
 
 Continue with [applying the patch](02-Apply.md).

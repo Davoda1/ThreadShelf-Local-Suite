@@ -2,7 +2,20 @@
 
 The three desktop applications and the upstream ThreadShelf server are separate projects. The suite distributes a **patcher and related integration files**, not a configured server installation. Obtain ThreadShelf from the [original ThreadShelf repository](https://github.com/ChrystianSchutz/ThreadShelf).
 
-The patch targets the verified **v1.3.0** source at commit `3430dd04f50218fdea916b104709d24a651017fc`. It supplies the search-pagination capability used by Reader and Alternative. Version strings are not enough to establish compatibility: the patcher also checks the supported source files.
+The patch supports two exact upstream source versions:
+
+| Upstream | Supported commit | Version directory |
+| --- | --- | --- |
+| **1.4.1** | `d8e59473e465180fcdd7d690cfb61b35c00a6efe` | `server-patch/1.4.1/` |
+| **1.3.0** | `3430dd04f50218fdea916b104709d24a651017fc` | `server-patch/1.3.0/` |
+
+Both supply the search-pagination capability used by Reader and Alternative.
+The shared `server-patch/manage.mjs` command selects the version and checks its
+source fingerprints. Version text alone never establishes compatibility.
+Obtain the current `server-patch/` directory from the suite's `master` branch;
+previously published desktop release archives remain unchanged.
+
+ThreadShelf Enhanced already includes the extension and is not a patch target.
 
 ## Follow these steps
 
