@@ -24,6 +24,14 @@ This patch addresses dependency vulnerabilities and updates release metadata. Re
 - Managed npm integrity/security: 19 tests pass. Server patch installer safety: 16 tests pass.
 - Independent diff review finds only security implementation/dependency changes, their regressions/notices, and release-version/documentation changes. No personal data, credential patterns, private filesystem paths or conversation references were found in the changed/new files. This is a bounded review, not an assertion that automated scanning proves every possible secret absent.
 
+## Windows CPU cleanup follow-up
+
+Native Windows package validation exposed a cancellation race: the Python worker could close before the process-tree termination command finished, leaving a native Pocket TTS descendant holding its temporary working directory. Both applications now wait for the termination command to close before removing the speech session. The command has a ten-second timeout; session removal uses bounded retries for transient filesystem locks and reports persistent cleanup failures.
+
+Four new shared speech regressions cover the parent-closes-first ordering, taskkill launch failure, nonzero termination status and persistent cleanup errors. The two primary regressions fail the previous implementation and pass the corrected code. The shared speech service suite passes all 113 tests. The complete Reader source run passes 754 tests with four expected optional skips (758 total), and Alternative passes all 188 tests. The Reader and Alternative runtime copies remain identical.
+
+Real Linux CPU validation passes nine buffered voice cases, four streaming voice cases, cancellation after initial audio for both engines, buffered fallback, exact streamed/final audio equality, and temporary-file cleanup. The long-path relocation case also passes. Native Windows confirmation remains a required release-workflow gate; Linux execution and simulated Windows event ordering do not substitute for that result.
+
 ## Native release gates and limits
 
 A v1.4.1 tag push builds Reader, Analytics and Alternative on native Windows and Linux runners. The existing publication gates require all six package jobs, archive/runtime validation, native GUI checks, packaged CPU speech evidence for Reader and Alternative, rendering checks, and exact tagged-commit publication ledgers. Missing or failed evidence prevents publication. Uploads are verified against the complete asset names, sizes and SHA-256 digests before the draft becomes public.

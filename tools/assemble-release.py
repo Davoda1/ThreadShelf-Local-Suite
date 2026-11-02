@@ -148,6 +148,7 @@ def release_notes(version, repository):
 - Update the Reader and Analytics build dependencies to patched **minimatch 11.0.2**, addressing **CVE-2026-118764 / GHSA-g3hv-75wg-m249**.
 - Replace vulnerable **deepmerge** in Reader's holiday tooling and bundled holiday engine with a prototype-safe merge adapter, addressing **CVE-2026-93753 / GHSA-gcqx-w48m-w2h4**.
 - Update the same build dependency chain to **glob 14.0.3**, addressing cancellation bypass **CVE-2026-118773 / GHSA-3g3m-2fjr-6pw4**.
+- Fix Windows CPU speech cancellation cleanup so temporary session files are removed after the speech process tree exits.
 - This is a security maintenance release. Existing interfaces, speech playback, settings, archive formats and Electron/Node/npm/ONNX runtime pins are unchanged.
 - The included offline manual and screenshots retain their 1.4.0 content, which also applies to this patch release.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.

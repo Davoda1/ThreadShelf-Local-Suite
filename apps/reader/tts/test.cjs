@@ -535,7 +535,7 @@ test('recording selection bounds retries when pin state repeatedly changes durin
  assert.equal(await new RecordingResolver().select({settings,identity,cache,sessionCache:new SessionAudioCache()}),null);assert.equal(probes,4);
 });
 
-async function cpuWorkerFixture(t, {alias = false, wrongResult = false} = {}) {
+async function cpuWorkerFixture(t, {alias = false, wrongResult = false, cleanupError = false} = {}) {
  const {PassThrough,Writable}=require('node:stream'),vm=require('node:vm');
  const root=await directory(t),assetsDir=path.join(root,'assets'),physicalWork=path.join(root,'physical-session');
  await fs.mkdir(physicalWork,{recursive:true});
@@ -558,7 +558,7 @@ async function cpuWorkerFixture(t, {alias = false, wrongResult = false} = {}) {
   return child;
  };
  const module={exports:{}};
- vm.runInNewContext(await fs.readFile(path.join(__dirname,'cpu.cjs'),'utf8'),{module,exports:module.exports,require:name=>name==='node:child_process'?{spawn}:require(name),__dirname,Buffer,process,setTimeout,clearTimeout},{filename:'cpu.cjs'});
+ vm.runInNewContext(await fs.readFile(path.join(__dirname,'cpu.cjs'),'utf8'),{module,exports:module.exports,require:name=>name==='node:child_process'?{spawn}:name==='node:fs/promises'&&cleanupError?{...fs,rm:async()=>{throw Object.assign(new Error('Session remains locked'),{code:'EBUSY'});}}:require(name),__dirname,Buffer,process,setTimeout,clearTimeout},{filename:'cpu.cjs'});
  return {synthesize:()=>module.exports.synthesizeCPU({provider:'pocket',voice:'alba',text:'Offline speech test.',assetsDir,workDir}),workDir,audio,paths:()=>({requestedOutput,canonicalOutput})};
 }
 
@@ -573,4 +573,55 @@ test('CPU worker completion still rejects an unrelated output path and cleans it
  const fixture=await cpuWorkerFixture(t,{wrongResult:true});
  await assert.rejects(fixture.synthesize(),/did not complete its audio output/);
  assert.deepEqual(await fs.readdir(fixture.workDir),[]);
+});
+
+
+test('CPU cleanup failures remain visible instead of reporting successful synthesis',async t=>{
+ const fixture=await cpuWorkerFixture(t,{cleanupError:true});
+ await assert.rejects(fixture.synthesize(),{code:'EBUSY'});
+ assert.equal((await fs.readdir(fixture.workDir)).length,1);
+});
+
+for(const terminationCase of ['delayed tree exit','helper launch error','helper nonzero exit'])test(`Windows CPU cancellation waits for native descendants: ${terminationCase}`,async t=>{
+ const {PassThrough,Writable}=require('node:stream'),vm=require('node:vm');
+ const root=await directory(t),assetsDir=path.join(root,'assets'),workDir=path.join(root,'session');
+ for(const relative of ['runtime/python/python.exe','models/pocket/model.safetensors','models/pocket/tokenizer.json','models/pocket/english_2026-10.upstream.yaml','models/pocket/voices/alba.safetensors','engines/pocket/pocket-tts.exe']){
+  const file=path.join(assetsDir,relative);await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,'test asset');
+ }
+ let worker,killer,ready,finished=false,treeStopped=false,workerExited=false,cleanupCalls=0,kills=0;
+ const started=new Promise(resolve=>ready=resolve);
+ const spawn=(executable,args)=>{
+  if(path.basename(executable)==='taskkill.exe'){
+   kills++;assert.deepEqual(Array.from(args),['/PID','1234','/T','/F']);
+   killer=new EventEmitter();return killer;
+  }
+  worker=new EventEmitter();worker.pid=1234;worker.stdout=new PassThrough();worker.stderr=new PassThrough();
+  worker.kill=()=>{if(workerExited)return false;workerExited=true;worker.emit('close',1);return true;};
+  worker.stdin=new Writable({write(chunk,encoding,callback){callback();},final(callback){callback();ready();}});
+  return worker;
+ };
+ const filesystem={...fs,rm:async(...args)=>{
+  cleanupCalls++;
+  if(!treeStopped)throw Object.assign(new Error('Native descendant still owns the directory'),{code:'EBUSY'});
+  return fs.rm(...args);
+ }};
+ const module={exports:{}};
+ vm.runInNewContext(await fs.readFile(path.join(__dirname,'cpu.cjs'),'utf8'),{module,exports:module.exports,require:name=>name==='node:child_process'?{spawn}:name==='node:fs/promises'?filesystem:require(name),__dirname,Buffer,process:{...process,platform:'win32'},setTimeout,clearTimeout},{filename:'cpu.cjs'});
+ const controller=new AbortController();
+ const pending=module.exports.synthesizeCPU({provider:'pocket',voice:'alba',text:'Cancellation fixture.',assetsDir,workDir,signal:controller.signal});
+ pending.then(()=>{finished=true;},()=>{finished=true;});
+ await started;controller.abort();
+ if(terminationCase==='helper launch error')killer.emit('error',new Error('Cannot launch taskkill'));
+ else if(terminationCase==='delayed tree exit'){worker.emit('error',new Error('Worker signal error'));workerExited=true;worker.emit('close',1);}
+ await new Promise(resolve=>setImmediate(resolve));
+ try{
+  assert.equal(finished,false,'Python exit cannot finish cancellation while its descendants remain');
+  assert.equal(cleanupCalls,0,'No session removal while tree termination is pending');
+  assert.equal(kills,1);
+ }finally{
+  treeStopped=true;killer.emit('close',terminationCase==='delayed tree exit'?0:1);
+ }
+ await assert.rejects(pending,{name:'AbortError'});
+ assert.equal(cleanupCalls,1);
+ assert.deepEqual(await fs.readdir(workDir),[]);
 });

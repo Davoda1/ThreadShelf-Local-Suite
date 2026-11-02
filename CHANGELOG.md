@@ -2,6 +2,7 @@
 
 ## 1.4.1 — 2026-11-02
 
+- Fix Windows CPU speech cleanup by waiting for process-tree termination before removing session files, with bounded retries for released file handles. Keep cleanup failures visible to validation.
 - Address the minimatch glob-pattern amplification and glob cancellation vulnerabilities in Reader and Analytics build dependencies (GHSA-g3hv-75wg-m249 and GHSA-3g3m-2fjr-6pw4).
 - Replace the vulnerable deepmerge implementation in Reader's holiday tooling and bundled holiday engine with a prototype-safe merge adapter (GHSA-gcqx-w48m-w2h4). Retain the existing holiday rules and dates.
 - Add regression coverage for hostile patterns, cancelled filesystem traversal, Electron archive packaging and malicious merge keys.

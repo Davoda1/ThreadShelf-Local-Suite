@@ -46,7 +46,7 @@ function workerEnvironment(assetsDir, workDir, threads) {
 function runWorker(executable, script, request, options) {
   return new Promise((resolve,reject) => {
     if (options.signal?.aborted) { reject(aborted()); return; }
-    let child, settled = false, failure = null, logBytes = 0, stdout = '', pending = '', audioBytes = 0, nextAudioIndex = 0, escalation;
+    let child, settled = false, childClosed = false, stopping = false, termination = null, failure = null, logBytes = 0, stdout = '', pending = '', audioBytes = 0, nextAudioIndex = 0, escalation;
     const finish = (error) => {
       if (settled) return;
       settled = true;
@@ -56,11 +56,19 @@ function runWorker(executable, script, request, options) {
     };
     const stop = (error) => {
       failure ||= error;
-      if (!child?.pid || settled) return;
+      if (!child?.pid || settled || childClosed || stopping) return;
+      stopping = true;
       if (process.platform === 'win32') {
         const systemRoot = process.env.SystemRoot || process.env.SYSTEMROOT || 'C:\\Windows';
-        const killer = spawn(path.join(systemRoot,'System32','taskkill.exe'),['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});
-        killer.on('error',() => { try { child.kill(); } catch {} });
+        // Python can close before taskkill finishes its native descendants.
+        // Keep the session alive until the complete tree termination returns.
+        termination = new Promise(resolve => {
+          let killer;
+          try { killer = spawn(path.join(systemRoot,'System32','taskkill.exe'),['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore',timeout:10_000}); }
+          catch { try { child.kill(); } catch {} resolve(); return; }
+          killer.once('error',() => { try { child.kill(); } catch {} });
+          killer.once('close',code => { if (code !== 0) { try { child.kill(); } catch {} } resolve(); });
+        });
       } else {
         try { process.kill(-child.pid,'SIGTERM'); } catch { try { child.kill('SIGTERM'); } catch {} }
         escalation ||= setTimeout(() => { try { process.kill(-child.pid,'SIGKILL'); } catch { try { child.kill('SIGKILL'); } catch {} } },1000);
@@ -75,7 +83,7 @@ function runWorker(executable, script, request, options) {
     } catch (error) { finish(error); return; }
     options.signal?.addEventListener('abort',onAbort,{once:true});
     if (options.signal?.aborted) onAbort();
-    child.on('error',() => finish(failure || new Error('The bundled speech runtime could not start. Re-extract the complete application package.')));
+    child.on('error',() => {failure ||= new Error('The bundled speech runtime could not start. Re-extract the complete application package.');if(!child.pid)finish(failure);else stop(failure);});
     const line = value => {
       if (failure || !value.trim()) return;
       let event; try { event = JSON.parse(value); } catch { /* Bounded diagnostic output is allowed. */ }
@@ -103,7 +111,7 @@ function runWorker(executable, script, request, options) {
       } catch(error) { stop(error); }
     });
     child.stderr.on('data',data => { logBytes += data.length; if(logBytes > MAX_LOG_BYTES) stop(new Error('The speech runtime returned too much diagnostic output.')); });
-    child.on('close',code => {try{if(pending&&!failure)line(pending);}catch(error){failure=error;}finish(failure || (code === 0 ? null : new Error('The bundled speech engine could not generate audio. Check the selected voice and try a shorter passage.')));});
+    child.on('close',async code => {childClosed=true;try{if(pending&&!failure)line(pending);}catch(error){failure=error;}await termination;finish(failure || (code === 0 ? null : new Error('The bundled speech engine could not generate audio. Check the selected voice and try a shorter passage.')));});
     child.stdin.on('error',() => {}); // A cancelled process may close stdin early.
     child.stdin.end(JSON.stringify(request));
   });
@@ -138,7 +146,7 @@ async function synthesizeCPU({provider,voice,text,assetsDir,workDir,signal,strea
     const audio = await fs.readFile(output);
     if (audio.toString('ascii',0,4) !== 'RIFF' || audio.toString('ascii',8,12) !== 'WAVE') throw new Error('The speech engine returned invalid WAV audio.');
     return audio;
-  } finally { await fs.rm(temporary,{recursive:true,force:true}).catch(() => {}); }
+  } finally { await fs.rm(temporary,{recursive:true,force:true,maxRetries:10,retryDelay:100}); }
 }
 
 module.exports = {synthesizeCPU,POCKET_VOICES,KOKORO_VOICES,ENGINE_REVISIONS,workerEnvironment};
