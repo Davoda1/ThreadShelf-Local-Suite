@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds **1.4.1 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. The server patch is unchanged; the existing 1.4.0 manual and screenshots remain applicable. No GitHub release is implied by building this tree.
+The current tree builds **1.4.2 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Reader and Alternative add SVG code previews; Analytics functionality and all dependency/runtime pins are unchanged. The server patch and illustrated 1.4.0 manual/screenshots retain their existing content and provenance; the application READMEs describe the new SVG controls. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -98,7 +98,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [1.4.1 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.1) supplies the exact tagged application source. The unchanged Electron and ONNX source companions remain in [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0): six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
+The [1.4.2 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.2) supplies the exact tagged application source. The unchanged Electron and ONNX source companions remain in [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0): six Runtime-Sources ZIP parts, two ONNX-Sources ZIP parts and a metadata ZIP for each collection. The original v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips inputs. Its old Electron material does not cover the new runtime.
 
 Verify all downloaded assets against their original release's `SHA256SUM.txt`. Keep numbered source ZIPs together and extract only the metadata ZIPs into a separate directory. Both use the `source-publication/` namespace. The ordinary application packagers use official pinned Electron/ONNX binaries; rebuilding those dependencies is separate.
 

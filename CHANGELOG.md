@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.2 — 2026-11-03
+
+- Add an SVG / Code toggle to eligible conversation code blocks in Reader and Alternative. Blocks start in Code view; Copy retains its original source in both views.
+- Accept one complete, valid SVG document in an untagged, `svg` or `xml` block, with whitespace and XML comments permitted around the root. Support raw SVG, strict Base64 and `data:image/svg+xml;base64,` input. Keep HTML containing SVG, extra content, malformed input and other language tags as code.
+- Render previews as isolated images with scripts, interactivity and external resources disabled. Preserve existing code, math, Mermaid, image and speech behavior.
+- Add focused eligibility, copy, rendering and isolation regression coverage.
+- Include the optional search patch for upstream ThreadShelf 1.4.1, with version-aware installation, exact hit totals and cursor-paged search; retain the existing upstream 1.3.0 target.
+- Include raw SVG and Base64 code-block examples in both standalone HTML demos.
+- Align Reader, Analytics and Alternative at 1.4.2. Analytics functionality, dependency versions, runtime/toolchain pins, profiles and archive formats remain unchanged. Retain the illustrated 1.4.0 manual and screenshot provenance; document the new controls in the application READMEs.
+
 ## 1.4.1 — 2026-11-02
 
 - Fix Windows CPU speech cleanup by waiting for process-tree termination before removing session files, with bounded retries for released file handles. Keep cleanup failures visible to validation.

@@ -1,12 +1,12 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.4.1 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.4.2 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
 Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The original [ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf) provides the optional server. See the suite's illustrated Gopher manual for the full user guide.
 
-Version 1.4.1 fixes dependency security issues while preserving the existing interface and data formats. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
+Version 1.4.2 adds an SVG / Code toggle for eligible chat code blocks while preserving existing data formats, dependencies and runtime versions. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
 
 **Prefer API recordings** is on by default. For the same conversation and unchanged full message, playback chooses a valid pinned recording first, then available API audio, then an exact match for the spoken text and selected generation settings. Disabling this option keeps pinned recordings first and otherwise uses only exact matches. API audio includes self-hosted speech endpoints, ElevenLabs, OpenAI and OpenRouter; this preference never makes a new provider request by itself. A reused recording preserves its original voice and code/citation selection, even if those settings have changed. To hear a different reading, unpin the recording and turn this preference off. New recordings use the unchanged full message for cross-settings reuse; an exact spoken-text and generation-settings match remains reusable after excluded-content edits. Older recordings are reused only when their stored spoken-text or synthesis identity proves a match. Pinned files are never overwritten; a replacement for a missing or corrupt pinned recording can be saved separately when caching and space permit. Persistent files are considered only while the disk cache is enabled; eligible session recordings can be reused with disk caching off.
 
@@ -14,9 +14,9 @@ The reader uses bundled MathJax 4.1.3 with compatibility settings that preserve 
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.1-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.1-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.1_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.1_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.2-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.2-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.2_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.2_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js, npm, Python or a GPU for the bundled voices. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -41,6 +41,8 @@ The standalone Local Analytics application can capture supported Reader archive 
 ## Reading and appearance
 
 The Reader supports code copying, an in-conversation find control, message outlines, collapsed prompts and exported reasoning, tables, mathematical formulas and Mermaid diagrams. A deterministic repair may be offered for imperfect Mermaid syntax; the original archived text is preserved. Unsupported rich content stays readable where possible, with theme-aware image placeholders when needed.
+
+Code blocks with no language tag or an `svg` or `xml` tag gain an **SVG / Code** toggle when they contain one complete, valid SVG document. Whitespace and XML comments outside the root are allowed. Raw SVG, strict Base64 and `data:image/svg+xml;base64,` input are supported; HTML containing embedded SVG, extra content, malformed input and other language tags stay as code. Blocks start in Code view. Copy returns the same original source in either view, including Base64 when supplied. The preview is an inert image: scripts and external resources are disabled.
 
 Online images can load **automatically** (the default) or **on click** through Settings → Appearance. Images load inside the conversation, keep their aspect ratio, and stay within the reading pane. Failed loads use a theme-aware placeholder. Structurally empty ChatGPT status records are hidden from the view; substantive text, source indexes and stored records remain intact.
 

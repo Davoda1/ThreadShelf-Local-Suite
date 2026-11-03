@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2 — 2026-11-03
+
+- Add an SVG / Code toggle for untagged, `svg` and `xml` chat code blocks containing one complete, valid SVG document, including raw SVG and supported Base64 forms.
+- Permit whitespace and XML comments around the root; keep HTML containing SVG, extra content and malformed input in code view.
+- Start in Code view and preserve the existing Copy source in either view. Load previews only as inert images, with no scripts or external resources.
+- Preserve existing rendering, speech, profiles, archive formats, dependency versions and runtime/toolchain pins.
+
 ## 1.4.1 — 2026-11-02
 
 - Fix the minimatch and glob build dependency vulnerabilities and replace vulnerable deepmerge in the offline holiday engine.

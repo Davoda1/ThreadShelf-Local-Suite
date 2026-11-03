@@ -123,12 +123,15 @@
     renderer.code = token => {
       const rawFence = String(token.lang || '');
       const source = String(token.text || '');
+      // Preserve fence eligibility before the highlighter infers/normalizes a
+      // language. Explicit text/html fences must never gain an SVG preview.
+      const svgFence = /^(?:svg|xml)?$/i.test(rawFence.trim());
       const parsed = window.TSAHighlight?.render(source, rawFence);
       const language = parsed?.language || codeLanguage(rawFence).toLowerCase();
       const label = parsed?.label || language;
       const reason = parsed?.reason || 'plain';
       const html = parsed?.html ?? escape(source);
-      return `<div class="tsa-code-block" data-code-language="${escape(language)}" data-highlight="${escape(reason)}"><div class="tsa-code-toolbar"><span${rawFence ? ` title="Original fence: ${escape(rawFence)}"` : ''}>${escape(label)}</span><button type="button" data-copy-code aria-label="Copy ${escape(label)} code">Copy code</button></div><pre><code class="hljs language-${escape(language)}">${html}</code></pre></div>\n`;
+      return `<div class="tsa-code-block" data-code-language="${escape(language)}" data-highlight="${escape(reason)}"${svgFence ? ` data-svg-fence="${escape(rawFence.trim())}"` : ''}><div class="tsa-code-toolbar"><span${rawFence ? ` title="Original fence: ${escape(rawFence)}"` : ''}>${escape(label)}</span><button type="button" data-copy-code aria-label="Copy ${escape(label)} code">Copy code</button></div><pre><code class="hljs language-${escape(language)}">${html}</code></pre></div>\n`;
     };
     renderer.link = function (token) {
       const label = this.parser.parseInline(token.tokens || []);
@@ -145,7 +148,7 @@
   function sanitize(html) {
     const template = document.createElement('template'); template.innerHTML = html;
     const allowed = new Set(['P','BR','HR','H1','H2','H3','H4','H5','H6','BLOCKQUOTE','UL','OL','LI','STRONG','B','EM','I','DEL','S','CODE','PRE','A','TABLE','THEAD','TBODY','TFOOT','TR','TH','TD','SPAN','DIV','SUP','SUB','KBD','BUTTON','INPUT']);
-    const attributes = new Set(['class','title','href','target','rel','align','start','colspan','rowspan','type','disabled','checked','role','aria-label','data-code-language','data-highlight','data-copy-code','data-load-image','data-image-alt','data-image-state']);
+    const attributes = new Set(['class','title','href','target','rel','align','start','colspan','rowspan','type','disabled','checked','role','aria-label','data-code-language','data-highlight','data-svg-fence','data-copy-code','data-load-image','data-image-alt','data-image-state']);
     for (const element of [...template.content.querySelectorAll('*')]) {
       if (!allowed.has(element.tagName)) { element.replaceWith(document.createTextNode(element.textContent || '')); continue; }
       for (const attr of [...element.attributes]) {
@@ -498,6 +501,32 @@
     },destroy(){disposed=true;cancel();image.removeEventListener('load',settle);image.removeEventListener('error',settle);image.remove();loading.remove();fallback.remove();original.forEach(node=>{if(node.nodeType===1)node.hidden=false;});wrapper.classList.remove('tsa-image-loaded','tsa-image-failed');wrapper.dataset.imageState='deferred';wrapper.removeAttribute('aria-busy');imageControllers.delete(wrapper);}};
     imageControllers.set(wrapper,controller);paint();return controller;
   }
+  function mountSvgPreview(block, signal) {
+    const pre=block.querySelector('pre'),code=pre?.querySelector('code');
+    const toolbar=block.querySelector('.tsa-code-toolbar');
+    if(!code||!toolbar)return null;
+    const dataUrl=window.ThreadShelfSvgPreview?.parse(code.textContent||'',block.dataset.svgFence);
+    if(!dataUrl)return null;
+    const doc=block.ownerDocument;
+    const toggle=doc.createElement('button');toggle.type='button';toggle.className='tsa-svg-toggle';toggle.dataset.svgToggle='1';
+    const preview=doc.createElement('div');preview.className='tsa-svg-preview';preview.hidden=true;
+    const image=doc.createElement('img');image.alt='SVG preview';image.decoding='async';image.draggable=false;image.referrerPolicy='no-referrer';
+    const failure=doc.createElement('p');failure.className='tsa-svg-error';failure.textContent='SVG preview unavailable. The original code is preserved.';failure.hidden=true;failure.setAttribute('role','status');
+    preview.append(image,failure);block.append(preview);toolbar.insertBefore(toggle,toolbar.querySelector('[data-copy-code]'));
+    let showing=false;
+    const paint=()=>{
+      block.dataset.svgView=showing?'svg':'code';pre.hidden=showing;preview.hidden=!showing;
+      toggle.textContent=showing?'Code':'SVG';toggle.title=showing?'Show original code':'Show SVG preview';
+      toggle.setAttribute('aria-label',toggle.title);toggle.setAttribute('aria-pressed',String(showing));
+    };
+    // The original code node and its Copy path remain untouched in both views.
+    // User SVG is loaded only as an image, never injected into application DOM.
+    toggle.addEventListener('click',event=>{event.preventDefault();showing=!showing;if(showing&&!image.hasAttribute('src'))image.src=dataUrl;paint();},{signal});
+    image.addEventListener('error',()=>{image.hidden=true;failure.hidden=false;},{signal});
+    for(const name of ['click','auxclick','contextmenu','dragstart'])preview.addEventListener(name,event=>{event.preventDefault();event.stopPropagation();},{signal});
+    paint();
+    return {destroy(){image.removeAttribute('src');preview.remove();toggle.remove();pre.hidden=false;delete block.dataset.svgView;}};
+  }
   function bind(container,options={}) {
     const controller=new AbortController();let disposed=false;
     const alive=()=>!disposed&&container.isConnected;
@@ -507,6 +536,7 @@
     const disposeCharts=rich?.Interactions?.mountChartInteractions(container);
     unlinkImages(container);
     const mountedImages=[...container.querySelectorAll('.tsa-image-slot')].map(mountImage).filter(Boolean);
+    const mountedSvg=[...container.querySelectorAll('.tsa-code-block[data-svg-fence]')].map(block=>mountSvgPreview(block,controller.signal)).filter(Boolean);
     const configureImages=(settings={})=>mountedImages.forEach(image=>image.configure(settings.imageMode));
     configureImages(options);
     // Capture before generic link handling, including auxiliary activation and
@@ -540,7 +570,7 @@
       diagramQueue=diagramQueue.catch(()=>{}).then(async()=>{themeQueued=false;if(alive())await diagrams(container,alive);});
     });
     themeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-    const dispose=()=>{disposed=true;controller.abort();themeObserver.disconnect();disposeCharts?.();mountedImages.forEach(image=>image.destroy());localSources.clear();};
+    const dispose=()=>{disposed=true;controller.abort();themeObserver.disconnect();disposeCharts?.();mountedImages.forEach(image=>image.destroy());mountedSvg.forEach(svg=>svg.destroy());localSources.clear();};
     dispose.ready=Promise.allSettled([mathReady,firstDiagrams]);
     dispose.configureImages=configureImages;
     return dispose;

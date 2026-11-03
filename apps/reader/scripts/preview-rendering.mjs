@@ -2,14 +2,14 @@
 export const renderingPreview = {
   "id": "preview-rendering-4",
   "collection": "Reader examples",
-  "title": "1.4.1 rendering examples",
+  "title": "1.4.2 rendering examples",
   "provider": "openai",
   "sourceFile": "synthetic/rendering-examples.json",
   "conversationKey": "preview-rendering-4",
-  "turnCount": 7,
+  "turnCount": 8,
   "turns": [
     {
-      "user": "Show how 1.4.1 handles embedded images and empty ChatGPT intermediate statuses.",
+      "user": "Show how 1.4.2 handles embedded images and empty ChatGPT intermediate statuses.",
       "turn_index": 1
     },
     {
@@ -35,6 +35,10 @@ export const renderingPreview = {
     {
       "ai": "{\"summary\":\"An incomplete synthetic response",
       "turn_index": 7
+    },
+    {
+      "ai": "## SVG code preview\n\nUse **SVG** to preview either block and **Code** to return. Copy keeps the original source in both views, including the Base64 representation in the second block.\n\n```svg\n<!-- Synthetic SVG preview -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 240 80\"><rect width=\"240\" height=\"80\" rx=\"12\" fill=\"#2868b2\"/><text x=\"120\" y=\"47\" fill=\"white\" font-size=\"18\" text-anchor=\"middle\">SVG code preview</text></svg>\n```\n\n```xml\ndata:image/svg+xml;base64,PCEtLSBTeW50aGV0aWMgU1ZHIHByZXZpZXcgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMjQwIDgwIj48cmVjdCB3aWR0aD0iMjQwIiBoZWlnaHQ9IjgwIiByeD0iMTIiIGZpbGw9IiMyODY4YjIiLz48dGV4dCB4PSIxMjAiIHk9IjQ3IiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIxOCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+U1ZHIGNvZGUgcHJldmlldzwvdGV4dD48L3N2Zz4=\n```",
+      "turn_index": 8
     }
   ]
 };

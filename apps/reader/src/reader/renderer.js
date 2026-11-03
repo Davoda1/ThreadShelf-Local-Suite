@@ -2,6 +2,7 @@ import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
 import { isHiddenThoughtsMessage } from './messages.js';
 import { formatJsonResponse } from './json-response.js';
 import { createFileCitationExtension } from './file-citations.js';
+import SvgPreview from './svg-preview.cjs';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
 import { highlighter, normalizeCodeLanguage, getCodeLanguageLabel } from './highlight.js';
 export { normalizeCodeLanguage } from './highlight.js';
@@ -68,7 +69,9 @@ function createMarkedRenderer() {
     const text = typeof token === 'string' ? token : token?.text || '';
     const lang = typeof token === 'object' ? token?.lang || '' : '';
     const language = normalizeCodeLanguage(lang);
-    return `<pre class="language-${language}" data-language="${escapeHtml(getCodeLanguageLabel(language, lang))}"><code class="language-${language}" data-language="${language}">${escapeHtml(text)}</code></pre>\n`;
+    const svgFence = ['', 'svg', 'xml'].includes(String(lang).trim().toLowerCase())
+      ? ` data-svg-fence="${escapeHtml(lang)}"` : '';
+    return `<pre class="language-${language}" data-language="${escapeHtml(getCodeLanguageLabel(language, lang))}"${svgFence}><code class="language-${language}" data-language="${language}">${escapeHtml(text)}</code></pre>\n`;
   };
 
   renderer.link = function link(token) {
@@ -151,7 +154,7 @@ function sanitizeRenderedHtml(html) {
   const perTagAttrs = {
     A: new Set(['href', 'target', 'rel']),
     IMG: new Set(['src', 'alt']),
-    PRE: new Set(['data-language']),
+    PRE: new Set(['data-language', 'data-svg-fence']),
     CODE: new Set(['data-language', 'data-highlighted', 'data-original-code']),
     SPAN: new Set(['data-chatgpt-math-id', 'role', 'aria-disabled', 'aria-hidden']),
     DIV: new Set(['data-chatgpt-math-id']),
@@ -194,7 +197,7 @@ function sanitizeRenderedHtml(html) {
   return template.innerHTML;
 }
 
-function addCodeBlockControls(container) {
+function addCodeBlockControls(container, refreshLayout) {
   container.querySelectorAll('pre').forEach((pre) => {
     if (pre.classList.contains('has-code-controls')) return;
     const code = Array.from(pre.children).find((child) => child.tagName?.toLowerCase() === 'code') || pre.querySelector('code');
@@ -218,6 +221,48 @@ function addCodeBlockControls(container) {
     copyButton.setAttribute('aria-label', tr('Copy code block to clipboard'));
 
     titlebar.append(label, copyButton);
+    if (pre.hasAttribute('data-svg-fence')) {
+      const imageSource = SvgPreview.parse(code.dataset.originalCode ?? code.textContent ?? '', pre.dataset.svgFence);
+      if (imageSource) {
+        const controls = document.createElement('span');
+        controls.className = 'code-svg-controls';
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'code-copy-button code-svg-toggle';
+        toggle.dataset.toggleSvg = '1';
+        toggle.textContent = 'SVG';
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.setAttribute('aria-label', tr('Show SVG preview'));
+        toggle.title = tr('Show SVG preview');
+        const preview = document.createElement('span');
+        preview.className = 'code-svg-preview';
+        preview.hidden = true;
+        // Keep source in image-only mode; do not offer document navigation or dragging.
+        for (const event of ['click', 'auxclick', 'contextmenu', 'dragstart']) {
+          preview.addEventListener(event, action => action.preventDefault());
+        }
+        const image = document.createElement('img');
+        image.alt = tr('SVG preview');
+        image.draggable = false;
+        // SVG source stays in image-only mode. Never insert it as application markup.
+        image.addEventListener('error', () => {
+          preview.hidden = true;
+          code.hidden = false;
+          toggle.disabled = true;
+          toggle.textContent = 'SVG';
+          toggle.setAttribute('aria-pressed', 'false');
+          toggle.setAttribute('aria-label', tr('SVG preview unavailable'));
+          toggle.title = tr('SVG preview unavailable');
+          if (pre.isConnected) refreshLayout?.();
+        }, { once: true });
+        image.addEventListener('load', () => { if (pre.isConnected) refreshLayout?.(); }, { once: true });
+        preview.append(image);
+        pre.svgPreviewSource = imageSource;
+        pre.append(preview);
+        controls.append(toggle, copyButton);
+        titlebar.append(controls);
+      }
+    }
     pre.insertBefore(titlebar, pre.firstChild);
     pre.classList.add('has-code-controls');
   });
@@ -616,7 +661,7 @@ export class ConversationRenderer {
 
     this.contentContainer.replaceChildren(fragment);
     const mermaidBlocks = upgradeMermaidBlocks(this.contentContainer);
-    addCodeBlockControls(this.contentContainer);
+    addCodeBlockControls(this.contentContainer, () => this.refreshCollapsibleMessages({ animate: false }));
     this.refreshCollapsibleMessages({ animate: false });
     this.contentContainer.querySelectorAll('.message[data-collapse-kind] .message-content').forEach((content) => {
       this.messageResizeObserver?.observe(content);
@@ -1060,6 +1105,27 @@ export class ConversationRenderer {
     if (versionToggle && this.contentContainer.contains(versionToggle)) {
       event.preventDefault();
       await this.toggleMermaidVersion(versionToggle.closest('.mermaid-block'));
+      return;
+    }
+
+    const svgToggle = event.target.closest('[data-toggle-svg]');
+    if (svgToggle && this.contentContainer.contains(svgToggle)) {
+      event.preventDefault();
+      const pre = svgToggle.closest('pre');
+      const code = pre?.querySelector('code');
+      const preview = pre?.querySelector('.code-svg-preview');
+      const image = preview?.querySelector('img');
+      if (!code || !preview || !image || !pre.svgPreviewSource) return;
+      const show = preview.hidden;
+      if (show && !image.hasAttribute('src')) image.src = pre.svgPreviewSource;
+      preview.hidden = !show;
+      code.hidden = show;
+      svgToggle.textContent = show ? tr('Code') : 'SVG';
+      svgToggle.setAttribute('aria-pressed', String(show));
+      const action = tr(show ? 'Show original code' : 'Show SVG preview');
+      svgToggle.setAttribute('aria-label', action);
+      svgToggle.title = action;
+      this.refreshCollapsibleMessages({ animate: false });
       return;
     }
 

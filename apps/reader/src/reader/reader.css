@@ -1090,3 +1090,10 @@
    successfully created, enabled welcome video removes its opaque backdrop. */
 :root:not([data-contrast="high"]) #readerHost.reader-view.wave-welcome-enabled > .reader-welcome{background:transparent}
 @media(forced-colors:active){:root:not([data-contrast="high"]) #readerHost.reader-view.wave-welcome-enabled > .reader-welcome{background:Canvas}}
+
+/* SVG previews retain the existing code node and source-preserving Copy control. */
+.reader-view .code-svg-controls{display:inline-flex;align-items:center;gap:.4rem;flex:0 0 auto}
+.reader-view .message-content .code-svg-preview{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:0;max-width:100%;padding:1rem;white-space:normal}
+.reader-view .message-content .code-svg-preview img{display:block;max-width:100%;max-height:min(32rem,65vh);width:auto;height:auto;object-fit:contain;border-radius:0;margin:0}
+.reader-view .message-content .code-svg-preview[hidden],
+.reader-view .message-content pre.has-code-controls > code[hidden]{display:none}

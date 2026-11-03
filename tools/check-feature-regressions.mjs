@@ -73,6 +73,7 @@ if (mode === 'integration') {
     READER_IMAGE_QUEUE_REPORT: path.join(reports, 'reader-image-queue.json'),
     READER_THOUGHTS_INTERFACE_EVIDENCE: path.join(reports, 'reader-visibility.json'),
     THREADSHELF_ORT_BROWSER_REPORT: path.join(reports, 'reader-onnx-wasm.json'),
+    READER_SVG_REPORT: path.join(reports, 'reader-svg-preview.json'),
     SIZING_REPORT: path.join(reports, 'alternative-image-sizing.json'),
     JSON_REPORT: path.join(reports, 'alternative-json-rendering.json'),
   });
@@ -81,8 +82,10 @@ if (mode === 'integration') {
   jsonCheck('apps/reader/tests/resource-image-queue.browser.mjs', { checks: 4, imageCount: 80 });
   jsonCheck('apps/reader/tests/thoughts-interface.browser.mjs', { checks: 7 });
   jsonCheck('apps/reader/tests/onnx-wasm.browser.mjs', { checks: 2 });
+  jsonCheck('apps/reader/tests/svg-preview.browser.mjs', { fixtures: 27, checks: 5, layouts: 4 });
   jsonCheck('apps/alternative/test/image-loading.cjs', { checks: 4 });
   jsonCheck('apps/alternative/test/image-sizing.cjs', { checks: 4, layouts: 8 });
   jsonCheck('apps/alternative/test/json-rendering.cjs', { checks: 9, layouts: 4 });
+  jsonCheck('apps/alternative/test/svg-preview.browser.cjs', { fixtures: 32 });
 }
 console.log(`\nPublic ${mode} feature regressions passed without skipped feature checks.`);

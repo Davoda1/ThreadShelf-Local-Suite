@@ -1,6 +1,6 @@
 # Build and package
 
-Application version: **1.4.1**. This is an independent product.
+Application version: **1.4.2**. This is an independent product.
 
 ## Requirements
 
@@ -109,7 +109,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.4.1.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.4.2.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 

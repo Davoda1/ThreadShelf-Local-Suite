@@ -141,19 +141,24 @@ def collect_inputs(artifacts, version, commit):
     return assets, evidence, summaries
 
 
+def release_title(version):
+    suffix = ' — SVG previews and upstream 1.4.1 search patch' if version == '1.4.2' else ''
+    return f'ThreadShelf Local Suite {version}{suffix}'
+
+
 def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     return f'''Reader, Analytics and Alternative are now **{version}**.
 
-- Update the Reader and Analytics build dependencies to patched **minimatch 11.0.2**, addressing **CVE-2026-118764 / GHSA-g3hv-75wg-m249**.
-- Replace vulnerable **deepmerge** in Reader's holiday tooling and bundled holiday engine with a prototype-safe merge adapter, addressing **CVE-2026-93753 / GHSA-gcqx-w48m-w2h4**.
-- Update the same build dependency chain to **glob 14.0.3**, addressing cancellation bypass **CVE-2026-118773 / GHSA-3g3m-2fjr-6pw4**.
-- Fix Windows CPU speech cancellation cleanup so temporary session files are removed after the speech process tree exits.
-- This is a security maintenance release. Existing interfaces, speech playback, settings, archive formats and Electron/Node/npm/ONNX runtime pins are unchanged.
-- The included offline manual and screenshots retain their 1.4.0 content, which also applies to this patch release.
+- Add an **SVG / Code** toggle to eligible conversation code blocks in Reader and Alternative. Code is the initial view, and Copy preserves its existing source text in either view.
+- Accept one complete, valid SVG document in an untagged, `svg` or `xml` block, with whitespace and XML comments allowed around the root. Support raw SVG, strict Base64 and `data:image/svg+xml;base64,` input. HTML containing SVG, extra content, malformed input and other language tags stay as code.
+- Render previews as isolated images with scripts, interactivity and external resource loading disabled.
+- Include the optional [search patch for upstream ThreadShelf 1.4.1](https://github.com/{repository}/tree/v{version}/server-patch/1.4.1), with exact hit totals, cursor-paged search, version detection and validated installation/rollback. The existing upstream 1.3.0 patch remains available. These patches are for supported upstream sources; ThreadShelf Enhanced already supplies the extension.
+- Analytics functionality, existing speech playback, settings, archive formats, dependencies and Electron/Node/npm/ONNX runtime pins are unchanged. Previous security fixes remain included.
+- The included offline manual and screenshots retain their original 1.4.0 content and provenance. The application READMEs describe the new SVG controls.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 
-Choose one of the nine native packages for your application and OS. The Reader Preview and Alternative Demo HTML files contain synthetic examples. Native packages include their runtime and do not require Node.js or npm.
+Choose one of the nine native packages for your application and OS. Analytics also has new **{version}** Windows and Linux packages. The Reader Preview and Alternative Demo HTML files include synthetic raw SVG and Base64 code blocks so the new toggle can be tried offline. Native packages include their runtime and do not require Node.js or npm.
 
 All six Windows/Linux package jobs passed their archive, native runtime and GUI gates before publication. See `ThreadShelf-Local-Suite-{version}-Verification.md` and the matching evidence ZIP for exact checks and limits. Independent Checks workflow results are reported separately and are not inferred here. Verify downloads using the single **SHA256SUM.txt**.
 
@@ -213,7 +218,7 @@ The independent Checks workflow has its own status and is not asserted successfu
 
 - Hosted Windows x64 and Ubuntu amd64 runners were used; other OS versions and real user archives were not exhaustively tested.
 - DEB payloads were extracted and exercised; system-wide DEB installation is not claimed.
-- Focused rendering checks use synthetic test harnesses and test-only browser flags. The separate packaged-GUI validators check the unchanged applications with Chromium's sandbox enabled.
+- Focused rendering checks use synthetic test harnesses and test-only browser flags. The separate packaged-GUI validators check the application builds with Chromium's sandbox enabled.
 - Windows packages are unsigned. No byte-identical rebuild of Electron/ONNX is claimed.
 - Analytics functionality and the existing application storage/schema identifiers are unchanged.
 - Speech checks exercise bundled CPU engines with synthetic text. External provider accounts and real remote-service availability are not tested by these offline gates.
@@ -291,7 +296,7 @@ def create_draft(repository, tag, version, notes):
         raise ValueError('The release tag must already exist in the remote repository.')
     request = notes.with_name(f'{tag}-release-create.json')
     request.write_text(json.dumps({'tag_name': tag, 'draft': True,
-        'name': f'ThreadShelf Local Suite {version}', 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
+        'name': release_title(version), 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
     remote = json.loads(run('gh', 'api', '--method', 'POST', f'repos/{repository}/releases',
         '--header', 'Content-Type: application/json', '--input', request))
     validate_release_identity(remote, remote.get('id') if isinstance(remote, dict) else None, tag)
@@ -348,7 +353,7 @@ def publish(output, tag, repository, version, ledger):
     verify_uploaded(remote, tag, ledger)
     update = output.parent / f'{tag}-release-update.json'
     update.write_text(json.dumps({'draft': False, 'make_latest': 'true',
-        'name': f'ThreadShelf Local Suite {version}', 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
+        'name': release_title(version), 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
     published = json.loads(run('gh', 'api', '--method', 'PATCH', f'repos/{repository}/releases/{release_id}',
         '--header', 'Content-Type: application/json', '--input', update))
     validate_release_identity(published, release_id, tag)
