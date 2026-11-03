@@ -407,6 +407,11 @@ test('regenerating corrupt pinned audio persists a separate replacement without 
   {sample:5}
  ],{preferApiCache:false},async(cache,keys)=>fs.writeFile(cache.file(keys[0]),Buffer.alloc(original.length)));
  const file=path.join(dir,'tts-cache',keys[0]+'.audio');
+ // Same-size repairs may retain the same reported times on coarse filesystems.
+ const stamp=await fs.lstat(file),lstat=fs.lstat,open=fs.open;
+ const fixedTimes=value=>Object.assign(value,{mtimeMs:stamp.mtimeMs,ctimeMs:stamp.ctimeMs});
+ t.mock.method(fs,'lstat',async(target,...args)=>{const value=await lstat(target,...args);return target===file?fixedTimes(value):value;});
+ t.mock.method(fs,'open',async(target,...args)=>{const handle=await open(target,...args);if(target===file){const stat=handle.stat.bind(handle);t.mock.method(handle,'stat',async(...args)=>fixedTimes(await stat(...args)));}return handle;});
  const generated=await app.invoke('tts.synthesize',request('regenerate'));assert.notEqual(generated.cacheKey,keys[0]);assert.equal(generated.cached,false);assert.equal(generated.stored,true);assert.equal((await app.invoke('tts.cache.list')).entries.find(entry=>entry.key===generated.cacheKey).pinned,false);assert.equal(calls(),1);assert.deepEqual(await fs.readFile(file),Buffer.alloc(original.length));
  await app.invoke('tts.settings.save',{settings:{preferApiCache:true}});
  const api=await app.invoke('tts.synthesize',request('prefer-api'));assert.equal(api.cacheKey,keys[1]);assert.equal(api.cacheReason,'api');assert.equal(calls(),1);

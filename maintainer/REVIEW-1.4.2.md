@@ -2,7 +2,7 @@
 
 ## Scope
 
-Reader and Alternative add an SVG / Code toggle for eligible chat code blocks. All three applications are aligned at 1.4.2; Analytics functionality is unchanged. Dependencies, Electron 45.1.0, development Node.js 24.22.1, managed npm 12.2.1 and ONNX Runtime 1.31.1 retain their existing pins. Profiles, archive/schema identifiers, speech behavior and packaging layouts remain unchanged.
+Reader and Alternative add an SVG / Code toggle for eligible chat code blocks. All three applications are aligned at 1.4.2; Analytics functionality is unchanged. Dependencies, Electron 45.1.0, development Node.js 24.22.1, managed npm 12.2.1 and ONNX Runtime 1.31.1 retain their existing pins. Profiles, archive/schema identifiers, speech providers/settings and packaging layouts remain unchanged.
 
 The illustrated manual and screenshots retain their original 1.4.0 content and provenance. The root and application READMEs document the new controls. Historical review records and the versioned server patches are preserved.
 
@@ -27,6 +27,14 @@ The illustrated manual and screenshots retain their original 1.4.0 content and p
 - Independent diff review and bounded text scanning find no private references, credential patterns or private filesystem paths in the changed/new files. Public-tree and whitespace checks pass. Automated scanning is not a guarantee that every possible secret can be detected.
 
 Local preparation and validation are complete. No dependency updates or unrelated application changes were required.
+
+## Speech-cache repair follow-up
+
+Windows source validation exposed a stale negative validation result: restoring a valid pinned recording could leave it unavailable when its size and reported timestamps matched the previously rejected file. Reader and Alternative now memoize successful file validation only. Previously rejected candidates are rechecked, while positive memoization, streaming limits, playback digest verification and pinned-original protection remain intact.
+
+The existing end-to-end regression now holds the target file's reported timestamps constant. It reproduces the original failure before the fix and passes afterward, retaining every original pin, replacement and playback assertion without adding sleeps or retries. Both focused speech suites pass all 113 tests, and an independent same-metadata check confirms repaired bytes become available while healthy entries retain the fast path.
+
+Full rechecks pass: Reader has 754 passes and four expected optional skips (758 total), Alternative has 188 passes without skips, and all 34 publication/release-gate tests pass. The shared implementation and tests remain byte-identical between the two applications. Native Windows confirmation remains a CI requirement.
 
 ## Native release gates and limits
 

@@ -30,10 +30,11 @@ class AudioCache{
   const entry=this.entries.get(key);if(!entry||entry.complete!==true||!CACHE_AUDIO_TYPES.has(entry.mime)||maxAgeDays&&!entry.pinned&&Date.now()-Date.parse(entry.createdAt)>=maxAgeDays*86400000)return false;
   let identity;try{identity=await this.identify(key+'.audio');}catch{return false;}
   const prior=this.validationMemo.get(key);if(prior&&prior.digest===entry.digest&&prior.bytes===entry.bytes&&sameFile(prior.identity,identity))return prior.valid;
-  const remember=valid=>{this.validationMemo.delete(key);this.validationMemo.set(key,{identity,digest:entry.digest,bytes:entry.bytes,valid});while(this.validationMemo.size>1024)this.validationMemo.delete(this.validationMemo.keys().next().value);return valid;};
+  const remember=valid=>{this.validationMemo.delete(key);if(valid){this.validationMemo.set(key,{identity,digest:entry.digest,bytes:entry.bytes,valid});while(this.validationMemo.size>1024)this.validationMemo.delete(this.validationMemo.keys().next().value);}return valid;};
   if(!identity.regular||identity.size!==entry.bytes)return remember(false);
   // Hash through a small stream rather than materializing or retaining audio.
-  // Stat identity (including ctime) safely reuses this result on later checks.
+  // Memoize only success: coarse timestamps can hide repaired same-size files.
+  // Playback still reads and verifies the digest independently.
   let handle;try{
    handle=await fs.open(this.file(key),fileConstants.O_RDONLY|(fileConstants.O_NOFOLLOW||0));if(!sameFile(identity,statIdentity(await handle.stat())))return remember(false);
    const hash=crypto.createHash('sha256');let bytes=0;for await(const chunk of handle.createReadStream({highWaterMark:64*1024,autoClose:false})){bytes+=chunk.length;if(bytes>entry.bytes)return remember(false);hash.update(chunk);}

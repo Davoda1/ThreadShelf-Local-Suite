@@ -5,7 +5,8 @@
 - Add an SVG / Code toggle for untagged, `svg` and `xml` chat code blocks containing one complete, valid SVG document, including raw SVG and supported Base64 forms.
 - Permit whitespace and XML comments around the root; keep HTML containing SVG, extra content and malformed input in code view.
 - Start in Code view and preserve the existing Copy source in either view. Load previews only as inert images, with no scripts or external resources.
-- Preserve existing rendering, speech, profiles, archive formats, dependency versions and runtime/toolchain pins.
+- Recheck previously rejected speech-cache files so restored pinned recordings regain priority even when reported file timestamps remain unchanged.
+- Preserve existing rendering, speech providers/settings, profiles, archive formats, dependency versions and runtime/toolchain pins.
 
 ## 1.4.1 — 2026-11-02
 

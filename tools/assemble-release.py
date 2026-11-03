@@ -153,8 +153,9 @@ def release_notes(version, repository):
 - Add an **SVG / Code** toggle to eligible conversation code blocks in Reader and Alternative. Code is the initial view, and Copy preserves its existing source text in either view.
 - Accept one complete, valid SVG document in an untagged, `svg` or `xml` block, with whitespace and XML comments allowed around the root. Support raw SVG, strict Base64 and `data:image/svg+xml;base64,` input. HTML containing SVG, extra content, malformed input and other language tags stay as code.
 - Render previews as isolated images with scripts, interactivity and external resource loading disabled.
+- Recheck previously rejected speech-cache files so restored valid pinned recordings regain priority even when their reported file timestamps do not change.
 - Include the optional [search patch for upstream ThreadShelf 1.4.1](https://github.com/{repository}/tree/v{version}/server-patch/1.4.1), with exact hit totals, cursor-paged search, version detection and validated installation/rollback. The existing upstream 1.3.0 patch remains available. These patches are for supported upstream sources; ThreadShelf Enhanced already supplies the extension.
-- Analytics functionality, existing speech playback, settings, archive formats, dependencies and Electron/Node/npm/ONNX runtime pins are unchanged. Previous security fixes remain included.
+- Analytics functionality, settings, archive formats, dependencies and Electron/Node/npm/ONNX runtime pins are unchanged. Previous security fixes remain included.
 - The included offline manual and screenshots retain their original 1.4.0 content and provenance. The application READMEs describe the new SVG controls.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 

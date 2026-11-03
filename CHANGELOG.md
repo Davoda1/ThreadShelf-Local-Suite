@@ -6,6 +6,7 @@
 - Accept one complete, valid SVG document in an untagged, `svg` or `xml` block, with whitespace and XML comments permitted around the root. Support raw SVG, strict Base64 and `data:image/svg+xml;base64,` input. Keep HTML containing SVG, extra content, malformed input and other language tags as code.
 - Render previews as isolated images with scripts, interactivity and external resources disabled. Preserve existing code, math, Mermaid, image and speech behavior.
 - Add focused eligibility, copy, rendering and isolation regression coverage.
+- Recheck previously rejected speech-cache files so restored valid pinned recordings regain priority even when file timestamps do not change; retain successful-validation caching and playback integrity checks.
 - Include the optional search patch for upstream ThreadShelf 1.4.1, with version-aware installation, exact hit totals and cursor-paged search; retain the existing upstream 1.3.0 target.
 - Include raw SVG and Base64 code-block examples in both standalone HTML demos.
 - Align Reader, Analytics and Alternative at 1.4.2. Analytics functionality, dependency versions, runtime/toolchain pins, profiles and archive formats remain unchanged. Retain the illustrated 1.4.0 manual and screenshot provenance; document the new controls in the application READMEs.
