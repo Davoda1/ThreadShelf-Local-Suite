@@ -7,7 +7,7 @@ let playwright;
 try { playwright = require('playwright'); } catch { playwright = require(process.env.PLAYWRIGHT_PATH || 'playwright'); }
 const root=path.resolve(__dirname,'..');
 (async()=>{
- const browser=await playwright.chromium.launch({headless:true, executablePath:process.env.CHROMIUM_PATH || undefined,args:['--no-sandbox']});
+ const browser=process.env.ELECTRON_PATH ? await require('./electron-page.cjs')(playwright,1100,850) : await playwright.chromium.launch({headless:true, executablePath:process.env.CHROMIUM_PATH || undefined,args:['--no-sandbox']});
  try{
  const page=await browser.newPage({viewport:{width:1100,height:850}});const errors=[];const requests=[];
  await page.route('https://example.com/sample.png',route=>route.fulfill({status:404,body:'Missing synthetic fixture'}));
@@ -19,6 +19,7 @@ const root=path.resolve(__dirname,'..');
  for(const f of ['vendor/mathjax-original-tex-font.js','vendor/mathjax-compat.js','vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js']) await page.addScriptTag({path:path.join(root,f)});
  if(fs.existsSync(path.join(root,'renderer/app.css')))await page.addStyleTag({path:path.join(root,'renderer/app.css')});
  await page.addStyleTag({path:path.join(root,'renderer/content.css')});
+ await page.addStyleTag({path:path.join(root,'renderer/rich-compat.css')});
  await page.addStyleTag({path:path.join(root,'renderer/code-themes.css')});
  await page.addStyleTag({content:'html,body{height:auto;overflow:auto}body{min-height:100vh}'});
  const result=await page.evaluate(async()=>{

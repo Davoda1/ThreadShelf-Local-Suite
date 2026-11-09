@@ -1,0 +1,662 @@
+diff --git a/README.chromium b/README.chromium
+index 4960cc3..3e93de4 100644
+--- a/README.chromium
++++ b/README.chromium
+@@ -2,7 +2,7 @@
+ URL: https://github.com/unicode-org/icu
+ Version: 78-2
+ CPEPrefix: cpe:/a:icu-project:international_components_for_unicode:78.2
+-License: MIT
++License: MIT, BSD-2-Clause, BSD-3-Clause, HPND-sell-variant, ICU, MIT-0, NAIST-2003, Unicode-3.0
+ License File: LICENSE
+ Security Critical: yes
+ Update Mechanism: Manual (https://crbug.com/494114589)
+@@ -270,3 +270,9 @@
+ 13. Missing long name in iso8601 calendar.
+     https://unicode-org.atlassian.net/browse/ICU-23262
+   - patches/missing_iso8601_resource.patch
++
++14. Fix signed int32_t overflow in CharString.
++  - patches/charstr.patch
++  - https://unicode-org.atlassian.net/browse/ICU-23537
++  - https://github.com/unicode-org/icu/pull/4243
++  - https://crbug.com/565133743
+diff --git a/android/icudtl.dat b/android/icudtl.dat
+index 733b566..9abcc62 100644
+--- a/android/icudtl.dat
++++ b/android/icudtl.dat
+Binary files differ
+diff --git a/chromecast_video/icudtl.dat b/chromecast_video/icudtl.dat
+index 4637572..87588f6 100644
+--- a/chromecast_video/icudtl.dat
++++ b/chromecast_video/icudtl.dat
+Binary files differ
+diff --git a/chromeos/icudtl.dat b/chromeos/icudtl.dat
+index 6a5e7cb..2a3914b 100644
+--- a/chromeos/icudtl.dat
++++ b/chromeos/icudtl.dat
+Binary files differ
+diff --git a/common/icudtb.dat b/common/icudtb.dat
+index eef6edf..0b8941d 100644
+--- a/common/icudtb.dat
++++ b/common/icudtb.dat
+Binary files differ
+diff --git a/common/icudtl.dat b/common/icudtl.dat
+index e0d0c41..146f061 100644
+--- a/common/icudtl.dat
++++ b/common/icudtl.dat
+Binary files differ
+diff --git a/ios/icudtl.dat b/ios/icudtl.dat
+index 8be62bb..7a482c2 100644
+--- a/ios/icudtl.dat
++++ b/ios/icudtl.dat
+Binary files differ
+diff --git a/patches/charstr.patch b/patches/charstr.patch
+new file mode 100644
+index 0000000..ebf713e
+--- /dev/null
++++ b/patches/charstr.patch
+@@ -0,0 +1,270 @@
++diff --git a/source/common/charstr.cpp b/source/common/charstr.cpp
++index dadc829b0..f956c419d 100644
++--- a/source/common/charstr.cpp
+++++ b/source/common/charstr.cpp
++@@ -21,6 +21,7 @@
++ #include "charstr.h"
++ #include "cmemory.h"
++ #include "cstring.h"
+++#include "putilimp.h"
++ #include "uinvchar.h"
++ #include "ustr_imp.h"
++ 
++@@ -111,7 +112,15 @@ CharString &CharString::truncate(int32_t newLength) {
++ }
++ 
++ CharString &CharString::append(char c, UErrorCode &errorCode) {
++-    if(ensureCapacity(len+2, 0, errorCode)) {
+++    if(U_FAILURE(errorCode)) {
+++        return *this;
+++    }
+++    int32_t newCapacity;
+++    if (uprv_add32_overflow(len, 2, &newCapacity)) {
+++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
+++        return *this;
+++    }
+++    if(ensureCapacity(newCapacity, 0, errorCode)) {
++         buffer[len++]=c;
++         buffer[len]=0;
++     }
++@@ -138,15 +147,21 @@ CharString &CharString::append(const char *s, int32_t sLength, UErrorCode &error
++             } else {
++                 buffer[len+=sLength]=0;
++             }
++-        } else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) &&
++-                  sLength>=(buffer.getCapacity()-len)
++-        ) {
++-            // (Part of) this string is appended to itself which requires reallocation,
++-            // so we have to make a copy of the substring and append that.
++-            return append(CharString(s, sLength, errorCode), errorCode);
++-        } else if(ensureCapacity(len+sLength+1, 0, errorCode)) {
++-            uprv_memcpy(buffer.getAlias()+len, s, sLength);
++-            buffer[len+=sLength]=0;
+++        } else {
+++            int32_t newCapacity;
+++            if(uprv_add32_overflow(len, sLength, &newCapacity) ||
+++               uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
+++                errorCode=U_ILLEGAL_ARGUMENT_ERROR;
+++            } else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) &&
+++                      newCapacity>buffer.getCapacity()
+++            ) {
+++                // (Part of) this string is appended to itself which requires reallocation,
+++                // so we have to make a copy of the substring and append that.
+++                return append(CharString(s, sLength, errorCode), errorCode);
+++            } else if(ensureCapacity(newCapacity, 0, errorCode)) {
+++                uprv_memcpy(buffer.getAlias()+len, s, sLength);
+++                buffer[len+=sLength]=0;
+++            }
++         }
++     }
++     return *this;
++@@ -192,12 +207,30 @@ char *CharString::getAppendBuffer(int32_t minCapacity,
++         resultCapacity=0;
++         return nullptr;
++     }
+++    if(minCapacity<0 || desiredCapacityHint<0) {
+++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
+++        resultCapacity=0;
+++        return nullptr;
+++    }
++     int32_t appendCapacity=buffer.getCapacity()-len-1;  // -1 for NUL
++     if(appendCapacity>=minCapacity) {
++         resultCapacity=appendCapacity;
++         return buffer.getAlias()+len;
++     }
++-    if(ensureCapacity(len+minCapacity+1, len+desiredCapacityHint+1, errorCode)) {
+++    int32_t newCapacity;
+++    if(uprv_add32_overflow(len, minCapacity, &newCapacity) ||
+++       uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
+++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
+++        resultCapacity=0;
+++        return nullptr;
+++    }
+++    int32_t newDesiredCapacity = 0;
+++    if(desiredCapacityHint > 0 &&
+++       (uprv_add32_overflow(len, desiredCapacityHint, &newDesiredCapacity) ||
+++        uprv_add32_overflow(newDesiredCapacity, 1, &newDesiredCapacity))) {
+++        newDesiredCapacity = 0;
+++    }
+++    if(ensureCapacity(newCapacity, newDesiredCapacity, errorCode)) {
++         resultCapacity=buffer.getCapacity()-len-1;
++         return buffer.getAlias()+len;
++     }
++@@ -213,11 +246,21 @@ CharString &CharString::appendInvariantChars(const char16_t* uchars, int32_t uch
++     if(U_FAILURE(errorCode)) {
++         return *this;
++     }
+++    if(ucharsLen < 0 || (uchars == nullptr && ucharsLen != 0)) {
+++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
+++        return *this;
+++    }
++     if (!uprv_isInvariantUString(uchars, ucharsLen)) {
++         errorCode = U_INVARIANT_CONVERSION_ERROR;
++         return *this;
++     }
++-    if(ensureCapacity(len+ucharsLen+1, 0, errorCode)) {
+++    int32_t newCapacity;
+++    if (uprv_add32_overflow(len, ucharsLen, &newCapacity) ||
+++        uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
+++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
+++        return *this;
+++    }
+++    if(ensureCapacity(newCapacity, 0, errorCode)) {
++         u_UCharsToChars(uchars, buffer.getAlias()+len, ucharsLen);
++         len += ucharsLen;
++         buffer[len] = 0;
++@@ -231,9 +274,17 @@ UBool CharString::ensureCapacity(int32_t capacity,
++     if(U_FAILURE(errorCode)) {
++         return false;
++     }
+++    if(capacity<0) {
+++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
+++        return false;
+++    }
++     if(capacity>buffer.getCapacity()) {
++         if(desiredCapacityHint==0) {
++-            desiredCapacityHint=capacity+buffer.getCapacity();
+++            // Default growth heuristic. If it overflows, skip the extra headroom
+++            // and allocate exactly the requested capacity, which is still valid.
+++            if(uprv_add32_overflow(capacity, buffer.getCapacity(), &desiredCapacityHint)) {
+++                desiredCapacityHint=0;
+++            }
++         }
++         if( (desiredCapacityHint<=capacity || buffer.resize(desiredCapacityHint, len+1)==nullptr) &&
++             buffer.resize(capacity, len+1)==nullptr
++diff --git a/source/test/intltest/strtest.cpp b/source/test/intltest/strtest.cpp
++index bf63dfaec..ee0d7a11b 100644
++--- a/source/test/intltest/strtest.cpp
+++++ b/source/test/intltest/strtest.cpp
++@@ -836,6 +836,131 @@ StringTest::TestCharString() {
++         s.extract(buffer, 2, errorCode);
++         assertEquals("abc.extract(2) overflow", U_BUFFER_OVERFLOW_ERROR, errorCode.reset());
++     }
+++
+++    {
+++        errorCode.reset();
+++        CharString s("abc", errorCode);
+++        int32_t capacity = -1;
+++
+++        assertTrue("getAppendBuffer(minCapacity<0)",
+++                   s.getAppendBuffer(-1, 10, capacity, errorCode) == nullptr);
+++        assertEquals("getAppendBuffer(minCapacity<0) error",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("getAppendBuffer(minCapacity<0) capacity", 0, capacity);
+++
+++        capacity = -1;
+++        assertTrue("getAppendBuffer(desiredCapacityHint<0)",
+++                   s.getAppendBuffer(10, -1, capacity, errorCode) == nullptr);
+++        assertEquals("getAppendBuffer(desiredCapacityHint<0) error",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("getAppendBuffer(desiredCapacityHint<0) capacity", 0, capacity);
+++
+++        capacity = -1;
+++        assertTrue("getAppendBuffer(INT32_MAX)",
+++                   s.getAppendBuffer(INT32_MAX, 0, capacity, errorCode) == nullptr);
+++        assertEquals("getAppendBuffer(INT32_MAX) error",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("getAppendBuffer(INT32_MAX) capacity", 0, capacity);
+++
+++        capacity = -1;
+++        assertTrue("getAppendBuffer(INT32_MAX - len)",
+++                   s.getAppendBuffer(INT32_MAX - s.length(), 0, capacity, errorCode) == nullptr);
+++        assertEquals("getAppendBuffer(INT32_MAX - len) error",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("getAppendBuffer(INT32_MAX - len) capacity", 0, capacity);
+++
+++        assertTrue("getAppendBuffer(hint=INT32_MAX)",
+++                   s.getAppendBuffer(50, INT32_MAX, capacity, errorCode) != nullptr);
+++        assertEquals("getAppendBuffer(hint=INT32_MAX) success",
+++                     U_ZERO_ERROR, errorCode.reset());
+++        assertTrue("getAppendBuffer(hint=INT32_MAX) capacity", capacity >= 50);
+++
+++        assertTrue("getAppendBuffer(hint=INT32_MAX - len)",
+++                   s.getAppendBuffer(150, INT32_MAX - s.length(), capacity, errorCode) != nullptr);
+++        assertEquals("getAppendBuffer(hint=INT32_MAX - len) success",
+++                     U_ZERO_ERROR, errorCode.reset());
+++        assertTrue("getAppendBuffer(hint=INT32_MAX - len) capacity", capacity >= 150);
+++
+++        s.appendInvariantChars(u"abc", -1, errorCode);
+++        assertEquals("appendInvariantChars(ucharsLen<0)",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++
+++        s.appendInvariantChars(nullptr, 1, errorCode);
+++        assertEquals("appendInvariantChars(nullptr, 1)",
+++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++
+++        s.append("x", INT32_MAX, errorCode);
+++        assertEquals("append(INT32_MAX)", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("append(INT32_MAX) length unchanged", 3, s.length());
+++
+++        s.append("x", INT32_MAX - s.length(), errorCode);
+++        assertEquals("append(INT32_MAX - len)", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++        assertEquals("append(INT32_MAX - len) length unchanged", 3, s.length());
+++
+++        constexpr int32_t kChunkLen = 0x30000000;
+++        CharString chunk;
+++        char* buf = chunk.getAppendBuffer(kChunkLen, kChunkLen, capacity, errorCode);
+++        if (buf != nullptr && errorCode.isSuccess()) {
+++            uprv_memset(buf, 'a', kChunkLen);
+++            chunk.append(buf, kChunkLen, errorCode);
+++            CharString dest;
+++            int64_t total = 0;
+++            for (int32_t i = 0; i < 3; ++i) {
+++                int32_t prevLen = dest.length();
+++                dest.append(chunk, errorCode);
+++                total += kChunkLen;
+++                if (total < INT32_MAX) {
+++                    if (errorCode.isFailure()) {
+++                        assertEquals("append allocation failure",
+++                                     U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
+++                        break;
+++                    }
+++                    assertEquals("dest.length()", static_cast<int32_t>(total), dest.length());
+++                } else {
+++                    assertEquals("append overflow", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++                    assertEquals("dest.length() unchanged", prevLen, dest.length());
+++                }
+++            }
+++            if (dest.length() == 2 * kChunkLen) {
+++                int32_t remain = (INT32_MAX - 1) - dest.length();
+++                dest.append(chunk.data(), remain, errorCode);
+++                if (errorCode.isSuccess()) {
+++                    assertEquals("dest at max length", INT32_MAX - 1, dest.length());
+++
+++                    dest.append('a', errorCode);
+++                    assertEquals("append(char) overflow",
+++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++                    assertEquals("dest.length() after append(char)", INT32_MAX - 1, dest.length());
+++
+++                    dest.append("a", 1, errorCode);
+++                    assertEquals("append(char*, 1) overflow",
+++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++                    assertEquals("dest.length() after append(char*, 1)",
+++                                 INT32_MAX - 1, dest.length());
+++
+++                    dest.appendInvariantChars(u"a", 1, errorCode);
+++                    assertEquals("appendInvariantChars(1) overflow",
+++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++                    assertEquals("dest.length() after appendInvariantChars(1)",
+++                                 INT32_MAX - 1, dest.length());
+++
+++                    dest.appendInvariantChars(u"ab", 2, errorCode);
+++                    assertEquals("appendInvariantChars(2) overflow",
+++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
+++                    assertEquals("dest.length() after appendInvariantChars(2)",
+++                                 INT32_MAX - 1, dest.length());
+++                } else {
+++                    assertEquals("append remain allocation failure",
+++                                 U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
+++                }
+++            }
+++        } else {
+++            // Allocating 768 MiB (kChunkLen) can legitimately fail on 32-bit
+++            // platforms or memory-constrained test runners.
+++            assertEquals("chunk allocation failure",
+++                         U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
+++        }
+++    }
++ }
++ 
++ void
+diff --git a/source/common/charstr.cpp b/source/common/charstr.cpp
+index dadc829..f956c41 100644
+--- a/source/common/charstr.cpp
++++ b/source/common/charstr.cpp
+@@ -21,6 +21,7 @@
+ #include "charstr.h"
+ #include "cmemory.h"
+ #include "cstring.h"
++#include "putilimp.h"
+ #include "uinvchar.h"
+ #include "ustr_imp.h"
+ 
+@@ -111,7 +112,15 @@
+ }
+ 
+ CharString &CharString::append(char c, UErrorCode &errorCode) {
+-    if(ensureCapacity(len+2, 0, errorCode)) {
++    if(U_FAILURE(errorCode)) {
++        return *this;
++    }
++    int32_t newCapacity;
++    if (uprv_add32_overflow(len, 2, &newCapacity)) {
++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
++        return *this;
++    }
++    if(ensureCapacity(newCapacity, 0, errorCode)) {
+         buffer[len++]=c;
+         buffer[len]=0;
+     }
+@@ -138,15 +147,21 @@
+             } else {
+                 buffer[len+=sLength]=0;
+             }
+-        } else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) &&
+-                  sLength>=(buffer.getCapacity()-len)
+-        ) {
+-            // (Part of) this string is appended to itself which requires reallocation,
+-            // so we have to make a copy of the substring and append that.
+-            return append(CharString(s, sLength, errorCode), errorCode);
+-        } else if(ensureCapacity(len+sLength+1, 0, errorCode)) {
+-            uprv_memcpy(buffer.getAlias()+len, s, sLength);
+-            buffer[len+=sLength]=0;
++        } else {
++            int32_t newCapacity;
++            if(uprv_add32_overflow(len, sLength, &newCapacity) ||
++               uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
++                errorCode=U_ILLEGAL_ARGUMENT_ERROR;
++            } else if(buffer.getAlias()<=s && s<(buffer.getAlias()+len) &&
++                      newCapacity>buffer.getCapacity()
++            ) {
++                // (Part of) this string is appended to itself which requires reallocation,
++                // so we have to make a copy of the substring and append that.
++                return append(CharString(s, sLength, errorCode), errorCode);
++            } else if(ensureCapacity(newCapacity, 0, errorCode)) {
++                uprv_memcpy(buffer.getAlias()+len, s, sLength);
++                buffer[len+=sLength]=0;
++            }
+         }
+     }
+     return *this;
+@@ -192,12 +207,30 @@
+         resultCapacity=0;
+         return nullptr;
+     }
++    if(minCapacity<0 || desiredCapacityHint<0) {
++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
++        resultCapacity=0;
++        return nullptr;
++    }
+     int32_t appendCapacity=buffer.getCapacity()-len-1;  // -1 for NUL
+     if(appendCapacity>=minCapacity) {
+         resultCapacity=appendCapacity;
+         return buffer.getAlias()+len;
+     }
+-    if(ensureCapacity(len+minCapacity+1, len+desiredCapacityHint+1, errorCode)) {
++    int32_t newCapacity;
++    if(uprv_add32_overflow(len, minCapacity, &newCapacity) ||
++       uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
++        resultCapacity=0;
++        return nullptr;
++    }
++    int32_t newDesiredCapacity = 0;
++    if(desiredCapacityHint > 0 &&
++       (uprv_add32_overflow(len, desiredCapacityHint, &newDesiredCapacity) ||
++        uprv_add32_overflow(newDesiredCapacity, 1, &newDesiredCapacity))) {
++        newDesiredCapacity = 0;
++    }
++    if(ensureCapacity(newCapacity, newDesiredCapacity, errorCode)) {
+         resultCapacity=buffer.getCapacity()-len-1;
+         return buffer.getAlias()+len;
+     }
+@@ -213,11 +246,21 @@
+     if(U_FAILURE(errorCode)) {
+         return *this;
+     }
++    if(ucharsLen < 0 || (uchars == nullptr && ucharsLen != 0)) {
++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
++        return *this;
++    }
+     if (!uprv_isInvariantUString(uchars, ucharsLen)) {
+         errorCode = U_INVARIANT_CONVERSION_ERROR;
+         return *this;
+     }
+-    if(ensureCapacity(len+ucharsLen+1, 0, errorCode)) {
++    int32_t newCapacity;
++    if (uprv_add32_overflow(len, ucharsLen, &newCapacity) ||
++        uprv_add32_overflow(newCapacity, 1, &newCapacity)) {
++        errorCode = U_ILLEGAL_ARGUMENT_ERROR;
++        return *this;
++    }
++    if(ensureCapacity(newCapacity, 0, errorCode)) {
+         u_UCharsToChars(uchars, buffer.getAlias()+len, ucharsLen);
+         len += ucharsLen;
+         buffer[len] = 0;
+@@ -231,9 +274,17 @@
+     if(U_FAILURE(errorCode)) {
+         return false;
+     }
++    if(capacity<0) {
++        errorCode=U_ILLEGAL_ARGUMENT_ERROR;
++        return false;
++    }
+     if(capacity>buffer.getCapacity()) {
+         if(desiredCapacityHint==0) {
+-            desiredCapacityHint=capacity+buffer.getCapacity();
++            // Default growth heuristic. If it overflows, skip the extra headroom
++            // and allocate exactly the requested capacity, which is still valid.
++            if(uprv_add32_overflow(capacity, buffer.getCapacity(), &desiredCapacityHint)) {
++                desiredCapacityHint=0;
++            }
+         }
+         if( (desiredCapacityHint<=capacity || buffer.resize(desiredCapacityHint, len+1)==nullptr) &&
+             buffer.resize(capacity, len+1)==nullptr
+diff --git a/source/data/misc/windowsZones.txt b/source/data/misc/windowsZones.txt
+index 34c0baa..a710d9b 100644
+--- a/source/data/misc/windowsZones.txt
++++ b/source/data/misc/windowsZones.txt
+@@ -22,6 +22,10 @@
+                 "rica/Sitka America/Yakutat"
+             }
+         }
++        "Alberta Standard Time"{
++            001{"America/Edmonton"}
++            CA{"America/Edmonton America/Inuvik"}
++        }
+         "Aleutian Standard Time"{
+             001{"America/Adak"}
+             US{"America/Adak"}
+@@ -97,6 +101,10 @@
+             001{"Pacific/Bougainville"}
+             PG{"Pacific/Bougainville"}
+         }
++        "British Columbia Standard Time"{
++            001{"America/Vancouver"}
++            CA{"America/Vancouver"}
++        }
+         "Canada Central Standard Time"{
+             001{"America/Regina"}
+             CA{"America/Regina America/Swift_Current"}
+@@ -172,7 +180,7 @@
+         }
+         "Central Standard Time"{
+             001{"America/Chicago"}
+-            CA{"America/Winnipeg America/Rankin_Inlet America/Resolute"}
++            CA{"America/Rankin_Inlet America/Resolute"}
+             MX{"America/Matamoros America/Ojinaga"}
+             US{
+                 "America/Chicago America/Indiana/Knox America/Indiana/Tell_City Ameri"
+@@ -364,6 +372,10 @@
+             001{"America/Punta_Arenas"}
+             CL{"America/Punta_Arenas America/Coyhaique"}
+         }
++        "Manitoba Standard Time"{
++            001{"America/Winnipeg"}
++            CA{"America/Winnipeg"}
++        }
+         "Marquesas Standard Time"{
+             001{"Pacific/Marquesas"}
+             PF{"Pacific/Marquesas"}
+@@ -393,7 +405,7 @@
+         }
+         "Mountain Standard Time"{
+             001{"America/Denver"}
+-            CA{"America/Edmonton America/Cambridge_Bay America/Inuvik"}
++            CA{"America/Cambridge_Bay"}
+             MX{"America/Ciudad_Juarez"}
+             US{"America/Denver America/Boise"}
+         }
+@@ -453,7 +465,6 @@
+         }
+         "Pacific Standard Time"{
+             001{"America/Los_Angeles"}
+-            CA{"America/Vancouver"}
+             US{"America/Los_Angeles"}
+         }
+         "Pakistan Standard Time"{
+diff --git a/source/test/intltest/strtest.cpp b/source/test/intltest/strtest.cpp
+index bf63dfa..ee0d7a1 100644
+--- a/source/test/intltest/strtest.cpp
++++ b/source/test/intltest/strtest.cpp
+@@ -836,6 +836,131 @@
+         s.extract(buffer, 2, errorCode);
+         assertEquals("abc.extract(2) overflow", U_BUFFER_OVERFLOW_ERROR, errorCode.reset());
+     }
++
++    {
++        errorCode.reset();
++        CharString s("abc", errorCode);
++        int32_t capacity = -1;
++
++        assertTrue("getAppendBuffer(minCapacity<0)",
++                   s.getAppendBuffer(-1, 10, capacity, errorCode) == nullptr);
++        assertEquals("getAppendBuffer(minCapacity<0) error",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("getAppendBuffer(minCapacity<0) capacity", 0, capacity);
++
++        capacity = -1;
++        assertTrue("getAppendBuffer(desiredCapacityHint<0)",
++                   s.getAppendBuffer(10, -1, capacity, errorCode) == nullptr);
++        assertEquals("getAppendBuffer(desiredCapacityHint<0) error",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("getAppendBuffer(desiredCapacityHint<0) capacity", 0, capacity);
++
++        capacity = -1;
++        assertTrue("getAppendBuffer(INT32_MAX)",
++                   s.getAppendBuffer(INT32_MAX, 0, capacity, errorCode) == nullptr);
++        assertEquals("getAppendBuffer(INT32_MAX) error",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("getAppendBuffer(INT32_MAX) capacity", 0, capacity);
++
++        capacity = -1;
++        assertTrue("getAppendBuffer(INT32_MAX - len)",
++                   s.getAppendBuffer(INT32_MAX - s.length(), 0, capacity, errorCode) == nullptr);
++        assertEquals("getAppendBuffer(INT32_MAX - len) error",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("getAppendBuffer(INT32_MAX - len) capacity", 0, capacity);
++
++        assertTrue("getAppendBuffer(hint=INT32_MAX)",
++                   s.getAppendBuffer(50, INT32_MAX, capacity, errorCode) != nullptr);
++        assertEquals("getAppendBuffer(hint=INT32_MAX) success",
++                     U_ZERO_ERROR, errorCode.reset());
++        assertTrue("getAppendBuffer(hint=INT32_MAX) capacity", capacity >= 50);
++
++        assertTrue("getAppendBuffer(hint=INT32_MAX - len)",
++                   s.getAppendBuffer(150, INT32_MAX - s.length(), capacity, errorCode) != nullptr);
++        assertEquals("getAppendBuffer(hint=INT32_MAX - len) success",
++                     U_ZERO_ERROR, errorCode.reset());
++        assertTrue("getAppendBuffer(hint=INT32_MAX - len) capacity", capacity >= 150);
++
++        s.appendInvariantChars(u"abc", -1, errorCode);
++        assertEquals("appendInvariantChars(ucharsLen<0)",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++
++        s.appendInvariantChars(nullptr, 1, errorCode);
++        assertEquals("appendInvariantChars(nullptr, 1)",
++                     U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++
++        s.append("x", INT32_MAX, errorCode);
++        assertEquals("append(INT32_MAX)", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("append(INT32_MAX) length unchanged", 3, s.length());
++
++        s.append("x", INT32_MAX - s.length(), errorCode);
++        assertEquals("append(INT32_MAX - len)", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++        assertEquals("append(INT32_MAX - len) length unchanged", 3, s.length());
++
++        constexpr int32_t kChunkLen = 0x30000000;
++        CharString chunk;
++        char* buf = chunk.getAppendBuffer(kChunkLen, kChunkLen, capacity, errorCode);
++        if (buf != nullptr && errorCode.isSuccess()) {
++            uprv_memset(buf, 'a', kChunkLen);
++            chunk.append(buf, kChunkLen, errorCode);
++            CharString dest;
++            int64_t total = 0;
++            for (int32_t i = 0; i < 3; ++i) {
++                int32_t prevLen = dest.length();
++                dest.append(chunk, errorCode);
++                total += kChunkLen;
++                if (total < INT32_MAX) {
++                    if (errorCode.isFailure()) {
++                        assertEquals("append allocation failure",
++                                     U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
++                        break;
++                    }
++                    assertEquals("dest.length()", static_cast<int32_t>(total), dest.length());
++                } else {
++                    assertEquals("append overflow", U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++                    assertEquals("dest.length() unchanged", prevLen, dest.length());
++                }
++            }
++            if (dest.length() == 2 * kChunkLen) {
++                int32_t remain = (INT32_MAX - 1) - dest.length();
++                dest.append(chunk.data(), remain, errorCode);
++                if (errorCode.isSuccess()) {
++                    assertEquals("dest at max length", INT32_MAX - 1, dest.length());
++
++                    dest.append('a', errorCode);
++                    assertEquals("append(char) overflow",
++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++                    assertEquals("dest.length() after append(char)", INT32_MAX - 1, dest.length());
++
++                    dest.append("a", 1, errorCode);
++                    assertEquals("append(char*, 1) overflow",
++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++                    assertEquals("dest.length() after append(char*, 1)",
++                                 INT32_MAX - 1, dest.length());
++
++                    dest.appendInvariantChars(u"a", 1, errorCode);
++                    assertEquals("appendInvariantChars(1) overflow",
++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++                    assertEquals("dest.length() after appendInvariantChars(1)",
++                                 INT32_MAX - 1, dest.length());
++
++                    dest.appendInvariantChars(u"ab", 2, errorCode);
++                    assertEquals("appendInvariantChars(2) overflow",
++                                 U_ILLEGAL_ARGUMENT_ERROR, errorCode.reset());
++                    assertEquals("dest.length() after appendInvariantChars(2)",
++                                 INT32_MAX - 1, dest.length());
++                } else {
++                    assertEquals("append remain allocation failure",
++                                 U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
++                }
++            }
++        } else {
++            // Allocating 768 MiB (kChunkLen) can legitimately fail on 32-bit
++            // platforms or memory-constrained test runners.
++            assertEquals("chunk allocation failure",
++                         U_MEMORY_ALLOCATION_ERROR, errorCode.reset());
++        }
++    }
+ }
+ 
+ void

@@ -2,8 +2,8 @@
   "formatVersion": 1,
   "description": "Exact dependencies incorporated into the shared offline diagram renderer.",
   "toolchain": {
-    "node": "24.22.1",
-    "npm": "12.2.1",
+    "node": "26.13.0",
+    "npm": "12.2.2",
     "esbuild": "0.28.2"
   },
   "versions": {
@@ -18,8 +18,8 @@
     "sha256": "c92d6ff986d851ec1a53b3424f8f90492f7fbdd85c2ba606a6ec833ab69a40d9",
     "externalImports": 0
   },
-  "packageLockSha256": "296190a036d98998e846f9622bf2edfe6dae8d8a56a747e0794592853dd2ba6d",
-  "buildRecipeSha256": "0b4aeda91962bf5fbeb157b2dd65237323c8239fa62f10c3e63b178acd45cacc",
+  "packageLockSha256": "772f6d23c9110c5e2e4d60943725199dabf665029a295979519a7ac75060c68e",
+  "buildRecipeSha256": "d84ae96e038c607bb05887099e8f6c1339cf880f5145b62e8758cdaf3671ff32",
   "packages": [
     {
       "name": "@braintree/sanitize-url",

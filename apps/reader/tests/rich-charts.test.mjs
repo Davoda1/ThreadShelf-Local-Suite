@@ -24,11 +24,11 @@ test('pie adapter uses only evidenced nameKey/valueKey, retaining suffix without
   input.valueKey='wrong';assert.equal(normalizeChart(input,{family:'charts_widget_v2'}).ok,false);
 });
 const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
-test('additional area and doughnut types require explicit Reader-owned v1 schema',()=>{
+test('area and doughnut retain explicit Reader-owned v1 schema and native adapters',()=>{
   for(const type of ['bar','line','area'])assert.equal(normalizeChart(reader(type)).ok,true,type);
   for(const type of ['pie','doughnut']){const v=reader(type);v.series[0].values=[1,3];assert.equal(normalizeChart(v).ok,true,type);}
   const v=reader();v.orientation='horizontal';assert.equal(normalizeChart(v).chart.orientation,'horizontal');
-  for(const type of ['area','scatter','doughnut','horizontal-bar']){const v=bar();v.chartType=type;assert.equal(normalizeChart(v).ok,false,type);}
+  for(const type of ['scatter','doughnut','horizontal-bar']){const v=bar();v.chartType=type;assert.equal(normalizeChart(v).ok,false,type);}
   const v2=reader();v2.version=2;assert.equal(normalizeChart(v2).ok,false);
 });
 test('scatter keeps unambiguous numeric coordinates and units',()=>{

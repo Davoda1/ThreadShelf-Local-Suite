@@ -11,7 +11,7 @@ Existing upstream copyrights and license terms continue to apply.
 | --- | --- |
 | ThreadShelf adaptations and fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. See `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
 | Conversation renderer, export-converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
-| Electron 45.1.0 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
+| Electron 45.2.3 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
 | Chromium and Electron's bundled native components | Multiple licenses; original `LICENSES.chromium.html` is retained beside the executable. |
 | Mermaid 12.2.0 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.19.1; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |
 | MathJax 4.1.3 and MathJax TeX font 4.1.3 | Apache-2.0; The MathJax Consortium. Unmodified upstream TeX/MathML-to-SVG and assistive MathML components, with local original-font data and application compatibility code. See `licenses/MathJax-Upstream-LICENSE.txt`, `licenses/MathJax-Original-TeX-Font-LICENSE.txt`, `scripts/mathjax-vendor-lock.json`, and `docs/MathJax-4.md`. The retained 3.2.1 source notice is historical and is not executed. |
@@ -141,22 +141,15 @@ comprehensive legal audit of Chromium or a substitute for upstream terms.
 
 ## Electron runtime source access
 
-The 1.3.0 candidate uses Electron **45.1.0**, Chromium **156.0.8078.49** and
-embedded Node.js **24.22.1**. Original runtime notices remain intact.
-[Runtime source access and rebuilding](licenses/ELECTRON-SOURCE-ACCESS.md)
-records the exact upstream revisions and source preparation status.
-
-The complete matching runtime source companion is still pending; publication
-of the new binaries is blocked until it is assembled, verified and supplied
-beside them. The historical v1.0.0 runtime mirror covers Electron 44.9.1 and
-must not be represented as matching source for 45.1.0. The unchanged Reader
-sharp/libvips source materials retain their separate versioned provenance.
-
-Original license grants continue to apply. Chromium's Blink
-`platform/wtf/text/base64.cc` retains its original LGPL version 2 grant without
-an “or later” option; the new source was checked and its hash retained. The
-old per-file license-selection index cannot be reused as evidence for the new
-Chromium source. Preserve original notices and complete corresponding sources.
+Suite 1.4.3 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+embedded Node.js **24.22.2**. Original runtime notices remain intact.
+Matching runtime source is the historical 1.3.0 original source collection
+plus the 1.4.3 runtime source update; both are required. Historical source
+verification records remain specific to Electron 45.1.0. See
+[Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
+offline update instructions and upstream build/replacement guidance.
+The unchanged sharp/libvips and ONNX source companions keep their original
+versions, notices and verification scope.
 
 ## Text-to-Speech components
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.3 — 2026-11-09
+
+- Render archived Grok XML cards, citations, supported charts and media through bounded parsing, SVG icons and original-source inspection. Keep unavailable data explicit and interactive actions inert.
+- Expand ChatGPT citations, line-ranged file references, entities, source lists and archived widget fallbacks. Preserve literal markers inside code and exact whole-message copy/export.
+- Authorize Grok images only from recognized renderable content using the existing remote-image controls. Preserve the public edition's image-request isolation and profile protections.
+- Bound decompressed archive entries and Ollama response bodies, reject trailing data after compressed streams, and retain archive recovery and compatibility checks.
+- Update Node.js to 26.13.0 LTS, Electron to 45.2.3, managed npm to 12.2.2, marked to 18.1.3, parse5 to 8.1.1 and bundled 7-Zip to 26.06. Retain existing speech providers, offline speech assets, profiles and archive schemas.
+- Supply a verified Electron runtime source-update companion alongside the historical source parts, with exact changed-source integrity and offline reconstruction tools.
+- Align Reader, Analytics and Alternative at 1.4.3, including all three native package sets. Analytics has no new user-facing features. Add focused synthetic rendering and security regressions and retain the existing release publication gates.
+
 ## 1.4.2 — 2026-11-03
 
 - Add an SVG / Code toggle to eligible conversation code blocks in Reader and Alternative. Blocks start in Code view; Copy retains its original source in both views.

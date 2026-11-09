@@ -1,7 +1,7 @@
 {
   "name": "threadshelf-local-alternative",
   "productName": "ThreadShelf Local Alternative",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Independent search-first desktop reading workspace for ThreadShelf servers",
   "author": "davoda1",
   "license": "MIT",
@@ -12,11 +12,11 @@
     "package": "python3 scripts/build.py"
   },
   "engines": {
-    "node": "24.22.1",
-    "npm": "12.2.1"
+    "node": "26.13.0",
+    "npm": "12.2.2"
   },
   "devDependencies": {
-    "electron": "45.1.0"
+    "electron": "45.2.3"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,5 @@
   "bugs": {
     "url": "https://github.com/Davoda1/ThreadShelf-Local-Suite/issues"
   },
-  "packageManager": "npm@12.2.1"
+  "packageManager": "npm@12.2.2"
 }

@@ -1,34 +1,36 @@
-# Bundled 7-Zip 26.03
+# Bundled 7-Zip 26.06
 
-ThreadShelf Local Reader includes unmodified upstream 7-Zip executables. Users do
-not install 7-Zip or put any archiver on PATH. The application launches the
-bundled executable without a shell, using bounded pipes. This is an intentional
-change from the plan's preferred native Node addon: separate native processes
-avoid Electron ABI coupling, make cancellation effective, and isolate crashes.
+ThreadShelf Local Suite includes unmodified upstream 7-Zip executables. Users do
+not install 7-Zip or put any archiver on PATH. The application launches its own
+bundled executable without a shell, using bounded pipes. Separate native processes avoid Electron ABI coupling, make cancellation effective,
+and isolate crashes.
 
 | Target | Included executable | Upstream distribution |
 |---|---|---|
-| GNU/Linux amd64 | `linux-x64/7zz` | Static `7zzs` from `7z2603-linux-x64.tar.xz`, renamed |
-| Windows x64 | `win32-x64/7za.exe` | `x64/7za.exe` from `7z2603-extra.7z` |
+| GNU/Linux amd64 | `linux-x64/7zz` | Static `7zzs` from `7z2606-linux-x64.tar.xz`, renamed |
+| Windows x64 | `win32-x64/7za.exe` | `x64/7za.exe` from `7z2606-extra.7z` |
 
-The release was verified at <https://www.7-zip.org/download.html> on 28 September
-2026. The published release date is 3 September 2026. Exact download URLs and
-locally measured SHA-256 hashes are recorded in `provenance.json`. These hashes
-record the retrieved artifacts; they are not represented as publisher signatures.
+The official 26.06 release was checked at
+<https://github.com/ip7z/7zip/releases/tag/26.06> on 9 November 2026.
+Upstream dates the release 6 November 2026; its GitHub publication was 7 November.
+It fixes bugs and vulnerabilities. Downloads were checked against the official
+GitHub release asset SHA-256 digests before extraction. The exact URLs, archive
+digests, extracted-file hashes and source offer are recorded in `provenance.json`.
+These checks do not claim a publisher signature.
 
 ## Licensing and complete corresponding source
 
 7-Zip is a separate upstream program; it is not relicensed as ThreadShelf code.
-`License.txt` retains 7-Zip's LGPL/BSD/unRAR notices and `copying.txt` contains the GNU
+`License.txt` retains its LGPL/BSD/unRAR notices and `copying.txt` contains the GNU
 LGPL 2.1 text. The complete unmodified upstream source, build files and build
-instructions are included in `7z2603-src.tar.xz` in source and binary packages.
+instructions are included in `7z2606-src.tar.xz` in source and binary packages.
 The app uses only 7z and ZIP storage; the full Linux program also includes other
 upstream readers. The unRAR source must not be used to recreate the proprietary
 RAR compression algorithm. Source and notices remain available independently of
 the license of ThreadShelf's own code.
 
 The executable is replaceable: rebuild 7-Zip and replace the matching executable
-at the path above, preserving the executable name and executable permissions. The application
+at the path above, preserving its name and executable permissions. The application
 does not require an upstream checksum at runtime, does not link against 7-Zip,
 and does not prevent modified compatible versions from running. The verification
 script reports changes for reproducible packaging; it is not a runtime restriction.
@@ -45,7 +47,7 @@ the application. To rebuild Linux, install GNU make and a C/C++ compiler, then r
 That script creates a separate build tree and prints the built executable path;
 it does not automatically replace the bundled binary. The upstream source's
 `DOC/readme.txt` documents optional assembly optimization and additional targets.
-On Windows, extract `7z2603-src.tar.xz` (for example with Windows `tar`), open a
+On Windows, extract `7z2606-src.tar.xz` (for example with Windows `tar`), open a
 Visual Studio x64 Native Tools Command Prompt, change into
 `CPP\7zip\Bundles\Alone`, and run `nmake`. A supported Visual Studio C++ toolchain
 and Windows SDK are required. See `DOC/readme.txt` for exact upstream requirements.
@@ -89,7 +91,7 @@ directions, no-overwrite publication, and cancellation cleanup.
 `node scripts/test-codec-interoperability.mjs report.json` additionally checks
 independent py7zr/Python zipfile extraction, a synthetic mixed JSON corpus, and
 long Unicode paths. Python and py7zr are development-only prerequisites for this
-optional check; the application never needs them. The measured compression ratios describe
+optional check; the application never needs them. Its compression ratios describe
 that synthetic corpus and are not estimates for arbitrary user exports.
 
 `node scripts/test-codec-large.mjs report.json` is an opt-in real ZIP64 boundary
@@ -99,5 +101,5 @@ checks independent ZIP64 metadata/CRC/SHA-256, streams native restoration, compa
 the complete restored hash, then removes both large files.
 
 Native Windows execution must be tested on Windows. Having the upstream PE x64
-binary included and the binary hash checked is not a claim that this Linux validation
+binary included and its hash checked is not a claim that this Linux validation
 environment executed the Windows program.

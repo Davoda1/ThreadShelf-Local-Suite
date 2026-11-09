@@ -10,7 +10,7 @@ import { build } from 'esbuild';
 const root = fileURLToPath(new URL('.', import.meta.url));
 const suite = path.resolve(root, '../..');
 const checking = process.argv.includes('--check');
-assert.equal(process.version, 'v24.22.1', 'Use the pinned Node.js build version.');
+assert.equal(process.version, 'v26.13.0', 'Use the pinned Node.js build version.');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const versions = { mermaid: '12.2.0', dompurify: '3.4.17', katex: '0.19.1', esbuild: '0.28.2' };
 for (const [name, version] of Object.entries(versions)) {
@@ -68,7 +68,7 @@ for (const name of ['mermaid', 'dompurify', 'katex']) {
 const manifest = {
   formatVersion: 1,
   description: 'Exact dependencies incorporated into the shared offline diagram renderer.',
-  toolchain: { node: '24.22.1', npm: '12.2.1', esbuild: versions.esbuild },
+  toolchain: { node: '26.13.0', npm: '12.2.2', esbuild: versions.esbuild },
   versions,
   bundle: { file: 'mermaid.min.js', bytes: bundle.length, sha256: hash(bundle), externalImports: 0 },
   packageLockSha256: hash(await readFile(path.join(root, 'package-lock.json'))),

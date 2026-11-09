@@ -83,9 +83,12 @@ if (mode === 'integration') {
   jsonCheck('apps/reader/tests/thoughts-interface.browser.mjs', { checks: 7 });
   jsonCheck('apps/reader/tests/onnx-wasm.browser.mjs', { checks: 2 });
   jsonCheck('apps/reader/tests/svg-preview.browser.mjs', { fixtures: 27, checks: 5, layouts: 4 });
+  jsonCheck('apps/reader/tests/chatgpt-grok.browser.mjs', { checks: 4 });
+  jsonCheck('apps/reader/tests/grok-rendering.browser.mjs', { views: 4 });
   jsonCheck('apps/alternative/test/image-loading.cjs', { checks: 4 });
   jsonCheck('apps/alternative/test/image-sizing.cjs', { checks: 4, layouts: 8 });
   jsonCheck('apps/alternative/test/json-rendering.cjs', { checks: 9, layouts: 4 });
   jsonCheck('apps/alternative/test/svg-preview.browser.cjs', { fixtures: 32 });
+  jsonCheck('apps/alternative/test/compat-rendering.cjs', { checks: 4 });
 }
 console.log(`\nPublic ${mode} feature regressions passed without skipped feature checks.`);

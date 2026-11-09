@@ -16,7 +16,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.22.1
+          node-version: 26.13.0
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Repository hygiene
@@ -34,6 +34,7 @@ jobs:
           python3 maintainer/source-publication/test-source-symlinks.py
           python3 maintainer/source-publication/test-patch-inputs.py
           python3 maintainer/source-publication/test-release-profiles.py
+          python3 maintainer/runtime-source-update/test-source-update.py
       - name: Managed npm integrity and security regressions
         run: node --test tools/tests/npm-toolchain.test.mjs
       - name: Offline diagram dependency and security regressions
@@ -115,7 +116,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.22.1
+          node-version: 26.13.0
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Server patch integrity, dispatch and installer safety
@@ -182,7 +183,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.22.1
+          node-version: 26.13.0
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Check out the exact supported upstream server

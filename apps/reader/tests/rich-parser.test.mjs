@@ -112,7 +112,7 @@ test('legacy GenUI wrappers are separate literal adapters, never a fenced JSON h
   assert.equal(fragments('genui{"citation":{"ref":"turn1view0"}}')[0].tag,'Cite');
   assert.equal(fragments('genui{"refs":["turn1view0"]}')[0].tag,'Cite');
   assert.equal(fragments('genui{"map_widget":{"points":[{"name":"Place","category":"Saved category","ref":"turn1business0"}]}}')[0].kind,'passive');
-  for(const s of ['genui{"chart":{"content":{},"version":9}}','genui{"chart":{"content":window.desktop}}','genui{"suggest_automation":{"label":"Saved","action":"run"}}','genui{"unknown":{"data":[1]}}','[Interactive visualization not included in this export.]','Snapshot: 1 USD = 315.68 HUF — not a live rate.']) assert.equal(prepareRichMarkdown(s).content,s);
+  for(const s of ['genui{"chart":{"content":window.desktop}}','[Interactive visualization not included in this export.]','Snapshot: 1 USD = 315.68 HUF — not a live rate.']) assert.equal(prepareRichMarkdown(s).content,s);
 });
 
 test('hostile unclosed tag soup fails the linear preflight before Markdown tokenization', () => {

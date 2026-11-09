@@ -13,6 +13,8 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
+import tarfile
 from urllib.parse import quote
 import zipfile
 
@@ -138,37 +140,120 @@ def collect_inputs(artifacts, version, commit):
         raise ValueError('Focused rendering checks must pass.')
     if not reader.get('checks') or not reader.get('passed') or reader.get('errors') != [] or reader.get('remoteRequests') != []:
         raise ValueError('Reader file-citation rendering checks must pass.')
+    if tuple(map(int, version.split('.'))) >= (1, 4, 3):
+        for name, count in [('reader-linux-chatgpt.json', 'checks'),
+                            ('reader-linux-grok.json', 'views'),
+                            ('alternative-linux-compat.json', 'checks')]:
+            path = evidence.get(name)
+            report = json.loads(path.read_text()) if path else {}
+            if (report.get('passed') is not True or type(report.get(count)) is not int or report[count] < 4
+                    or type(report.get('networkRequests')) is not int or report['networkRequests'] != 0
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                raise ValueError(f'{name}: four successful Grok/ChatGPT views without requests or page errors are required.')
     return assets, evidence, summaries
 
 
 def release_title(version):
-    suffix = ' — SVG previews and upstream 1.4.1 search patch' if version == '1.4.2' else ''
+    suffix = {
+        '1.4.2': ' — SVG previews and upstream 1.4.1 search patch',
+        '1.4.3': ' — Grok and ChatGPT rendering improvements',
+    }.get(version, '')
     return f'ThreadShelf Local Suite {version}{suffix}'
+
+
+def build_runtime_source_update(output, version, root=ROOT):
+    """Build the tagged, hash-pinned source supplement before packaging assets.
+
+    Older historical tags predate this companion. Current releases must supply
+    it; missing provenance or an unsuccessful builder cannot silently omit it.
+    """
+    if tuple(map(int, version.split('.'))) < (1, 4, 3):
+        return None
+    directory = root / 'maintainer/runtime-source-update'
+    manifest_path = directory / 'manifest.json'
+    builder = directory / 'build-source-update.py'
+    updater = directory / 'update-runtime-sources.py'
+    for path in (directory, manifest_path, builder, updater):
+        if path.is_symlink() or not (path.is_dir() if path == directory else path.is_file()):
+            raise ValueError('The tagged runtime source-update inputs are required.')
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    electron = manifest.get('electron_version')
+    if (manifest.get('schema_version') != 1 or manifest.get('suite_version') != version
+            or not isinstance(electron, str) or not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', electron)):
+        raise ValueError('Runtime source-update manifest identity does not match the release.')
+    for app in APPS:
+        package = json.loads((root / 'apps' / app / 'package.json').read_text(encoding='utf-8'))
+        if package.get('devDependencies', {}).get('electron') != electron:
+            raise ValueError(f'{app}: runtime source-update Electron version differs from the package.')
+    if any(output.iterdir()):
+        raise ValueError('Build runtime source update in an empty release output directory.')
+    receipt = json.loads(run(sys.executable, builder, '--out', output.resolve(), '--version', version, cwd=root))
+    name = f'ThreadShelf-Local-Suite-{version}-Runtime-Source-Update.tar.gz'
+    path = output / name
+    if (not isinstance(receipt, dict) or any(receipt.get(key) != value for key, value in {
+            'schema': 'threadshelf-runtime-source-update-v1', 'version': version,
+            'electron': electron, 'file_name': name, 'manifest_sha256': digest(manifest_path)}.items())
+            or receipt.get('verified') is not True):
+        raise ValueError('Runtime source-update builder verification is missing or stale.')
+    if ({p.name for p in output.iterdir()} != {name} or path.is_symlink() or not path.is_file()
+            or not 0 < path.stat().st_size < 2_000_000_000
+            or type(receipt.get('bytes')) is not int or path.stat().st_size != receipt['bytes']
+            or digest(path) != receipt.get('sha256')):
+        raise ValueError('Runtime source-update output bytes do not match the verified archive.')
+    # Inspect without extraction. The companion contains source archives and
+    # regular updater/data files; it must never install links or traversal paths.
+    required = {'runtime-source-update/manifest.json': manifest_path,
+                'runtime-source-update/update-runtime-sources.py': updater}
+    seen, verified, total = set(), set(), 0
+    with tarfile.open(path, 'r:gz') as archive:
+        for member in archive:
+            name = member.name.rstrip('/')
+            components = name.split('/')
+            if (name in seen or len(seen) >= 100000 or components[0] != 'runtime-source-update'
+                    or any(part in ('', '.', '..') or '\\' in part or ':' in part for part in components)
+                    or not (member.isdir() or member.isfile()) or member.size < 0):
+                raise ValueError('Runtime source-update archive contains an unsafe or duplicate member.')
+            seen.add(name); total += member.size
+            if total > 4 * 1024 * 1024 * 1024:
+                raise ValueError('Runtime source-update archive exceeds its inspection limit.')
+            if name in required:
+                source = required[name]
+                if not member.isfile() or member.size != source.stat().st_size:
+                    raise ValueError('Runtime source-update provenance does not match the tagged inputs.')
+                stream = archive.extractfile(member)
+                if stream is None or hashlib.sha256(stream.read()).hexdigest() != digest(source):
+                    raise ValueError('Runtime source-update provenance does not match the tagged inputs.')
+                verified.add(name)
+    if verified != set(required):
+        raise ValueError('Runtime source-update archive is missing its tagged manifest or offline updater.')
+    return receipt
 
 
 def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
+    source_update = (f'- [Runtime source update]({base}/v{version}/ThreadShelf-Local-Suite-{version}-Runtime-Source-Update.tar.gz): verified changed runtime sources and an offline updater, used with all six original [v1.3.0 runtime source parts and matching metadata](https://github.com/{repository}/releases/tag/v1.3.0). Assemble the historical base without applying its old Electron patches, then follow the update instructions.\n'
+                     if tuple(map(int, version.split('.'))) >= (1, 4, 3) else '')
     return f'''Reader, Analytics and Alternative are now **{version}**.
 
-- Add an **SVG / Code** toggle to eligible conversation code blocks in Reader and Alternative. Code is the initial view, and Copy preserves its existing source text in either view.
-- Accept one complete, valid SVG document in an untagged, `svg` or `xml` block, with whitespace and XML comments allowed around the root. Support raw SVG, strict Base64 and `data:image/svg+xml;base64,` input. HTML containing SVG, extra content, malformed input and other language tags stay as code.
-- Render previews as isolated images with scripts, interactivity and external resource loading disabled.
-- Recheck previously rejected speech-cache files so restored valid pinned recordings regain priority even when their reported file timestamps do not change.
-- Include the optional [search patch for upstream ThreadShelf 1.4.1](https://github.com/{repository}/tree/v{version}/server-patch/1.4.1), with exact hit totals, cursor-paged search, version detection and validated installation/rollback. The existing upstream 1.3.0 patch remains available. These patches are for supported upstream sources; ThreadShelf Enhanced already supplies the extension.
-- Analytics functionality, settings, archive formats, dependencies and Electron/Node/npm/ONNX runtime pins are unchanged. Previous security fixes remain included.
-- The included offline manual and screenshots retain their original 1.4.0 content and provenance. The application READMEs describe the new SVG controls.
+- Render Grok XML/custom elements, citation markers, saved cards, image/file/media references and artifacts as bounded archive content with SVG icons. Unknown or incomplete records retain readable, inspectable fallbacks; source URLs are resolved only from matching saved metadata.
+- Expand ChatGPT citation/file-citation markers, saved filenames and line ranges, entities, source lists, archived widget envelopes, nested markers and chart data adapters. Supported chart data is rendered locally as SVG.
+- Preserve original message/code copying and literal code examples. Archived tools, tasks, HTML and interactive components remain passive and never execute. Existing Markdown, math, Mermaid, SVG previews, image controls and TTS remain available.
+- Bound repeated card metadata and parser output. Reader authorizes only referenced, exactly matched Grok image metadata through its existing image loading and network policy.
+- Fix three Reader resource-exhaustion paths: oversized Ollama responses/progress, repeated backup-content expansion and forged ZIP read lengths.
+- Refresh the selected runtime, build-tool and parser dependencies recorded in the tagged manifests. Analytics is rebuilt at **{version}** with the aligned toolchain; its application functionality and persisted formats are unchanged.
+- Retain the optional [search patches for supported upstream ThreadShelf versions](https://github.com/{repository}/tree/v{version}/server-patch). The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 
-Choose one of the nine native packages for your application and OS. Analytics also has new **{version}** Windows and Linux packages. The Reader Preview and Alternative Demo HTML files include synthetic raw SVG and Base64 code blocks so the new toggle can be tried offline. Native packages include their runtime and do not require Node.js or npm.
+Choose one of the nine native packages for your application and OS. Analytics also has new **{version}** Windows and Linux packages. The Reader Preview and Alternative Demo HTML files provide offline demonstrations using synthetic data. Missing metadata or assets in an export cannot be reconstructed. Native packages include their runtime and do not require Node.js or npm.
 
 All six Windows/Linux package jobs passed their archive, native runtime and GUI gates before publication. See `ThreadShelf-Local-Suite-{version}-Verification.md` and the matching evidence ZIP for exact checks and limits. Independent Checks workflow results are reported separately and are not inferred here. Verify downloads using the single **SHA256SUM.txt**.
 
-The release includes the exact tagged suite source as ZIP and TAR.GZ. Unchanged dependency source companions retain their original filenames and checksums:
+The release includes the exact tagged suite source as ZIP and TAR.GZ. Versioned dependency notices identify the corresponding source coverage, exact pins and retrieval/build instructions:
 
-- [Electron/ONNX source parts and metadata (v1.3.0)](https://github.com/{repository}/releases/tag/v1.3.0), with the [v1.3.0 checksum manifest]({base}/v1.3.0/SHA256SUM.txt).
+{source_update}- [Electron source access](https://github.com/{repository}/blob/v{version}/apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) and [ONNX source access](https://github.com/{repository}/blob/v{version}/apps/reader/licenses/ONNX-SOURCE-ACCESS.md).
 - [Native sharp/libvips sources (v1.0.0)]({base}/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz), with the [v1.0.0 checksum manifest]({base}/v1.0.0/SHA256SUM.txt).
 
-Keep every numbered source part with its matching metadata/assembler ZIP. Speech payloads include their own notices, voice attribution and corresponding GPL source archives. Windows packages remain unsigned. DEB payloads are validated and exercised after extraction; system-wide installation and every Linux distribution are not claimed tested. Remote speech services require a configured endpoint and any credentials required by that provider; their availability and output are not verified by the offline package gates.
+For multipart source companions, keep every numbered source part with its matching metadata/assembler ZIP and verify it against its original release manifest. Speech payloads include their own notices, voice attribution and corresponding GPL source archives. Windows packages remain unsigned. DEB payloads are validated and exercised after extraction; system-wide installation and every Linux distribution are not claimed tested. Remote speech services require a configured endpoint and any credentials required by that provider; their availability and output are not verified by the offline package gates.
 '''
 
 
@@ -181,6 +266,7 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
     output.mkdir(parents=True, exist_ok=True)
     if any(output.iterdir()):
         raise ValueError('Use an empty release output directory.')
+    source_update = build_runtime_source_update(output, version, root)
     for name, source in assets.items():
         try:
             os.link(source, output / name)
@@ -195,8 +281,12 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
     with zipfile.ZipFile(output / (stem + '-Verification-Evidence.zip'), 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, path in sorted(evidence.items()):
             archive.write(path, 'verification/' + name)
+        if source_update:
+            archive.writestr('verification/runtime-source-update.json', json.dumps(source_update, indent=2) + '\n')
     rows = '\n'.join(f'| {s["application"].title()} | {s["platform"]} | PASS | Executed |'
                      for s in summaries)
+    update_report = (f'The attached [runtime source update](https://github.com/{repository}/releases/download/{tag}/{source_update["file_name"]}) was built from the tagged source manifest and its pinned upstream inputs. Its archive SHA-256 is `{source_update["sha256"]}`; the evidence ZIP includes its verified build receipt. Use it with all six original v1.3.0 runtime source parts and metadata, assembling that base without applying the old Electron patches. The update provides the changed runtime sources and offline update instructions.\n\n'
+                     if source_update else '')
     report = f'''# ThreadShelf Local Suite {version} verification
 
 Tag: `{tag}`
@@ -211,7 +301,7 @@ This report is generated only after all six package jobs complete successfully. 
 | --- | --- | --- | --- |
 {rows}
 
-The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation browser checks before publication. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
+The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation and Grok/ChatGPT compatibility browser checks before publication. The new compatibility gates require four successful layout/theme views per suite, with no unsolicited requests or page errors. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
 
 The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md).
 
@@ -226,7 +316,7 @@ The independent Checks workflow has its own status and is not asserted successfu
 
 ## Sources and checksums
 
-Use this release's `SHA256SUM.txt` for every attached asset, including the bundled manual. Unchanged Electron/ONNX sources remain at v1.3.0 and native sharp/libvips sources at v1.0.0, with their original manifests. The v1.3.0 dependency inventory remains the existing runtime/toolchain baseline; MathJax remains 4.1.3. Added speech models, runtimes and sources are pinned in each application's `tts/cpu/assets-manifest.json`, with notices and corresponding GPL sources retained in the packaged speech payload.
+{update_report}Use this release's `SHA256SUM.txt` for every attached asset, including the bundled manual and runtime source update. The exact tagged package manifests, lockfiles and toolchain manifests record the release dependency versions. Consult the tagged [Electron](https://github.com/{repository}/blob/{tag}/apps/reader/licenses/ELECTRON-SOURCE-ACCESS.md) and [ONNX](https://github.com/{repository}/blob/{tag}/apps/reader/licenses/ONNX-SOURCE-ACCESS.md) source notices for version-specific source coverage and instructions. The unchanged native sharp/libvips source companion remains at v1.0.0 with its original manifest. Speech models, runtimes and sources are pinned in each application's `tts/cpu/assets-manifest.json`, with notices and corresponding GPL sources retained in the packaged speech payload.
 '''
     (output / (stem + '-Verification.md')).write_text(report, encoding='utf-8')
     ledger = [{'name': p.name, 'bytes': p.stat().st_size, 'sha256': digest(p)} for p in sorted(output.iterdir())]

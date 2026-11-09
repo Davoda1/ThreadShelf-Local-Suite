@@ -1,0 +1,410 @@
+diff --git a/test/decode_api_test.cc b/test/decode_api_test.cc
+index b95d519..16eee00 100644
+--- a/test/decode_api_test.cc
++++ b/test/decode_api_test.cc
+@@ -14,6 +14,9 @@
+ #include "gtest/gtest.h"
+ 
+ #include "./vpx_config.h"
++#if CONFIG_VP8_DECODER && CONFIG_MULTITHREAD && defined(__linux__)
++#include <sys/resource.h>
++#endif
+ #include "test/ivf_video_source.h"
+ #include "test/video_source.h"
+ #if CONFIG_VP8_ENCODER || CONFIG_VP9_ENCODER
+@@ -354,6 +357,100 @@
+   EXPECT_EQ(vpx_codec_destroy(&dec), VPX_CODEC_OK);
+ }
+ #endif  // CONFIG_VP8_ENCODER && CONFIG_MULTITHREAD
++
++#if CONFIG_MULTITHREAD && defined(__linux__)
++// Issue: 571147583
++// Verifies that when restarting decode threads fails on a keyframe with a new
++// resolution, the cached dimensions (ctx->si.w, ctx->si.h) are cleared so a
++// subsequent decode triggers a resolution change and reallocates frame buffers.
++TEST(DecodeAPI, Vp8MultiThreadedRestartResolutionChange) {
++  // Minimal 2-partition VP8 keyframe buffer (first partition = 256 bytes).
++  std::vector<uint8_t> frame(1500, 0);
++  frame[0] = 0x10;
++  frame[1] = 0x20;
++  frame[3] = 0x9d;
++  frame[4] = 0x01;
++  frame[5] = 0x2a;
++  frame[6] = 0x00;  // width = 256
++  frame[7] = 0x01;
++  frame[8] = 0x00;  // height = 256
++  frame[9] = 0x01;
++  frame[10] = 0x0f;  // 2 token partitions
++  frame[11] = 0xc1;
++  frame[12] = 0x28;
++  frame[266] = 0x58;  // token partition 0 size = 600
++  frame[267] = 0x02;
++
++  vpx_codec_ctx_t dec;
++  vpx_codec_dec_cfg_t cfg = { /*threads=*/2, /*w=*/0, /*h=*/0 };
++  ASSERT_EQ(vpx_codec_dec_init(&dec, &vpx_codec_vp8_dx_algo, &cfg, 0),
++            VPX_CODEC_OK);
++
++  // Frame 0: valid 256x256 keyframe initializes 256x256 frame buffers
++  // (yv12_fb_new->y_width = 256, pc->Width = 256) and worker threads.
++  ASSERT_EQ(
++      vpx_codec_decode(&dec, frame.data(),
++                       static_cast<unsigned int>(frame.size()), nullptr, 0),
++      VPX_CODEC_OK);
++
++  // Frame 1: truncate token partition 0 to 1 byte so the worker thread fails in
++  // vp8mt_decode_mb_rows(), shutting down threads and setting
++  // ctx->restart_threads = 1.
++  frame[266] = 1;
++  frame[267] = 0;
++  EXPECT_EQ(
++      vpx_codec_decode(&dec, frame.data(),
++                       static_cast<unsigned int>(frame.size()), nullptr, 0),
++      VPX_CODEC_CORRUPT_FRAME);
++
++  // Change keyframe header to 16x64. In each iteration:
++  // 1. Set RLIMIT_NPROC = 0 so pthread_create fails inside restart_threads and
++  //    vpx_codec_decode returns VPX_CODEC_ERROR after vp8_peek_si_internal()
++  //    has updated ctx->si.w = 16, ctx->si.h = 64.
++  // 2. Restore RLIMIT_NPROC and decode again so restart_threads succeeds and
++  //    allocates mt_yabove_row for pc->Width.
++  //
++  // Without the fix:
++  // - ctx->si.w = 16, ctx->si.h = 64 remain cached after step 1, so step 2
++  //   sees resolution_change == 0 and skips vp8_alloc_frame_buffers()
++  //   (leaving yv12_fb_new->y_width = 256).
++  // - In iteration 0 step 2, vp8_decode_frame() sets pc->Width = 16 from the
++  //   keyframe header before failing on the truncated token partition
++  //   (setting ctx->restart_threads = 1 again).
++  // - In iteration 1 step 2, restart_threads allocates mt_yabove_row for
++  //   pc->Width = 16 (103 bytes) while yv12_fb_new->y_width is still 256,
++  //   causing a 261-byte write (heap-buffer-overflow) in
++  //   vp8mt_decode_mb_rows().
++  //
++  // With the fix:
++  // - Step 1 clears ctx->si.w = 0, ctx->si.h = 0 on thread restart failure.
++  // - Step 2 detects resolution_change == 1, reallocates frame buffers to
++  //   16x64, and cleanly returns VPX_CODEC_CORRUPT_FRAME on the truncated
++  //   partition.
++  frame[6] = 16;
++  frame[7] = 0;
++  frame[8] = 64;
++  frame[9] = 0;
++  struct rlimit old_lim;
++  ASSERT_EQ(getrlimit(RLIMIT_NPROC, &old_lim), 0);
++  const struct rlimit zero_lim = { 0, old_lim.rlim_max };
++  for (int i = 0; i < 2; ++i) {
++    ASSERT_EQ(setrlimit(RLIMIT_NPROC, &zero_lim), 0);
++    const vpx_codec_err_t res =
++        vpx_codec_decode(&dec, frame.data(),
++                         static_cast<unsigned int>(frame.size()), nullptr, 0);
++    ASSERT_EQ(setrlimit(RLIMIT_NPROC, &old_lim), 0);
++    EXPECT_EQ(res, VPX_CODEC_ERROR);
++
++    EXPECT_EQ(
++        vpx_codec_decode(&dec, frame.data(),
++                         static_cast<unsigned int>(frame.size()), nullptr, 0),
++        VPX_CODEC_CORRUPT_FRAME);
++  }
++
++  EXPECT_EQ(vpx_codec_destroy(&dec), VPX_CODEC_OK);
++}
++#endif  // CONFIG_MULTITHREAD && defined(__linux__)
+ #endif  // CONFIG_VP8_DECODER
+ 
+ #if CONFIG_VP9_DECODER
+diff --git a/test/non_greedy_mv_test.cc b/test/non_greedy_mv_test.cc
+index 6b5dcc6..b3abd9c 100644
+--- a/test/non_greedy_mv_test.cc
++++ b/test/non_greedy_mv_test.cc
+@@ -47,7 +47,7 @@
+ 
+   fscanf(input, "%d,%d\n", rows_ptr, cols_ptr);
+ 
+-  *M_ptr = (int(*)[MF_LOCAL_STRUCTURE_SIZE])malloc(
++  *M_ptr = (int (*)[MF_LOCAL_STRUCTURE_SIZE])malloc(
+       (*rows_ptr) * (*cols_ptr) * MF_LOCAL_STRUCTURE_SIZE * sizeof(int_type));
+ 
+   for (idx = 0; idx < (*rows_ptr) * (*cols_ptr); ++idx) {
+@@ -133,7 +133,7 @@
+   MV *smooth_mf = nullptr;
+   MV *estimation = nullptr;
+   MV *ground_truth = nullptr;
+-  int(*local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
++  int (*local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
+   int rows = 0, cols = 0;
+ 
+   int alpha = 100, max_iter = 100;
+@@ -169,8 +169,8 @@
+   const char *gt_local_var_file = "non_greedy_mv_test_files/localVar_16x16.txt";
+   const char *search_mf_file = "non_greedy_mv_test_files/exhaust_16x16.txt";
+   BLOCK_SIZE bsize = BLOCK_16X16;
+-  int(*gt_local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
+-  int(*est_local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
++  int (*gt_local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
++  int (*est_local_var)[MF_LOCAL_STRUCTURE_SIZE] = nullptr;
+   YV12_BUFFER_CONFIG ref_frame, cur_frame;
+   int rows, cols;
+   MV *search_mf;
+@@ -183,7 +183,7 @@
+   read_in_mf(search_mf_file, &rows, &cols, &search_mf);
+ 
+   fn.sdf = vpx_sad16x16;
+-  est_local_var = (int(*)[MF_LOCAL_STRUCTURE_SIZE])malloc(
++  est_local_var = (int (*)[MF_LOCAL_STRUCTURE_SIZE])malloc(
+       rows * cols * MF_LOCAL_STRUCTURE_SIZE * sizeof(int_type));
+   vp9_get_local_structure(&cur_frame, &ref_frame, search_mf, &fn, rows, cols,
+                           bsize, est_local_var);
+diff --git a/vp8/encoder/bitstream.c b/vp8/encoder/bitstream.c
+index 7bcdf77..7a391a0 100644
+--- a/vp8/encoder/bitstream.c
++++ b/vp8/encoder/bitstream.c
+@@ -685,12 +685,12 @@
+       int k = 0;
+       unsigned int prev_coef_count_sum[MAX_ENTROPY_TOKENS] = { 0 };
+       int prev_coef_savings[MAX_ENTROPY_TOKENS] = { 0 };
+-      const unsigned int(*probs)[MAX_ENTROPY_TOKENS];
++      const unsigned int (*probs)[MAX_ENTROPY_TOKENS];
+       /* Calculate new probabilities given the constraint that
+        * they must be equal over the prev coef contexts
+        */
+ 
+-      probs = (const unsigned int(*)[MAX_ENTROPY_TOKENS])x->coef_counts[i][j];
++      probs = (const unsigned int (*)[MAX_ENTROPY_TOKENS])x->coef_counts[i][j];
+ 
+       /* Reset to default probabilities at key frames */
+       if (cpi->common.frame_type == KEY_FRAME) {
+diff --git a/vp8/vp8_dx_iface.c b/vp8/vp8_dx_iface.c
+index 26de16c..4324a79 100644
+--- a/vp8/vp8_dx_iface.c
++++ b/vp8/vp8_dx_iface.c
+@@ -343,6 +343,10 @@
+     VP8_COMMON *const pc = &pbi->common;
+     if (setjmp(pbi->common.error.jmp)) {
+       pbi->common.error.setjmp = 0;
++      /* on failure clear the cached resolution to ensure a full
++       * reallocation is attempted on resync. */
++      ctx->si.w = 0;
++      ctx->si.h = 0;
+       vp8_decoder_remove_threads(pbi);
+       vpx_clear_system_state();
+       ctx->fragments.count = 0;
+diff --git a/vp9/common/vp9_entropy.c b/vp9/common/vp9_entropy.c
+index 430b917..5013b09 100644
+--- a/vp9/common/vp9_entropy.c
++++ b/vp9/common/vp9_entropy.c
+@@ -1059,7 +1059,7 @@
+   vp9_coeff_probs_model *const probs = cm->fc->coef_probs[tx_size];
+   const vp9_coeff_probs_model *const pre_probs = pre_fc->coef_probs[tx_size];
+   vp9_coeff_count_model *counts = cm->counts.coef[tx_size];
+-  unsigned int(*eob_counts)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
++  unsigned int (*eob_counts)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
+       cm->counts.eob_branch[tx_size];
+   int i, j, k, l, m;
+ 
+diff --git a/vp9/decoder/vp9_detokenize.c b/vp9/decoder/vp9_detokenize.c
+index d957dc3..2d36d21 100644
+--- a/vp9/decoder/vp9_detokenize.c
++++ b/vp9/decoder/vp9_detokenize.c
+@@ -124,8 +124,8 @@
+   const vpx_prob(*coef_probs)[COEFF_CONTEXTS][UNCONSTRAINED_NODES] =
+       fc->coef_probs[tx_size][type][ref];
+   const vpx_prob *prob;
+-  unsigned int(*coef_counts)[COEFF_CONTEXTS][UNCONSTRAINED_NODES + 1];
+-  unsigned int(*eob_branch_count)[COEFF_CONTEXTS];
++  unsigned int (*coef_counts)[COEFF_CONTEXTS][UNCONSTRAINED_NODES + 1];
++  unsigned int (*eob_branch_count)[COEFF_CONTEXTS];
+   uint8_t token_cache[32 * 32];
+   const uint8_t *band_translate = get_band_translate(tx_size);
+   const int dq_shift = (tx_size == TX_32X32);
+diff --git a/vp9/encoder/vp9_bitstream.c b/vp9/encoder/vp9_bitstream.c
+index 8df1669..6163a57 100644
+--- a/vp9/encoder/vp9_bitstream.c
++++ b/vp9/encoder/vp9_bitstream.c
+@@ -520,7 +520,7 @@
+                                     vp9_coeff_stats *coef_branch_ct,
+                                     vp9_coeff_probs_model *coef_probs) {
+   vp9_coeff_count *coef_counts = cpi->td.rd_counts.coef_counts[tx_size];
+-  unsigned int(*eob_branch_ct)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
++  unsigned int (*eob_branch_ct)[REF_TYPES][COEF_BANDS][COEFF_CONTEXTS] =
+       cpi->common.counts.eob_branch[tx_size];
+   int i, j, k, l, m;
+ 
+diff --git a/vp9/encoder/vp9_encodemb.c b/vp9/encoder/vp9_encodemb.c
+index 1572244..3b3b089 100644
+--- a/vp9/encoder/vp9_encodemb.c
++++ b/vp9/encoder/vp9_encodemb.c
+@@ -140,9 +140,9 @@
+ #else
+   const uint16_t *cat6_high_cost = vp9_get_high_cost_table(8);
+ #endif
+-  unsigned int(*const token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
++  unsigned int (*const token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
+       mb->token_costs[tx_size][plane_type][ref];
+-  unsigned int(*token_costs_cur)[2][COEFF_CONTEXTS][ENTROPY_TOKENS];
++  unsigned int (*token_costs_cur)[2][COEFF_CONTEXTS][ENTROPY_TOKENS];
+   int64_t eob_cost0, eob_cost1;
+   int64_t accu_rate = 0;
+   // Initialized to the worst possible error for the largest transform size.
+@@ -269,9 +269,9 @@
+           const int token_next =
+               (i + 1 != eob) ? vp9_get_token(qcoeff[scan[i + 1]]) : EOB_TOKEN;
+           ASSUME_VALID_TOKEN(token_next);
+-          unsigned int(*const token_costs_next)[2][COEFF_CONTEXTS]
+-                                               [ENTROPY_TOKENS] =
+-                                                   token_costs + band_next;
++          unsigned int (*const token_costs_next)[2][COEFF_CONTEXTS]
++                                                [ENTROPY_TOKENS] =
++                                                    token_costs + band_next;
+           token_cache[rc] = vp9_pt_energy_class[t0];
+           ctx_next = get_coef_context(nb, token_cache, i + 1);
+           // token_cache is initialized with valid energy classes.
+diff --git a/vp9/encoder/vp9_rdopt.c b/vp9/encoder/vp9_rdopt.c
+index 9ad769e..4b08710 100644
+--- a/vp9/encoder/vp9_rdopt.c
++++ b/vp9/encoder/vp9_rdopt.c
+@@ -365,7 +365,7 @@
+   const int16_t *band_count = &band_counts[tx_size][1];
+   const int eob = p->eobs[block];
+   const tran_low_t *const qcoeff = BLOCK_OFFSET(p->qcoeff, block);
+-  unsigned int(*token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
++  unsigned int (*token_costs)[2][COEFF_CONTEXTS][ENTROPY_TOKENS] =
+       x->token_costs[tx_size][type][is_inter_block(mi)];
+   uint8_t token_cache[32 * 32];
+   int cost;
+@@ -422,7 +422,7 @@
+       // dc token
+       int v = qcoeff[0];
+       int16_t tok;
+-      unsigned int(*tok_cost_ptr)[COEFF_CONTEXTS][ENTROPY_TOKENS];
++      unsigned int (*tok_cost_ptr)[COEFF_CONTEXTS][ENTROPY_TOKENS];
+       cost = vp9_get_token_cost(v, &tok, cat6_high_cost);
+       cost += (*token_costs)[0][pt][tok];
+ 
+diff --git a/vp9/encoder/vp9_temporal_filter_constants.h b/vp9/encoder/vp9_temporal_filter_constants.h
+index 8776dfc..04087cc 100644
+--- a/vp9/encoder/vp9_temporal_filter_constants.h
++++ b/vp9/encoder/vp9_temporal_filter_constants.h
+@@ -374,33 +374,33 @@
+   HIGHBD_RIGHT_CORNER_NEIGHBORS_PLUS_1, HIGHBD_RIGHT_EDGE_NEIGHBORS_PLUS_1
+ };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_SINGLE_SS_LEFT_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_SINGLE_SS_LEFT_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_LEFT_CORNER_NEIGHBORS_PLUS_2, HIGHBD_LEFT_EDGE_NEIGHBORS_PLUS_2
+     };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_SINGLE_SS_MIDDLE_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_SINGLE_SS_MIDDLE_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_MIDDLE_EDGE_NEIGHBORS_PLUS_2, HIGHBD_MIDDLE_CENTER_NEIGHBORS_PLUS_2
+     };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_SINGLE_SS_RIGHT_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_SINGLE_SS_RIGHT_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_RIGHT_CORNER_NEIGHBORS_PLUS_2, HIGHBD_RIGHT_EDGE_NEIGHBORS_PLUS_2
+     };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_DOUBLE_SS_LEFT_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_DOUBLE_SS_LEFT_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_LEFT_CORNER_NEIGHBORS_PLUS_4, HIGHBD_LEFT_EDGE_NEIGHBORS_PLUS_4
+     };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_DOUBLE_SS_MIDDLE_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_DOUBLE_SS_MIDDLE_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_MIDDLE_EDGE_NEIGHBORS_PLUS_4, HIGHBD_MIDDLE_CENTER_NEIGHBORS_PLUS_4
+     };
+ 
+-static const uint32_t
+-    *const HIGHBD_CHROMA_DOUBLE_SS_RIGHT_COLUMN_NEIGHBORS[2] = {
++static const uint32_t *const
++    HIGHBD_CHROMA_DOUBLE_SS_RIGHT_COLUMN_NEIGHBORS[2] = {
+       HIGHBD_RIGHT_CORNER_NEIGHBORS_PLUS_4, HIGHBD_RIGHT_EDGE_NEIGHBORS_PLUS_4
+     };
+ #endif  // CONFIG_VP9_HIGHBITDEPTH
+diff --git a/vp9/encoder/vp9_tokenize.c b/vp9/encoder/vp9_tokenize.c
+index 6c6c044..342a4f5 100644
+--- a/vp9/encoder/vp9_tokenize.c
++++ b/vp9/encoder/vp9_tokenize.c
+@@ -366,11 +366,11 @@
+   const int16_t *scan, *nb;
+   const ScanOrder *so;
+   const int ref = is_inter_block(mi);
+-  unsigned int(*const counts)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
++  unsigned int (*const counts)[COEFF_CONTEXTS][ENTROPY_TOKENS] =
+       td->rd_counts.coef_counts[tx_size][type][ref];
+   vpx_prob(*const coef_probs)[COEFF_CONTEXTS][UNCONSTRAINED_NODES] =
+       cpi->common.fc->coef_probs[tx_size][type][ref];
+-  unsigned int(*const eob_branch)[COEFF_CONTEXTS] =
++  unsigned int (*const eob_branch)[COEFF_CONTEXTS] =
+       td->counts->eob_branch[tx_size][type][ref];
+   const uint8_t *const band = get_band_translate(tx_size);
+   const int tx_eob = 16 << (tx_size << 1);
+diff --git a/vpx_dsp/ppc/sad_vsx.c b/vpx_dsp/ppc/sad_vsx.c
+index a08ae12..64ca502 100644
+--- a/vpx_dsp/ppc/sad_vsx.c
++++ b/vpx_dsp/ppc/sad_vsx.c
+@@ -181,10 +181,10 @@
+     for (i = 0; i < 4; i++) sad_array[i] = 0;                             \
+                                                                           \
+     for (y = 0; y < height; y++) {                                        \
+-      UNPACK_SRC(y *src_stride, v_ah, v_al);                              \
++      UNPACK_SRC(y * src_stride, v_ah, v_al);                             \
+       for (i = 0; i < 4; i++) {                                           \
+         int32x4_t v_sad = vec_splat_s32(0);                               \
+-        PROCESS16_4D(y *ref_stride, ref_array[i], v_ah, v_al);            \
++        PROCESS16_4D(y * ref_stride, ref_array[i], v_ah, v_al);           \
+                                                                           \
+         vec_vsx_st((uint32x4_t)v_sad, 0, sad);                            \
+         sad_array[i] += (sad[3] + sad[2] + sad[1] + sad[0]);              \
+@@ -206,12 +206,12 @@
+     for (i = 0; i < 4; i++) sad_array[i] = 0;                             \
+                                                                           \
+     for (y = 0; y < height; y++) {                                        \
+-      UNPACK_SRC(y *src_stride, v_ah1, v_al1);                            \
+-      UNPACK_SRC(y *src_stride + 16, v_ah2, v_al2);                       \
++      UNPACK_SRC(y * src_stride, v_ah1, v_al1);                           \
++      UNPACK_SRC(y * src_stride + 16, v_ah2, v_al2);                      \
+       for (i = 0; i < 4; i++) {                                           \
+         int32x4_t v_sad = vec_splat_s32(0);                               \
+-        PROCESS16_4D(y *ref_stride, ref_array[i], v_ah1, v_al1);          \
+-        PROCESS16_4D(y *ref_stride + 16, ref_array[i], v_ah2, v_al2);     \
++        PROCESS16_4D(y * ref_stride, ref_array[i], v_ah1, v_al1);         \
++        PROCESS16_4D(y * ref_stride + 16, ref_array[i], v_ah2, v_al2);    \
+                                                                           \
+         vec_vsx_st((uint32x4_t)v_sad, 0, sad);                            \
+         sad_array[i] += (sad[3] + sad[2] + sad[1] + sad[0]);              \
+@@ -234,16 +234,16 @@
+     for (i = 0; i < 4; i++) sad_array[i] = 0;                             \
+                                                                           \
+     for (y = 0; y < height; y++) {                                        \
+-      UNPACK_SRC(y *src_stride, v_ah1, v_al1);                            \
+-      UNPACK_SRC(y *src_stride + 16, v_ah2, v_al2);                       \
+-      UNPACK_SRC(y *src_stride + 32, v_ah3, v_al3);                       \
+-      UNPACK_SRC(y *src_stride + 48, v_ah4, v_al4);                       \
++      UNPACK_SRC(y * src_stride, v_ah1, v_al1);                           \
++      UNPACK_SRC(y * src_stride + 16, v_ah2, v_al2);                      \
++      UNPACK_SRC(y * src_stride + 32, v_ah3, v_al3);                      \
++      UNPACK_SRC(y * src_stride + 48, v_ah4, v_al4);                      \
+       for (i = 0; i < 4; i++) {                                           \
+         int32x4_t v_sad = vec_splat_s32(0);                               \
+-        PROCESS16_4D(y *ref_stride, ref_array[i], v_ah1, v_al1);          \
+-        PROCESS16_4D(y *ref_stride + 16, ref_array[i], v_ah2, v_al2);     \
+-        PROCESS16_4D(y *ref_stride + 32, ref_array[i], v_ah3, v_al3);     \
+-        PROCESS16_4D(y *ref_stride + 48, ref_array[i], v_ah4, v_al4);     \
++        PROCESS16_4D(y * ref_stride, ref_array[i], v_ah1, v_al1);         \
++        PROCESS16_4D(y * ref_stride + 16, ref_array[i], v_ah2, v_al2);    \
++        PROCESS16_4D(y * ref_stride + 32, ref_array[i], v_ah3, v_al3);    \
++        PROCESS16_4D(y * ref_stride + 48, ref_array[i], v_ah4, v_al4);    \
+                                                                           \
+         vec_vsx_st((uint32x4_t)v_sad, 0, sad);                            \
+         sad_array[i] += (sad[3] + sad[2] + sad[1] + sad[0]);              \

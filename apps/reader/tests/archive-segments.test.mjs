@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { ArchiveStore, objectMetadata, referencedObjectFiles, verifyCatalog, transcodeCatalog } from '../src/core/archive.mjs';
-import { CONTENT_BLOCK_BYTES } from '../src/core/content-packs.mjs';
+import { CONTENT_BLOCK_BYTES, CONTENT_BLOB_BYTES, CONTENT_DOCUMENT_BYTES, validateContentRef } from '../src/core/content-packs.mjs';
 
 function setup(t, options = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'threadshelf-v2-segments-'));
@@ -16,6 +16,31 @@ function setup(t, options = {}) {
 const document = (key, extra = {}) => ({ provider: 'openai', collection: 'Research', sourceFile: '/native/export.json',
   conversationKey: key, title: `Conversation ${key}`, turns: [{ user: `Question ${key}`, turn_index: 4 }, { ai: `Answer ${key}`, turn_index: 9 }],
   raw: { future: ['未知', null, true, { code: 'opaque' }] }, ...extra });
+
+test('backup validation rejects repeated-object expansion before decoding or allocating a huge content record', async t => {
+  const store = setup(t), id = store.upsert(document('bounded-backup')).summary.id;
+  const original = store.db.prepare('SELECT content_ref FROM conversations WHERE id=?').get(id).content_ref;
+  const ref = JSON.parse(original), block = { ...ref.header.blocks[0], bytes: CONTENT_BLOCK_BYTES };
+  const count = CONTENT_BLOB_BYTES / CONTENT_BLOCK_BYTES + 1;
+  ref.header = { bytes: count * block.bytes, blocks: Array(count).fill(block) };
+  store.db.prepare('UPDATE conversations SET content_ref=? WHERE id=?').run(JSON.stringify(ref), id);
+  const reads = store.cacheStats().decodedObjects;
+  await assert.rejects(verifyCatalog(store.db, store.contentDir), /512 MiB safety limit/);
+  assert.throws(() => store.thread({ id }), /512 MiB safety limit/);
+  assert.equal(store.cacheStats().decodedObjects, reads, 'reject descriptor before reading any content bytes');
+  store.db.prepare('UPDATE conversations SET content_ref=? WHERE id=?').run(original, id);
+  assert.equal(store.thread({ id }).turns[0].user, 'Question bounded-backup');
+});
+
+test('aggregate conversation bound also rejects repeated individually bounded turn groups', t => {
+  const store = setup(t), id = store.upsert(document('bounded-groups')).summary.id;
+  const ref = JSON.parse(store.db.prepare('SELECT content_ref FROM conversations WHERE id=?').get(id).content_ref);
+  const block = { ...ref.groups[0].blob.blocks[0], bytes: CONTENT_BLOCK_BYTES };
+  const count = CONTENT_DOCUMENT_BYTES / CONTENT_BLOCK_BYTES + 1;
+  ref.groups = Array.from({ length: count }, (_, first) => ({ first, count: 1, blob: { bytes: block.bytes, blocks: [block] } }));
+  ref.turnCount = count;
+  assert.throws(() => validateContentRef(ref), /1 GiB safety limit/);
+});
 
 test('v2 catalog and durable mutation records contain references, never source bodies', t => {
   const store = setup(t), sentinel = 'BODY_ONLY_96d595dd_does_not_belong_in_catalog';

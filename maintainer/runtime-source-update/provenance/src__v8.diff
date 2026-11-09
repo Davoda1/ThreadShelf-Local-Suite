@@ -1,0 +1,1386 @@
+diff --git a/include/cppgc/heap-consistency.h b/include/cppgc/heap-consistency.h
+index 23b5d90..31858f0 100644
+--- a/include/cppgc/heap-consistency.h
++++ b/include/cppgc/heap-consistency.h
+@@ -146,8 +146,8 @@
+   }
+ 
+   /**
+-   * Steele-style write barrier that re-processes an object if it has already
+-   * been processed.
++   * Steele-style write barrier that processes an object regardless of whether
++   * or not it has already been processed.
+    *
+    * \param params The parameters retrieved from `GetWriteBarrierType()`.
+    * \param object The pointer to the object which must point to an object that
+diff --git a/include/v8-version.h b/include/v8-version.h
+index 0776c052..fafbfe3 100644
+--- a/include/v8-version.h
++++ b/include/v8-version.h
+@@ -11,7 +11,7 @@
+ #define V8_MAJOR_VERSION 15
+ #define V8_MINOR_VERSION 6
+ #define V8_BUILD_NUMBER 75
+-#define V8_PATCH_LEVEL 19
++#define V8_PATCH_LEVEL 27
+ 
+ // Use 1 for candidates and 0 otherwise.
+ // (Boolean macro values are not supported by all preprocessors.)
+diff --git a/src/ast/scopes.cc b/src/ast/scopes.cc
+index 7713cd8..725f007 100644
+--- a/src/ast/scopes.cc
++++ b/src/ast/scopes.cc
+@@ -345,6 +345,7 @@
+                            is_module_scope());
+   set_needs_private_name_context_chain_recalc(false);
+   set_class_scope_has_private_brand(false);
++  set_class_initializer_allows_await(false);
+   receiver_ = nullptr;
+   new_target_ = nullptr;
+   function_ = nullptr;
+@@ -1575,7 +1576,8 @@
+ }
+ 
+ bool Scope::ShouldBanArguments() {
+-  return GetReceiverScope()->should_ban_arguments();
++  return GetReceiverScope()->should_ban_arguments() &&
++         !GetClosureScope()->from_scope_info();
+ }
+ 
+ DeclarationScope* Scope::GetReceiverScope() {
+diff --git a/src/ast/scopes.h b/src/ast/scopes.h
+index f85e742..fa13cc9 100644
+--- a/src/ast/scopes.h
++++ b/src/ast/scopes.h
+@@ -1387,6 +1387,13 @@
+     return ClassScopeHasPrivateBrandField::decode(flags_);
+   }
+ 
++  bool class_initializer_allows_await() const {
++    return ClassInitializerAllowsAwaitField::decode(flags_);
++  }
++  void set_class_initializer_allows_await(bool value) {
++    flags_ = ClassInitializerAllowsAwaitField::update(flags_, value);
++  }
++
+  private:
+   V8_INLINE void AllocateParameter(Variable* var, int index);
+ 
+@@ -1430,6 +1437,8 @@
+       HasThisDeclarationField::Next<bool, 1>;
+   using ClassScopeHasPrivateBrandField =
+       NeedsPrivateNameContextChainRecalcField::Next<bool, 1>;
++  using ClassInitializerAllowsAwaitField =
++      ClassScopeHasPrivateBrandField::Next<bool, 1>;
+ 
+ #if DEBUG
+   bool is_being_lazily_parsed_;
+diff --git a/src/compiler/common-operator.cc b/src/compiler/common-operator.cc
+index 37ab33d..0bc7016 100644
+--- a/src/compiler/common-operator.cc
++++ b/src/compiler/common-operator.cc
+@@ -515,6 +515,32 @@
+   return OpParameter<ExitMachineGraphParameters>(op);
+ }
+ 
++#if V8_ENABLE_SANDBOX
++size_t hash_value(const LoadTrustedPointerParameters& params) {
++  return base::hash_combine(params.offset, params.tag);
++}
++
++V8_EXPORT_PRIVATE std::ostream& operator<<(
++    std::ostream& os, LoadTrustedPointerParameters params) {
++  return os << "offset=" << params.offset << ", tag.first=" << params.tag.first
++            << ", tag.last=" << params.tag.last;
++}
++
++class LoadTrustedPointerOperator final
++    : public Operator1<LoadTrustedPointerParameters> {
++ public:
++  LoadTrustedPointerOperator(int offset, IndirectPointerTagRange tag)
++      : Operator1<LoadTrustedPointerParameters>(
++            IrOpcode::kLoadTrustedPointer, Operator::kEliminatable,
++            "LoadTrustedPointer", 1, 1, 1, 1, 1, 0, {offset, tag}) {}
++};
++
++const Operator* CommonOperatorBuilder::LoadTrustedPointer(
++    int offset, IndirectPointerTagRange tag) {
++  return zone_->New<LoadTrustedPointerOperator>(offset, tag);
++}
++#endif  // V8_ENABLE_SANDBOX
++
+ #define COMMON_CACHED_OP_LIST(V)                          \
+   V(Plug, Operator::kNoProperties, 0, 0, 0, 1, 0, 0)      \
+   V(Dead, Operator::kFoldable, 0, 0, 0, 1, 1, 1)          \
+diff --git a/src/compiler/common-operator.h b/src/compiler/common-operator.h
+index 6499e23..3a1188f 100644
+--- a/src/compiler/common-operator.h
++++ b/src/compiler/common-operator.h
+@@ -538,6 +538,20 @@
+ V8_EXPORT_PRIVATE const ExitMachineGraphParameters&
+ ExitMachineGraphParametersOf(const Operator* op) V8_WARN_UNUSED_RESULT;
+ 
++#if V8_ENABLE_SANDBOX
++struct LoadTrustedPointerParameters {
++  int offset;
++  IndirectPointerTagRange tag;
++
++  bool operator==(const LoadTrustedPointerParameters&) const = default;
++};
++
++size_t hash_value(const LoadTrustedPointerParameters& params);
++
++V8_EXPORT_PRIVATE std::ostream& operator<<(std::ostream& os,
++                                           LoadTrustedPointerParameters params);
++#endif  // V8_ENABLE_SANDBOX
++
+ // Interface for building common operators that can be used at any level of IR,
+ // including JavaScript, mid-level, and low-level.
+ class V8_EXPORT_PRIVATE CommonOperatorBuilder final
+@@ -616,6 +630,9 @@
+   const Operator* HeapConstant(const Handle<HeapObject>&);
+   const Operator* CompressedHeapConstant(const Handle<HeapObject>&);
+   const Operator* TrustedHeapConstant(const Handle<HeapObject>&);
++#if V8_ENABLE_SANDBOX
++  const Operator* LoadTrustedPointer(int offset, IndirectPointerTagRange tag);
++#endif
+   const Operator* ObjectId(uint32_t);
+ 
+   const Operator* RelocatableInt32Constant(int32_t value,
+diff --git a/src/compiler/opcodes.h b/src/compiler/opcodes.h
+index de11918..d74406b 100644
+--- a/src/compiler/opcodes.h
++++ b/src/compiler/opcodes.h
+@@ -85,15 +85,16 @@
+   V(EnterMachineGraph)      \
+   V(ExitMachineGraph)
+ 
+-#define COMMON_OP_LIST(V)      \
+-  CONSTANT_OP_LIST(V)          \
+-  INNER_OP_LIST(V)             \
+-  V(Unreachable)               \
+-  V(DeadValue)                 \
+-  V(Dead)                      \
+-  V(Plug)                      \
+-  V(SLVerifierHint)            \
+-  V(MajorGCForCompilerTesting) \
++#define COMMON_OP_LIST(V)           \
++  CONSTANT_OP_LIST(V)               \
++  INNER_OP_LIST(V)                  \
++  V(Unreachable)                    \
++  V(DeadValue)                      \
++  V(Dead)                           \
++  V(Plug)                           \
++  V(SLVerifierHint)                 \
++  V(MajorGCForCompilerTesting)      \
++  IF_SANDBOX(V, LoadTrustedPointer) \
+   V(StaticAssert)
+ 
+ // Opcodes for JavaScript operators.
+diff --git a/src/compiler/simplified-lowering-verifier.cc b/src/compiler/simplified-lowering-verifier.cc
+index d288ed1..6d41bbb 100644
+--- a/src/compiler/simplified-lowering-verifier.cc
++++ b/src/compiler/simplified-lowering-verifier.cc
+@@ -504,6 +504,7 @@
+       CASE(Dead)
+       CASE(Plug)
+       CASE(MajorGCForCompilerTesting)
++      IF_SANDBOX(CASE, LoadTrustedPointer)
+       CASE(StaticAssert)
+       // Simplified change operators
+       CASE(ChangeTaggedSignedToInt32)
+diff --git a/src/compiler/turbofan-typer.cc b/src/compiler/turbofan-typer.cc
+index 16fa4b6..04df612 100644
+--- a/src/compiler/turbofan-typer.cc
++++ b/src/compiler/turbofan-typer.cc
+@@ -1297,6 +1297,9 @@
+   UNREACHABLE();
+ }
+ Type Typer::Visitor::TypeStaticAssert(Node* node) { UNREACHABLE(); }
++#if V8_ENABLE_SANDBOX
++Type Typer::Visitor::TypeLoadTrustedPointer(Node* node) { UNREACHABLE(); }
++#endif
+ Type Typer::Visitor::TypeSLVerifierHint(Node* node) { UNREACHABLE(); }
+ 
+ // JS comparison operators.
+diff --git a/src/compiler/turboshaft/graph-builder.cc b/src/compiler/turboshaft/graph-builder.cc
+index 4864bf7..5866bba 100644
+--- a/src/compiler/turboshaft/graph-builder.cc
++++ b/src/compiler/turboshaft/graph-builder.cc
+@@ -1434,6 +1434,14 @@
+       return __ Load(Map(node->InputAt(0)), Map(node->InputAt(1)),
+                      LoadOp::Kind::Trapping(), loaded_rep);
+     }
++#if V8_ENABLE_SANDBOX
++    case IrOpcode::kLoadTrustedPointer: {
++      auto params = OpParameter<LoadTrustedPointerParameters>(op);
++      return __ LoadTrustedPointer(Map(node->InputAt(0)),
++                                   LoadOp::Kind::TaggedBase(), params.tag,
++                                   params.offset + kHeapObjectTag);
++    }
++#endif
+ 
+     case IrOpcode::kStore:
+     case IrOpcode::kUnalignedStore: {
+diff --git a/src/compiler/turboshaft/pipelines.cc b/src/compiler/turboshaft/pipelines.cc
+index 3c773ae..4aff92c 100644
+--- a/src/compiler/turboshaft/pipelines.cc
++++ b/src/compiler/turboshaft/pipelines.cc
+@@ -85,6 +85,21 @@
+ 
+   RUN_MAYBE_ABORT(DecideSpillingModePhase);
+   RUN_MAYBE_ABORT(AssignSpillSlotsPhase);
++
++  // The prologue grows the frame with a single stack pointer decrement, before
++  // the function entry stack check runs. A frame no larger than the smallest OS
++  // page cannot step over a guard page, so bail out rather than emit an
++  // unchecked stack pointer jump of arbitrary size.
++  // When replacing this bailout with a different strategy, consider doing the
++  // same in Maglev as well.
++  constexpr int kMaxStackSlots = 4 * KB / kSystemPointerSize;
++  if (data_->info()->IsOptimizing() &&
++      data_->frame()->GetTotalFrameSlotCount() > kMaxStackSlots) {
++    data_->info()->AbortOptimization(BailoutReason::kFunctionTooBig);
++    data()->ClearRegisterComponent();
++    return false;
++  }
++
+   RUN_MAYBE_ABORT(CommitAssignmentPhase);
+ 
+   // TODO(chromium:725559): remove this check once
+diff --git a/src/compiler/verifier.cc b/src/compiler/verifier.cc
+index a4787d8..39d2dbc 100644
+--- a/src/compiler/verifier.cc
++++ b/src/compiler/verifier.cc
+@@ -653,6 +653,11 @@
+     case IrOpcode::kExitMachineGraph:
+       CheckValueInputIs(node, 0, Type::Machine());
+       break;
++#if V8_ENABLE_SANDBOX
++    case IrOpcode::kLoadTrustedPointer:
++      // TODO(manoskouk): what are the constraints here?
++      break;
++#endif
+ 
+     // JavaScript operators
+     // --------------------
+diff --git a/src/compiler/wasm-graph-assembler.cc b/src/compiler/wasm-graph-assembler.cc
+index c5c4dd9..f4e55a5 100644
+--- a/src/compiler/wasm-graph-assembler.cc
++++ b/src/compiler/wasm-graph-assembler.cc
+@@ -242,55 +242,6 @@
+ #endif  // V8_ENABLE_SANDBOX
+ }
+ 
+-Node* WasmGraphAssembler::BuildDecodeTrustedPointer(
+-    Node* handle, IndirectPointerTagRange tag_range) {
+-#if V8_ENABLE_SANDBOX
+-  Node* index = Word32Shr(handle, Int32Constant(kTrustedPointerHandleShift));
+-  Node* offset = ChangeUint32ToUint64(
+-      Word32Shl(index, Int32Constant(kTrustedPointerTableEntrySizeLog2)));
+-  Node* table = Load(MachineType::Pointer(), LoadRootRegister(),
+-                     IsolateData::trusted_pointer_table_offset() +
+-                         Internals::kExternalEntityTableBasePointerOffset);
+-  Node* decoded_ptr = Load(MachineType::Pointer(), table, offset);
+-
+-  if (IsFastIndirectPointerTagRange(tag_range)) {
+-    uint64_t mask = ComputeUntaggingMaskForFastIndirectPointerTag(tag_range);
+-    decoded_ptr = WordAnd(decoded_ptr, IntPtrConstant(mask));
+-  } else {
+-    Node* tag =
+-        WordShr(decoded_ptr, IntPtrConstant(kTrustedPointerTableTagShift));
+-
+-    auto ok = MakeLabel();
+-    if (tag_range.Size() == 1) {
+-      // The common and simple case: we expect exactly one tag.
+-      Node* expected_tag = IntPtrConstant(tag_range.first);
+-      GotoIf(WordEqual(tag, expected_tag), &ok, BranchHint::kTrue);
+-      RuntimeAbort(AbortReason::kIndirectPointerTagMismatch);
+-      Goto(&ok);  // Unreachable, but needed for graph coherency.
+-    } else {
+-      // Range check.
+-      Node* diff = IntPtrSub(tag, IntPtrConstant(tag_range.first));
+-      GotoIf(Uint64LessThanOrEqual(
+-                 diff, IntPtrConstant(tag_range.last - tag_range.first)),
+-             &ok, BranchHint::kTrue);
+-      RuntimeAbort(AbortReason::kIndirectPointerTagMismatch);
+-      Goto(&ok);  // Unreachable, but needed for graph coherency.
+-    }
+-
+-    Bind(&ok);
+-    decoded_ptr =
+-        WordAnd(decoded_ptr, IntPtrConstant(kTrustedPointerTablePayloadMask));
+-  }
+-
+-  // We have to change the type of the result value to Tagged, so if the value
+-  // gets spilled on the stack, it will get processed by the GC.
+-  decoded_ptr = BitcastWordToTagged(decoded_ptr);
+-  return decoded_ptr;
+-#else
+-  UNREACHABLE();
+-#endif  // V8_ENABLE_SANDBOX
+-}
+-
+ Node* WasmGraphAssembler::BuildLoadExternalPointerFromObject(
+     Node* object, int field_offset, ExternalPointerTagRange tag_range,
+     Node* isolate_root) {
+@@ -408,41 +359,17 @@
+   return LoadFromObject(type, byte_array, offset);
+ }
+ 
+-Node* WasmGraphAssembler::LoadImmutableTrustedPointerFromObject(
+-    Node* object, int field_offset, IndirectPointerTagRange tag) {
+-  Node* offset = IntPtrConstant(field_offset);
+-#ifdef V8_ENABLE_SANDBOX
+-  Node* handle = LoadImmutableFromObject(MachineType::Uint32(), object, offset);
+-  return BuildDecodeTrustedPointer(handle, tag);
+-#else
+-  return LoadImmutableFromObject(MachineType::TaggedPointer(), object, offset);
+-#endif
+-}
+-
+ Node* WasmGraphAssembler::LoadTrustedPointerFromObject(
+     Node* object, int field_offset, IndirectPointerTagRange tag) {
+-  Node* offset = IntPtrConstant(field_offset);
+ #ifdef V8_ENABLE_SANDBOX
+-  Node* handle = LoadFromObject(MachineType::Uint32(), object, offset);
+-  return BuildDecodeTrustedPointer(handle, tag);
++  return AddNode(graph()->NewNode(common_.LoadTrustedPointer(field_offset, tag),
++                                  object, effect(), control()));
+ #else
++  Node* offset = IntPtrConstant(field_offset);
+   return LoadFromObject(MachineType::TaggedPointer(), object, offset);
+ #endif
+ }
+ 
+-std::pair<Node*, Node*>
+-WasmGraphAssembler::LoadTrustedPointerFromObjectTrapOnNull(
+-    Node* object, int field_offset, IndirectPointerTagRange tag) {
+-  Node* offset = IntPtrConstant(field_offset);
+-#ifdef V8_ENABLE_SANDBOX
+-  Node* handle = LoadTrapOnNull(MachineType::Uint32(), object, offset);
+-  return {handle, BuildDecodeTrustedPointer(handle, tag)};
+-#else
+-  Node* value = LoadTrapOnNull(MachineType::TaggedPointer(), object, offset);
+-  return {value, value};
+-#endif
+-}
+-
+ Node* WasmGraphAssembler::StoreFixedArrayElement(Node* array, int index,
+                                                  Node* value,
+                                                  ObjectAccess access) {
+@@ -465,7 +392,7 @@
+ 
+ Node* WasmGraphAssembler::LoadFunctionDataFromJSFunction(Node* js_function) {
+   Node* shared = LoadSharedFunctionInfo(js_function);
+-  return LoadImmutableTrustedPointerFromObject(
++  return LoadTrustedPointerFromObject(
+       shared,
+       offsetof(SharedFunctionInfo, trusted_function_data_) - kHeapObjectTag,
+       kWasmExportedFunctionDataIndirectPointerTag);
+@@ -624,7 +551,7 @@
+ 
+ Node* WasmGraphAssembler::LoadTrustedDataFromInstanceObject(
+     Node* instance_object) {
+-  return LoadImmutableTrustedPointerFromObject(
++  return LoadTrustedPointerFromObject(
+       instance_object,
+       offsetof(WasmInstanceObject, trusted_data_) - kHeapObjectTag,
+       kWasmTrustedInstanceDataIndirectPointerTag);
+diff --git a/src/compiler/wasm-graph-assembler.h b/src/compiler/wasm-graph-assembler.h
+index f10e020..0737d79 100644
+--- a/src/compiler/wasm-graph-assembler.h
++++ b/src/compiler/wasm-graph-assembler.h
+@@ -28,7 +28,8 @@
+  public:
+   WasmGraphAssembler(MachineGraph* mcgraph, Zone* zone)
+       : GraphAssembler(mcgraph, zone, BranchSemantics::kMachine),
+-        simplified_(zone) {}
++        simplified_(zone),
++        common_(zone) {}
+ 
+   // While CallBuiltin() translates to a direct call to the address of the
+   // builtin, CallBuiltinThroughJumptable instead jumps to a slot in a jump
+@@ -177,15 +178,8 @@
+                                            ExternalPointerTagRange tag_range,
+                                            Node* isolate_root);
+ 
+-  Node* LoadImmutableTrustedPointerFromObject(Node* object, int offset,
+-                                              IndirectPointerTagRange tag);
+   Node* LoadTrustedPointerFromObject(Node* object, int offset,
+                                      IndirectPointerTagRange tag);
+-  // Returns the load node (where the source position for the trap needs to be
+-  // set by the caller) and the result.
+-  std::pair<Node*, Node*> LoadTrustedPointerFromObjectTrapOnNull(
+-      Node* object, int offset, IndirectPointerTagRange tag);
+-  Node* BuildDecodeTrustedPointer(Node* handle, IndirectPointerTagRange tag);
+ 
+   Node* IsSmi(Node* object);
+ 
+@@ -345,6 +339,7 @@
+   }
+ 
+   SimplifiedOperatorBuilder simplified_;
++  CommonOperatorBuilder common_;
+ };
+ 
+ }  // namespace compiler
+diff --git a/src/execution/frames.cc b/src/execution/frames.cc
+index 51055f1..12cadd2 100644
+--- a/src/execution/frames.cc
++++ b/src/execution/frames.cc
+@@ -1903,10 +1903,35 @@
+   bool has_tagged_outgoing_params =
+       wasm_code->kind() != wasm::WasmCode::kWasmFunction &&
+       wasm_code->kind() != wasm::WasmCode::kWasmToCapiWrapper;
+-  if (!InFastCCall() && has_tagged_outgoing_params) {
+-    FullObjectSlot parameters_base(&Memory<Address>(sp()));
+-    v->VisitRootPointers(Root::kStackRoots, nullptr, parameters_base,
+-                         parameters_limit);
++  if (!InFastCCall()) {
++    if (has_tagged_outgoing_params) {
++      FullObjectSlot parameters_base(&Memory<Address>(sp()));
++      v->VisitRootPointers(Root::kStackRoots, nullptr, parameters_base,
++                           parameters_limit);
++    } else if (wasm_code->kind() == wasm::WasmCode::kWasmFunction &&
++               callee_pc() != kNullAddress) {
++      // If a Wasm function calls a builtin with tagged stack parameters,
++      // visit those parameters. (Calls to other Wasm functions or to
++      // WasmToJsWrapperCSA have their tagged stack parameters visited by the
++      // callee frame instead.)
++      Builtin builtin =
++          OffHeapInstructionStream::TryLookupCode(isolate(), callee_pc());
++      if (Builtins::IsBuiltinId(builtin)) {
++        CallInterfaceDescriptor descriptor =
++            Builtins::CallInterfaceDescriptorFor(builtin);
++        DCHECK(!descriptor.AllowVarArgs());
++        if (!(descriptor.flags() & CallInterfaceDescriptorData::kNoStackScan)) {
++          int stack_params = descriptor.GetStackParameterCount();
++          DCHECK_IMPLIES(builtin == Builtin::kWasmToJsWrapperCSA,
++                         stack_params == 0);
++          if (stack_params > 0) {
++            FullObjectSlot parameters_base(&Memory<Address>(sp()));
++            v->VisitRootPointers(Root::kStackRoots, nullptr, parameters_base,
++                                 parameters_base + stack_params);
++          }
++        }
++      }
++    }
+   }
+ 
+   // Visit pointer spill slots and locals.
+diff --git a/src/heap/cppgc-internal/marker.h b/src/heap/cppgc-internal/marker.h
+index 84fec07..ad96e22 100644
+--- a/src/heap/cppgc-internal/marker.h
++++ b/src/heap/cppgc-internal/marker.h
+@@ -10,6 +10,7 @@
+ #include "include/cppgc/heap.h"
+ #include "include/cppgc/platform.h"
+ #include "include/cppgc/visitor.h"
++#include "src/base/logging.h"
+ #include "src/base/macros.h"
+ #include "src/base/platform/time.h"
+ #include "src/heap/base/incremental-marking-schedule.h"
+@@ -238,20 +239,15 @@
+ 
+ template <MarkerBase::WriteBarrierType type>
+ void MarkerBase::WriteBarrierForObject(HeapObjectHeader& header) {
+-  // The barrier optimizes for the bailout cases:
+-  // - kDijkstra: Marked objects.
+-  // - kSteele: Unmarked objects.
+-  switch (type) {
+-    case MarkerBase::WriteBarrierType::kDijkstra:
+-      if (!header.TryMarkAtomic()) {
+-        return;
+-      }
+-      break;
+-    case MarkerBase::WriteBarrierType::kSteele:
+-      if (!header.IsMarked<AccessMode::kAtomic>()) {
+-        return;
+-      }
+-      break;
++  // The Dijkstra barrier bails out on marked objects.
++  // The Steele barrier marks the object regardless of its current state.
++  // It's important to make sure the object is marked here since unmarking
++  // below for in construction objects expects a marked object.
++  const bool was_already_marked = !header.TryMarkAtomic();
++  if (type == MarkerBase::WriteBarrierType::kDijkstra) {
++    if (was_already_marked) {
++      return;
++    }
+   }
+ 
+   // The barrier fired. Filter out in-construction objects here. This possibly
+@@ -267,13 +263,18 @@
+     return;
+   }
+ 
+-  switch (type) {
+-    case MarkerBase::WriteBarrierType::kDijkstra:
+-      mutator_marking_state_.write_barrier_worklist().Push(&header);
+-      break;
+-    case MarkerBase::WriteBarrierType::kSteele:
+-      mutator_marking_state_.retrace_marked_objects_worklist().Push(&header);
+-      break;
++  DCHECK_IMPLIES(was_already_marked,
++                 type == MarkerBase::WriteBarrierType::kSteele);
++  if ((type == MarkerBase::WriteBarrierType::kDijkstra) ||
++      !was_already_marked) {
++    // Push previously unmarked objects to the write barrier worklist, even for
++    // the Steele barrier, since popping from that worklist would also update
++    // the marked bytes counter.
++    mutator_marking_state_.write_barrier_worklist().Push(&header);
++  } else {
++    DCHECK((type == MarkerBase::WriteBarrierType::kSteele) &&
++           was_already_marked);
++    mutator_marking_state_.retrace_marked_objects_worklist().Push(&header);
+   }
+ }
+ 
+diff --git a/src/maglev/maglev-compiler.cc b/src/maglev/maglev-compiler.cc
+index 06dd7c5..7423622 100644
+--- a/src/maglev/maglev-compiler.cc
++++ b/src/maglev/maglev-compiler.cc
+@@ -285,6 +285,8 @@
+   // FunctionEntryStackCheck runs. A frame no larger than the smallest OS page
+   // cannot step over a guard page, so bail out rather than emit an unchecked
+   // stack pointer jump of arbitrary size.
++  // When replacing this bailout with a different strategy, consider doing the
++  // same in Turboshaft as well.
+   if (graph->tagged_stack_slots() + graph->untagged_stack_slots() >
+       kMaxStackSlots) {
+     return false;
+diff --git a/src/maglev/maglev-graph-optimizer.cc b/src/maglev/maglev-graph-optimizer.cc
+index 8f5ec52..a78420a 100644
+--- a/src/maglev/maglev-graph-optimizer.cc
++++ b/src/maglev/maglev-graph-optimizer.cc
+@@ -688,11 +688,54 @@
+   }
+ }
+ 
++namespace {
++
++// Returns the type check that `alt` is guaranteed to have already performed
++// on its tagged input node.
++NodeType GuaranteedInputType(UseRepresentation repr, ValueNode* alt) {
++  switch (repr) {
++    case UseRepresentation::kInt32:
++    case UseRepresentation::kFloat64:
++      return NodeType::kNumber;
++    case UseRepresentation::kHoleyFloat64:
++      return NodeType::kNumberOrUndefined;
++    // Unlike Int32/Float64, a Truncate node doesn't have a single fixed check,
++    // it depends on its assumed_input_type.
++    case UseRepresentation::kTruncatedInt32:
++      if (auto* t = alt->TryCast<TruncateCheckedNumberOrOddballToInt32>()) {
++        return t->assumed_input_type();
++      }
++      if (auto* t = alt->TryCast<TruncateUnsafeNumberOrOddballToInt32>()) {
++        return t->assumed_input_type();
++      }
++      return NodeType::kNumberOrOddball;
++    case UseRepresentation::kTagged:
++    case UseRepresentation::kTaggedForNumberToString:
++    case UseRepresentation::kUint32:
++    case UseRepresentation::kNonTruncated:
++      UNREACHABLE();
++  }
++  UNREACHABLE();
++}
++
++}  // namespace
++
++bool MaglevGraphOptimizer::CanReuseAlternative(
++    ValueNode* node, ValueNode* alt, UseRepresentation repr,
++    std::optional<NodeType> assumed_input_type) {
++  if (!assumed_input_type.has_value()) return true;
++  // We cannot replace a stricter check with a weaker one, as subsequent
++  // operations might rely on this node to deopt invalid inputs.
++  return reducer_.CheckType(node, *assumed_input_type) ||
++         NodeTypeIs(GuaranteedInputType(repr, alt), *assumed_input_type);
++}
++
+ MaybeReduceResult MaglevGraphOptimizer::GetUntaggedValueWithRepresentation(
+     ValueNode* node, UseRepresentation use_repr,
+     std::optional<NodeType> assumed_input_type) {
+   DCHECK_NE(use_repr, UseRepresentation::kTagged);
+-  if (node->value_representation() == ValueRepresentationFromUse(use_repr)) {
++  if (node->value_representation() == ValueRepresentationFromUse(use_repr) &&
++      CanReuseAlternative(node, node, use_repr, assumed_input_type)) {
+     return node;
+   }
+   if (node->Is<ReturnedValue>()) {
+@@ -710,8 +753,11 @@
+     // Check if we already have a canonical conversion.
+     NodeInfo* node_info =
+         known_node_aspects().GetOrCreateInfoFor(broker(), node);
+-    auto& alternative = node_info->alternative();
+-    if (ValueNode* alt = alternative.get(use_repr)) return alt;
++    if (ValueNode* alternative = node_info->alternative().get(use_repr);
++        alternative &&
++        CanReuseAlternative(node, alternative, use_repr, assumed_input_type)) {
++      return alternative;
++    }
+     // If `node` is itself tagging an untagged value, convert that value
+     // directly instead of untagging the tagged result.
+     if (node->is_conversion()) {
+@@ -726,6 +772,15 @@
+   if (!CanEagerDeopt()) {
+     return {};
+   }
++  if (node->is_holey_float64() && assumed_input_type.has_value() &&
++      NodeTypeIs(*assumed_input_type, NodeType::kNumberOrBoolean)) {
++    // HoleyFloat64 can hold the hole or undefined, whereas the replaced node
++    // checked that the input is a number (or boolean, which cannot occur in
++    // HoleyFloat64). Convert to Float64 first so CheckedHoleyFloat64ToFloat64
++    // preserves the check that subsequent operations may rely on.
++    GET_VALUE_OR_ABORT(
++        node, reducer_.GetFloat64ForToNumber(node, *assumed_input_type));
++  }
+   switch (use_repr) {
+     case UseRepresentation::kInt32:
+       return reducer_.GetInt32(node);
+diff --git a/src/maglev/maglev-graph-optimizer.h b/src/maglev/maglev-graph-optimizer.h
+index f41212a..7e98d10 100644
+--- a/src/maglev/maglev-graph-optimizer.h
++++ b/src/maglev/maglev-graph-optimizer.h
+@@ -150,6 +150,12 @@
+       ValueNode* node, UseRepresentation repr,
+       std::optional<NodeType> assumed_input_type);
+ 
++  // Returns true if reusing the cached conversion 'alt' safely preserves all
++  // required type checks for 'node'.
++  bool CanReuseAlternative(ValueNode* node, ValueNode* alt,
++                           UseRepresentation repr,
++                           std::optional<NodeType> assumed_input_type);
++
+   // Records the untagged input of a tagging conversion as the matching
+   // untagged alternative of `tagged`, so a later untagging use can reuse it.
+   template <ValueRepresentation kRepresentation>
+diff --git a/src/objects/map-updater.cc b/src/objects/map-updater.cc
+index d62c947..f143735 100644
+--- a/src/objects/map-updater.cc
++++ b/src/objects/map-updater.cc
+@@ -385,8 +385,9 @@
+   }
+ 
+   if (root_map->prototype() != old_map->prototype()) {
+-    auto maybe_transition = TransitionsAccessor::GetPrototypeTransition(
+-        isolate, root_map, old_map->prototype());
++    auto maybe_transition =
++        TransitionsAccessor(isolate, root_map, IsConcurrent(cmode))
++            .GetPrototypeTransition(old_map->prototype());
+     if (!maybe_transition) {
+       return {};
+     }
+diff --git a/src/objects/shared-function-info-inl.h b/src/objects/shared-function-info-inl.h
+index 93de8a2..c4504c0 100644
+--- a/src/objects/shared-function-info-inl.h
++++ b/src/objects/shared-function-info-inl.h
+@@ -511,6 +511,9 @@
+                     SharedFunctionInfo::PrivateNameLookupSkipsOuterClassBit)
+ BIT_FIELD_ACCESSORS(SharedFunctionInfo, relaxed_flags, is_hoisted_in_context,
+                     SharedFunctionInfo::IsHoistedInContextBit)
++BIT_FIELD_ACCESSORS(SharedFunctionInfo, relaxed_flags,
++                    class_initializer_allows_await,
++                    SharedFunctionInfo::ClassInitializerAllowsAwaitBit)
+ 
+ bool SharedFunctionInfo::optimization_disabled(CodeKind kind) const {
+   switch (kind) {
+diff --git a/src/objects/shared-function-info.cc b/src/objects/shared-function-info.cc
+index 5151351..0f4078e 100644
+--- a/src/objects/shared-function-info.cc
++++ b/src/objects/shared-function-info.cc
+@@ -600,6 +600,10 @@
+         lit->has_static_private_methods_or_accessors());
+ 
+     raw_sfi->set_is_hoisted_in_context(lit->scope()->is_hoisted_in_context());
++    DCHECK_IMPLIES(lit->scope()->class_initializer_allows_await(),
++                   IsClassInitializerFunction(lit->kind()));
++    raw_sfi->set_class_initializer_allows_await(
++        lit->scope()->class_initializer_allows_await());
+ 
+     raw_sfi->set_is_toplevel(is_toplevel);
+     DCHECK(IsTheHole(raw_sfi->outer_scope_info()));
+diff --git a/src/objects/shared-function-info.h b/src/objects/shared-function-info.h
+index d5f8a8f..dd0e0bc 100644
+--- a/src/objects/shared-function-info.h
++++ b/src/objects/shared-function-info.h
+@@ -289,6 +289,7 @@
+       PropertiesAreFinalBit::Next<bool, 1>;
+   using IsHoistedInContextBit =
+       PrivateNameLookupSkipsOuterClassBit::Next<bool, 1>;
++  using ClassInitializerAllowsAwaitBit = IsHoistedInContextBit::Next<bool, 1>;
+   // Bit positions in |flags2|.
+   using ClassScopeHasPrivateBrandBit = base::BitField<bool, 0, 1, uint8_t>;
+   using HasStaticPrivateMethodsOrAccessorsBit =
+@@ -708,6 +709,9 @@
+   // Indicates that the function is a hoisted-in-context declaration.
+   DECL_BOOLEAN_ACCESSORS(is_hoisted_in_context)
+ 
++  // Indicates that a class initializer's enclosing scope allowed await.
++  DECL_BOOLEAN_ACCESSORS(class_initializer_allows_await)
++
+   inline FunctionKind kind() const;
+ 
+   int UniqueIdInScript() const;
+diff --git a/src/objects/shared-function-info.tq b/src/objects/shared-function-info.tq
+index f4949b0..b46945f 100644
+--- a/src/objects/shared-function-info.tq
++++ b/src/objects/shared-function-info.tq
+@@ -42,6 +42,7 @@
+   properties_are_final: bool: 1 bit;
+   private_name_lookup_skips_outer_class: bool: 1 bit;
+   is_hoisted_in_context: bool: 1 bit;
++  class_initializer_allows_await: bool: 1 bit;
+ }
+ 
+ @cppScope('SharedFunctionInfo')
+diff --git a/src/objects/transitions-inl.h b/src/objects/transitions-inl.h
+index af50967..b694790 100644
+--- a/src/objects/transitions-inl.h
++++ b/src/objects/transitions-inl.h
+@@ -400,6 +400,14 @@
+   return MaybeHandle<Map>(result, isolate);
+ }
+ 
++// static
++std::optional<Tagged<Map>> TransitionsAccessor::GetPrototypeTransition(
++    Isolate* isolate, Tagged<Map> map, Tagged<Object> prototype) {
++  // This helper is supposed to be used only from the main thread.
++  DCHECK_EQ(ThreadId::Current(), isolate->thread_id());
++  return TransitionsAccessor(isolate, map).GetPrototypeTransition(prototype);
++}
++
+ // TODO(375937549): Convert to uint32_t.
+ int TransitionArray::number_of_transitions() const {
+   if (ulength().value() < kFirstIndex) return 0;
+diff --git a/src/objects/transitions.cc b/src/objects/transitions.cc
+index 907e8e6..0c0ac41 100644
+--- a/src/objects/transitions.cc
++++ b/src/objects/transitions.cc
+@@ -435,8 +435,8 @@
+ 
+   const uint32_t header = TransitionArray::kProtoTransitionHeaderSize;
+ 
+-  DirectHandle<WeakFixedArray> cache(GetPrototypeTransitions(isolate, *map),
+-                                     isolate);
++  DirectHandle<WeakFixedArray> cache(
++      TransitionsAccessor(isolate, *map).GetPrototypeTransitions(), isolate);
+   const uint32_t cache_len = cache->ulength().value();
+   const uint32_t capacity = cache_len >= header ? cache_len - header : 0;
+   const uint32_t transitions =
+@@ -477,11 +477,13 @@
+   return true;
+ }
+ 
+-// static
+ std::optional<Tagged<Map>> TransitionsAccessor::GetPrototypeTransition(
+-    Isolate* isolate, Tagged<Map> map, Tagged<Object> prototype) {
++    Tagged<Object> prototype) {
+   DisallowGarbageCollection no_gc;
+-  Tagged<WeakFixedArray> cache = GetPrototypeTransitions(isolate, map);
++  if (encoding() != kFullTransitionArray) return {};
++  base::MutexGuardIf guard(isolate_->full_transition_array_access(),
++                           concurrent_access_);
++  Tagged<WeakFixedArray> cache = GetPrototypeTransitions();
+   const uint32_t length = TransitionArray::NumberOfPrototypeTransitions(cache);
+   for (uint32_t i = 0; i < length; i++) {
+     Tagged<MaybeObject> target =
+@@ -498,19 +500,11 @@
+   return {};
+ }
+ 
+-// static
+-Tagged<WeakFixedArray> TransitionsAccessor::GetPrototypeTransitions(
+-    Isolate* isolate, Tagged<Map> map) {
+-  Tagged<MaybeObject> raw_transitions = map->raw_transitions(kAcquireLoad);
+-  if (GetEncoding(isolate, raw_transitions) != kFullTransitionArray) {
+-    return ReadOnlyRoots(isolate).empty_weak_fixed_array();
++Tagged<WeakFixedArray> TransitionsAccessor::GetPrototypeTransitions() {
++  if (!HasPrototypeTransitions()) {
++    return ReadOnlyRoots(isolate_).empty_weak_fixed_array();
+   }
+-  Tagged<TransitionArray> transition_array =
+-      GetTransitionArray(isolate, raw_transitions);
+-  if (!transition_array->HasPrototypeTransitions()) {
+-    return ReadOnlyRoots(isolate).empty_weak_fixed_array();
+-  }
+-  return transition_array->GetPrototypeTransitions();
++  return transitions()->GetPrototypeTransitions();
+ }
+ 
+ // static
+diff --git a/src/objects/transitions.h b/src/objects/transitions.h
+index 408bcaf..d7e948e 100644
+--- a/src/objects/transitions.h
++++ b/src/objects/transitions.h
+@@ -185,8 +185,13 @@
+   static bool PutPrototypeTransition(Isolate* isolate, DirectHandle<Map>,
+                                      DirectHandle<Object> prototype,
+                                      DirectHandle<Map> target_map);
+-  static std::optional<Tagged<Map>> GetPrototypeTransition(
++
++  std::optional<Tagged<Map>> GetPrototypeTransition(Tagged<Object> prototype);
++  // Convenient helper for calling from the main thread, for other cases
++  // use the instance method above.
++  static inline std::optional<Tagged<Map>> GetPrototypeTransition(
+       Isolate* isolate, Tagged<Map> map, Tagged<Object> prototype);
++
+   bool HasPrototypeTransitions();
+ 
+   // During the first-time Map::Update and Map::TryUpdate, the migration target
+@@ -267,8 +272,7 @@
+   static void SetPrototypeTransitions(
+       Isolate* isolate, DirectHandle<Map> map,
+       DirectHandle<WeakFixedArray> proto_transitions);
+-  static Tagged<WeakFixedArray> GetPrototypeTransitions(Isolate* isolate,
+-                                                        Tagged<Map> map);
++  Tagged<WeakFixedArray> GetPrototypeTransitions();
+ 
+   static void InsertHelper(Isolate* isolate, DirectHandle<Map> map,
+                            DirectHandle<Name> name, DirectHandle<Map> target,
+diff --git a/src/parsing/parse-info.cc b/src/parsing/parse-info.cc
+index f33708ab..aa1647e 100644
+--- a/src/parsing/parse-info.cc
++++ b/src/parsing/parse-info.cc
+@@ -55,6 +55,8 @@
+   flags.set_is_lazy_compile(true);
+ 
+   flags.set_is_repl_mode(script->is_repl_mode());
++  flags.set_class_initializer_allows_await(
++      shared->class_initializer_allows_await());
+ 
+   // Do not support re-parsing top-level function of a wrapped script.
+   DCHECK_IMPLIES(flags.is_toplevel(), !script->is_wrapped());
+diff --git a/src/parsing/parse-info.h b/src/parsing/parse-info.h
+index ef6f4f5..d62979f 100644
+--- a/src/parsing/parse-info.h
++++ b/src/parsing/parse-info.h
+@@ -66,6 +66,7 @@
+   V(compile_hints_magic_enabled, bool, 1, _)                    \
+   V(compile_hints_per_function_magic_enabled, bool, 1, _)       \
+   V(is_hoisted_in_context, bool, 1, _)                          \
++  V(class_initializer_allows_await, bool, 1, _)                 \
+   V(allow_heap_allocation, bool, 1, _)
+ 
+ class V8_EXPORT_PRIVATE UnoptimizedCompileFlags {
+diff --git a/src/parsing/parser-base.h b/src/parsing/parser-base.h
+index 5b552c5..1df1fa0 100644
+--- a/src/parsing/parser-base.h
++++ b/src/parsing/parser-base.h
+@@ -450,7 +450,11 @@
+   class FunctionState final : public BlockState {
+    public:
+     FunctionState(FunctionState** function_state_stack, Scope** scope_stack,
+-                  DeclarationScope* scope);
++                  DeclarationScope* scope)
++        : FunctionState(function_state_stack, scope_stack, scope,
++                        scope->function_kind()) {}
++    FunctionState(FunctionState** function_state_stack, Scope** scope_stack,
++                  DeclarationScope* scope, FunctionKind kind);
+     ~FunctionState();
+ 
+     DeclarationScope* scope() const { return scope_->AsDeclarationScope(); }
+@@ -467,7 +471,7 @@
+     int suspend_count() const { return suspend_count_; }
+     bool CanSuspend() const { return suspend_count_ > 0; }
+ 
+-    FunctionKind kind() const { return scope()->function_kind(); }
++    FunctionKind kind() const { return kind_; }
+ 
+     bool next_function_is_likely_called() const {
+       return next_function_is_likely_called_;
+@@ -534,6 +538,7 @@
+     FunctionState** function_state_stack_;
+     FunctionState* outer_function_state_;
+     DeclarationScope* scope_;
++    FunctionKind kind_;
+     Target* target_stack_ = nullptr;  // for break, continue statements
+ 
+     // A reason, if any, why this function should not be optimized.
+@@ -639,6 +644,8 @@
+         static_elements_scope = parser->NewFunctionScope(kind);
+         static_elements_scope->SetLanguageMode(LanguageMode::kStrict);
+         static_elements_scope->set_start_position(beg_pos);
++        static_elements_scope->set_class_initializer_allows_await(
++            parser->is_await_allowed());
+         static_elements_function_id = info_id;
+         // Actually consume the id. The id that was passed in might be an
+         // earlier id in case of computed property names.
+@@ -657,6 +664,8 @@
+         instance_members_scope = parser->NewFunctionScope(kind);
+         instance_members_scope->SetLanguageMode(LanguageMode::kStrict);
+         instance_members_scope->set_start_position(beg_pos);
++        instance_members_scope->set_class_initializer_allows_await(
++            parser->is_await_allowed());
+         instance_members_function_id = info_id;
+         // Actually consume the id. The id that was passed in might be an
+         // earlier id in case of computed property names.
+@@ -1833,13 +1842,14 @@
+ template <typename Impl>
+ ParserBase<Impl>::FunctionState::FunctionState(
+     FunctionState** function_state_stack, Scope** scope_stack,
+-    DeclarationScope* scope)
++    DeclarationScope* scope, FunctionKind kind)
+     : BlockState(scope_stack, scope),
+       expected_property_count_(0),
+       suspend_count_(0),
+       function_state_stack_(function_state_stack),
+       outer_function_state_(*function_state_stack),
+       scope_(scope),
++      kind_(kind),
+       dont_optimize_reason_(BailoutReason::kNoReason),
+       next_function_is_likely_called_(false),
+       previous_function_was_likely_called_(false),
+diff --git a/src/parsing/parser.cc b/src/parsing/parser.cc
+index 94f1999..388e4f1 100644
+--- a/src/parsing/parser.cc
++++ b/src/parsing/parser.cc
+@@ -1274,10 +1274,19 @@
+   // this point the scanner should be rewound to the position of the class
+   // token.
+   DCHECK_EQ(peek_position(), initializer_pos);
+-  // Insert a FunctionState with the closest outer Declaration scope
++  // Insert a FunctionState with the closest outer Declaration scope.
++  // The immediate enclosing function scope may have been elided from the
++  // ScopeInfo chain if it did not allocate a context. Since class bodies are
++  // always strict mode, 'yield' is never a valid identifier in computed
++  // property names, so we can unconditionally enable generator mode; whether
++  // 'await' is a keyword is recorded on the initializer SharedFunctionInfo.
+   DeclarationScope* nearest_decl_scope = original_scope_->GetDeclarationScope();
+   DCHECK_NOT_NULL(nearest_decl_scope);
+-  FunctionState function_state(&function_state_, &scope_, nearest_decl_scope);
++  FunctionKind enclosing_kind = flags().class_initializer_allows_await()
++                                    ? FunctionKind::kAsyncGeneratorFunction
++                                    : FunctionKind::kGeneratorFunction;
++  FunctionState function_state(&function_state_, &scope_, nearest_decl_scope,
++                               enclosing_kind);
+ 
+   // We preparse the class members that are not fields with initializers
+   // in order to collect the function literal ids.
+diff --git a/test/mjsunit/es6/regress-class-member-init-reparse-await-yield-arguments.js b/test/mjsunit/es6/regress-class-member-init-reparse-await-yield-arguments.js
+new file mode 100644
+index 0000000..d53e383
+--- /dev/null
++++ b/test/mjsunit/es6/regress-class-member-init-reparse-await-yield-arguments.js
+@@ -0,0 +1,82 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++// Test reparsing of class member initializers when the immediately enclosing
++// function did not allocate a context (and is therefore absent from the
++// ScopeInfo chain).
++
++// 1. Computed property key using 'arguments' inside a contextless function
++// nested inside a class static block whose initializer allocates a context.
++{
++  let x = 1;
++  class Outer {
++    static {
++      () => this;
++      function foo() {
++        class Inner {
++          [arguments] = x();
++        }
++        new Inner();
++      }
++      assertThrows(foo, TypeError, "x is not a function");
++    }
++  }
++}
++
++// 2. Computed property key using 'await / 1' inside a contextless async
++// function where 'await / 1... /g' is an AwaitExpression of a RegExp literal.
++{
++  let x = 1;
++  async function inner() {
++    class C {
++      [await / 1]() { [[a] + 1 /g] = { a: x() }
++    }
++    new C();
++  }
++  let error;
++  inner().catch(e => { error = e; });
++  %PerformMicrotaskCheckpoint();
++  assertInstanceof(error, TypeError);
++  assertMatches(/x is not a function/, error.message);
++}
++
++// 3. Computed property key using 'yield' inside a contextless generator
++// function.
++{
++  let x = 1;
++  function* gen() {
++    class C {
++      [yield 1] = x();
++    }
++    return C;
++  }
++  let iter = gen();
++  assertEquals({ value: 1, done: false }, iter.next());
++  let C = iter.next("prop").value;
++  assertThrows(() => new C(), TypeError, "x is not a function");
++}
++
++// 4. Computed property key using 'await / 1' as division inside a contextless
++// synchronous function nested inside an async function that allocates a
++// context.
++{
++  var await = 2;
++  async function outer() {
++    let x = 1;
++    function sync_inner() {
++      class C {
++        [await / 1] = x();
++      }
++      new C();
++    }
++    sync_inner();
++  }
++  let error;
++  outer().catch(e => { error = e; });
++  %PerformMicrotaskCheckpoint();
++  assertInstanceof(error, TypeError);
++  assertMatches(/x is not a function/, error.message);
++}
+diff --git a/test/mjsunit/mjsunit.status b/test/mjsunit/mjsunit.status
+index af6517a..5974a6e 100644
+--- a/test/mjsunit/mjsunit.status
++++ b/test/mjsunit/mjsunit.status
+@@ -2943,6 +2943,7 @@
+   'regress/wasm/regress-543901836': [SKIP],
+   'regress/wasm/regress-560536735': [SKIP],
+   'regress/wasm/regress-561660149': [SKIP],
++  'regress/wasm/regress-574223268': [SKIP],
+   'compiler/regress-347724915': [SKIP],
+   'regress/regress-crbug-418520151': [SKIP],
+   'regress/regress-535000102': [SKIP],
+diff --git a/test/mjsunit/regress/wasm/regress-574223268.js b/test/mjsunit/regress/wasm/regress-574223268.js
+new file mode 100644
+index 0000000..edbbaa7
+--- /dev/null
++++ b/test/mjsunit/regress/wasm/regress-574223268.js
+@@ -0,0 +1,55 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --stress-compaction
++
++d8.file.execute('test/mjsunit/wasm/wasm-module-builder.js');
++
++function buildModule(numTargets, tableSize = numTargets) {
++  const builder = new WasmModuleBuilder();
++  builder.addMemory(1, 1);
++  const sig_v_v = builder.addType(kSig_v_v);
++  const sig_v_i = builder.addType(kSig_v_i);
++  const funcs = [];
++  for (let i = 0; i < numTargets; i++) {
++    const f = builder.addFunction('f' + i, sig_v_v)
++        .addBody([
++          kExprI32Const, 0,
++          kExprI32Const, 42 + i,
++          kExprI32StoreMem, 0, 0,
++        ])
++        .exportFunc();
++    funcs.push(f.index);
++  }
++  builder.addFunction('call', sig_v_i)
++      .addBody([
++        kExprLocalGet, 0,
++        kExprCallIndirect, sig_v_v, kTableZero,
++      ])
++      .exportFunc();
++  builder.setTableBounds(tableSize, tableSize);
++  builder.addActiveElementSegment(0, wasmI32Const(0), funcs);
++  return builder.toModule();
++}
++
++// Fill the bootstrap trusted page(s) (which are marked never_evacuate) so that
++// subsequent trusted objects land on movable pages.
++const filler = [];
++const fillerModule = buildModule(1, 2000);
++for (let i = 0; i < 64; i++) {
++  filler.push(new WebAssembly.Instance(fillerModule));
++}
++
++const targetModule = buildModule(2);
++const instance = new WebAssembly.Instance(targetModule);
++
++// Compile both callees up front.
++instance.exports.f0();
++instance.exports.f1();
++// Make the call site monomorphic on target 0.
++instance.exports.call(0);
++// Force the monomorphic-miss FixedArray allocation inside CallIndirectIC to
++// trigger a compacting GC while WasmTrustedInstanceData is on the stack.
++%SimulateNewspaceFull();
++instance.exports.call(1);
+diff --git a/test/mjsunit/turbolev/regress-567129324.js b/test/mjsunit/turbolev/regress-567129324.js
+new file mode 100644
+index 0000000..1abeaea
+--- /dev/null
++++ b/test/mjsunit/turbolev/regress-567129324.js
+@@ -0,0 +1,38 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --turbolev
++// Flags: --max-turbolev-eager-inlined-bytecode-size=0
++
++// The graph optimizer must not replace a TruncateChecked...ToInt32[Number]
++// with a cached truncation that only assumed NumberOrOddball: the Number check
++// narrows `x` (Smi|Boolean) to Smi, which the Smi-field store relies on.
++// `alt` must not be eagerly inlined, so that its truncation is only added to
++// the graph by the inliner, after `x | y` has been built.
++
++function alt(x) {
++  return Math.imul(x, 3);
++}
++
++const obj = { b: 123 };
++
++function f(flag, y, obj) {
++  const x = flag ? true : 123;
++  const a = alt(x);
++  const b = x | y;
++  obj.b = x;
++  return b + a;
++}
++
++%PrepareFunctionForOptimization(alt);
++%PrepareFunctionForOptimization(f);
++f(false, 0.125, obj);
++%OptimizeFunctionOnNextCall(f);
++assertEquals(123 + 369, f(false, 0.125, obj));
++assertOptimized(f);
++
++assertEquals(1 + 3, f(true, 0.125, obj));
++assertUnoptimized(f);
++assertEquals(true, obj.b);
++%HeapObjectVerify(obj);
+diff --git a/test/mjsunit/turbolev/regress-568348290.js b/test/mjsunit/turbolev/regress-568348290.js
+new file mode 100644
+index 0000000..2f39a98
+--- /dev/null
++++ b/test/mjsunit/turbolev/regress-568348290.js
+@@ -0,0 +1,149 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --turbolev
++// Flags: --max-turbolev-eager-inlined-bytecode-size=0
++
++// 1. Unwrapping ReturnedValue(HoleyFloat64) for a kNumber truncation must
++// preserve the number check via CheckedHoleyFloat64ToFloat64.
++(function TestReturnedValueHoleyFloat64() {
++  function get_elem(arr, i) {
++    return arr[i];
++  }
++
++  function opt(arr, i) {
++    const x = get_elem(arr, i);
++    const y = x | 0;
++    return String(x) + y;
++  }
++
++  const holey = [1.5, , 2.5];
++  %PrepareFunctionForOptimization(get_elem);
++  %PrepareFunctionForOptimization(opt);
++  assertEquals('1.51', opt(holey, 0));
++  assertEquals(undefined, get_elem(holey, 1));
++  assertEquals('1.51', opt(holey, 0));
++  %OptimizeFunctionOnNextCall(opt);
++  assertEquals('1.51', opt(holey, 0));
++  assertOptimized(opt);
++
++  assertEquals('undefined0', opt(holey, 1));
++  assertUnoptimized(opt);
++})();
++
++// 2. Unwrapping HoleyFloat64ToTagged(HoleyFloat64) for a kNumber truncation
++// must also preserve the number check.
++(function TestHoleyFloat64ToTaggedConversion() {
++  function get_elem_tagged(arr, i, flag) {
++    let v = arr[i];
++    if (flag) {
++      v = arr[0];
++    }
++    return v;
++  }
++
++  function opt(arr, i, flag) {
++    const x = get_elem_tagged(arr, i, flag);
++    const y = x | 0;
++    return String(x) + y;
++  }
++
++  const holey = [1.5, , 2.5];
++  %PrepareFunctionForOptimization(get_elem_tagged);
++  %PrepareFunctionForOptimization(opt);
++  assertEquals('1.51', opt(holey, 0, false));
++  assertEquals(undefined, get_elem_tagged(holey, 1, false));
++  assertEquals(1.5, get_elem_tagged(holey, 1, true));
++  assertEquals('1.51', opt(holey, 0, false));
++  %OptimizeFunctionOnNextCall(opt);
++  assertEquals('1.51', opt(holey, 0, false));
++  assertOptimized(opt);
++
++  assertEquals('undefined0', opt(holey, 1, false));
++  assertUnoptimized(opt);
++})();
++
++// 3. A prior weaker truncation (NumberOrOddball via Math.imul) on the same
++// HoleyFloat64 node must not cause a subsequent kNumber truncation to skip
++// CheckedHoleyFloat64ToFloat64.
++(function TestWeakerTruncationBeforeNumberTruncation() {
++  function get_elem(arr, i) {
++    return arr[i];
++  }
++
++  function imul(x) {
++    return Math.imul(x, 3);
++  }
++
++  function opt(arr, i) {
++    const x = get_elem(arr, i);
++    const a = imul(x);
++    const b = x | 0;
++    return String(x) + a + b;
++  }
++
++  const holey = [1.5, , 2.5];
++  %PrepareFunctionForOptimization(get_elem);
++  %PrepareFunctionForOptimization(imul);
++  %PrepareFunctionForOptimization(opt);
++  assertEquals('1.531', opt(holey, 0));
++  assertEquals(undefined, get_elem(holey, 1));
++  assertEquals('1.531', opt(holey, 0));
++  %OptimizeFunctionOnNextCall(opt);
++  assertEquals('1.531', opt(holey, 0));
++  assertOptimized(opt);
++
++  assertEquals('undefined00', opt(holey, 1));
++  assertUnoptimized(opt);
++})();
++
++// 4. Merging kSmi and kJSReceiverOrNullOrUndefined and intersecting with
++// kNumber on `x | y` narrows `x` to kSmi, eliding CheckSmi on a subsequent
++// Smi-field store. Dropping the kNumber check corrupts `smi_obj.a` with
++// #undefined in a Smi field.
++(function TestSmiFieldCorruptionViaTypeIntersection() {
++  function get_elem(arr, i) {
++    return arr[i];
++  }
++
++  const smi_obj = {a: 100};
++  smi_obj.a = 1;
++
++  function opt(arr, i, mode, bailout, y, obj, n) {
++    const x = get_elem(arr, i);
++    let cmp = false;
++    if (mode === 1) {
++      cmp = (x + 1) === 2;
++    } else {
++      cmp = (x === n);
++      if (bailout) return 0;
++    }
++    const b = x | y;
++    obj.a = x;
++    return b + (cmp ? 1 : 0);
++  }
++
++  const smi_arr = [1, 2];
++  const holey = [1, , 2.5];
++
++  %PrepareFunctionForOptimization(opt);
++  opt(smi_arr, 0, 1, false, 0.125, smi_obj, null);
++  opt(smi_arr, 0, 1, false, 0.125, smi_obj, null);
++
++  %PrepareFunctionForOptimization(get_elem);
++  get_elem(holey, 0);
++  get_elem(holey, 1);
++
++  opt(holey, 1, 0, true, 0.125, smi_obj, null);
++  opt(holey, 1, 0, true, 0.125, smi_obj, null);
++
++  %OptimizeFunctionOnNextCall(opt);
++  assertEquals(2, opt(holey, 0, 1, false, 0.125, smi_obj, null));
++  assertOptimized(opt);
++
++  assertEquals(0, opt(holey, 1, 0, false, 0.125, smi_obj, null));
++  assertUnoptimized(opt);
++  assertEquals(undefined, smi_obj.a);
++  %HeapObjectVerify(smi_obj);
++})();
+diff --git a/test/mjsunit/turboshaft/regress-574660146.js b/test/mjsunit/turboshaft/regress-574660146.js
+new file mode 100644
+index 0000000..bc82a26
+--- /dev/null
++++ b/test/mjsunit/turboshaft/regress-574660146.js
+@@ -0,0 +1,41 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --turbofan --no-maglev
++
++function cb() {
++  return arguments.length;
++}
++%NeverOptimizeFunction(cb);
++
++// Passing `kArgCount` distinct expressions to a non-inlined call keeps all of
++// them live simultaneously at the call site, requiring > 1024 stack slots
++// (> 4KB on both 32-bit and 64-bit targets) while keeping the bytecode small
++// enough to be compiled.
++const kArgCount = 1100;
++const args = Array.from({length: kArgCount}, (_, k) => `p ^ ${k + 1}`);
++
++function buildWideFrame(osr) {
++  return Function('x', 'cb', 'p', `
++    let result = 0;
++    for (let i = 0; i < 10; ++i) {
++      ${osr ? 'if (i === 5) %OptimizeOsr();' : ''}
++      if (x < 0) return cb(${args});
++      result = (x + i) | 0;
++    }
++    return result;
++  `);
++}
++
++const wide = buildWideFrame(false);
++%PrepareFunctionForOptimization(wide);
++assertEquals(kArgCount, wide(-1, cb, 1));
++assertEquals(10, wide(1, cb, 1));
++%OptimizeFunctionOnNextCall(wide);
++assertEquals(10, wide(1, cb, 1));
++
++const wideOsr = buildWideFrame(true);
++%PrepareFunctionForOptimization(wideOsr);
++assertEquals(kArgCount, wideOsr(-1, cb, 1));
++assertEquals(10, wideOsr(1, cb, 1));
+diff --git a/test/unittests/heap/cppgc/write-barrier-unittest.cc b/test/unittests/heap/cppgc/write-barrier-unittest.cc
+index 9df26a1..bfe99ff 100644
+--- a/test/unittests/heap/cppgc/write-barrier-unittest.cc
++++ b/test/unittests/heap/cppgc/write-barrier-unittest.cc
+@@ -476,11 +476,11 @@
+   }
+ }
+ 
+-TEST_F(WriteBarrierTest, SteeleWriteBarrierBailoutIfNotMarked) {
++TEST_F(WriteBarrierTest, SteeleWriteBarrierTriggersEvenIfNotMarked) {
+   auto* object1 = MakeGarbageCollected<GCed>(GetAllocationHandle());
+   auto* object2 = MakeGarbageCollected<GCed>(GetAllocationHandle(), object1);
+   {
+-    ExpectNoWriteBarrierFires scope(marker(), {object1});
++    ExpectWriteBarrierFires scope(marker(), {object1});
+     WriteBarrierParams params;
+     EXPECT_EQ(WriteBarrierType::kMarking,
+               HeapConsistency::GetWriteBarrierType(

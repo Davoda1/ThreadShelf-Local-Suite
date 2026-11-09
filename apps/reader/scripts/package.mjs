@@ -62,7 +62,7 @@ async function verifyBundledCodec() {
   // The source offer and notices travel with the executables in every release.
   // This is a release gate: do not emit a package that can only use ZIP.
   for (const relative of ['vendor/7zip/linux-x64/7zz', 'vendor/7zip/win32-x64/7za.exe',
-    'vendor/7zip/7z2603-src.tar.xz', 'vendor/7zip/License.txt', 'vendor/7zip/copying.txt',
+    'vendor/7zip/7z2606-src.tar.xz', 'vendor/7zip/License.txt', 'vendor/7zip/copying.txt',
     'vendor/7zip/README.md', 'vendor/7zip/provenance.json']) {
     const full = path.join(root, relative);
     if (!exists(full) || !(await fsp.stat(full)).size) throw new Error(`Bundled 7-Zip release input missing: ${relative}`);
@@ -254,7 +254,7 @@ async function binary(platform) {
   await extractZip(archive, runtime);
   await fsp.rm(path.join(runtime, 'resources/default_app.asar'), { force: true });
   const app = path.join(runtime, 'resources/app'); await fsp.mkdir(app, { recursive: true });
-  for (const p of ['package.json', 'tts', 'src/core', 'src/desktop', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
+  for (const p of ['package.json', 'tts', 'src/core', 'src/desktop', 'src/reader/rich-parser.js', 'src/reader/grok-renderer.js', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/grok-rendering-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
   run(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), [path.join(root, 'scripts/stage-tts-assets.py'), '--assets', ttsAssets, '--platform', platform, '--destination', path.join(runtime, 'resources/tts-assets')]);
   await fsp.cp(modules, path.join(app, 'node_modules'), { recursive: true, dereference: true });
   await removeTransformersPrebuiltBundles(path.join(app, 'node_modules'));
@@ -269,7 +269,7 @@ async function binary(platform) {
   const portableReadme = (await fsp.readFile(path.join(root, 'README.md'), 'utf8'))
     .replaceAll('[LICENSE](LICENSE)', '[application LICENSE](APPLICATION-LICENSE)');
   await fsp.writeFile(path.join(folder, 'README.md'), portableReadme);
-  for (const p of ['tts/README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
+  for (const p of ['tts/README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/grok-rendering-support.md', 'docs/rich-chart-support.md', 'server-support', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, folder);
   if (platform === 'win32') {
     const exe = path.join(runtime, 'ThreadShelf Local Reader.exe');
     await fsp.rename(path.join(runtime, 'electron.exe'), exe);

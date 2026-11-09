@@ -21,9 +21,9 @@ if ((pinned)); then
  [[ "$(uname -s)" == Linux ]] || { echo 'This script targets GNU/Linux.' >&2; exit 1; }
  case "$(uname -m)" in x86_64|amd64) node_arch=x64 ;; *) echo 'Packages target GNU/Linux x86-64.' >&2; exit 1 ;; esac
  tooling_dir="$project_dir/.tooling"; mkdir -p "$tooling_dir/downloads"
- curl -fsSL --retry 2 'https://nodejs.org/dist/v24.22.1/SHASUMS256.txt' -o "$tooling_dir/downloads/SHASUMS256.txt"
+ curl -fsSL --retry 2 'https://nodejs.org/dist/v26.13.0/SHASUMS256.txt' -o "$tooling_dir/downloads/SHASUMS256.txt"
  node_archive="$(awk -v a="$node_arch" '$2 ~ ("^node-v[0-9.]+-linux-" a "\\.tar\\.xz$") {print $2; exit}' "$tooling_dir/downloads/SHASUMS256.txt")"
- [[ -n "$node_archive" ]] || { echo 'Cannot resolve pinned Node.js 24.22.1 LTS.' >&2; exit 1; }
+ [[ -n "$node_archive" ]] || { echo 'Cannot resolve pinned Node.js 26.13.0 LTS.' >&2; exit 1; }
  if [[ -f "$tooling_dir/downloads/$node_archive" ]] && ! (cd "$tooling_dir/downloads"; awk -v a="$node_archive" '$2 == a {print}' SHASUMS256.txt | sha256sum -c - >/dev/null 2>&1); then rm -f -- "$tooling_dir/downloads/$node_archive"; fi
  if [[ ! -f "$tooling_dir/downloads/$node_archive" ]]; then
   node_version="${node_archive%%-linux-*}"; node_version="${node_version#node-}"

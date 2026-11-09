@@ -18,8 +18,8 @@ For an existing checkout, confirm that the working tree is clean before updating
 The published source archive is also available for inspection and builds. Its root directory includes the version and `-Source` suffix:
 
 ```text
-tar -xzf ThreadShelf-Local-Suite-1.4.2-Source.tar.gz
-cd ThreadShelf-Local-Suite-1.4.2-Source
+tar -xzf ThreadShelf-Local-Suite-1.4.3-Source.tar.gz
+cd ThreadShelf-Local-Suite-1.4.3-Source
 ```
 
 The source archive has no `.git` history. Make repository updates in a clone; do not initialize a replacement repository or force-push over the existing history.
@@ -48,7 +48,7 @@ Under **Settings → Actions → General**, permit the actions used by the check
 
 ## 4. Checks and package builds
 
-The workflows pin external actions to full commit IDs and Node.js to 24.22.1. The verified managed npm 12.2.1/Undici 6.29.1 profile is documented in [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md).
+The workflows pin external actions to full commit IDs and Node.js to 26.13.0. The verified managed npm 12.2.2/Undici 6.29.1 profile is documented in [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md).
 
 - **Checks** runs source, public-tree, integration and packaging regressions on pushes to `master`, pull requests, or manual dispatch.
 - **Build desktop packages** builds Reader, Analytics and Alternative on Windows and Linux when a version tag is pushed. Manual dispatch can build all components or a selected subset.
@@ -63,7 +63,7 @@ The published `v1.4.0` tag must remain unchanged. Its release contains nine nati
 
 Use **Publish validated release** from `master` when the tagged build's six package jobs succeeded but publication failed. Supply:
 
-- `tag`: the existing stable release tag, such as `v1.4.2`.
+- `tag`: the existing stable release tag, such as `v1.4.3`.
 - `source_run`: the numeric ID of that completed **tag-push** package workflow run.
 
 The recovery workflow checks the repository, tag, commit and all six successful package jobs, then downloads their existing artifacts. A manually dispatched package build is not an accepted recovery source. Corrected publisher code comes from `master`; application sources and documentation are archived from the original tag.
@@ -95,4 +95,4 @@ The hosted manual URL remains the same across application releases. No Pages sit
 - [Configuring a Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [Managing releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
 
-These instructions describe the workflows and repository layout used for 1.4.2. Review the checked-in workflow definitions when changing the release process.
+These instructions describe the workflows and repository layout used for 1.4.3. Review the checked-in workflow definitions when changing the release process.

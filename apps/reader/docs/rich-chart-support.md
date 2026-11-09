@@ -1,4 +1,4 @@
-# Safe chart support in Reader 1.2.0
+# Safe chart support in Reader 1.4.3
 
 Charts are temporary renderer DOM/SVG. The adapter does not change message text, original source, turns, IDs, storage, reading positions, or Analytics events. Both Local and Server views call the same renderer. Existing converter-created Markdown tables and currency snapshots remain Markdown; the Reader never guesses a chart from their rows.
 
@@ -25,7 +25,7 @@ The supplied synthetic fixtures cover seven exported chart contracts, including 
 
 The supplied native-component response represents the C06 area and C08 doughnut examples as static SVG illustrations, explicitly outside the native Chart contract. These are handled separately by the rich-layout renderer; no exported `chartType: "area"` or `chartType: "doughnut"` schema is inferred from their appearance. The supplied legacy L01/L02 examples have already become Markdown tables in the archived source, with no retained chart payload. They remain tables; their headings or numeric rows are not used to fabricate chart metadata.
 
-No exported area, doughnut, `horizontal-bar` type, stacking, percent normalization, error bars, interpolation, additional axes, callbacks, resource URLs or style contract is inferred. Unsupported semantics cause saved-data fallback. Multi-series bars remain independently measured, side by side. Reader-owned area series remain independent translucent fills from zero, never summed.
+Version 1.4.3 adds explicit `chartType: "area"` and `chartType: "doughnut"` compatibility adapters using the same recorded category/value mapping as line and pie respectively. These are deliberate Reader-supported input forms; they are never inferred from a screenshot or converted from an unlabeled table. No `horizontal-bar` type, stacking, percent normalization, error bars, interpolation, additional axes, callbacks, resource URLs or style contract is inferred. Unsupported semantics cause saved-data fallback. Multi-series bars remain independently measured, side by side. Reader-owned area series remain independent translucent fills from zero, never summed.
 
 ## Reader-owned schema, version 1
 

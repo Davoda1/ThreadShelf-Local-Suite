@@ -1,12 +1,12 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.4.2 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.4.3 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
 Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The original [ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf) provides the optional server. See the suite's illustrated Gopher manual for the full user guide.
 
-Version 1.4.2 adds an SVG / Code toggle for eligible chat code blocks while preserving existing data formats, dependencies and runtime versions. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
+Version 1.4.3 improves Grok XML cards and ChatGPT rich-content markers, refreshes dependencies, and tightens archive and network-response limits. Existing data formats and profile paths remain compatible. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
 
 **Prefer API recordings** is on by default. For the same conversation and unchanged full message, playback chooses a valid pinned recording first, then available API audio, then an exact match for the spoken text and selected generation settings. Disabling this option keeps pinned recordings first and otherwise uses only exact matches. API audio includes self-hosted speech endpoints, ElevenLabs, OpenAI and OpenRouter; this preference never makes a new provider request by itself. A reused recording preserves its original voice and code/citation selection, even if those settings have changed. To hear a different reading, unpin the recording and turn this preference off. New recordings use the unchanged full message for cross-settings reuse; an exact spoken-text and generation-settings match remains reusable after excluded-content edits. Older recordings are reused only when their stored spoken-text or synthesis identity proves a match. Pinned files are never overwritten; a replacement for a missing or corrupt pinned recording can be saved separately when caching and space permit. Persistent files are considered only while the disk cache is enabled; eligible session recordings can be reused with disk caching off.
 
@@ -14,9 +14,9 @@ The reader uses bundled MathJax 4.1.3 with compatibility settings that preserve 
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.2-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.2-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.2_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.2_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.3-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.3-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.3_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.3_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js, npm, Python or a GPU for the bundled voices. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -39,6 +39,8 @@ Complete cursor-paged server search needs the suite's [ThreadShelf server patch]
 The standalone Local Analytics application can capture supported Reader archive data through Analytics' read-only adapter. Reader's integrated **Activity** and server **Insights** views are separate features.
 
 ## Reading and appearance
+
+Grok XML cards render as citations, media placeholders, supported charts, or labelled archive panels with SVG icons and original-source inspection. ChatGPT source/file references, entities, source lists and archived widgets use metadata already present in the export. Missing references stay unresolved; unsupported interactive content remains inert. Inline and fenced code preserve literal markers, and whole-message Copy/export retains the exact original source.
 
 The Reader supports code copying, an in-conversation find control, message outlines, collapsed prompts and exported reasoning, tables, mathematical formulas and Mermaid diagrams. A deterministic repair may be offered for imperfect Mermaid syntax; the original archived text is preserved. Unsupported rich content stays readable where possible, with theme-aware image placeholders when needed.
 
@@ -67,7 +69,7 @@ Import and export actions use explicit file selection. Remote model setup and se
 
 ## Build from source
 
-Pinned release tools: **Node.js 24.22.1 LTS**, **Electron 45.1.0**, and an isolated managed copy of **npm 12.2.1** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files before use. This is a documented local modification of npm, not an official patched npm release, and does not change global npm. See [Toolchain](docs/Toolchain.md).
+Pinned release tools: **Node.js 26.13.0 LTS**, **Electron 45.2.3**, and an isolated managed copy of **npm 12.2.2** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files before use. This is a documented local modification of npm, not an official patched npm release, and does not change global npm. See [Toolchain](docs/Toolchain.md).
 
 Reader pins `onnxruntime-web`, `onnxruntime-node` and `onnxruntime-common` to stable **1.31.1**. Transformers 4.3.2 uses its supplied source entry with those external dependencies. See [ONNX source and build details](licenses/ONNX-SOURCE-ACCESS.md).
 

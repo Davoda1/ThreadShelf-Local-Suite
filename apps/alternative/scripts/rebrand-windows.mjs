@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import * as PE from '../vendor/build/node_modules/pe-library/dist/index.js';
 import * as RE from '../vendor/build/node_modules/resedit/dist/index.js';
 const project = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const version = JSON.parse(fs.readFileSync(path.join(project, 'package.json'), 'utf8')).version;
+if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error('Release version must be semantic major.minor.patch');
+const [major, minor, patch] = version.split('.').map(Number);
 const [input, output] = process.argv.slice(2);
 if (!input || !output || path.resolve(input) === path.resolve(output)) {
   throw new Error('Usage: node scripts/rebrand-windows.mjs original-electron.exe output.exe');
@@ -19,17 +22,17 @@ for (const group of groups) RE.Resource.IconGroupEntry.replaceIconsForResource(
 const infos = RE.Resource.VersionInfo.fromEntries(resource.entries);
 if (!infos.length || !groups.length) throw new Error('Unexpected Electron resource layout.');
 for (const info of infos) {
-  info.setFileVersion(1, 4, 2, 0, 1033);
-  info.setProductVersion(1, 4, 2, 0, 1033);
+  info.setFileVersion(major, minor, patch, 0, 1033);
+  info.setProductVersion(major, minor, patch, 0, 1033);
   info.setStringValues({ lang: 1033, codepage: 1200 }, {
     CompanyName: 'davoda1',
     FileDescription: 'ThreadShelf Local Alternative',
-    FileVersion: '1.4.2.0',
+    FileVersion: `${version}.0`,
     InternalName: 'threadshelf-local-alternative',
     LegalCopyright: 'Copyright (c) 2026 davoda1; Electron contributors and third parties',
     OriginalFilename: 'ThreadShelf Local Alternative.exe',
     ProductName: 'ThreadShelf Local Alternative',
-    ProductVersion: '1.4.2',
+    ProductVersion: version,
   });
   info.outputToResourceEntries(resource.entries);
 }

@@ -1,6 +1,16 @@
-# Rich component grammar and passive adapters — Reader 1.2.0
+# Rich component grammar and passive adapters — Reader 1.4.3
 
 This is the exact implemented Reader-owned adapter contract. The known markup has no version declaration. It is a bounded interpretation of the observed export vocabulary, not a generic HTML/JSX/Svelte implementation or a promise to support future private formats. Chart schema details are in `rich-chart-support.md`.
+
+## 1.4.3 compatibility additions
+
+Native ChatGPT `cite` and `filecite` tokens now become compact references. File references keep saved filenames and line ranges where present; their original token is available from the focusable information marker. Native `entity` tokens preserve the literal label and description. Native `navlist` tokens show archived source lists using explicit saved ID bindings. Other complete native tokens and unfamiliar valid GenUI objects show passive archive cards with their exact original content, rather than disappearing or attempting live actions. Malformed/non-literal inputs remain source.
+
+Message-scoped citation metadata accepts the existing grouped-webpage tuple records, explicit string references, and explicit `ref_id` records for webpages and files. No array position, URL query, similar title, another message, or missing asset is used to guess a binding. Conflicting IDs are unresolved. Missing image payloads stay informative placeholders; no search is performed.
+
+Grok XML/custom tags, artifacts, metadata bindings, and explicit `chartjs` / `xaitask` data fences use the shared bounded Grok adapter. Chart/task data fences retain their source and code Copy; ordinary fences, inline code, indented code, links and escaped technical examples remain literal. Known archived layouts can contain native ChatGPT/Grok presentation markers without treating their JSON braces as template expressions. Bound strings are never reinterpreted.
+
+Every new archive card is built from app-owned DOM/SVG and text. Scripts, HTML UI payloads, authentication, location, checkout, automation and tool requests are never executed. Shared source, reference-expansion and Grok metadata budgets bound repeated records. See `grok-rendering-support.md` for supported Grok presentations and limitations.
 
 ## Pipeline and preservation
 
@@ -93,7 +103,7 @@ Only a real `genui{literal object}` marker with one known wrapper is el
 | `suggest_automation` | `{label: string}` only | Passive archived suggestion text, no scheduling/control |
 | `map_widget` | `{points: [{name, category?, ref?}, ...]}` only | Saved location/category list; no map fetch, location inference or service calls |
 
-Unknown wrapper keys/versions/contracts remain original source. A recognized chart wrapper with unsupported content uses the bounded saved-chart-data fallback; later valid siblings remain renderable. Chart suffix inheritance, orientation, numeric domains and the local pie-family ring policy are specified in `rich-chart-support.md`. The other observed legacy marker families (`cite`, `i`, `video`, `navlist`, `link`, `product_entity`, `products`, `businesses_map`, `filecite`, `entity`, `image_group`, `entity_metadata`, `product`, `link_title`, `url`, `visualize`; 16 kinds besides `genui`) and the separate opaque currency marker retain their original source when still present. Converted readable Markdown links/tables, historical currency snapshots and intended missing-widget placeholders are preserved unchanged. No DIL runtime, action, expression, automation, live currency conversion or absent chart is reconstructed. Non-visible native metadata does not create a warning or widget. Native reference enrichment uses the separate strict source-message association in `rich-context.js`.
+Complete unfamiliar native tokens and valid GenUI objects use passive archived-content cards retaining their exact original source. Malformed or non-literal inputs remain source. A recognized chart wrapper with unsupported content uses the bounded saved-chart-data fallback; later valid siblings remain renderable. Chart suffix inheritance, orientation, numeric domains and the local pie-family ring policy are specified in `rich-chart-support.md`. Native `cite`, `filecite`, `entity` and `navlist` tokens use the bounded adapters described above; other complete native tokens remain inspectable as archived cards. Converted readable Markdown links/tables, historical currency snapshots and intended missing-widget placeholders are preserved unchanged. No live runtime, action, expression, automation, currency conversion or absent chart is reconstructed. Non-visible native metadata does not create a warning or widget. Reference enrichment uses the strict source-message association in `rich-context.js`.
 
 ## Hard limits and recovery
 

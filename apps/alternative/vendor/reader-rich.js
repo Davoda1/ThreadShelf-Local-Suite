@@ -1,9 +1,923 @@
-/* Adapted from ThreadShelf Local Reader. Copyright (c) 2026 davoda1. MIT; see vendor/licenses/Reader-MIT.txt. */
+/* ThreadShelf shared renderer. Copyright (c) 2026 davoda1. MIT; see vendor/licenses/Reader-MIT.txt. */
 window.TSARich=Object.create(null);
 
+/* grok-renderer.js */
+(function(){
+'use strict';
+
+/** Grok archive presentation adapters. No imported markup, URLs, scripts or
+ * requests execute. Original source and metadata stay available for inspection.
+ * Protocol names follow the November 2026 evidence catalogue, not a universal
+ * xAI schema. All limits apply before creating DOM or parsing nested JSON. */
+const GROK_LIMITS = Object.freeze({ message: 2000000, span: 200000, cards: 256, nodes: 12000, depth: 12, string: 200000, fields: 256 });
+const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const TAGS = new Set(['grok:render', 'grok:richcontent', 'grok', 'grok-card', 'grok-card-list', 'grok-generated-images', 'grok-file-card-group', 'xaiArtifact', 'xai:tool_usage_card', 'image-card', 'file-mention']);
+const OPERATIONS = Object.freeze({ render_inline_citation:'citation_card', render_searched_image:'image_card', render_generated_image:'generated_image_card', render_edited_image:'generated_image_card', render_file:'rendered_file_card', render_chart:'chart_card', render_visualization:'visualization_card', render_ui:'ui_card', ui:'ui_card' });
+const LABELS = Object.freeze({citation_card:'Source', citation_card_list:'Sources', image_card:'Image', images_card:'Images', generated_image_card:'Generated image', generated_video_card:'Video', generated_audio_card:'Audio', media_variant_card:'Media variant', rendered_file_card:'File', chart_card:'Chart', visualization_card:'Visualization', places_card:'Places', weather_card:'Weather', sports_card:'Sports', finance_card:'Market data', x_posts_card:'X posts', x_users_card:'X profiles', mcp_app_card:'Archived app', ui_card:'Archived interface', ask_user_question_card:'Archived question', request_permission_card:'Archived permission request', request_connector_auth_card:'Archived connection request', location_request_card:'Archived location request', checkout_form_card:'Archived checkout form', automation_card:'Archived task', safety_warning:'Saved warning', artifact:'Artifact', tool_usage_card:'Archived tool activity'});
+const plain = value => value !== null && typeof value === 'object' && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+const own = (value,key) => {
+  if ((!plain(value) && !Array.isArray(value)) || BAD_KEYS.has(key)) return undefined;
+  const descriptor = Object.getOwnPropertyDescriptor(value,key);
+  return descriptor && Object.hasOwn(descriptor,'value') ? descriptor.value : undefined;
+};
+const str = (value,max=4096) => typeof value === 'string' && value.length <= max ? value : '';
+const idText = value => (typeof value === 'number' && Number.isSafeInteger(value)) ? String(value) : str(value,512);
+function safeUrl(value) {
+  if (!str(value) || /[\u0000-\u0020\u007f\\]/.test(value)) return null;
+  try { const u = new URL(value); return ['http:','https:'].includes(u.protocol) && !u.username && !u.password ? u.href : null; } catch { return null; }
+}
+function snapshot(input) {
+  let nodes=0, chars=0; const seen=new Set();
+  function copy(value,depth) {
+    if (++nodes>GROK_LIMITS.nodes || depth>GROK_LIMITS.depth) throw new Error('Grok data exceeds display limits');
+    if (value === null || typeof value === 'boolean') return value;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') { chars+=value.length; if(value.length>GROK_LIMITS.string || chars>GROK_LIMITS.message) throw new Error('Grok text limit'); return value; }
+    if ((!plain(value) && !Array.isArray(value)) || seen.has(value)) throw new Error('Grok data is not literal');
+    seen.add(value); const result=Array.isArray(value)?[]:Object.create(null), descriptors=Object.getOwnPropertyDescriptors(value);
+    if(Object.getOwnPropertySymbols(value).length) throw new Error('Grok symbol property');
+    const keys=Object.keys(descriptors); if(keys.length>GROK_LIMITS.fields+1) throw new Error('Grok field limit');
+    for(const key of keys) {
+      if(Array.isArray(value)&&key==='length') continue;
+      if(BAD_KEYS.has(key)||key.length>256||!Object.hasOwn(descriptors[key],'value')||(Array.isArray(value)&&! /^(0|[1-9][0-9]*)$/.test(key))) throw new Error('Grok unsafe property');
+      result[key]=copy(descriptors[key].value,depth+1);
+    }
+    if(Array.isArray(value)&&(result.length!==value.length||Object.keys(result).length!==value.length)) throw new Error('Grok sparse array');
+    seen.delete(value); return result;
+  }
+  return copy(input,0);
+}
+function json(value) { if(typeof value!=='string') return value; if(value.length>GROK_LIMITS.span) throw new Error('Grok JSON limit'); return JSON.parse(value); }
+function decode(value) { try { return decodeURIComponent(value); } catch { return value; } }
+function xmlText(value) {
+  const cdata=value.match(/^\s*<!\[CDATA\[([\s\S]*)\]\]>\s*$/); if(cdata) return cdata[1];
+  return value.replace(/&(?:amp|lt|gt|quot|apos|#\d{1,7}|#x[\da-fA-F]{1,6});/g,match=>{
+    const names={'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'"}; if(names[match]) return names[match];
+    const n=match[2]==='x'?parseInt(match.slice(3,-1),16):parseInt(match.slice(2,-1),10);
+    return n>0&&n<=0x10ffff&&!(n>=0xd800&&n<=0xdfff)?String.fromCodePoint(n):match;
+  });
+}
+function attributes(text) {
+  const result=Object.create(null); let at=0,count=0;
+  while(at<text.length) {
+    const ws=/^\s+/.exec(text.slice(at)); if(ws)at+=ws[0].length;
+    if(at===text.length)break;
+    const m=/^([A-Za-z_][\w:.-]*)\s*=\s*(["'])([\s\S]*?)\2/.exec(text.slice(at));
+    if(!m||++count>64||BAD_KEYS.has(m[1])||Object.hasOwn(result,m[1])) throw new Error('Malformed Grok attributes');
+    result[m[1]]=xmlText(m[3]); at+=m[0].length;
+  }
+  return result;
+}
+function opening(source,start) {
+  const head=/^<([A-Za-z][\w:.-]*)(?=[\s/>])/.exec(source.slice(start)); if(!head||!TAGS.has(head[1]))return null;
+  let at=start+head[0].length, quote='';
+  for(;at<source.length && at-start<=GROK_LIMITS.span;at++) {
+    const c=source[at]; if(quote) {if(c===quote)quote='';} else if(c==='"'||c==="'")quote=c; else if(c==='>')break;
+  }
+  if(source[at]!=='>') return {tag:head[1],end:Math.min(source.length,start+GROK_LIMITS.span),incomplete:true,attrs:Object.create(null)};
+  const tail=source.slice(start+head[0].length,at), self=/\/\s*$/.test(tail);
+  try { return {tag:head[1],end:at+1,self,attrs:attributes(self?tail.replace(/\/\s*$/,''):tail)}; }
+  catch { return {tag:head[1],end:at+1,self,attrs:Object.create(null),malformed:true}; }
+}
+function argumentValues(body) {
+  const args=Object.create(null); let cursor=0,count=0;
+  for(const match of body.matchAll(/<argument\s+name\s*=\s*(["'])([\w.-]+)\1\s*>([\s\S]*?)<\/argument\s*>/g)) {
+    if(body.slice(cursor,match.index).trim() || ++count>64 || BAD_KEYS.has(match[2]) || Object.hasOwn(args,match[2]))return null;
+    const value=xmlText(match[3]); args[match[2]]=value; cursor=match.index+match[0].length;
+  }
+  return body.slice(cursor).trim()?null:args;
+}
+function familyFor(tag,attrs) {
+  if(tag==='xaiArtifact') return 'artifact'; if(tag==='xai:tool_usage_card')return 'tool_usage_card';
+  if(tag==='image-card')return 'image_card'; if(tag==='file-mention')return 'rendered_file_card';
+  if(tag==='grok-card-list')return 'citation_card_list'; if(tag==='grok-generated-images')return 'images_card'; if(tag==='grok-file-card-group')return 'rendered_file_card';
+  if(tag==='grok:richcontent')return str(attrs.type,128);
+  return str(attrs.card_type||decode(attrs['data-type']||''),128)||own(OPERATIONS,str(attrs.type||decode(attrs['data-plain-type']||''),128))||'';
+}
+function escaped(source,pos) {let n=0;while(pos>0&&source[--pos]==='\\')n++;return n%2===1;}
+/** Recognizes one bounded presentation envelope without creating an XML/HTML DOM. */
+function grokAt(source,pos=0,{protectedRanges=[]}={}) {
+  if(escaped(source,pos))return null;
+  if(source.startsWith('[](grok_render_citation_card_json=',pos)) {
+    const start=pos+'[](grok_render_citation_card_json='.length,end=source.indexOf(')',start); if(end<0||end-start>GROK_LIMITS.span)return null;
+    try { const payload=snapshot(json(source.slice(start,end))),ids=payload.cardIds;
+      if(!Array.isArray(ids)||!ids.length||ids.length>64||ids.some(id=>!str(id,512)))return null;
+      return {end:end+1,node:{kind:'grok',family:'citation_card_list',ids,attrs:Object.create(null),args:Object.create(null),source:source.slice(pos,end+1),inline:true}};
+    } catch{return null;}
+  }
+  const open=opening(source,pos);if(!open)return null;
+  let end=open.end,body='',incomplete=!!open.incomplete;
+  if(!open.self&&!incomplete) {
+    const close=`</${open.tag}>`,stop=source.indexOf(close,open.end),nested=source.indexOf(`<${open.tag}`,open.end);
+    if(stop>=0&&stop-pos<=GROK_LIMITS.span&&!(nested>=0&&nested<stop)&&!protectedRanges.some(range=>range[0]<=stop&&stop<range[1])) {body=source.slice(open.end,stop);end=stop+close.length;}
+    else {end=open.end;body='';incomplete=true;}
+  }
+  const attrs=open.attrs,family=familyFor(open.tag,attrs),args=argumentValues(body)||Object.create(null);
+  for(const [key,value] of Object.entries(attrs))if(key.startsWith('data-arg-')&&!BAD_KEYS.has(key.slice(9)))args[key.slice(9)]=decode(value);
+  const id=idText(attrs.card_id||attrs.id||decode(attrs['data-id']||''));
+  const ids=family==='citation_card_list'||open.tag==='grok-generated-images'||open.tag==='grok-file-card-group'?id.split(',').map(s=>s.trim()).filter(Boolean).slice(0,64):id?[id]:[];
+  return {end,node:{kind:'grok',family,tag:open.tag,ids,attrs,args,body,source:source.slice(pos,end),incomplete,malformed:!!open.malformed,inline:!incomplete&&!open.malformed&&['citation_card','citation_card_list'].includes(family)}};
+}
+/** Recognize only explicit data-fence languages; other code examples remain
+ * untouched. Caller supplies a Markdown code token's exact protected range. */
+function grokFenceAt(source,start,end) {
+  const raw=source.slice(start,end);if(raw.length>GROK_LIMITS.span)return null;
+  const lines=raw.split(/\r?\n/),open=/^ {0,3}(`{3,}|~{3,})[ \t]*(chartjs|xaitask)[ \t]*$/.exec(lines[0]||'');if(!open)return null;
+  let last=lines.length-1;while(last>0&&lines[last]==='')last--;
+  const close=/^ {0,3}(`+|~+)[ \t]*$/.exec(lines[last]||'');if(!close||close[1][0]!==open[1][0]||close[1].length<open[1].length||last<2)return null;
+  const firstBreak=raw.indexOf('\n')+1,closingOffset=raw.lastIndexOf(lines[last]);
+  const body=raw.slice(firstBreak,closingOffset).replace(/\r?\n$/,'');
+  let embeddedCard;try {const payload=snapshot(json(body));if(!plain(payload))return null;embeddedCard=open[2]==='chartjs'?{config:payload}:payload;}catch{return null;}
+  return {end,node:{kind:'grok',family:open[2]==='chartjs'?'chart_card':'automation_card',ids:[],attrs:Object.create(null),args:Object.create(null),body,source:raw,codeSource:body,embeddedCard,inline:false}};
+}
+function prepareGrokMarkdown(content,{protectedRanges=[]}={}) {
+  const source=String(content??''),records=new Map();if(source.length>GROK_LIMITS.message)return {content:source,records};
+  let out='',last=0,pos=0,index=0;const ranges=[...protectedRanges].sort((a,b)=>a[0]-b[0]);
+  while(pos<source.length&&records.size<GROK_LIMITS.cards) {
+    while(ranges[index]&&ranges[index][1]<=pos)index++;
+    if(ranges[index]&&ranges[index][0]<=pos){pos=ranges[index][1];continue;}
+    if(source[pos]!=='<'&&!source.startsWith('[](grok_render_',pos)){pos++;continue;}
+    const found=grokAt(source,pos,{protectedRanges:ranges});if(!found){pos++;continue;}
+    const words=new Uint32Array(4);if(!globalThis.crypto?.getRandomValues)break;globalThis.crypto.getRandomValues(words);
+    const marker=`TSGROK${Array.from(words,n=>n.toString(16).padStart(8,'0')).join('')}END`;
+    if(source.includes(marker)||records.has(marker)){pos++;continue;}
+    records.set(marker,found.node);out+=source.slice(last,pos)+(found.node.inline?marker:`\n\n${marker}\n\n`);last=pos=found.end;
+  }
+  return {content:out+source.slice(last),records};
+}
+/** Explicit card IDs only; conflicting bindings are removed instead of guessed.
+ * Container spellings are separate observed transports, not positional sources. */
+function collectGrokCards(message) {
+  const cards=Object.create(null),conflicts=new Set();let visited=0,total=0;
+  function add(value,depth=0) {
+    if(++visited>GROK_LIMITS.cards*4||depth>5)return;
+    try {if(typeof value==='string')value=json(value);}catch{return;}
+    if(Array.isArray(value)){for(let i=0;i<Math.min(value.length,GROK_LIMITS.cards);i++)add(own(value,String(i)),depth+1);return;}
+    if(!plain(value))return;
+    const id=idText(own(value,'id')??own(value,'card_id')??own(value,'cardId'));
+    if(id&&!BAD_KEYS.has(id)) {
+      try {const card=snapshot(value);total+=JSON.stringify(card).length;if(total>GROK_LIMITS.message||conflicts.has(id))return;
+        if(cards[id]&&JSON.stringify(cards[id])!==JSON.stringify(card)){delete cards[id];conflicts.add(id);}else cards[id]=Object.freeze(card);
+      }catch{/* Malformed/accessor/cyclic metadata is never read or executed. */}
+      return;
+    }
+    // Some observed responses wrap the literal card list under cards.
+    const nested=own(value,'cards');if(Array.isArray(nested))add(nested,depth+1);
+  }
+  for(const root of [message,own(message,'metadata')])for(const key of ['cardAttachment','cardAttachmentsJson','card_attachments_json','cardAttachments'])add(own(root,key));
+  return Object.freeze(cards);
+}
+const EMPTY_CONTEXT=Object.freeze({grokCards:Object.freeze(Object.create(null))});
+function createGrokContextResolver(thread) {
+  const raw=own(thread,'raw'),responses=own(raw,'responses');
+  const messages=new Map(),duplicates=new Set(),cache=new WeakMap();
+  if(Array.isArray(responses)&&responses.length<=20000)for(let index=0;index<responses.length;index++) {
+    const wrapper=own(responses,String(index)),message=own(wrapper,'response')||wrapper,id=idText(own(message,'id')??own(message,'uuid')??own(message,'_id')??own(message,'response_id')??own(message,'responseId'));
+    if(!id||!plain(message))continue;if(messages.has(id))duplicates.add(id);else messages.set(id,message);
+  }
+  return turn=>{
+    // A retained per-turn container is an explicit binding; never search another
+    // turn merely because its content, image title or numeric citation matches.
+    const local=collectGrokCards(turn);if(Object.keys(local).length)return {grokCards:local};
+    const id=idText(own(turn,'source_message_id'));if(!id||duplicates.has(id))return EMPTY_CONTEXT;
+    const message=messages.get(id);if(!message)return EMPTY_CONTEXT;
+    if(!cache.has(message))cache.set(message,Object.freeze({grokCards:collectGrokCards(message)}));return cache.get(message);
+  };
+}
+const SVG='http://www.w3.org/2000/svg';
+const ICONS={source:['M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2','M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2'],image:['M3 3h18v18H3z','m3 17 6-7 5 6 3-3 4 5','M16 7h.01'],file:['M14 2H5v20h14V7z','M14 2v6h5','M8 12h8M8 16h8'],chart:['M4 3v18h17','M8 17V9M13 17V5M18 17v-6'],activity:['M4 4h16v16H4z','m8 9 3 3-3 3M13 15h4'],info:['M12 8h.01M12 11v6','M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0']};
+function el(document,tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;}
+function icon(document,name){const s=document.createElementNS(SVG,'svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('aria-hidden','true');s.setAttribute('focusable','false');s.setAttribute('width','18');s.setAttribute('height','18');s.classList.add('rich-icon','grok-icon');for(const d of ICONS[name]||ICONS.info){const p=document.createElementNS(SVG,'path');for(const [k,v] of Object.entries({d,fill:'none',stroke:'currentColor','stroke-width':'1.6','stroke-linecap':'round','stroke-linejoin':'round'}))p.setAttribute(k,v);s.append(p);}return s;}
+function link(document,url,label){const a=el(document,'a','grok-link',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;}
+function inspect(document,source,title='Original markup'){const detail=el(document,'details','grok-source'),summary=el(document,'summary','',title),pre=el(document,'pre'),code=el(document,'code','',source);pre.append(code);detail.append(summary,pre);return detail;}
+function cardFor(node,context,id=node.ids?.[0]) {if(node.embeddedCard)return node.embeddedCard;const cards=context?.grokCards;return cards instanceof Map?cards.get(id):own(cards,id);}
+function cardData(card) {return own(card,'card')||own(card,'data')||card||Object.create(null);}
+function formatValue(value) {return typeof value==='string'?value:JSON.stringify(value,null,2);}
+function fields(document,parent,data,exclude=new Set(),depth=0) {
+  if(!plain(data)||depth>3)return;const dl=el(document,'dl','grok-fields');let count=0;
+  for(const [key,value] of Object.entries(data)) {
+    if(exclude.has(key)||['id','card_id','cardId','cardType','card_type'].includes(key)||++count>24)continue;
+    if(value===undefined||value===null||key==='html'||key==='document'||key==='config')continue;
+    const dt=el(document,'dt','',key.replace(/_/g,' ')),dd=el(document,'dd');
+    if(plain(value)&&Object.keys(value).length<=12)fields(document,dd,value,new Set(),depth+1);
+    else if(Array.isArray(value)) {const ul=el(document,'ul');for(const item of value.slice(0,24)){const li=el(document,'li');if(plain(item))fields(document,li,item,new Set(),depth+1);else li.textContent=str(formatValue(item),8000)||'[Saved data]';ul.append(li);}dd.append(ul);}
+    else dd.textContent=str(formatValue(value),8000)||'[Saved data]';dl.append(dt,dd);
+  }
+  if(dl.childNodes.length)parent.append(dl);
+}
+function mediaUrl(family,data,node) {
+  if(family==='image_card')return safeUrl(own(own(data,'image'),'original')||own(own(data,'image'),'thumbnail')||own(data,'url')||node.attrs.src);
+  if(family==='generated_image_card')return safeUrl(own(own(data,'image_chunk'),'imageUrl')||own(data,'imageUrl')||own(data,'url'));
+  if(family==='generated_video_card')return safeUrl(own(own(data,'video_chunk'),'videoUrl')||own(data,'videoUrl')||own(data,'url'));
+  return safeUrl(own(data,'url')||own(data,'media_url'));
+}
+/** Exact image URLs the renderer can display for this bound presentation node.
+ * Used by the privileged resource policy; unrelated card/link URLs do not gain
+ * image-fetch authority. Unknown, malformed and missing cards authorize none. */
+function grokImageUrls(node,context={}) {
+  if(!node||node.kind!=='grok'||node.incomplete||node.malformed)return [];
+  const card=cardFor(node,context),data=cardData(card),family=node.family||str(own(card,'cardType')||own(card,'card_type')||own(data,'cardType')||own(data,'card_type'),128);
+  if(['image_card','generated_image_card'].includes(family)) {const url=mediaUrl(family,data,node);return url?[url]:[];}
+  if(family==='images_card')return [...new Set((node.ids||[]).slice(0,32).flatMap(id=>{const member=cardFor(node,context,id),type=str(own(member,'cardType')||own(member,'card_type'));return ['image_card','generated_image_card'].includes(type)?grokImageUrls({...node,ids:[id],family:type},context):[];}))];
+  return [];
+}
+function markdownImage(url,label){return `![${String(label).replace(/[\\[\]\r\n]/g,' ')}](<${url.replace(/</g,'%3C').replace(/>/g,'%3E')}>)`;}
+/** Translate only Chart.js semantics that the local SVG chart supports. Every
+ * unsupported semantic option keeps the source as data; no callback is run. */
+function grokChartConfig(input) {
+  try {
+    const c=snapshot(json(input));if(c.schema==='threadshelf-chart')return c;
+    if(!plain(c)||!['bar','line','pie','doughnut','scatter'].includes(c.type)||Object.keys(c).some(k=>!['type','data','options'].includes(k)))return null;
+    const data=c.data;if(!plain(data)||Object.keys(data).some(k=>!['labels','datasets'].includes(k))||!Array.isArray(data.datasets)||!data.datasets.length||data.datasets.length>8)return null;
+    const options=c.options||{};if(!plain(options)||Object.keys(options).some(k=>!['responsive','maintainAspectRatio','animation','plugins','indexAxis','scales'].includes(k)))return null;
+    if(options.indexAxis!==undefined&&!(c.type==='bar'&&['x','y'].includes(options.indexAxis)))return null;
+    const out={schema:'threadshelf-chart',version:1,type:c.type,series:[]};if(options.indexAxis==='y')out.orientation='horizontal';
+    const plugins=options.plugins||{};if(!plain(plugins)||Object.keys(plugins).some(k=>!['title','legend','tooltip'].includes(k)))return null;
+    if(plugins.title!==undefined){if(!plain(plugins.title)||Object.keys(plugins.title).some(k=>!['display','text','color','font','padding','position','align'].includes(k)))return null;if(plugins.title.display!==false&&typeof plugins.title.text==='string')out.title=plugins.title.text;}
+    // Tooltip/legend presentation is local; callbacks and custom plugin data
+    // stay unsupported even when represented as strings in an exported object.
+    for(const k of ['legend','tooltip'])if(plugins[k]!==undefined&&(!plain(plugins[k])||Object.keys(plugins[k]).some(x=>!['display','enabled','position','align'].includes(x))))return null;
+    if(options.scales!==undefined) {
+      if(!plain(options.scales)||Object.keys(options.scales).some(k=>!['x','y'].includes(k)))return null;
+      for(const [key,axis]of Object.entries(options.scales)){if(!plain(axis)||Object.keys(axis).some(k=>!['min','max','beginAtZero','title','type'].includes(k)))return null;if(axis.beginAtZero===true&&c.type!=='bar')return null;if(axis.type!==undefined&&!['linear','category'].includes(axis.type))return null;if(axis.type==='category'&&(c.type==='scatter'||key==='y'&&out.orientation!=='horizontal'))return null;
+        const target=out.orientation==='horizontal'?(key==='x'?'yAxis':'xAxis'):(key+'Axis'),a={};
+        if(axis.min!==undefined)a.min=axis.min;if(axis.max!==undefined)a.max=axis.max;
+        if(axis.title!==undefined){if(!plain(axis.title)||Object.keys(axis.title).some(k=>!['display','text'].includes(k)))return null;if(axis.title.display!==false&&typeof axis.title.text==='string')a.label=axis.title.text;}
+        if(Object.keys(a).length)out[target]=a;
+      }
+    }
+    if(c.type!=='scatter'){if(!Array.isArray(data.labels)||data.labels.length>200||data.labels.some(v=>typeof v!=='string'&&typeof v!=='number'))return null;out.categories=data.labels.map(String);}
+    for(const ds of data.datasets){if(!plain(ds)||Object.keys(ds).some(k=>!['label','data','backgroundColor','borderColor','borderWidth','pointRadius','pointBackgroundColor','tension','fill','hidden'].includes(k))||!Array.isArray(ds.data)||ds.hidden===true||ds.fill===true||ds.fill&&ds.fill!==false||ds.tension&&ds.tension!==0)return null;
+      const s={};if(ds.label!==undefined){if(typeof ds.label!=='string')return null;s.label=ds.label;}
+      if(c.type==='scatter'){if(ds.data.length>1000||ds.data.some(p=>!plain(p)||Object.keys(p).some(k=>!['x','y'].includes(k))||typeof p.x!=='number'||typeof p.y!=='number'||!Number.isFinite(p.x)||!Number.isFinite(p.y)))return null;s.points=ds.data.map(p=>({x:p.x,y:p.y}));}
+      else{if(ds.data.length!==out.categories.length||ds.data.some(v=>typeof v!=='number'||!Number.isFinite(v)))return null;s.values=ds.data;}
+      out.series.push(s);
+    }
+    if(['pie','doughnut'].includes(c.type)&&out.series.length!==1)return null;return out;
+  }catch{return null;}
+}
+function renderGrokNode(node,{document=globalThis.document,t=value=>value,context={},renderMarkdown,renderChart,grokBudget={remaining:GROK_LIMITS.message}}={}) {
+  const bound=cardFor(node,context);let card;try{if(bound!==undefined)card=snapshot(bound);}catch{/* Invalid metadata remains unavailable. */}
+  const data=cardData(card),savedFamily=str(own(card,'cardType')||own(card,'card_type')||own(data,'cardType')||own(data,'card_type'),128);
+  const family=node.family||savedFamily||'unknown',label=own(LABELS,family)||t('Archived Grok content');
+  // Rendering uses a shared message budget, including repeated references to
+  // the same large metadata object. Parsing limits alone cannot bound that
+  // expansion. The immutable conversation and whole-message Copy stay exact.
+  let savedDataText='';if(card&&!node.inline){try{savedDataText=JSON.stringify(snapshot(card),null,2);}catch{savedDataText=t('Metadata exceeds display limits');}}
+  const size=(node.source?.length||0)+(node.body?.length||0)+savedDataText.length+JSON.stringify(node.args||{}).length;
+  if(size>GROK_LIMITS.span||size*3>grokBudget.remaining) {
+    const aside=el(document,'aside','grok-card rich-passive');aside.dataset.grokFamily=family;
+    const header=el(document,'div','grok-card-header');header.append(icon(document,'info'),el(document,'strong','',label));aside.append(header,el(document,'p','grok-status',t('Component exceeds display limits. Original message remains available through Copy.')));
+    const take=Math.min(4096,Math.max(0,grokBudget.remaining));if(take&&node.source){const source=node.source.slice(0,take);aside.append(inspect(document,source+(source.length<node.source.length?'\n[Display truncated]':''),t('Original markup preview')));grokBudget.remaining-=take;}return aside;
+  }
+  grokBudget.remaining-=size*3;
+  if(node.inline&&['citation_card','citation_card_list'].includes(family)) {
+    const span=el(document,'span','rich-citation grok-citation');span.append(icon(document,'source'));
+    const ids=node.ids?.length?node.ids:[null];
+    for(const id of ids){const binding=cardData(cardFor(node,context,id)),url=safeUrl(own(binding,'url')),title=str(own(binding,'title'));
+      const item=url?link(document,url,new URL(url).hostname.replace(/^www\./,'')):el(document,'span','rich-citation-unresolved',t('Source unavailable'));
+      item.title=[title||url||t('Saved source metadata is unavailable'),id&&`card_id: ${id}`,node.args.citation_id!==undefined&&`citation_id: ${node.args.citation_id}`,node.source].filter(Boolean).join('\n');
+      item.setAttribute('aria-label',item.title);span.append(item);
+    }return span;
+  }
+  const aside=el(document,'aside','grok-card rich-passive');aside.dataset.grokFamily=family;
+  const header=el(document,'div','grok-card-header');header.append(icon(document,/image/.test(family)?'image':family==='chart_card'?'chart':family==='rendered_file_card'||family==='artifact'?'file':/tool|request|task|automation|ui|app|form/.test(family)?'activity':'info'),el(document,'strong','',label));aside.append(header);
+  if(node.incomplete||node.malformed)aside.append(el(document,'p','grok-status',t('Incomplete or malformed saved component')));
+  else if(family==='artifact') {
+    if(node.attrs.title)aside.append(el(document,'div','grok-title',node.attrs.title));
+    if(node.attrs.contentType)aside.append(el(document,'div','grok-status',node.attrs.contentType));
+    // Artifact HTML and scripts are shown as source. Markdown may be rendered
+    // by the existing safe Markdown path; SVG keeps the existing explicit
+    // source/preview control through a fenced block.
+    const mime=node.attrs.contentType||'';
+    if(renderMarkdown&&mime==='text/markdown'){const template=el(document,'template');template.innerHTML=renderMarkdown(node.body);aside.append(template.content);}
+    else {const pre=el(document,'pre'),code=el(document,'code','',node.body);if(mime==='image/svg+xml')pre.setAttribute('data-svg-fence','svg');pre.append(code);aside.append(pre);}
+  } else if(/^(?:image_card|generated_image_card)$/.test(family)) {
+    const url=mediaUrl(family,data,node),description=str(own(data,'caption')||own(own(data,'image'),'title')||node.args.caption||node.attrs.alt)||label;
+    if(url&&renderMarkdown){const template=el(document,'template');template.innerHTML=renderMarkdown(markdownImage(url,description));aside.append(template.content);}
+    else aside.append(el(document,'p','grok-status',t('Image unavailable in this export')));
+    if(description!==label)aside.append(el(document,'div','grok-caption',description));
+    const source=safeUrl(own(own(data,'image'),'link'));if(source)aside.append(link(document,source,t('Image source')));
+  } else if(['generated_audio_card','generated_video_card','media_variant_card','rendered_file_card'].includes(family)) {
+    const url=mediaUrl(family,data,node),name=str(own(data,'file_name')||own(data,'title')||node.args.file_path||node.attrs.path)||label;
+    aside.append(url?link(document,url,name):el(document,'p','grok-status',`${name} — ${t('Asset unavailable in this export')}`));
+  } else if(family==='chart_card') {
+    const config=own(data,'config')??node.args.chartjs_config??node.args.config,normalized=config===undefined?null:grokChartConfig(config);
+    if(normalized&&renderChart)aside.append(renderChart(normalized,{document,t,family:'Chart'}));
+    else aside.append(el(document,'p','grok-status',t('Chart retained as saved data')));
+  } else if(family==='tool_usage_card') {
+    const name=/<xai:tool_name>([\s\S]*?)<\/xai:tool_name>/.exec(node.body)?.[1];if(name)aside.append(el(document,'div','',xmlText(name)));
+    aside.append(el(document,'p','grok-status',t('Saved tool activity; no tool is run')));
+  } else if(family==='images_card'&&node.ids.length) {
+    for(const id of node.ids.slice(0,32)){const member=cardFor(node,context,id),f=str(own(member,'cardType')||own(member,'card_type'));if(['image_card','generated_image_card'].includes(f))aside.append(renderGrokNode({...node,ids:[id],family:f,source:'',inline:false},{document,t,context,renderMarkdown,renderChart,grokBudget}));}
+    if(aside.childNodes.length===1)aside.append(el(document,'p','grok-status',t('Images unavailable in this export')));
+  } else {
+    fields(document,aside,data);if(!card)aside.append(el(document,'p','grok-status',t('Saved component metadata is unavailable')));
+    if(['visualization_card','ui_card','mcp_app_card'].includes(family))aside.append(el(document,'p','grok-status',t('Interactive content is archived as source')));
+  }
+  if(node.ids?.length)aside.append(el(document,'div','grok-identity',`ID: ${node.ids.join(', ')}`));
+  if(Object.keys(node.args||{}).length)fields(document,aside,node.args);
+  if(card)aside.append(inspect(document,savedDataText,t('Saved component data')));
+  if(node.source)aside.append(inspect(document,node.codeSource??node.source,t(node.codeSource!==undefined?'Original code':'Original markup')));return aside;
+}
+
+window.TSARich.Grok=Object.freeze({GROK_LIMITS,grokAt,grokFenceAt,prepareGrokMarkdown,collectGrokCards,createGrokContextResolver,grokImageUrls,grokChartConfig,renderGrokNode});
+})();
+
+/* rich-chart-interactions.js */
+(function(){
+'use strict';
+
+/** Trusted, transient chart inspection. No exported code or callbacks execute.
+ * The serialized geometry is produced by rich-charts after bounded validation.
+ * Root delegation survives the Reader's normal render-to-HTML pipeline.
+ */
+const roots = new WeakMap(), charts = new WeakMap(), activeByDocument = new WeakMap(), handled = new WeakSet();
+let tooltipSequence = 0;
+const finite = value => typeof value === 'number' && Number.isFinite(value);
+function chartState(figure) {
+  if (charts.has(figure)) return charts.get(figure);
+  let items;
+  try {
+    const data = figure.dataset.chartInteraction;
+    if (!data || data.length > 8_000_000) return null;
+    items = JSON.parse(data);
+    if (!Array.isArray(items) || !items.length || items.length > 1000 || items.some(item => !finite(item.x) || !finite(item.y) || typeof item.heading !== 'string' || !Array.isArray(item.rows) || item.rows.length > 10 || item.rows.some(row => typeof row.label !== 'string' || typeof row.value !== 'string' || !Number.isInteger(row.color) || row.color < 0 || row.color > 7))) return null;
+  } catch { return null; }
+  const state = {figure, items, svg: figure.querySelector('svg'), viewport: figure.querySelector('.rich-chart-viewport'), suppressed: -1, index: 0};
+  state.nodes = items.map((_, i) => figure.querySelector(`.rich-chart-hit[data-chart-item="${i}"]`) || figure.querySelector(`[data-chart-item="${i}"]`));
+  if (!state.svg || !state.viewport || state.nodes.some(node => !node)) return null;
+  charts.set(figure, state); return state;
+}
+function screenPoint(state, item) {
+  const m = state.svg.getScreenCTM?.();
+  return m ? {x: m.a * item.x + m.c * item.y + m.e, y: m.b * item.x + m.d * item.y + m.f} : null;
+}
+function visiblePoint(state, point) {
+  const doc = state.figure.ownerDocument, win = doc.defaultView;
+  if (!state.figure.isConnected || !state.figure.getClientRects().length || !point) return false;
+  if (point.x < 0 || point.y < 0 || point.x > win.innerWidth || point.y > win.innerHeight) return false;
+  for (let node = state.viewport; node && node !== doc.body; node = node.parentElement) {
+    const css = win.getComputedStyle(node);
+    if (css.display === 'none' || css.visibility === 'hidden') return false;
+    const box = node.getBoundingClientRect();
+    if (/(auto|scroll|hidden|clip)/.test(css.overflowX) && (point.x < box.left - 1 || point.x > box.right + 1)) return false;
+    if (/(auto|scroll|hidden|clip)/.test(css.overflowY) && (point.y < box.top - 1 || point.y > box.bottom + 1)) return false;
+  }
+  return true;
+}
+function visibleAnchor(state, item, index) {
+  let point = screenPoint(state, item);
+  if (state.figure.dataset.chartType === 'scatter') return visiblePoint(state, point) ? point : null;
+  const doc = state.figure.ownerDocument, win = doc.defaultView;
+  if (!state.figure.isConnected || !state.figure.getClientRects().length || !point) return null;
+  const target = state.nodes[index].getBoundingClientRect();
+  const inPlot = state.viewport.contains(state.nodes[index]);
+  if (!inPlot) point = {x: (target.left + target.right) / 2, y: (target.top + target.bottom) / 2};
+  let left = Math.max(0, target.left), right = Math.min(win.innerWidth, target.right), top = Math.max(0, target.top), bottom = Math.min(win.innerHeight, target.bottom);
+  for (let node = inPlot ? state.viewport : state.nodes[index].parentElement; node && node !== doc.body; node = node.parentElement) {
+    const css = win.getComputedStyle(node), box = node.getBoundingClientRect();
+    if (css.display === 'none' || css.visibility === 'hidden') return null;
+    if (/(auto|scroll|hidden|clip)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+    if (/(auto|scroll|hidden|clip)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+  }
+  if (right <= left || bottom <= top) return null;
+  // Shared categories retain their true X/crosshair position even when only a
+  // strip of the category target is visible. Bars anchor in the visible part.
+  if (item.guide && (point.x < left || point.x > right)) return null;
+  return {x: Math.max(left, Math.min(point.x, right)), y: Math.max(top, Math.min(point.y, bottom))};
+}
+function clearHighlight(state) {
+  state.figure.classList.remove('has-chart-active');
+  state.figure.querySelectorAll('.is-active').forEach(node => node.classList.remove('is-active'));
+  const guide = state.figure.querySelector('.rich-chart-crosshair');
+  if (guide) guide.setAttribute('visibility', 'hidden');
+  state.figure.querySelectorAll('[aria-describedby]').forEach(node => { if (node.getAttribute('aria-describedby')?.startsWith('threadshelf-chart-tooltip-')) node.removeAttribute('aria-describedby'); });
+}
+function dismissChartInteractions(root) {
+  const doc = root?.ownerDocument || root;
+  const active = activeByDocument.get(doc);
+  if (active && (root === doc || root === active.state.figure || root.contains?.(active.state.figure))) active.hide();
+}
+function show(state, index, origin) {
+  if (!state.items[index] || state.suppressed === index) return;
+  const doc = state.figure.ownerDocument, win = doc.defaultView, previous = activeByDocument.get(doc);
+  if (previous?.state === state && previous.index === index) { previous.origin = origin; return; }
+  previous?.hide();
+  const item = state.items[index], point = visibleAnchor(state, item, index);
+  if (!point) return;
+  const panel = doc.createElement('div'); panel.className = 'rich-chart-tooltip'; panel.id = `threadshelf-chart-tooltip-${++tooltipSequence}`; panel.setAttribute('role', 'tooltip');
+  const heading = doc.createElement('div'); heading.className = 'rich-chart-tooltip-heading'; heading.textContent = item.heading; panel.append(heading);
+  for (const row of item.rows) {
+    const line = doc.createElement('div'); line.className = 'rich-chart-tooltip-row';
+    const swatch = doc.createElement('span'); swatch.className = `rich-chart-swatch rich-chart-color-${row.color}`; swatch.setAttribute('aria-hidden', 'true');
+    const label = doc.createElement('span'); label.className = 'rich-chart-tooltip-label'; label.textContent = row.label;
+    const value = doc.createElement('strong'); value.className = 'rich-chart-tooltip-value'; value.textContent = row.value;
+    line.append(swatch, label, value); panel.append(line);
+  }
+  // The portal is outside overflow containers. Carry the active Reader theme,
+  // including its independent high-contrast override, across that boundary.
+  const css = win.getComputedStyle(state.figure);
+  for (const name of ['--text-primary', '--text-secondary', '--bg-primary', '--bg-secondary', '--border-color', '--text-accent', '--accent-color', '--accent', '--danger', '--warning', '--muted', '--text', '--surface', '--border']) {
+    const value = css.getPropertyValue(name); if (value) panel.style.setProperty(name, value);
+  }
+  panel.style.fontFamily = css.fontFamily; panel.style.fontSize = css.fontSize;
+  if (state.figure.closest('.reader-high-contrast')) panel.classList.add('rich-chart-tooltip-high-contrast');
+  doc.body.append(panel);
+  state.figure.classList.add('has-chart-active');
+  state.figure.querySelectorAll(`[data-chart-active="${index}"],.rich-chart-legend [data-chart-item="${index}"]`).forEach(node => node.classList.add('is-active'));
+  const guide = state.figure.querySelector('.rich-chart-crosshair');
+  if (guide && item.guide) { guide.setAttribute('x1', String(item.x)); guide.setAttribute('x2', String(item.x)); guide.setAttribute('visibility', 'visible'); }
+  state.nodes[index].setAttribute('aria-describedby', panel.id);
+  if (doc.activeElement === state.viewport || (state.figure.contains(doc.activeElement) && doc.activeElement?.dataset.chartItem === String(index))) doc.activeElement.setAttribute('aria-describedby', panel.id);
+  state.index = index;
+  let frame = 0, closed = false;
+  const active = {state, index, origin, hide};
+  const listeners = [];
+  function listen(target, name, fn, options) { target.addEventListener(name, fn, options); listeners.push(() => target.removeEventListener(name, fn, options)); }
+  function hide() {
+    if (closed) return; closed = true;
+    if (frame) win.cancelAnimationFrame(frame);
+    listeners.forEach(remove => remove()); removal?.disconnect(); ancestors?.disconnect(); resize?.disconnect();
+    panel.remove(); clearHighlight(state);
+    if (activeByDocument.get(doc) === active) activeByDocument.delete(doc);
+  }
+  function position() {
+    frame = 0;
+    const anchor = visibleAnchor(state, item, index);
+    if (!anchor) { hide(); return; }
+    const reader = state.figure.closest('.reader-view')?.getBoundingClientRect();
+    const vv = win.visualViewport;
+    const bounds = {left: Math.max(8, reader?.left + 8 || 8, (vv?.offsetLeft || 0) + 8), top: Math.max(8, reader?.top + 8 || 8, (vv?.offsetTop || 0) + 8), right: Math.min(win.innerWidth - 8, reader?.right - 8 || Infinity, (vv?.offsetLeft || 0) + (vv?.width || win.innerWidth) - 8), bottom: Math.min(win.innerHeight - 8, reader?.bottom - 8 || Infinity, (vv?.offsetTop || 0) + (vv?.height || win.innerHeight) - 8)};
+    // Measure the portal's screen-to-CSS scale: CSS zoom on any ancestor and
+    // normal Chromium page/display scaling need not share SVG user units.
+    panel.style.left = '0px'; panel.style.top = '0px';
+    const origin = panel.getBoundingClientRect();
+    panel.style.left = '100px'; panel.style.top = '100px';
+    const probe = panel.getBoundingClientRect();
+    const sx = (probe.left - origin.left) / 100 || 1, sy = (probe.top - origin.top) / 100 || 1;
+    panel.style.maxWidth = `${Math.max(40, bounds.right - bounds.left) / sx}px`;
+    panel.style.maxHeight = `${Math.max(40, bounds.bottom - bounds.top) / sy}px`;
+    panel.classList.remove('rich-chart-tooltip-compact');
+    if (panel.scrollHeight * sy > bounds.bottom - bounds.top) panel.classList.add('rich-chart-tooltip-compact');
+    const box = panel.getBoundingClientRect();
+    let x = anchor.x + 16, y = anchor.y - 12;
+    if (x + box.width > bounds.right) x = anchor.x - box.width - 16;
+    x = Math.max(bounds.left, Math.min(x, bounds.right - box.width));
+    y = Math.max(bounds.top, Math.min(y, bounds.bottom - box.height));
+    panel.style.left = `${(x - origin.left) / sx}px`; panel.style.top = `${(y - origin.top) / sy}px`;
+  }
+  function schedule() { if (!frame && !closed) frame = win.requestAnimationFrame(position); }
+  function escape(event) { if (event.key === 'Escape') { state.suppressed = index; hide(); event.preventDefault(); } }
+  const removal = win.MutationObserver ? new win.MutationObserver(schedule) : null;
+  removal?.observe(doc.body, {childList: true, subtree: true});
+  const ancestors = win.MutationObserver ? new win.MutationObserver(hide) : null;
+  for (let node = state.figure.parentElement; node; node = node.parentElement) ancestors?.observe(node, {attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-hidden']});
+  const resize = win.ResizeObserver ? new win.ResizeObserver(schedule) : null;
+  resize?.observe(state.figure); resize?.observe(state.viewport);
+  listen(doc, 'scroll', schedule, true); listen(win, 'resize', schedule); listen(doc, 'keydown', escape, true);
+  listen(doc, 'pointerdown', event => { if (!state.figure.contains(event.target)) hide(); }, true);
+  if (win.visualViewport) { listen(win.visualViewport, 'resize', schedule); listen(win.visualViewport, 'scroll', schedule); }
+  activeByDocument.set(doc, active); position();
+}
+function pointerIndex(state, event) {
+  if (state.figure.dataset.chartType === 'scatter' && state.svg.contains(event.target)) {
+    // CSS-pixel hit radius remains stable under SVG resize/zoom. Equal-distance
+    // overlaps choose source series order then source point order; arrows reach all.
+    const m = state.svg.getScreenCTM?.(); if (!m) return -1;
+    const doc = state.figure.ownerDocument, win = doc.defaultView;
+    const bounds = {left: 0, top: 0, right: win.innerWidth, bottom: win.innerHeight};
+    for (let node = state.viewport; node && node !== doc.body; node = node.parentElement) {
+      const css = win.getComputedStyle(node), box = node.getBoundingClientRect();
+      if (css.display === 'none' || css.visibility === 'hidden') return -1;
+      if (/(auto|scroll|hidden|clip)/.test(css.overflowX)) { bounds.left = Math.max(bounds.left, box.left); bounds.right = Math.min(bounds.right, box.right); }
+      if (/(auto|scroll|hidden|clip)/.test(css.overflowY)) { bounds.top = Math.max(bounds.top, box.top); bounds.bottom = Math.min(bounds.bottom, box.bottom); }
+    }
+    let best = -1, distance = 18 * 18;
+    state.items.forEach((item, i) => {
+      const x = m.a * item.x + m.c * item.y + m.e, y = m.b * item.x + m.d * item.y + m.f;
+      if (x < bounds.left || x > bounds.right || y < bounds.top || y > bounds.bottom) return;
+      const dx = x - event.clientX, dy = y - event.clientY, d = dx * dx + dy * dy;
+      if (d < distance - 1e-7 || (best === -1 && d <= distance)) { best = i; distance = d; }
+    });
+    return best;
+  }
+  const target = event.target.closest?.('[data-chart-item]');
+  return target?.closest('.rich-chart') === state.figure ? Number(target.dataset.chartItem) : -1;
+}
+/** Returns an idempotent disposer; each mounted root owns only five delegates. */
+function mountChartInteractions(root) {
+  if (roots.has(root)) return roots.get(root);
+  function eventState(event) {
+    const figure = event.target.closest?.('.rich-chart[data-chart-interaction]');
+    return figure && (figure === root || root.contains(figure)) ? chartState(figure) : null;
+  }
+  function pointer(event) {
+    if (handled.has(event)) return; const state = eventState(event); if (!state) return; handled.add(event);
+    const index = pointerIndex(state, event);
+    if (index < 0) { state.suppressed = -1; dismissChartInteractions(state.figure); return; }
+    if (index !== state.suppressed) state.suppressed = -1;
+    show(state, index, 'pointer');
+  }
+  function out(event) {
+    const state = eventState(event); if (!state || state.figure.contains(event.relatedTarget)) return;
+    state.suppressed = -1;
+    const active = activeByDocument.get(state.figure.ownerDocument);
+    if (active?.state === state && active.origin !== 'focus') active.hide();
+  }
+  function focus(event) {
+    if (handled.has(event)) return; const state = eventState(event); if (!state) return; handled.add(event);
+    const node = event.target.closest('[data-chart-item]');
+    if (event.target !== state.viewport && !node) { dismissChartInteractions(state.figure); return; }
+    const index = node ? Number(node.dataset.chartItem) : state.index;
+    if (index !== state.suppressed) state.suppressed = -1;
+    show(state, index, 'focus');
+  }
+  function blur(event) {
+    const state = eventState(event); if (!state || state.figure.contains(event.relatedTarget)) return;
+    state.suppressed = -1; dismissChartInteractions(state.figure);
+  }
+  function key(event) {
+    if (handled.has(event)) return; const state = eventState(event); if (!state || (!event.target.closest('[data-chart-item]') && event.target !== state.viewport)) return;
+    let index = Number(event.target.closest('[data-chart-item]')?.dataset.chartItem ?? state.index);
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') index = Math.min(state.items.length - 1, index + 1);
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') index = Math.max(0, index - 1);
+    else if (event.key === 'Home') index = 0;
+    else if (event.key === 'End') index = state.items.length - 1;
+    else return;
+    handled.add(event); event.preventDefault(); state.suppressed = -1;
+    state.nodes[index].focus({preventScroll: true});
+    state.nodes[index].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});
+    show(state, index, 'focus');
+  }
+  const events = [['pointermove', pointer], ['pointerout', out], ['focusin', focus], ['focusout', blur], ['keydown', key]];
+  events.forEach(([name, fn]) => root.addEventListener(name, fn));
+  let disposed = false;
+  const dispose = () => { if (disposed) return; disposed = true; dismissChartInteractions(root); events.forEach(([name, fn]) => root.removeEventListener(name, fn)); roots.delete(root); };
+  roots.set(root, dispose); return dispose;
+}
+
+window.TSARich.Interactions=Object.freeze({dismissChartInteractions,mountChartInteractions});
+})();
+
+/* rich-charts.js */
+(function(){
+'use strict';
+const {mountChartInteractions}=window.TSARich.Interactions;
+/** Safe, render-only chart adapters. See docs/rich-chart-support.md.
+ * All input is literal data. No exported DOM, CSS, callbacks, or resources run.
+ */
+const CHART_LIMITS = Object.freeze({ rows: 200, series: 8, points: 1000, depth: 12, nodes: 12000, text: 200000, string: 4096, magnitude: 1e15 });
+const OWN_SCHEMA = 'threadshelf-chart';
+const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+const TYPES = new Set(['bar', 'line', 'area', 'pie', 'doughnut', 'scatter']);
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const LABELS = Object.freeze({ richChart: 'Chart', richChartData: 'Exact values', richChartCategory: 'Category', richChartSeries: 'Series', richChartValue: 'Value', richChartUnavailable: 'Chart shown as saved data', richChartSource: 'Saved chart data', richChartLimit: 'Chart exceeds display limits', richChartX: 'X', richChartY: 'Y' });
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const fail = (reason) => { throw new Error(reason); };
+const plain = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && (Object.getPrototypeOf(v) === Object.prototype || Object.getPrototypeOf(v) === null);
+function keys(value, allowed) { if (!plain(value)) fail('schema'); for (const k of Object.keys(value)) if (!allowed.includes(k)) fail('unsupported'); }
+function text(value, optional = true) { if (value === undefined && optional) return undefined; if (typeof value !== 'string' || value.length > CHART_LIMITS.string) fail('data'); return value; }
+function num(value) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > CHART_LIMITS.magnitude) fail('data'); return value; }
+function list(value, max, min = 1) { if (!Array.isArray(value) || value.length < min || value.length > max) fail('limit'); return value; }
+// Inspect descriptors before reading properties: even a non-literal object passed
+// by a future caller cannot trigger a getter while validating or falling back.
+function snapshot(input) {
+  let nodes = 0, chars = 0;
+  const seen = new Set();
+  function copy(v, depth) {
+    if (++nodes > CHART_LIMITS.nodes || depth > CHART_LIMITS.depth) fail('limit');
+    if (v === null || typeof v === 'boolean') return v;
+    if (typeof v === 'number') { if (!Number.isFinite(v)) fail('data'); return v; }
+    if (typeof v === 'string') { chars += v.length; if (v.length > CHART_LIMITS.string || chars > CHART_LIMITS.text) fail('limit'); return v; }
+    if (typeof v !== 'object' || (!Array.isArray(v) && !plain(v)) || seen.has(v)) fail('schema');
+    seen.add(v);
+    const result = Array.isArray(v) ? [] : Object.create(null);
+    const desc = Object.getOwnPropertyDescriptors(v);
+    if (Object.getOwnPropertySymbols(desc).length) fail('schema');
+    const names = Object.keys(desc);
+    if (names.length > CHART_LIMITS.points + 1) fail('limit');
+    for (const k of names) {
+      if (Array.isArray(v) && k === 'length') continue;
+      if (BAD_KEYS.has(k) || k.length > 128 || !own(desc[k], 'value')) fail('schema');
+      if (Array.isArray(v) && !/^(0|[1-9][0-9]*)$/.test(k)) fail('schema');
+      chars += k.length;
+      if (chars > CHART_LIMITS.text) fail('limit');
+      result[k] = copy(desc[k].value, depth + 1);
+    }
+    if (Array.isArray(v) && (result.length !== v.length || Object.keys(result).length !== v.length)) fail('data');
+    seen.delete(v);
+    return result;
+  }
+  return copy(input, 0);
+}
+function seriesInfo(s, allowed) {
+  keys(s, allowed);
+  const out = {};
+  for (const k of ['label', 'valueSuffix', 'unit']) if (own(s, k)) out[k] = text(s[k], false);
+  if (own(s, 'valueFormat')) { if (!['raw', 'integer'].includes(s.valueFormat)) fail('unsupported'); out.valueFormat = s.valueFormat; }
+  if (out.valueSuffix && out.unit) fail('unsupported');
+  return out;
+}
+function axis(a) {
+  if (a === undefined) return {};
+  keys(a, ['min', 'max', 'label', 'unit']);
+  const out = {};
+  for (const k of ['min', 'max']) if (own(a, k)) out[k] = num(a[k]);
+  for (const k of ['label', 'unit']) if (own(a, k)) out[k] = text(a[k], false);
+  if (out.min !== undefined && out.max !== undefined && out.min >= out.max) fail('data');
+  return out;
+}
+function exported(input, family) {
+  if (!['Chart', 'chart', 'charts_widget_v2'].includes(family)) fail('unsupported');
+  // The native Chart component and both GenUI envelopes preserve the same
+  // literal data contract. Do not reject supported charts because a converter
+  // retained the component rather than a charts_widget_v2 wrapper.
+  if (!['bar', 'line', 'area', 'pie', 'doughnut', 'scatter'].includes(input.chartType)) fail('unsupported');
+  const pie = ['pie', 'doughnut'].includes(input.chartType), scatter = input.chartType === 'scatter';
+  // In this evidenced bar contract vertically arranged categories mean
+  // horizontally extending bars; other layout values remain unsupported.
+  const allowed = ['chartType', 'meta', 'series', 'data', 'valueSuffix', ...(pie ? ['nameKey', 'valueKey'] : ['xKey', 'yAxisMin', 'yAxisMax'])];
+  if (input.chartType === 'bar') allowed.push('layout');
+  keys(input, allowed);
+  if (own(input, 'layout') && input.layout !== 'vertical') fail('unsupported');
+  const out = {schema: OWN_SCHEMA, version: 1, type: input.chartType, series: [], yAxis: {}, xAxis: {}};
+  if (!scatter) out.categories = [];
+  if (input.meta !== undefined) { keys(input.meta, ['title', 'description', 'footer']); for (const k of ['title', 'description', 'footer']) if (own(input.meta, k)) out[k] = text(input.meta[k], false); }
+  const inheritedSuffix = own(input, 'valueSuffix') ? text(input.valueSuffix, false) : undefined;
+  const categoryKey = text(pie ? input.nameKey : input.xKey, false);
+  if (!categoryKey || BAD_KEYS.has(categoryKey)) fail('data');
+  if (scatter) out.xAxis.label = categoryKey;
+  else out.categoryLabel = categoryKey;
+  const allSeries = list(input.series, pie ? 1 : CHART_LIMITS.series);
+  out.series = allSeries.map(s => {
+    const normalized = {...seriesInfo(s, ['dataKey', 'label', 'valueFormat', 'valueSuffix', 'unit']), dataKey: text(s.dataKey, false), ...(scatter ? {points: []} : {values: []})};
+    // An explicit empty suffix/unit is deliberate and must not be overwritten.
+    if (inheritedSuffix !== undefined && !own(normalized, 'valueSuffix') && !own(normalized, 'unit')) normalized.valueSuffix = inheritedSuffix;
+    return normalized;
+  });
+  const seenKeys = new Set();
+  for (const s of out.series) { if (!s.dataKey || BAD_KEYS.has(s.dataKey) || s.dataKey === categoryKey || seenKeys.has(s.dataKey)) fail('data'); seenKeys.add(s.dataKey); }
+  if (pie && (text(input.valueKey, false) !== out.series[0].dataKey)) fail('unsupported');
+  const rows = list(input.data, CHART_LIMITS.rows);
+  if (rows.length * out.series.length > CHART_LIMITS.points) fail('limit');
+  for (const row of rows) {
+    // Unrecognized columns may encode errors/stacking. Preserve them in fallback.
+    keys(row, [categoryKey, ...seenKeys]);
+    if (scatter) {
+      const x = num(row[categoryKey]);
+      for (const s of out.series) s.points.push({x, y: num(row[s.dataKey])});
+    } else {
+      out.categories.push(text(row[categoryKey], false));
+      for (const s of out.series) s.values.push(num(row[s.dataKey]));
+    }
+  }
+  if (own(input, 'yAxisMin')) out.yAxis.min = num(input.yAxisMin);
+  if (own(input, 'yAxisMax')) out.yAxis.max = num(input.yAxisMax);
+  out.orientation = own(input, 'layout') ? 'horizontal' : 'vertical';
+  // The same native pie contract uses a ring across its supported wrappers.
+  // This is local presentation, not an inferred radius or changed chartType.
+  if (pie) out.circularPresentation = 'ring';
+  return out;
+}
+function readerOwned(input) {
+  keys(input, ['schema', 'version', 'type', 'orientation', 'title', 'description', 'footer', 'categoryLabel', 'categories', 'series', 'xAxis', 'yAxis']);
+  if (input.schema !== OWN_SCHEMA || input.version !== 1 || !TYPES.has(input.type)) fail('unsupported');
+  const out = {schema: OWN_SCHEMA, version: 1, type: input.type, xAxis: axis(input.xAxis), yAxis: axis(input.yAxis)};
+  for (const k of ['title', 'description', 'footer', 'categoryLabel']) if (own(input, k)) out[k] = text(input[k], false);
+  if (input.orientation !== undefined && (input.type !== 'bar' || !['vertical', 'horizontal'].includes(input.orientation))) fail('unsupported');
+  out.orientation = input.orientation || 'vertical';
+  if (input.type === 'scatter') {
+    if (input.categories !== undefined || input.categoryLabel !== undefined) fail('unsupported');
+    out.series = list(input.series, CHART_LIMITS.series).map(s => ({...seriesInfo(s, ['label', 'points', 'valueSuffix', 'unit', 'valueFormat']), points: list(s.points, CHART_LIMITS.points).map(p => { keys(p, ['x', 'y', 'label']); return {x: num(p.x), y: num(p.y), ...(own(p, 'label') ? {label: text(p.label, false)} : {})}; })}));
+    if (out.series.reduce((n, s) => n + s.points.length, 0) > CHART_LIMITS.points) fail('limit');
+  } else {
+    out.categories = list(input.categories, CHART_LIMITS.rows).map(v => text(v, false));
+    out.series = list(input.series, ['pie', 'doughnut'].includes(input.type) ? 1 : CHART_LIMITS.series).map(s => ({...seriesInfo(s, ['label', 'values', 'valueSuffix', 'unit', 'valueFormat']), values: list(s.values, CHART_LIMITS.rows).map(num)}));
+    if (out.series.some(s => s.values.length !== out.categories.length)) fail('data');
+    if (out.series.length * out.categories.length > CHART_LIMITS.points) fail('limit');
+    if (Object.keys(out.xAxis).some(k => k === 'min' || k === 'max')) fail('unsupported');
+    if (['pie', 'doughnut'].includes(out.type) && (Object.keys(out.xAxis).length || Object.keys(out.yAxis).length)) fail('unsupported');
+  }
+  return out;
+}
+function chartDomain(values, requested = {}, zero = false) {
+  let min = Math.min(...values), max = Math.max(...values);
+  if (zero) { min = Math.min(0, min); max = Math.max(0, max); }
+  if (requested.min !== undefined) { if (requested.min > min) fail('bounds'); min = requested.min; }
+  if (requested.max !== undefined) { if (requested.max < max) fail('bounds'); max = requested.max; }
+  if (min === max) { if (requested.min !== undefined && requested.max !== undefined) fail('bounds'); if (requested.max === undefined) max = min + (Math.abs(min) || 1); else min = max - (Math.abs(max) || 1); }
+  if (!(max > min) || !Number.isFinite(max - min)) fail('bounds');
+  return {min, max};
+}
+function validateDomains(c) {
+  const suffixes = c.series.map(s => exactChartValue(0, s, c.yAxis).slice(1));
+  // A common axis must not borrow one series' suffix when units differ.
+  // Keep the original axis and series metadata intact for exact-value lookup.
+  c.numericAxisSuffix = suffixes.every(s => s === suffixes[0]) ? suffixes[0] : '';
+  if (['pie', 'doughnut'].includes(c.type)) {
+    if (c.series[0].values.some(v => v < 0) || !c.series[0].values.some(v => v > 0)) fail('data');
+    return;
+  }
+  const values = c.series.flatMap(s => c.type === 'scatter' ? s.points.map(p => p.y) : s.values);
+  c.yDomain = chartDomain(values, c.yAxis, ['bar', 'area'].includes(c.type));
+  if (c.type === 'scatter') c.xDomain = chartDomain(c.series.flatMap(s => s.points.map(p => p.x)), c.xAxis);
+}
+/** Never mutates input. Unknown schemas return a passive data snapshot. */
+function normalizeChart(input, {family = 'Chart'} = {}) {
+  let saved;
+  try {
+    saved = snapshot(input);
+    const chart = saved.schema === OWN_SCHEMA ? readerOwned(saved) : exported(saved, family);
+    validateDomains(chart);
+    return {ok: true, chart};
+  } catch (error) {
+    return {ok: false, reason: error.message, payload: saved, title: typeof saved?.meta?.title === 'string' ? saved.meta.title : typeof saved?.title === 'string' ? saved.title : undefined};
+  }
+}
+function exactChartValue(value, series = {}, axis = {}) {
+  const numeric = Object.is(value, -0) ? '-0' : String(value);
+  // Only an explicitly supplied axis unit may fill an absent series unit.
+  // Preserve an explicit empty suffix/unit as well as the original series.
+  const unit = own(series, 'unit') ? series.unit : axis.unit;
+  const suffix = own(series, 'valueSuffix') ? series.valueSuffix : (unit ? ' ' + unit : '');
+  return numeric + suffix;
+}
+function tr(t, key) { const value = typeof t === 'function' ? t(LABELS[key] || key) : undefined; return typeof value === 'string' && value ? value : (LABELS[key] || key); }
+function el(doc, tag, cls, value) { const n = doc.createElement(tag); if (cls) n.className = cls; if (value !== undefined) n.textContent = value; return n; }
+function svgEl(doc, tag, attrs, value) { const n = doc.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, String(v)); if (value !== undefined) n.textContent = value; return n; }
+function short(value, max = 28) { const a = Array.from(value); return a.length > max ? a.slice(0, max - 1).join('') + '…' : value; }
+const coord = n => Math.round(n * 1000) / 1000;
+function label(doc, svg, x, y, value, anchor = 'middle', cls = '') {
+  const node = svgEl(doc, 'text', {x: coord(x), y: coord(y), 'text-anchor': anchor, class: 'rich-chart-label ' + cls, 'aria-label': value}, short(value));
+  svg.append(node); return node;
+}
+function pointShape(doc, svg, tag, attrs, description, seriesIndex) {
+  const node = svgEl(doc, tag, {...attrs, class: `rich-chart-mark rich-chart-color-${seriesIndex % 8}`, role: 'img', tabindex: '-1', 'aria-label': description});
+  svg.append(node); return node;
+}
+function ticks(domain) { return Array.from({length: 5}, (_, i) => domain.min + (domain.max - domain.min) * (i / 4)); }
+function tickText(n, a) { const display = Object.is(n, -0) ? '0' : String(Number(n.toPrecision(6))); return display + (own(a, 'valueSuffix') ? a.valueSuffix : a.unit ? ' ' + a.unit : ''); }
+function seriesName(s, index, t) { return s.label ?? s.dataKey ?? `${tr(t, 'richChartSeries')} ${index + 1}`; }
+function table(doc, c, t) {
+  const details = el(doc, 'details', 'rich-chart-data');
+  details.append(el(doc, 'summary', '', tr(t, 'richChartData')));
+  const holder = el(doc, 'div', 'rich-chart-table-scroll'); holder.tabIndex = 0;
+  holder.setAttribute('role', 'region'); holder.setAttribute('aria-label', tr(t, 'richChartData'));
+  const tableNode = el(doc, 'table');
+  tableNode.append(el(doc, 'caption', '', c.title || tr(t, 'richChartData')));
+  const thead = el(doc, 'thead'), head = el(doc, 'tr');
+  const headers = c.type === 'scatter' ? [tr(t, 'richChartSeries'), c.xAxis.label || tr(t, 'richChartX'), c.yAxis.label || tr(t, 'richChartY'), tr(t, 'richChartCategory')] : [c.categoryLabel || c.xAxis.label || tr(t, 'richChartCategory'), ...c.series.map((s, i) => seriesName(s, i, t))];
+  for (const value of headers) { const th = el(doc, 'th', '', value); th.scope = 'col'; head.append(th); }
+  thead.append(head); tableNode.append(thead); const body = el(doc, 'tbody');
+  const rows = c.type === 'scatter' ? c.series.flatMap((s, i) => s.points.map(p => [seriesName(s, i, t), exactChartValue(p.x, {unit: c.xAxis.unit}), exactChartValue(p.y, s, c.yAxis), p.label || ''])) : c.categories.map((name, i) => [name, ...c.series.map(s => exactChartValue(s.values[i], s, c.yAxis))]);
+  for (const row of rows) { const r = el(doc, 'tr'); row.forEach((v, i) => { const cell = el(doc, i === 0 ? 'th' : 'td', '', v); if (i === 0) cell.scope = 'row'; r.append(cell); }); body.append(r); }
+  tableNode.append(body); holder.append(tableNode); details.append(holder); return details;
+}
+function chartSvg(doc, c, t, width, height) {
+  const svg = svgEl(doc, 'svg', {viewBox: `0 0 ${width} ${height}`, width, height, role: 'group', 'aria-label': c.title || tr(t, 'richChart')});
+  svg.append(svgEl(doc, 'desc', {}, tr(t, 'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.')));
+  return svg;
+}
+function row(c, s, si, value, t) { return {label: seriesName(s, si, t), value: exactChartValue(value, s, c.yAxis), color: si % 8}; }
+function registerItem(items, node, marks, item) {
+  const i = items.length;
+  node?.setAttribute('data-chart-item', String(i));
+  node?.setAttribute('tabindex', '-1');
+  node?.setAttribute('role', 'img');
+  node?.setAttribute('aria-label', [item.heading, ...item.rows.map(r => `${r.label}: ${r.value}`)].join(' — '));
+  for (const mark of marks) { mark.setAttribute('data-chart-active', String(i)); mark.setAttribute('data-chart-item', String(i)); }
+  items.push(item);
+  return i;
+}
+function cartesian(doc, c, t) {
+  const horizontal = c.type === 'bar' && c.orientation === 'horizontal';
+  const count = c.categories?.length || 0;
+  const width = horizontal ? 680 : Math.max(640, Math.min(12000, count * Math.max(112, c.series.length * 38)));
+  const height = horizontal ? Math.max(320, 92 + count * Math.max(40, c.series.length * 23)) : 370;
+  const valueWidth = horizontal ? Math.min(220, Math.max(90, ...c.series.flatMap(s => s.values.map(v => exactChartValue(v, s, c.yAxis).length * 7 + 22)))) : 42;
+  const left = horizontal ? 220 : 88, right = valueWidth, top = 32, bottom = horizontal ? 56 : 90;
+  const pw = width - left - right, ph = height - top - bottom;
+  const svg = chartSvg(doc, c, t, width, height), items = [];
+  const d = c.yDomain, scale = v => (v - d.min) / (d.max - d.min);
+  const y = v => top + ph * (1 - scale(v)), xValue = v => left + pw * scale(v);
+  for (const value of ticks(d)) {
+    const pos = horizontal ? xValue(value) : y(value);
+    svg.append(svgEl(doc, 'line', horizontal ? {x1: coord(pos), x2: coord(pos), y1: top, y2: top + ph, class: 'rich-chart-grid'} : {x1: left, x2: left + pw, y1: coord(pos), y2: coord(pos), class: 'rich-chart-grid'}));
+    label(doc, svg, horizontal ? pos : left - 10, horizontal ? top + ph + 22 : pos + 4, tickText(value, {valueSuffix: c.numericAxisSuffix ?? exactChartValue(0, {}, c.yAxis).slice(1)}), horizontal ? 'middle' : 'end');
+  }
+  if (d.min <= 0 && d.max >= 0) svg.append(svgEl(doc, 'line', horizontal ? {x1: coord(xValue(0)), x2: coord(xValue(0)), y1: top, y2: top + ph, class: 'rich-chart-baseline'} : {x1: left, x2: left + pw, y1: coord(y(0)), y2: coord(y(0)), class: 'rich-chart-baseline'}));
+  const slot = (horizontal ? ph : pw) / Math.max(1, count);
+  const guide = svgEl(doc, 'line', {class: 'rich-chart-crosshair', y1: top, y2: top + ph, 'aria-hidden': 'true', visibility: 'hidden'});
+  svg.append(guide);
+  if (c.type === 'scatter') {
+    const xd = c.xDomain, xp = v => left + pw * ((v - xd.min) / (xd.max - xd.min));
+    for (const v of ticks(xd)) label(doc, svg, xp(v), top + ph + 22, tickText(v, c.xAxis));
+    c.series.forEach((s, si) => s.points.forEach((p, pi) => {
+      const x = coord(xp(p.x)), py = coord(y(p.y));
+      const heading = p.label || seriesName(s, si, t);
+      const rows = [{label: c.xAxis.label || tr(t, 'richChartX'), value: exactChartValue(p.x, {unit: c.xAxis.unit}), color: si % 8}, {label: `${seriesName(s, si, t)} · ${c.yAxis.label || tr(t, 'richChartY')}`, value: exactChartValue(p.y, s, c.yAxis), color: si % 8}];
+      const mark = pointShape(doc, svg, 'circle', {cx: x, cy: py, r: 5, 'data-series-index': si, 'data-point-index': pi}, `${heading} — ${rows.map(r => `${r.label}: ${r.value}`).join('; ')}`, si);
+      registerItem(items, mark, [mark], {heading, rows, x, y: py, guide: true});
+    }));
+  } else {
+    c.categories.forEach((category, i) => label(doc, svg, horizontal ? left - 12 : left + slot * (i + 0.5), horizontal ? top + slot * (i + 0.5) + 4 : top + ph + 24, category, horizontal ? 'end' : 'middle'));
+    const categoryMarks = c.categories.map(() => []), hits = [];
+    c.series.forEach((s, si) => {
+      const points = s.values.map((value, i) => [left + slot * (i + 0.5), y(value)]);
+      if (c.type === 'line' || c.type === 'area') {
+        if (c.type === 'area') svg.append(svgEl(doc, 'path', {d: `M ${coord(points[0][0])} ${coord(y(0))} L ${points.map(p => p.map(coord).join(' ')).join(' L ')} L ${coord(points.at(-1)[0])} ${coord(y(0))} Z`, class: `rich-chart-area rich-chart-color-${si}`}));
+        svg.append(svgEl(doc, 'polyline', {points: points.map(p => p.map(coord).join(',')).join(' '), class: `rich-chart-line rich-chart-color-${si}`}));
+      }
+      s.values.forEach((value, i) => {
+        const description = `${c.categories[i]} — ${seriesName(s, si, t)}: ${exactChartValue(value, s, c.yAxis)}`;
+        if (c.type === 'bar') {
+          const band = slot * .72 / c.series.length, start = (horizontal ? top : left) + slot * (i + .14) + si * band;
+          const a = horizontal ? xValue(0) : y(0), b = horizontal ? xValue(value) : y(value);
+          const attrs = horizontal ? {x: coord(Math.min(a, b)), y: coord(start), width: coord(Math.abs(b - a)), height: coord(band * .9)} : {x: coord(start), y: coord(Math.min(a, b)), width: coord(band * .9), height: coord(Math.abs(b - a))};
+          const mark = pointShape(doc, svg, 'rect', {...attrs, 'data-category-index': i, 'data-series-index': si}, description, si);
+          // The transparent hit target alone grows at zero; the source-value bar keeps its true zero geometry.
+          const hit = svgEl(doc, 'rect', {...attrs, x: attrs.x - (horizontal ? Math.max(0, (12 - attrs.width) / 2) : 0), y: attrs.y - (horizontal ? 0 : Math.max(0, (12 - attrs.height) / 2)), width: horizontal ? Math.max(12, attrs.width) : attrs.width, height: horizontal ? attrs.height : Math.max(12, attrs.height), class: 'rich-chart-hit'});
+          registerItem(items, hit, [mark], {heading: c.categories[i], rows: [row(c, s, si, value, t)], x: coord(horizontal ? (a + b) / 2 : start + band * .45), y: coord(horizontal ? start + band * .45 : (a + b) / 2)});
+          mark.setAttribute('data-chart-item', hit.getAttribute('data-chart-item')); hits.push(hit);
+          if (count * c.series.length <= 24) label(doc, svg, horizontal ? left + pw + 12 : start + band * .45, horizontal ? start + band * .65 : b + (value < 0 ? 18 : -7), exactChartValue(value, s, c.yAxis), horizontal ? 'start' : 'middle', 'rich-chart-value');
+        } else categoryMarks[i].push(pointShape(doc, svg, 'circle', {cx: coord(points[i][0]), cy: coord(points[i][1]), r: 4, 'data-category-index': i, 'data-series-index': si}, description, si));
+      });
+    });
+    if (c.type === 'line' || c.type === 'area') c.categories.forEach((category, i) => {
+      const hit = svgEl(doc, 'rect', {x: coord(left + slot * i), y: top - 6, width: coord(slot), height: ph + 12, class: 'rich-chart-hit'});
+      registerItem(items, hit, categoryMarks[i], {heading: category, rows: c.series.map((s, si) => row(c, s, si, s.values[i], t)), x: coord(left + slot * (i + .5)), y: coord(top + ph / 2), guide: true}); hits.push(hit);
+    });
+    svg.append(...hits);
+  }
+  if (c.yAxis.label) label(doc, svg, horizontal ? left + pw / 2 : left, horizontal ? height - 6 : 17, c.yAxis.label, horizontal ? 'middle' : 'start');
+  if (c.xAxis.label || c.categoryLabel) label(doc, svg, horizontal ? left - 12 : left + pw / 2, horizontal ? 17 : height - 14, c.xAxis.label || c.categoryLabel, horizontal ? 'end' : 'middle');
+  return {svg, items};
+}
+function circular(doc, c, t) {
+  const svg = chartSvg(doc, c, t, 640, 300), items = [];
+  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 320, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
+  let angle = -Math.PI / 2;
+  s.values.forEach((value, i) => {
+    const part = total > 0 ? value / total : 0, end = angle + Math.PI * 2 * part, middle = angle + Math.PI * part;
+    const point = (a, radius) => [coord(cx + Math.cos(a) * radius), coord(cy + Math.sin(a) * radius)].join(' ');
+    const rows = [{...row(c, s, 0, value, t), color: i % 8}];
+    if (total > 0) rows.push({label: tr(t, 'Share of total (calculated)'), value: `${Number((part * 100).toPrecision(6))}%`, color: i % 8});
+    let mark;
+    if (value > 0) {
+      let path = `M ${point(angle, r)} A ${r} ${r} 0 0 1 ${point(middle, r)} A ${r} ${r} 0 0 1 ${point(end, r)}`;
+      path += inner ? ` L ${point(end, inner)} A ${inner} ${inner} 0 0 0 ${point(middle, inner)} A ${inner} ${inner} 0 0 0 ${point(angle, inner)} Z` : ` L ${cx} ${cy} Z`;
+      mark = pointShape(doc, svg, 'path', {d: path, 'data-category-index': i}, `${c.categories[i]} — ${rows.map(r => `${r.label}: ${r.value}`).join('; ')}`, i);
+    }
+    registerItem(items, mark, mark ? [mark] : [], {heading: c.categories[i], rows, x: coord(cx + Math.cos(middle) * (inner + r) / 2), y: coord(cy + Math.sin(middle) * (inner + r) / 2)});
+    angle = end;
+  });
+  return {svg, items};
+}
+function legend(doc, c, t) {
+  const out = el(doc, 'ul', 'rich-chart-legend');
+  const circular = ['pie', 'doughnut'].includes(c.type);
+  const entries = circular ? c.categories.map((name, i) => `${name}: ${exactChartValue(c.series[0].values[i], c.series[0])}`) : c.series.map((s, i) => seriesName(s, i, t));
+  entries.forEach((value, i) => { const item = el(doc, 'li'); const swatch = el(doc, 'span', `rich-chart-swatch rich-chart-color-${i % 8}`); swatch.setAttribute('aria-hidden', 'true'); item.append(swatch, doc.createTextNode(value)); if (circular) { item.dataset.chartItem = String(i); item.tabIndex = -1; item.setAttribute('aria-label', value); } out.append(item); });
+  return out;
+}
+function renderChart(input, {document: doc = globalThis.document, t, family = 'Chart'} = {}) {
+  if (!doc?.createElementNS) throw new TypeError('A DOM document is required');
+  const result = normalizeChart(input, {family});
+  const figure = el(doc, 'figure', 'rich-chart');
+  if (!result.ok) {
+    figure.classList.add('rich-chart-fallback');
+    figure.append(el(doc, 'figcaption', '', result.title || tr(t, 'richChartUnavailable')));
+    if (result.title) figure.append(el(doc, 'p', 'rich-chart-description', tr(t, 'richChartUnavailable')));
+    const details = el(doc, 'details'); details.append(el(doc, 'summary', '', tr(t, 'richChartSource')));
+    details.append(el(doc, 'pre', 'rich-chart-source', result.payload === undefined ? tr(t, result.reason === 'limit' ? 'richChartLimit' : 'richChartUnavailable') : JSON.stringify(result.payload, null, 2)));
+    figure.append(details); return figure;
+  }
+  const c = result.chart;
+  figure.dataset.chartType = c.type;
+  if (c.circularPresentation) figure.dataset.chartPresentation = c.circularPresentation;
+  if (c.title) figure.append(el(doc, 'figcaption', '', c.title));
+  if (c.description) figure.append(el(doc, 'p', 'rich-chart-description', c.description));
+  const viewport = el(doc, 'div', 'rich-chart-viewport'); viewport.tabIndex = 0; viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', c.title || tr(t, 'richChart'));
+  viewport.setAttribute('aria-description', tr(t, 'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.'));
+  const drawing = ['pie', 'doughnut'].includes(c.type) ? circular(doc, c, t) : cartesian(doc, c, t);
+  // Trusted transient geometry and display strings survive the normal HTML serialization route.
+  // They never replace the saved message or create archive/analytics records.
+  figure.dataset.chartInteraction = JSON.stringify(drawing.items);
+  viewport.append(drawing.svg);
+  figure.append(viewport, legend(doc, c, t), table(doc, c, t));
+  if (c.footer) figure.append(el(doc, 'p', 'rich-chart-footer', c.footer));
+  mountChartInteractions(figure);
+  return figure;
+}
+
+window.TSARich.Charts=Object.freeze({CHART_LIMITS,chartDomain,normalizeChart,exactChartValue,renderChart});
+})();
+
 /* rich-parser.js */
-(function(){'use strict';
-const marked=window.marked;
+(function(){
+'use strict';
+const marked=window.marked;const {grokAt,grokFenceAt}=window.TSARich.Grok;
 /** Reader-owned, bounded, data-only adapters for the evidenced export vocabulary.
  * This is deliberately not JSX, HTML, Svelte, or a JavaScript interpreter.
  * All representations are transient; nothing here writes back to a message.
@@ -15,6 +929,7 @@ const RICH_LIMITS = Object.freeze({
   output: 1024 * 1024, fragments: 256, operations: 1000000, milliseconds: 300,
 });
 const TAGS = new Set(['box', 'row', 'text', 'title', 'caption', 'divider', 'icon', 'grid', 'grid-item', 'Entity', 'AsyncImage', 'AsyncImageGroup', 'Chart', 'Cite', 'Link', 'svg']);
+const GROK_TAGS = new Set(['grok:render','grok:richcontent','grok','grok-card','grok-card-list','grok-generated-images','grok-file-card-group','xaiArtifact','xai:tool_usage_card','image-card','file-mention']);
 const INLINE = new Set(['Entity', 'Cite', 'Link', 'icon']);
 const FORBIDDEN = new Set(['__proto__', 'prototype', 'constructor']);
 const ENUMS = Object.freeze({
@@ -332,10 +1247,11 @@ function markdownProtectedRanges(source) {
       const raw = token.raw || ''; if (!raw) continue;
       const at = region.indexOf(raw, cursor); if (at < 0) continue;
       const start = base + at, end = start + raw.length; cursor = at + raw.length;
-      if (['code', 'codespan', 'escape', 'link', 'image'].includes(token.type)) { add(start, end, token.type === 'code' && token.codeBlockStyle === 'indented' ? 'indented' : 'protected'); continue; }
+      if (token.type === 'link' && (/^\[\]\(grok_render_citation_card_json=/.test(raw) || (token.autolink && GROK_TAGS.has(raw.match(/^<([\w:-]+)>$/)?.[1])))) continue;
+      if (['code', 'codespan', 'escape', 'link', 'image'].includes(token.type)) { add(start, end, token.type === 'code' ? (token.codeBlockStyle === 'indented' ? 'indented' : 'fence') : 'protected'); continue; }
       if (token.type === 'html') {
-        const root = raw.match(/^\s*<\/?([A-Za-z][A-Za-z0-9-]*)/);
-        if (!root || !TAGS.has(root[1])) {
+        const root = raw.match(/^\s*<\/?([A-Za-z][A-Za-z0-9:_-]*)/);
+        if (!root || (!TAGS.has(root[1]) && !GROK_TAGS.has(root[1]))) {
           let last = end;
           if (root && !/^\s*<\//.test(raw) && !/\/\s*>\s*$/.test(raw)) {
             const close = closingAt(root[1], end);
@@ -469,6 +1385,14 @@ class ComponentParser {
     while (this.pos < this.source.length && !this.source.startsWith(closing, this.pos)) {
       this.check(depth); const end = this.protectedEnd();
       if (end > this.pos) { text += this.source.slice(this.pos, end); this.pos = end; continue; }
+      if (!escaped(this.source, this.pos) && this.source.startsWith('', this.pos)) {
+        const stop=this.source.indexOf('',this.pos+1);
+        if(stop>=0&&stop-this.pos<=RICH_LIMITS.span){text+=this.source.slice(this.pos,stop+1);this.pos=stop+1;continue;}
+      }
+      if (this.source[this.pos]==='<' || this.source.startsWith('[](grok_render_',this.pos)) {
+        const grok=grokAt(this.source,this.pos,{protectedRanges:this.ranges});
+        if(grok){text+=this.source.slice(this.pos,grok.end);this.pos=grok.end;continue;}
+      }
       if (!escaped(this.source, this.pos) && richTagAt(this.source, this.pos)) { flush(); children.push(this.element(depth + 1)); continue; }
       if (this.source.startsWith('</', this.pos) && /^<\/[A-Za-z]/.test(this.source.slice(this.pos))) fail('Mismatched nested closing tag');
       if (this.source[this.pos] === '{' && !escaped(this.source, this.pos)) {
@@ -586,8 +1510,38 @@ function legacyNode(payload, raw, b) {
     if (data.points.some(p => !p || typeof p !== 'object' || Object.keys(p).some(k => !['ref', 'name', 'category'].includes(k)) || typeof p.name !== 'string' || (p.category !== undefined && typeof p.category !== 'string'))) return null;
     return { kind: 'passive', family, points: data.points, source: raw, inline: false };
   }
-  return null;
+  return { kind: 'archived-widget', family, data, source: raw, inline: false };
 }
+
+// Native ChatGPT export tokens are data, never markup or executable UI. IDs are
+// carried unchanged; unknown metadata cannot be reconstructed from their order.
+function nativeMarker(raw, b) {
+  const fields = raw.slice(1, -1).split(''), family = fields.shift();
+  if (!/^[a-z][a-z0-9_]{0,63}$/.test(family) || fields.length > 65) return null;
+  if (family === 'cite' || family === 'filecite') {
+    const ids = [], lines = [];
+    for (const part of fields) {
+      if (family === 'filecite' && /^L[1-9]\d*(?:-L?[1-9]\d*)?$/.test(part)) lines.push(part);
+      else if (part.length && part.length <= 256 && !/[\s\u0000-\u001f]/.test(part)) ids.push(part);
+      else return null;
+    }
+    if (!ids.length || ids.length > 64) return null;
+    return {kind:'native-citation', family, refs:ids, lines, source:raw, inline:true};
+  }
+  if (family === 'entity' && fields.length === 1) {
+    const data = parseLiteral(fields[0], b);
+    if (!Array.isArray(data) || data.length < 2 || data.length > 3 || data.some(v => typeof v !== 'string')) return null;
+    return {kind:'component',tag:'Entity',attrs:{category:data[0],value:data[1],disambig:data[2] || ''},children:[],source:raw,inline:true};
+  }
+  // Keep every remaining complete token inspectable, including future families.
+  // Known image/navigation families gain reader-owned archived presentations.
+  let data = fields;
+  if (fields.length === 1 && /^[\[{]/.test(fields[0])) {
+    try { data = parseLiteral(fields[0], b); } catch { /* retain literal fields */ }
+  }
+  return {kind:'archived-widget',family,data,source:raw,inline:false};
+}
+
 function failedSpanEnd(source, start, tag) {
   // Recovery never interprets attributes. It only recognizes an exact balanced
   // lexical boundary, including quoted > and nested same-name components.
@@ -633,10 +1587,15 @@ function prepareRichMarkdown(content) {
   while (pos < source.length && records.size < RICH_LIMITS.fragments) {
     const mathEnd = protectedMathEnd(source, pos); if (mathEnd > pos) { pos = mathEnd; continue; }
     while (rangeIndex < ranges.length && ranges[rangeIndex][1] <= pos) rangeIndex++;
-    if (ranges[rangeIndex] && ranges[rangeIndex][0] <= pos) { pos = ranges[rangeIndex][1]; continue; }
+    let fenced = null;
+    if (ranges[rangeIndex] && ranges[rangeIndex][0] <= pos) {
+      const range = ranges[rangeIndex];
+      if (range[0] === pos && range[2] === 'fence') fenced = grokFenceAt(source, pos, range[1]);
+      if (!fenced) { pos = range[1]; continue; }
+    }
     if (Date.now() - b.started > RICH_LIMITS.milliseconds) break;
-    const tag = !escaped(source, pos) && richTagAt(source, pos);
-    let node = null, end = pos;
+    const tag = !fenced && !escaped(source, pos) && richTagAt(source, pos);
+    let node = fenced?.node || null, end = fenced?.end || pos;
     if (tag) {
       const parser = new ComponentParser(source, pos, b, ranges);
       try { const ast = parser.element(); end = parser.pos; node = evaluate([ast], Object.create(null), b)[0]; }
@@ -647,15 +1606,33 @@ function prepareRichMarkdown(content) {
         end = failedSpanEnd(source, pos, tag);
         pos = Math.max(pos + 1, end); continue;
       }
-    } else if (source.startsWith('genui', pos)) {
+    } else if (!escaped(source, pos) && source.startsWith('genui', pos)) {
       const stop = source.indexOf('', pos + 7);
       if (stop >= 0 && stop - pos <= RICH_LIMITS.span) {
         end = stop + 1; const raw = source.slice(pos, end);
-        try { node = legacyNode(parseLiteral(source.slice(pos + 7, stop), b), raw, b); if (node) tick(b, 'output', raw.length); } catch { /* preserve the original marker */ }
+        try {
+          const payload = parseLiteral(source.slice(pos + 7, stop), b);
+          node = legacyNode(payload, raw, b);
+          if (!node && plainRecord(payload)) node = { kind: 'archived-widget', family: Object.keys(payload).join(', ') || 'widget', data: payload, source: raw, inline: false };
+          if (node) tick(b, 'output', raw.length);
+        } catch { node = null; /* malformed/non-literal/over-budget markers remain exact source */ }
         if (!node) { pos = end; continue; }
       }
     }
+    if (!node && !escaped(source, pos) && source.startsWith('', pos) && !source.startsWith('genui', pos)) {
+      const stop = source.indexOf('', pos + 2);
+      if (stop >= 0 && stop - pos <= RICH_LIMITS.span) {
+        end = stop + 1;
+        try { node = nativeMarker(source.slice(pos, end), b); } catch { /* preserve invalid protocol as source */ }
+        if (!node) { pos = end; continue; }
+      }
+    }
+    if (!node && (source[pos] === '<' || source.startsWith('[](grok_render_', pos))) {
+      const found = grokAt(source, pos, {protectedRanges:ranges});
+      if (found) { node = found.node; end = found.end; }
+    }
     if (node) {
+      if (node.kind === 'grok' || node.kind === 'native-citation' || node.kind === 'archived-widget') { try { tick(b, 'output', end - pos); } catch { break; } }
       let marker; try { marker = opaqueMarker(); while (source.includes(marker) || records.has(marker)) marker = opaqueMarker(); } catch { break; }
       b.fragments++; records.set(marker, node); output += source.slice(last, pos) + (node.inline ? marker : `\n\n${marker}\n\n`);
       last = end; pos = end;
@@ -667,602 +1644,12 @@ function prepareRichMarkdown(content) {
 window.TSARich.Parser=Object.freeze({RICH_LIMITS,parseLiteral,safeRichUrl,markdownProtectedRanges,parseRichSpan,prepareRichMarkdown});
 })();
 
-
-/* rich-chart-interactions.js */
-(function(){'use strict';
-
-/** Trusted, transient chart inspection. No exported code or callbacks execute.
- * The serialized geometry is produced by rich-charts after bounded validation.
- * Root delegation survives the Reader's normal render-to-HTML pipeline.
- */
-const roots = new WeakMap(), charts = new WeakMap(), activeByDocument = new WeakMap(), handled = new WeakSet();
-let tooltipSequence = 0;
-const finite = value => typeof value === 'number' && Number.isFinite(value);
-function chartState(figure) {
-  if (charts.has(figure)) return charts.get(figure);
-  let items;
-  try {
-    const data = figure.dataset.chartInteraction;
-    if (!data || data.length > 8_000_000) return null;
-    items = JSON.parse(data);
-    if (!Array.isArray(items) || !items.length || items.length > 1000 || items.some(item => !finite(item.x) || !finite(item.y) || typeof item.heading !== 'string' || !Array.isArray(item.rows) || item.rows.length > 10 || item.rows.some(row => typeof row.label !== 'string' || typeof row.value !== 'string' || !Number.isInteger(row.color) || row.color < 0 || row.color > 7))) return null;
-  } catch { return null; }
-  const state = {figure, items, svg: figure.querySelector('svg'), viewport: figure.querySelector('.rich-chart-viewport'), suppressed: -1, index: 0};
-  state.nodes = items.map((_, i) => figure.querySelector(`.rich-chart-hit[data-chart-item="${i}"]`) || figure.querySelector(`[data-chart-item="${i}"]`));
-  if (!state.svg || !state.viewport || state.nodes.some(node => !node)) return null;
-  charts.set(figure, state); return state;
-}
-function screenPoint(state, item) {
-  const m = state.svg.getScreenCTM?.();
-  return m ? {x: m.a * item.x + m.c * item.y + m.e, y: m.b * item.x + m.d * item.y + m.f} : null;
-}
-function visiblePoint(state, point) {
-  const doc = state.figure.ownerDocument, win = doc.defaultView;
-  if (!state.figure.isConnected || !state.figure.getClientRects().length || !point) return false;
-  if (point.x < 0 || point.y < 0 || point.x > win.innerWidth || point.y > win.innerHeight) return false;
-  for (let node = state.viewport; node && node !== doc.body; node = node.parentElement) {
-    const css = win.getComputedStyle(node);
-    if (css.display === 'none' || css.visibility === 'hidden') return false;
-    const box = node.getBoundingClientRect();
-    if (/(auto|scroll|hidden|clip)/.test(css.overflowX) && (point.x < box.left - 1 || point.x > box.right + 1)) return false;
-    if (/(auto|scroll|hidden|clip)/.test(css.overflowY) && (point.y < box.top - 1 || point.y > box.bottom + 1)) return false;
-  }
-  return true;
-}
-function visibleAnchor(state, item, index) {
-  let point = screenPoint(state, item);
-  if (state.figure.dataset.chartType === 'scatter') return visiblePoint(state, point) ? point : null;
-  const doc = state.figure.ownerDocument, win = doc.defaultView;
-  if (!state.figure.isConnected || !state.figure.getClientRects().length || !point) return null;
-  const target = state.nodes[index].getBoundingClientRect();
-  const inPlot = state.viewport.contains(state.nodes[index]);
-  if (!inPlot) point = {x: (target.left + target.right) / 2, y: (target.top + target.bottom) / 2};
-  let left = Math.max(0, target.left), right = Math.min(win.innerWidth, target.right), top = Math.max(0, target.top), bottom = Math.min(win.innerHeight, target.bottom);
-  for (let node = inPlot ? state.viewport : state.nodes[index].parentElement; node && node !== doc.body; node = node.parentElement) {
-    const css = win.getComputedStyle(node), box = node.getBoundingClientRect();
-    if (css.display === 'none' || css.visibility === 'hidden') return null;
-    if (/(auto|scroll|hidden|clip)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
-    if (/(auto|scroll|hidden|clip)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
-  }
-  if (right <= left || bottom <= top) return null;
-  // Shared categories retain their true X/crosshair position even when only a
-  // strip of the category target is visible. Bars anchor in the visible part.
-  if (item.guide && (point.x < left || point.x > right)) return null;
-  return {x: Math.max(left, Math.min(point.x, right)), y: Math.max(top, Math.min(point.y, bottom))};
-}
-function clearHighlight(state) {
-  state.figure.classList.remove('has-chart-active');
-  state.figure.querySelectorAll('.is-active').forEach(node => node.classList.remove('is-active'));
-  const guide = state.figure.querySelector('.rich-chart-crosshair');
-  if (guide) guide.setAttribute('visibility', 'hidden');
-  state.figure.querySelectorAll('[aria-describedby]').forEach(node => { if (node.getAttribute('aria-describedby')?.startsWith('threadshelf-chart-tooltip-')) node.removeAttribute('aria-describedby'); });
-}
-function dismissChartInteractions(root) {
-  const doc = root?.ownerDocument || root;
-  const active = activeByDocument.get(doc);
-  if (active && (root === doc || root === active.state.figure || root.contains?.(active.state.figure))) active.hide();
-}
-function show(state, index, origin) {
-  if (!state.items[index] || state.suppressed === index) return;
-  const doc = state.figure.ownerDocument, win = doc.defaultView, previous = activeByDocument.get(doc);
-  if (previous?.state === state && previous.index === index) { previous.origin = origin; return; }
-  previous?.hide();
-  const item = state.items[index], point = visibleAnchor(state, item, index);
-  if (!point) return;
-  const panel = doc.createElement('div'); panel.className = 'rich-chart-tooltip'; panel.id = `threadshelf-chart-tooltip-${++tooltipSequence}`; panel.setAttribute('role', 'tooltip');
-  const heading = doc.createElement('div'); heading.className = 'rich-chart-tooltip-heading'; heading.textContent = item.heading; panel.append(heading);
-  for (const row of item.rows) {
-    const line = doc.createElement('div'); line.className = 'rich-chart-tooltip-row';
-    const swatch = doc.createElement('span'); swatch.className = `rich-chart-swatch rich-chart-color-${row.color}`; swatch.setAttribute('aria-hidden', 'true');
-    const label = doc.createElement('span'); label.className = 'rich-chart-tooltip-label'; label.textContent = row.label;
-    const value = doc.createElement('strong'); value.className = 'rich-chart-tooltip-value'; value.textContent = row.value;
-    line.append(swatch, label, value); panel.append(line);
-  }
-  // The portal is outside overflow containers. Carry the active Reader theme,
-  // including its independent high-contrast override, across that boundary.
-  const css = win.getComputedStyle(state.figure);
-  for (const name of ['--text-primary', '--text-secondary', '--bg-primary', '--bg-secondary', '--border-color', '--text-accent', '--accent-color', '--accent', '--danger', '--warning', '--muted', '--text', '--surface', '--border']) {
-    const value = css.getPropertyValue(name); if (value) panel.style.setProperty(name, value);
-  }
-  panel.style.fontFamily = css.fontFamily; panel.style.fontSize = css.fontSize;
-  if (state.figure.closest('.reader-high-contrast')) panel.classList.add('rich-chart-tooltip-high-contrast');
-  doc.body.append(panel);
-  state.figure.classList.add('has-chart-active');
-  state.figure.querySelectorAll(`[data-chart-active="${index}"],.rich-chart-legend [data-chart-item="${index}"]`).forEach(node => node.classList.add('is-active'));
-  const guide = state.figure.querySelector('.rich-chart-crosshair');
-  if (guide && item.guide) { guide.setAttribute('x1', String(item.x)); guide.setAttribute('x2', String(item.x)); guide.setAttribute('visibility', 'visible'); }
-  state.nodes[index].setAttribute('aria-describedby', panel.id);
-  if (doc.activeElement === state.viewport || (state.figure.contains(doc.activeElement) && doc.activeElement?.dataset.chartItem === String(index))) doc.activeElement.setAttribute('aria-describedby', panel.id);
-  state.index = index;
-  let frame = 0, closed = false;
-  const active = {state, index, origin, hide};
-  const listeners = [];
-  function listen(target, name, fn, options) { target.addEventListener(name, fn, options); listeners.push(() => target.removeEventListener(name, fn, options)); }
-  function hide() {
-    if (closed) return; closed = true;
-    if (frame) win.cancelAnimationFrame(frame);
-    listeners.forEach(remove => remove()); removal?.disconnect(); ancestors?.disconnect(); resize?.disconnect();
-    panel.remove(); clearHighlight(state);
-    if (activeByDocument.get(doc) === active) activeByDocument.delete(doc);
-  }
-  function position() {
-    frame = 0;
-    const anchor = visibleAnchor(state, item, index);
-    if (!anchor) { hide(); return; }
-    const reader = state.figure.closest('.reader-view')?.getBoundingClientRect();
-    const vv = win.visualViewport;
-    const bounds = {left: Math.max(8, reader?.left + 8 || 8, (vv?.offsetLeft || 0) + 8), top: Math.max(8, reader?.top + 8 || 8, (vv?.offsetTop || 0) + 8), right: Math.min(win.innerWidth - 8, reader?.right - 8 || Infinity, (vv?.offsetLeft || 0) + (vv?.width || win.innerWidth) - 8), bottom: Math.min(win.innerHeight - 8, reader?.bottom - 8 || Infinity, (vv?.offsetTop || 0) + (vv?.height || win.innerHeight) - 8)};
-    // Measure the portal's screen-to-CSS scale: CSS zoom on any ancestor and
-    // normal Chromium page/display scaling need not share SVG user units.
-    panel.style.left = '0px'; panel.style.top = '0px';
-    const origin = panel.getBoundingClientRect();
-    panel.style.left = '100px'; panel.style.top = '100px';
-    const probe = panel.getBoundingClientRect();
-    const sx = (probe.left - origin.left) / 100 || 1, sy = (probe.top - origin.top) / 100 || 1;
-    panel.style.maxWidth = `${Math.max(40, bounds.right - bounds.left) / sx}px`;
-    panel.style.maxHeight = `${Math.max(40, bounds.bottom - bounds.top) / sy}px`;
-    panel.classList.remove('rich-chart-tooltip-compact');
-    if (panel.scrollHeight * sy > bounds.bottom - bounds.top) panel.classList.add('rich-chart-tooltip-compact');
-    const box = panel.getBoundingClientRect();
-    let x = anchor.x + 16, y = anchor.y - 12;
-    if (x + box.width > bounds.right) x = anchor.x - box.width - 16;
-    x = Math.max(bounds.left, Math.min(x, bounds.right - box.width));
-    y = Math.max(bounds.top, Math.min(y, bounds.bottom - box.height));
-    panel.style.left = `${(x - origin.left) / sx}px`; panel.style.top = `${(y - origin.top) / sy}px`;
-  }
-  function schedule() { if (!frame && !closed) frame = win.requestAnimationFrame(position); }
-  function escape(event) { if (event.key === 'Escape') { state.suppressed = index; hide(); event.preventDefault(); } }
-  const removal = win.MutationObserver ? new win.MutationObserver(schedule) : null;
-  removal?.observe(doc.body, {childList: true, subtree: true});
-  const ancestors = win.MutationObserver ? new win.MutationObserver(hide) : null;
-  for (let node = state.figure.parentElement; node; node = node.parentElement) ancestors?.observe(node, {attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-hidden']});
-  const resize = win.ResizeObserver ? new win.ResizeObserver(schedule) : null;
-  resize?.observe(state.figure); resize?.observe(state.viewport);
-  listen(doc, 'scroll', schedule, true); listen(win, 'resize', schedule); listen(doc, 'keydown', escape, true);
-  listen(doc, 'pointerdown', event => { if (!state.figure.contains(event.target)) hide(); }, true);
-  if (win.visualViewport) { listen(win.visualViewport, 'resize', schedule); listen(win.visualViewport, 'scroll', schedule); }
-  activeByDocument.set(doc, active); position();
-}
-function pointerIndex(state, event) {
-  if (state.figure.dataset.chartType === 'scatter' && state.svg.contains(event.target)) {
-    // CSS-pixel hit radius remains stable under SVG resize/zoom. Equal-distance
-    // overlaps choose source series order then source point order; arrows reach all.
-    const m = state.svg.getScreenCTM?.(); if (!m) return -1;
-    const doc = state.figure.ownerDocument, win = doc.defaultView;
-    const bounds = {left: 0, top: 0, right: win.innerWidth, bottom: win.innerHeight};
-    for (let node = state.viewport; node && node !== doc.body; node = node.parentElement) {
-      const css = win.getComputedStyle(node), box = node.getBoundingClientRect();
-      if (css.display === 'none' || css.visibility === 'hidden') return -1;
-      if (/(auto|scroll|hidden|clip)/.test(css.overflowX)) { bounds.left = Math.max(bounds.left, box.left); bounds.right = Math.min(bounds.right, box.right); }
-      if (/(auto|scroll|hidden|clip)/.test(css.overflowY)) { bounds.top = Math.max(bounds.top, box.top); bounds.bottom = Math.min(bounds.bottom, box.bottom); }
-    }
-    let best = -1, distance = 18 * 18;
-    state.items.forEach((item, i) => {
-      const x = m.a * item.x + m.c * item.y + m.e, y = m.b * item.x + m.d * item.y + m.f;
-      if (x < bounds.left || x > bounds.right || y < bounds.top || y > bounds.bottom) return;
-      const dx = x - event.clientX, dy = y - event.clientY, d = dx * dx + dy * dy;
-      if (d < distance - 1e-7 || (best === -1 && d <= distance)) { best = i; distance = d; }
-    });
-    return best;
-  }
-  const target = event.target.closest?.('[data-chart-item]');
-  return target?.closest('.rich-chart') === state.figure ? Number(target.dataset.chartItem) : -1;
-}
-/** Returns an idempotent disposer; each mounted root owns only five delegates. */
-function mountChartInteractions(root) {
-  if (roots.has(root)) return roots.get(root);
-  function eventState(event) {
-    const figure = event.target.closest?.('.rich-chart[data-chart-interaction]');
-    return figure && (figure === root || root.contains(figure)) ? chartState(figure) : null;
-  }
-  function pointer(event) {
-    if (handled.has(event)) return; const state = eventState(event); if (!state) return; handled.add(event);
-    const index = pointerIndex(state, event);
-    if (index < 0) { state.suppressed = -1; dismissChartInteractions(state.figure); return; }
-    if (index !== state.suppressed) state.suppressed = -1;
-    show(state, index, 'pointer');
-  }
-  function out(event) {
-    const state = eventState(event); if (!state || state.figure.contains(event.relatedTarget)) return;
-    state.suppressed = -1;
-    const active = activeByDocument.get(state.figure.ownerDocument);
-    if (active?.state === state && active.origin !== 'focus') active.hide();
-  }
-  function focus(event) {
-    if (handled.has(event)) return; const state = eventState(event); if (!state) return; handled.add(event);
-    const node = event.target.closest('[data-chart-item]');
-    if (event.target !== state.viewport && !node) { dismissChartInteractions(state.figure); return; }
-    const index = node ? Number(node.dataset.chartItem) : state.index;
-    if (index !== state.suppressed) state.suppressed = -1;
-    show(state, index, 'focus');
-  }
-  function blur(event) {
-    const state = eventState(event); if (!state || state.figure.contains(event.relatedTarget)) return;
-    state.suppressed = -1; dismissChartInteractions(state.figure);
-  }
-  function key(event) {
-    if (handled.has(event)) return; const state = eventState(event); if (!state || (!event.target.closest('[data-chart-item]') && event.target !== state.viewport)) return;
-    let index = Number(event.target.closest('[data-chart-item]')?.dataset.chartItem ?? state.index);
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') index = Math.min(state.items.length - 1, index + 1);
-    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') index = Math.max(0, index - 1);
-    else if (event.key === 'Home') index = 0;
-    else if (event.key === 'End') index = state.items.length - 1;
-    else return;
-    handled.add(event); event.preventDefault(); state.suppressed = -1;
-    state.nodes[index].focus({preventScroll: true});
-    state.nodes[index].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});
-    show(state, index, 'focus');
-  }
-  const events = [['pointermove', pointer], ['pointerout', out], ['focusin', focus], ['focusout', blur], ['keydown', key]];
-  events.forEach(([name, fn]) => root.addEventListener(name, fn));
-  let disposed = false;
-  const dispose = () => { if (disposed) return; disposed = true; dismissChartInteractions(root); events.forEach(([name, fn]) => root.removeEventListener(name, fn)); roots.delete(root); };
-  roots.set(root, dispose); return dispose;
-}
-
-window.TSARich.Interactions=Object.freeze({dismissChartInteractions,mountChartInteractions});
-})();
-
-
-/* rich-charts.js */
-(function(){'use strict';
-const {mountChartInteractions}=window.TSARich.Interactions;
-/** Safe, render-only chart adapters. See docs/rich-chart-support.md.
- * All input is literal data. No exported DOM, CSS, callbacks, or resources run.
- */
-const CHART_LIMITS = Object.freeze({ rows: 200, series: 8, points: 1000, depth: 12, nodes: 12000, text: 200000, string: 4096, magnitude: 1e15 });
-const OWN_SCHEMA = 'threadshelf-chart';
-const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
-const TYPES = new Set(['bar', 'line', 'area', 'pie', 'doughnut', 'scatter']);
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const LABELS = Object.freeze({ richChart: 'Chart', richChartData: 'Exact values', richChartCategory: 'Category', richChartSeries: 'Series', richChartValue: 'Value', richChartUnavailable: 'Chart shown as saved data', richChartSource: 'Saved chart data', richChartLimit: 'Chart exceeds display limits', richChartX: 'X', richChartY: 'Y' });
-const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-const fail = (reason) => { throw new Error(reason); };
-const plain = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && (Object.getPrototypeOf(v) === Object.prototype || Object.getPrototypeOf(v) === null);
-function keys(value, allowed) { if (!plain(value)) fail('schema'); for (const k of Object.keys(value)) if (!allowed.includes(k)) fail('unsupported'); }
-function text(value, optional = true) { if (value === undefined && optional) return undefined; if (typeof value !== 'string' || value.length > CHART_LIMITS.string) fail('data'); return value; }
-function num(value) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > CHART_LIMITS.magnitude) fail('data'); return value; }
-function list(value, max, min = 1) { if (!Array.isArray(value) || value.length < min || value.length > max) fail('limit'); return value; }
-// Inspect descriptors before reading properties: even a non-literal object passed
-// by a future caller cannot trigger a getter while validating or falling back.
-function snapshot(input) {
-  let nodes = 0, chars = 0;
-  const seen = new Set();
-  function copy(v, depth) {
-    if (++nodes > CHART_LIMITS.nodes || depth > CHART_LIMITS.depth) fail('limit');
-    if (v === null || typeof v === 'boolean') return v;
-    if (typeof v === 'number') { if (!Number.isFinite(v)) fail('data'); return v; }
-    if (typeof v === 'string') { chars += v.length; if (v.length > CHART_LIMITS.string || chars > CHART_LIMITS.text) fail('limit'); return v; }
-    if (typeof v !== 'object' || (!Array.isArray(v) && !plain(v)) || seen.has(v)) fail('schema');
-    seen.add(v);
-    const result = Array.isArray(v) ? [] : Object.create(null);
-    const desc = Object.getOwnPropertyDescriptors(v);
-    if (Object.getOwnPropertySymbols(desc).length) fail('schema');
-    const names = Object.keys(desc);
-    if (names.length > CHART_LIMITS.points + 1) fail('limit');
-    for (const k of names) {
-      if (Array.isArray(v) && k === 'length') continue;
-      if (BAD_KEYS.has(k) || k.length > 128 || !own(desc[k], 'value')) fail('schema');
-      if (Array.isArray(v) && !/^(0|[1-9][0-9]*)$/.test(k)) fail('schema');
-      chars += k.length;
-      if (chars > CHART_LIMITS.text) fail('limit');
-      result[k] = copy(desc[k].value, depth + 1);
-    }
-    if (Array.isArray(v) && (result.length !== v.length || Object.keys(result).length !== v.length)) fail('data');
-    seen.delete(v);
-    return result;
-  }
-  return copy(input, 0);
-}
-function seriesInfo(s, allowed) {
-  keys(s, allowed);
-  const out = {};
-  for (const k of ['label', 'valueSuffix', 'unit']) if (own(s, k)) out[k] = text(s[k], false);
-  if (own(s, 'valueFormat')) { if (!['raw', 'integer'].includes(s.valueFormat)) fail('unsupported'); out.valueFormat = s.valueFormat; }
-  if (out.valueSuffix && out.unit) fail('unsupported');
-  return out;
-}
-function axis(a) {
-  if (a === undefined) return {};
-  keys(a, ['min', 'max', 'label', 'unit']);
-  const out = {};
-  for (const k of ['min', 'max']) if (own(a, k)) out[k] = num(a[k]);
-  for (const k of ['label', 'unit']) if (own(a, k)) out[k] = text(a[k], false);
-  if (out.min !== undefined && out.max !== undefined && out.min >= out.max) fail('data');
-  return out;
-}
-function exported(input, family) {
-  if (!['Chart', 'chart', 'charts_widget_v2'].includes(family)) fail('unsupported');
-  // The native Chart component and both GenUI envelopes preserve the same
-  // literal data contract. Do not reject supported charts because a converter
-  // retained the component rather than a charts_widget_v2 wrapper.
-  if (!['bar', 'line', 'pie', 'scatter'].includes(input.chartType)) fail('unsupported');
-  const pie = input.chartType === 'pie', scatter = input.chartType === 'scatter';
-  // In this evidenced bar contract vertically arranged categories mean
-  // horizontally extending bars; other layout values remain unsupported.
-  const allowed = ['chartType', 'meta', 'series', 'data', 'valueSuffix', ...(pie ? ['nameKey', 'valueKey'] : ['xKey', 'yAxisMin', 'yAxisMax'])];
-  if (input.chartType === 'bar') allowed.push('layout');
-  keys(input, allowed);
-  if (own(input, 'layout') && input.layout !== 'vertical') fail('unsupported');
-  const out = {schema: OWN_SCHEMA, version: 1, type: input.chartType, series: [], yAxis: {}, xAxis: {}};
-  if (!scatter) out.categories = [];
-  if (input.meta !== undefined) { keys(input.meta, ['title', 'description', 'footer']); for (const k of ['title', 'description', 'footer']) if (own(input.meta, k)) out[k] = text(input.meta[k], false); }
-  const inheritedSuffix = own(input, 'valueSuffix') ? text(input.valueSuffix, false) : undefined;
-  const categoryKey = text(pie ? input.nameKey : input.xKey, false);
-  if (!categoryKey || BAD_KEYS.has(categoryKey)) fail('data');
-  if (scatter) out.xAxis.label = categoryKey;
-  else out.categoryLabel = categoryKey;
-  const allSeries = list(input.series, pie ? 1 : CHART_LIMITS.series);
-  out.series = allSeries.map(s => {
-    const normalized = {...seriesInfo(s, ['dataKey', 'label', 'valueFormat', 'valueSuffix', 'unit']), dataKey: text(s.dataKey, false), ...(scatter ? {points: []} : {values: []})};
-    // An explicit empty suffix/unit is deliberate and must not be overwritten.
-    if (inheritedSuffix !== undefined && !own(normalized, 'valueSuffix') && !own(normalized, 'unit')) normalized.valueSuffix = inheritedSuffix;
-    return normalized;
-  });
-  const seenKeys = new Set();
-  for (const s of out.series) { if (!s.dataKey || BAD_KEYS.has(s.dataKey) || s.dataKey === categoryKey || seenKeys.has(s.dataKey)) fail('data'); seenKeys.add(s.dataKey); }
-  if (pie && (text(input.valueKey, false) !== out.series[0].dataKey)) fail('unsupported');
-  const rows = list(input.data, CHART_LIMITS.rows);
-  if (rows.length * out.series.length > CHART_LIMITS.points) fail('limit');
-  for (const row of rows) {
-    // Unrecognized columns may encode errors/stacking. Preserve them in fallback.
-    keys(row, [categoryKey, ...seenKeys]);
-    if (scatter) {
-      const x = num(row[categoryKey]);
-      for (const s of out.series) s.points.push({x, y: num(row[s.dataKey])});
-    } else {
-      out.categories.push(text(row[categoryKey], false));
-      for (const s of out.series) s.values.push(num(row[s.dataKey]));
-    }
-  }
-  if (own(input, 'yAxisMin')) out.yAxis.min = num(input.yAxisMin);
-  if (own(input, 'yAxisMax')) out.yAxis.max = num(input.yAxisMax);
-  out.orientation = own(input, 'layout') ? 'horizontal' : 'vertical';
-  // The same native pie contract uses a ring across its supported wrappers.
-  // This is local presentation, not an inferred radius or changed chartType.
-  if (pie) out.circularPresentation = 'ring';
-  return out;
-}
-function readerOwned(input) {
-  keys(input, ['schema', 'version', 'type', 'orientation', 'title', 'description', 'footer', 'categoryLabel', 'categories', 'series', 'xAxis', 'yAxis']);
-  if (input.schema !== OWN_SCHEMA || input.version !== 1 || !TYPES.has(input.type)) fail('unsupported');
-  const out = {schema: OWN_SCHEMA, version: 1, type: input.type, xAxis: axis(input.xAxis), yAxis: axis(input.yAxis)};
-  for (const k of ['title', 'description', 'footer', 'categoryLabel']) if (own(input, k)) out[k] = text(input[k], false);
-  if (input.orientation !== undefined && (input.type !== 'bar' || !['vertical', 'horizontal'].includes(input.orientation))) fail('unsupported');
-  out.orientation = input.orientation || 'vertical';
-  if (input.type === 'scatter') {
-    if (input.categories !== undefined || input.categoryLabel !== undefined) fail('unsupported');
-    out.series = list(input.series, CHART_LIMITS.series).map(s => ({...seriesInfo(s, ['label', 'points', 'valueSuffix', 'unit', 'valueFormat']), points: list(s.points, CHART_LIMITS.points).map(p => { keys(p, ['x', 'y', 'label']); return {x: num(p.x), y: num(p.y), ...(own(p, 'label') ? {label: text(p.label, false)} : {})}; })}));
-    if (out.series.reduce((n, s) => n + s.points.length, 0) > CHART_LIMITS.points) fail('limit');
-  } else {
-    out.categories = list(input.categories, CHART_LIMITS.rows).map(v => text(v, false));
-    out.series = list(input.series, ['pie', 'doughnut'].includes(input.type) ? 1 : CHART_LIMITS.series).map(s => ({...seriesInfo(s, ['label', 'values', 'valueSuffix', 'unit', 'valueFormat']), values: list(s.values, CHART_LIMITS.rows).map(num)}));
-    if (out.series.some(s => s.values.length !== out.categories.length)) fail('data');
-    if (out.series.length * out.categories.length > CHART_LIMITS.points) fail('limit');
-    if (Object.keys(out.xAxis).some(k => k === 'min' || k === 'max')) fail('unsupported');
-    if (['pie', 'doughnut'].includes(out.type) && (Object.keys(out.xAxis).length || Object.keys(out.yAxis).length)) fail('unsupported');
-  }
-  return out;
-}
-function chartDomain(values, requested = {}, zero = false) {
-  let min = Math.min(...values), max = Math.max(...values);
-  if (zero) { min = Math.min(0, min); max = Math.max(0, max); }
-  if (requested.min !== undefined) { if (requested.min > min) fail('bounds'); min = requested.min; }
-  if (requested.max !== undefined) { if (requested.max < max) fail('bounds'); max = requested.max; }
-  if (min === max) { if (requested.min !== undefined && requested.max !== undefined) fail('bounds'); if (requested.max === undefined) max = min + (Math.abs(min) || 1); else min = max - (Math.abs(max) || 1); }
-  if (!(max > min) || !Number.isFinite(max - min)) fail('bounds');
-  return {min, max};
-}
-function validateDomains(c) {
-  const suffixes = c.series.map(s => exactChartValue(0, s, c.yAxis).slice(1));
-  // A common axis must not borrow one series' suffix when units differ.
-  // Keep the original axis and series metadata intact for exact-value lookup.
-  c.numericAxisSuffix = suffixes.every(s => s === suffixes[0]) ? suffixes[0] : '';
-  if (['pie', 'doughnut'].includes(c.type)) {
-    if (c.series[0].values.some(v => v < 0) || !c.series[0].values.some(v => v > 0)) fail('data');
-    return;
-  }
-  const values = c.series.flatMap(s => c.type === 'scatter' ? s.points.map(p => p.y) : s.values);
-  c.yDomain = chartDomain(values, c.yAxis, ['bar', 'area'].includes(c.type));
-  if (c.type === 'scatter') c.xDomain = chartDomain(c.series.flatMap(s => s.points.map(p => p.x)), c.xAxis);
-}
-/** Never mutates input. Unknown schemas return a passive data snapshot. */
-function normalizeChart(input, {family = 'Chart'} = {}) {
-  let saved;
-  try {
-    saved = snapshot(input);
-    const chart = saved.schema === OWN_SCHEMA ? readerOwned(saved) : exported(saved, family);
-    validateDomains(chart);
-    return {ok: true, chart};
-  } catch (error) {
-    return {ok: false, reason: error.message, payload: saved, title: typeof saved?.meta?.title === 'string' ? saved.meta.title : typeof saved?.title === 'string' ? saved.title : undefined};
-  }
-}
-function exactChartValue(value, series = {}, axis = {}) {
-  const numeric = Object.is(value, -0) ? '-0' : String(value);
-  // Only an explicitly supplied axis unit may fill an absent series unit.
-  // Preserve an explicit empty suffix/unit as well as the original series.
-  const unit = own(series, 'unit') ? series.unit : axis.unit;
-  const suffix = own(series, 'valueSuffix') ? series.valueSuffix : (unit ? ' ' + unit : '');
-  return numeric + suffix;
-}
-function tr(t, key) { const value = typeof t === 'function' ? t(LABELS[key] || key) : undefined; return typeof value === 'string' && value ? value : (LABELS[key] || key); }
-function el(doc, tag, cls, value) { const n = doc.createElement(tag); if (cls) n.className = cls; if (value !== undefined) n.textContent = value; return n; }
-function svgEl(doc, tag, attrs, value) { const n = doc.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, String(v)); if (value !== undefined) n.textContent = value; return n; }
-function short(value, max = 28) { const a = Array.from(value); return a.length > max ? a.slice(0, max - 1).join('') + '…' : value; }
-const coord = n => Math.round(n * 1000) / 1000;
-function label(doc, svg, x, y, value, anchor = 'middle', cls = '') {
-  const node = svgEl(doc, 'text', {x: coord(x), y: coord(y), 'text-anchor': anchor, class: 'rich-chart-label ' + cls, 'aria-label': value}, short(value));
-  svg.append(node); return node;
-}
-function pointShape(doc, svg, tag, attrs, description, seriesIndex) {
-  const node = svgEl(doc, tag, {...attrs, class: `rich-chart-mark rich-chart-color-${seriesIndex % 8}`, role: 'img', tabindex: '-1', 'aria-label': description});
-  svg.append(node); return node;
-}
-function ticks(domain) { return Array.from({length: 5}, (_, i) => domain.min + (domain.max - domain.min) * (i / 4)); }
-function tickText(n, a) { const display = Object.is(n, -0) ? '0' : String(Number(n.toPrecision(6))); return display + (own(a, 'valueSuffix') ? a.valueSuffix : a.unit ? ' ' + a.unit : ''); }
-function seriesName(s, index, t) { return s.label ?? s.dataKey ?? `${tr(t, 'richChartSeries')} ${index + 1}`; }
-function table(doc, c, t) {
-  const details = el(doc, 'details', 'rich-chart-data');
-  details.append(el(doc, 'summary', '', tr(t, 'richChartData')));
-  const holder = el(doc, 'div', 'rich-chart-table-scroll'); holder.tabIndex = 0;
-  holder.setAttribute('role', 'region'); holder.setAttribute('aria-label', tr(t, 'richChartData'));
-  const tableNode = el(doc, 'table');
-  tableNode.append(el(doc, 'caption', '', c.title || tr(t, 'richChartData')));
-  const thead = el(doc, 'thead'), head = el(doc, 'tr');
-  const headers = c.type === 'scatter' ? [tr(t, 'richChartSeries'), c.xAxis.label || tr(t, 'richChartX'), c.yAxis.label || tr(t, 'richChartY'), tr(t, 'richChartCategory')] : [c.categoryLabel || c.xAxis.label || tr(t, 'richChartCategory'), ...c.series.map((s, i) => seriesName(s, i, t))];
-  for (const value of headers) { const th = el(doc, 'th', '', value); th.scope = 'col'; head.append(th); }
-  thead.append(head); tableNode.append(thead); const body = el(doc, 'tbody');
-  const rows = c.type === 'scatter' ? c.series.flatMap((s, i) => s.points.map(p => [seriesName(s, i, t), exactChartValue(p.x, {unit: c.xAxis.unit}), exactChartValue(p.y, s, c.yAxis), p.label || ''])) : c.categories.map((name, i) => [name, ...c.series.map(s => exactChartValue(s.values[i], s, c.yAxis))]);
-  for (const row of rows) { const r = el(doc, 'tr'); row.forEach((v, i) => { const cell = el(doc, i === 0 ? 'th' : 'td', '', v); if (i === 0) cell.scope = 'row'; r.append(cell); }); body.append(r); }
-  tableNode.append(body); holder.append(tableNode); details.append(holder); return details;
-}
-function chartSvg(doc, c, t, width, height) {
-  const svg = svgEl(doc, 'svg', {viewBox: `0 0 ${width} ${height}`, width, height, role: 'group', 'aria-label': c.title || tr(t, 'richChart')});
-  svg.append(svgEl(doc, 'desc', {}, tr(t, 'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.')));
-  return svg;
-}
-function row(c, s, si, value, t) { return {label: seriesName(s, si, t), value: exactChartValue(value, s, c.yAxis), color: si % 8}; }
-function registerItem(items, node, marks, item) {
-  const i = items.length;
-  node?.setAttribute('data-chart-item', String(i));
-  node?.setAttribute('tabindex', '-1');
-  node?.setAttribute('role', 'img');
-  node?.setAttribute('aria-label', [item.heading, ...item.rows.map(r => `${r.label}: ${r.value}`)].join(' — '));
-  for (const mark of marks) { mark.setAttribute('data-chart-active', String(i)); mark.setAttribute('data-chart-item', String(i)); }
-  items.push(item);
-  return i;
-}
-function cartesian(doc, c, t) {
-  const horizontal = c.type === 'bar' && c.orientation === 'horizontal';
-  const count = c.categories?.length || 0;
-  const width = horizontal ? 680 : Math.max(640, Math.min(12000, count * Math.max(112, c.series.length * 38)));
-  const height = horizontal ? Math.max(320, 92 + count * Math.max(40, c.series.length * 23)) : 370;
-  const valueWidth = horizontal ? Math.min(220, Math.max(90, ...c.series.flatMap(s => s.values.map(v => exactChartValue(v, s, c.yAxis).length * 7 + 22)))) : 42;
-  const left = horizontal ? 220 : 88, right = valueWidth, top = 32, bottom = horizontal ? 56 : 90;
-  const pw = width - left - right, ph = height - top - bottom;
-  const svg = chartSvg(doc, c, t, width, height), items = [];
-  const d = c.yDomain, scale = v => (v - d.min) / (d.max - d.min);
-  const y = v => top + ph * (1 - scale(v)), xValue = v => left + pw * scale(v);
-  for (const value of ticks(d)) {
-    const pos = horizontal ? xValue(value) : y(value);
-    svg.append(svgEl(doc, 'line', horizontal ? {x1: coord(pos), x2: coord(pos), y1: top, y2: top + ph, class: 'rich-chart-grid'} : {x1: left, x2: left + pw, y1: coord(pos), y2: coord(pos), class: 'rich-chart-grid'}));
-    label(doc, svg, horizontal ? pos : left - 10, horizontal ? top + ph + 22 : pos + 4, tickText(value, {valueSuffix: c.numericAxisSuffix ?? exactChartValue(0, {}, c.yAxis).slice(1)}), horizontal ? 'middle' : 'end');
-  }
-  if (d.min <= 0 && d.max >= 0) svg.append(svgEl(doc, 'line', horizontal ? {x1: coord(xValue(0)), x2: coord(xValue(0)), y1: top, y2: top + ph, class: 'rich-chart-baseline'} : {x1: left, x2: left + pw, y1: coord(y(0)), y2: coord(y(0)), class: 'rich-chart-baseline'}));
-  const slot = (horizontal ? ph : pw) / Math.max(1, count);
-  const guide = svgEl(doc, 'line', {class: 'rich-chart-crosshair', y1: top, y2: top + ph, 'aria-hidden': 'true', visibility: 'hidden'});
-  svg.append(guide);
-  if (c.type === 'scatter') {
-    const xd = c.xDomain, xp = v => left + pw * ((v - xd.min) / (xd.max - xd.min));
-    for (const v of ticks(xd)) label(doc, svg, xp(v), top + ph + 22, tickText(v, c.xAxis));
-    c.series.forEach((s, si) => s.points.forEach((p, pi) => {
-      const x = coord(xp(p.x)), py = coord(y(p.y));
-      const heading = p.label || seriesName(s, si, t);
-      const rows = [{label: c.xAxis.label || tr(t, 'richChartX'), value: exactChartValue(p.x, {unit: c.xAxis.unit}), color: si % 8}, {label: `${seriesName(s, si, t)} · ${c.yAxis.label || tr(t, 'richChartY')}`, value: exactChartValue(p.y, s, c.yAxis), color: si % 8}];
-      const mark = pointShape(doc, svg, 'circle', {cx: x, cy: py, r: 5, 'data-series-index': si, 'data-point-index': pi}, `${heading} — ${rows.map(r => `${r.label}: ${r.value}`).join('; ')}`, si);
-      registerItem(items, mark, [mark], {heading, rows, x, y: py, guide: true});
-    }));
-  } else {
-    c.categories.forEach((category, i) => label(doc, svg, horizontal ? left - 12 : left + slot * (i + 0.5), horizontal ? top + slot * (i + 0.5) + 4 : top + ph + 46, category, horizontal ? 'end' : 'middle'));
-    const categoryMarks = c.categories.map(() => []), hits = [];
-    c.series.forEach((s, si) => {
-      const points = s.values.map((value, i) => [left + slot * (i + 0.5), y(value)]);
-      if (c.type === 'line' || c.type === 'area') {
-        if (c.type === 'area') svg.append(svgEl(doc, 'path', {d: `M ${coord(points[0][0])} ${coord(y(0))} L ${points.map(p => p.map(coord).join(' ')).join(' L ')} L ${coord(points.at(-1)[0])} ${coord(y(0))} Z`, class: `rich-chart-area rich-chart-color-${si}`}));
-        svg.append(svgEl(doc, 'polyline', {points: points.map(p => p.map(coord).join(',')).join(' '), class: `rich-chart-line rich-chart-color-${si}`}));
-      }
-      s.values.forEach((value, i) => {
-        const description = `${c.categories[i]} — ${seriesName(s, si, t)}: ${exactChartValue(value, s, c.yAxis)}`;
-        if (c.type === 'bar') {
-          const band = slot * .72 / c.series.length, start = (horizontal ? top : left) + slot * (i + .14) + si * band;
-          const a = horizontal ? xValue(0) : y(0), b = horizontal ? xValue(value) : y(value);
-          const attrs = horizontal ? {x: coord(Math.min(a, b)), y: coord(start), width: coord(Math.abs(b - a)), height: coord(band * .9)} : {x: coord(start), y: coord(Math.min(a, b)), width: coord(band * .9), height: coord(Math.abs(b - a))};
-          const mark = pointShape(doc, svg, 'rect', {...attrs, 'data-category-index': i, 'data-series-index': si}, description, si);
-          // The transparent hit target alone grows at zero; the source-value bar keeps its true zero geometry.
-          const hit = svgEl(doc, 'rect', {...attrs, x: attrs.x - (horizontal ? Math.max(0, (12 - attrs.width) / 2) : 0), y: attrs.y - (horizontal ? 0 : Math.max(0, (12 - attrs.height) / 2)), width: horizontal ? Math.max(12, attrs.width) : attrs.width, height: horizontal ? attrs.height : Math.max(12, attrs.height), class: 'rich-chart-hit'});
-          registerItem(items, hit, [mark], {heading: c.categories[i], rows: [row(c, s, si, value, t)], x: coord(horizontal ? (a + b) / 2 : start + band * .45), y: coord(horizontal ? start + band * .45 : (a + b) / 2)});
-          mark.setAttribute('data-chart-item', hit.getAttribute('data-chart-item')); hits.push(hit);
-          if (count * c.series.length <= 24) label(doc, svg, horizontal ? left + pw + 12 : start + band * .45, horizontal ? start + band * .65 : b + (value < 0 ? 18 : -7), exactChartValue(value, s, c.yAxis), horizontal ? 'start' : 'middle', 'rich-chart-value');
-        } else categoryMarks[i].push(pointShape(doc, svg, 'circle', {cx: coord(points[i][0]), cy: coord(points[i][1]), r: 4, 'data-category-index': i, 'data-series-index': si}, description, si));
-      });
-    });
-    if (c.type === 'line' || c.type === 'area') c.categories.forEach((category, i) => {
-      const hit = svgEl(doc, 'rect', {x: coord(left + slot * i), y: top - 6, width: coord(slot), height: ph + 12, class: 'rich-chart-hit'});
-      registerItem(items, hit, categoryMarks[i], {heading: category, rows: c.series.map((s, si) => row(c, s, si, s.values[i], t)), x: coord(left + slot * (i + .5)), y: coord(top + ph / 2), guide: true}); hits.push(hit);
-    });
-    svg.append(...hits);
-  }
-  if (c.yAxis.label) label(doc, svg, horizontal ? left + pw / 2 : left, horizontal ? height - 6 : 17, c.yAxis.label, horizontal ? 'middle' : 'start');
-  if (c.xAxis.label || c.categoryLabel) label(doc, svg, horizontal ? left - 12 : left + pw / 2, horizontal ? 17 : height - 14, c.xAxis.label || c.categoryLabel, horizontal ? 'end' : 'middle');
-  return {svg, items};
-}
-function circular(doc, c, t) {
-  const svg = chartSvg(doc, c, t, 640, 300), items = [];
-  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 320, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
-  let angle = -Math.PI / 2;
-  s.values.forEach((value, i) => {
-    const part = total > 0 ? value / total : 0, end = angle + Math.PI * 2 * part, middle = angle + Math.PI * part;
-    const point = (a, radius) => [coord(cx + Math.cos(a) * radius), coord(cy + Math.sin(a) * radius)].join(' ');
-    const rows = [{...row(c, s, 0, value, t), color: i % 8}];
-    if (total > 0) rows.push({label: tr(t, 'Share of total (calculated)'), value: `${Number((part * 100).toPrecision(6))}%`, color: i % 8});
-    let mark;
-    if (value > 0) {
-      let path = `M ${point(angle, r)} A ${r} ${r} 0 0 1 ${point(middle, r)} A ${r} ${r} 0 0 1 ${point(end, r)}`;
-      path += inner ? ` L ${point(end, inner)} A ${inner} ${inner} 0 0 0 ${point(middle, inner)} A ${inner} ${inner} 0 0 0 ${point(angle, inner)} Z` : ` L ${cx} ${cy} Z`;
-      mark = pointShape(doc, svg, 'path', {d: path, 'data-category-index': i}, `${c.categories[i]} — ${rows.map(r => `${r.label}: ${r.value}`).join('; ')}`, i);
-    }
-    registerItem(items, mark, mark ? [mark] : [], {heading: c.categories[i], rows, x: coord(cx + Math.cos(middle) * (inner + r) / 2), y: coord(cy + Math.sin(middle) * (inner + r) / 2)});
-    angle = end;
-  });
-  return {svg, items};
-}
-function legend(doc, c, t) {
-  const out = el(doc, 'ul', 'rich-chart-legend');
-  const circular = ['pie', 'doughnut'].includes(c.type);
-  const entries = circular ? c.categories.map((name, i) => `${name}: ${exactChartValue(c.series[0].values[i], c.series[0])}`) : c.series.map((s, i) => seriesName(s, i, t));
-  entries.forEach((value, i) => { const item = el(doc, 'li'); const swatch = el(doc, 'span', `rich-chart-swatch rich-chart-color-${i % 8}`); swatch.setAttribute('aria-hidden', 'true'); item.append(swatch, doc.createTextNode(value)); if (circular) { item.dataset.chartItem = String(i); item.tabIndex = -1; item.setAttribute('aria-label', value); } out.append(item); });
-  return out;
-}
-function renderChart(input, {document: doc = globalThis.document, t, family = 'Chart'} = {}) {
-  if (!doc?.createElementNS) throw new TypeError('A DOM document is required');
-  const result = normalizeChart(input, {family});
-  const figure = el(doc, 'figure', 'rich-chart');
-  if (!result.ok) {
-    figure.classList.add('rich-chart-fallback');
-    figure.append(el(doc, 'figcaption', '', result.title || tr(t, 'richChartUnavailable')));
-    if (result.title) figure.append(el(doc, 'p', 'rich-chart-description', tr(t, 'richChartUnavailable')));
-    const details = el(doc, 'details'); details.append(el(doc, 'summary', '', tr(t, 'richChartSource')));
-    details.append(el(doc, 'pre', 'rich-chart-source', result.payload === undefined ? tr(t, result.reason === 'limit' ? 'richChartLimit' : 'richChartUnavailable') : JSON.stringify(result.payload, null, 2)));
-    figure.append(details); return figure;
-  }
-  const c = result.chart;
-  figure.dataset.chartType = c.type;
-  if (c.circularPresentation) figure.dataset.chartPresentation = c.circularPresentation;
-  if (c.title) figure.append(el(doc, 'figcaption', '', c.title));
-  if (c.description) figure.append(el(doc, 'p', 'rich-chart-description', c.description));
-  const viewport = el(doc, 'div', 'rich-chart-viewport'); viewport.tabIndex = 0; viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', c.title || tr(t, 'richChart'));
-  viewport.setAttribute('aria-description', tr(t, 'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.'));
-  const drawing = ['pie', 'doughnut'].includes(c.type) ? circular(doc, c, t) : cartesian(doc, c, t);
-  // Trusted transient geometry and display strings survive the normal HTML serialization route.
-  // They never replace the saved message or create archive/analytics records.
-  figure.dataset.chartInteraction = JSON.stringify(drawing.items);
-  viewport.append(drawing.svg);
-  figure.append(viewport, legend(doc, c, t), table(doc, c, t));
-  if (c.footer) figure.append(el(doc, 'p', 'rich-chart-footer', c.footer));
-  mountChartInteractions(figure);
-  return figure;
-}
-
-window.TSARich.Charts=Object.freeze({CHART_LIMITS,chartDomain,normalizeChart,exactChartValue,renderChart});
-})();
-
-
 /* rich-context.js */
-(function(){'use strict';
-
+(function(){
+'use strict';
+const {createGrokContextResolver}=window.TSARich.Grok;
 // Transient, message-scoped citation bindings. Never changes archived turns/raw.
-// Only the observed grouped_webpages.items[].refs tuple contract is recognized.
+// Bind only explicit saved identities; never infer references from array order.
 const plain = value => value !== null && typeof value === 'object' &&
   (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
 const own = (value, key) => {
@@ -1280,34 +1667,50 @@ function safeUrl(value) {
   } catch { return null; }
 }
 function referencesFor(message) {
-  const records = own(own(message, 'metadata'), 'content_references');
+  const metadata = own(message, 'metadata');
+  const records = own(metadata, 'content_references');
   if (!Array.isArray(records) || records.length > 1024) return empty;
   const references = Object.create(null), conflicts = new Set();
   let budget = 4096;
-  for (const record of records) {
-    if (own(record, 'type') !== 'grouped_webpages') continue;
-    const items = own(record, 'items');
-    if (!Array.isArray(items) || items.length > 256) continue;
-    for (const item of items) {
-      if (--budget < 0) return empty;
-      const url = safeUrl(own(item, 'url')), refs = own(item, 'refs');
-      if (!url || !Array.isArray(refs) || refs.length > 256) continue;
-      const titleValue = own(item, 'title');
-      const title = bounded(titleValue, 2048) ? titleValue : url;
-      for (const ref of refs) {
-        if (--budget < 0) return empty;
-        const turn = own(ref, 'turn_index'), index = own(ref, 'ref_index'), type = own(ref, 'ref_type');
-        if (!Number.isSafeInteger(turn) || turn < 0 || !Number.isSafeInteger(index) || index < 0 || !['search', 'view'].includes(type)) continue;
-        const id = `turn${turn}${type}${index}`;
-        if (conflicts.has(id)) continue;
-        if (references[id] && references[id].url !== url) { delete references[id]; conflicts.add(id); continue; }
-        references[id] = Object.freeze({url, title});
-      }
+  function put(id, value) {
+    if (--budget < 0) throw new RangeError('Citation metadata budget');
+    if (!bounded(id, 256) || /[\s\u0000-\u001f]/.test(id) || ['__proto__','prototype','constructor'].includes(id) || conflicts.has(id)) return;
+    const previous = references[id];
+    if (previous && (previous.url !== value.url || previous.filename !== value.filename)) { delete references[id]; conflicts.add(id); return; }
+    references[id] = Object.freeze(value);
+  }
+  function add(item, file = false) {
+    const url = safeUrl(own(item, 'url'));
+    const filenameValue = own(item, 'filename') ?? own(item, 'file_name');
+    const filename = bounded(filenameValue, 2048) ? filenameValue : undefined;
+    if (!url && !(file && filename)) return;
+    const titleValue = own(item, 'title'), title = bounded(titleValue, 2048) ? titleValue : filename || url;
+    const value = {url, title, ...(filename ? {filename} : {})};
+    // Direct identities are accepted only when present in saved metadata.
+    const direct = own(item, 'ref_id'); if (direct !== undefined) put(direct, value);
+    const refs = own(item, 'refs');
+    if (!Array.isArray(refs) || refs.length > 256) return;
+    for (const ref of refs) {
+      if (--budget < 0) throw new RangeError('Citation metadata budget');
+      if (typeof ref === 'string') { put(ref, value); continue; }
+      const turn = own(ref, 'turn_index'), index = own(ref, 'ref_index'), type = own(ref, 'ref_type');
+      if (!Number.isSafeInteger(turn) || turn < 0 || !Number.isSafeInteger(index) || index < 0 || !['search', 'view', 'fetch', 'news', 'file', 'image'].includes(type)) continue;
+      put(`turn${turn}${type}${index}`, value);
     }
   }
+  try {
+    for (const record of records) {
+      const type = own(record, 'type');
+      if (type === 'grouped_webpages' || type === 'grouped_files') {
+        const items = own(record, 'items');
+        if (!Array.isArray(items) || items.length > 256) continue;
+        for (const item of items) { if (--budget < 0) return empty; add(item, type === 'grouped_files'); }
+      } else if (['webpage', 'webpage_extended', 'file', 'file_citation'].includes(type)) add(record, type === 'file' || type === 'file_citation');
+    }
+  } catch { return empty; }
   return Object.keys(references).length ? Object.freeze({references: Object.freeze(references)}) : empty;
 }
-function createRichContextResolver(thread) {
+function createChatGPTContextResolver(thread) {
   const mapping = own(own(thread, 'raw'), 'mapping');
   if (!plain(mapping)) return () => empty;
   const ids = Object.keys(mapping);
@@ -1336,13 +1739,21 @@ function createRichContextResolver(thread) {
   };
 }
 
+function createRichContextResolver(thread) {
+  const chatgpt=createChatGPTContextResolver(thread),grok=createGrokContextResolver(thread);
+  return turn => {
+    const context=chatgpt(turn),extra=grok(turn);
+    return Object.keys(extra.grokCards || {}).length ? Object.freeze({...context,...extra}) : context;
+  };
+}
+
 window.TSARich.Context=Object.freeze({createRichContextResolver});
 })();
 
-
 /* rich-renderer.js */
-(function(){'use strict';
-const {renderChart}=window.TSARich.Charts; const {safeRichUrl,markdownProtectedRanges}=window.TSARich.Parser;
+(function(){
+'use strict';
+const {renderChart}=window.TSARich.Charts;const {renderGrokNode}=window.TSARich.Grok;const {safeRichUrl,markdownProtectedRanges,prepareRichMarkdown}=window.TSARich.Parser;
 
 const SVG = 'http://www.w3.org/2000/svg';
 // App-owned, simple line icons. Exported names never become markup or URLs.
@@ -1460,7 +1871,8 @@ function referenceNode(attrs, options) {
   ids.forEach(id => {
     const record = references instanceof Map ? references.get(id)
       : references && Object.hasOwn(references, id) ? references[id] : null;
-    const url = record && safeRichUrl(record.url);
+    let url = record && safeRichUrl(record.url);
+    if (options.referenceBudget && url) { options.referenceBudget.remaining -= (String(record.title || url).length + url.length + id.length) * 3; if (options.referenceBudget.remaining < 0) url = null; }
     if (url) {
       // A short host label keeps references from taking over the paragraph.
       // The complete archived title and identity remain available to assistive
@@ -1480,6 +1892,71 @@ function referenceNode(attrs, options) {
     missing.title = `${label}: ${missingIds.join(', ')}`; missing.setAttribute('aria-label', missing.title); span.append(missing);
   }
   return span;
+}
+function originalDetails(node, options) {
+  const details = el(options.document, 'details', 'rich-archive-source');
+  details.append(el(options.document, 'summary', '', options.t('Original content')));
+  details.append(el(options.document, 'pre', '', node.source || ''));
+  return details;
+}
+function nativeCitationNode(node, options) {
+  const {document, context, t} = options;
+  const span = el(document, 'span', 'rich-native-citation');
+  if (node.family === 'cite') span.append(referenceNode({refs:node.refs},options));
+  else {
+    for (const id of node.refs) {
+      const record = context.references instanceof Map ? context.references.get(id) : context.references && Object.hasOwn(context.references,id) ? context.references[id] : null;
+      let url = record && safeRichUrl(record.url), filename = record?.filename || record?.title;
+      if(options.referenceBudget){options.referenceBudget.remaining-=(String(filename||'').length+String(url||'').length+id.length)*3;if(options.referenceBudget.remaining<0){url=null;filename=null;}}
+      const chip = el(document, url ? 'a' : 'span', 'rich-citation rich-file-reference', filename || t('File reference'));
+      chip.prepend(iconNode('file-text',options));
+      chip.title = [filename || t('File unavailable'),id,...node.lines].join(' · '); chip.setAttribute('aria-label',chip.title);
+      if (url) { chip.href=url;chip.target='_blank';chip.rel='noopener noreferrer'; }
+      if (node.lines.length) chip.append(document.createTextNode(` (${node.lines.join(', ')})`));
+      span.append(chip);
+    }
+  }
+  // Exact IDs, line ranges and original marker remain inspectable even if the
+  // imported archive contains neither the attachment nor a source binding.
+  const original=el(document,'span','rich-citation-inspect');original.append(iconNode('alert-circle',options));original.title=node.source;original.setAttribute('aria-label',`${t('Original content')}: ${node.source}`);original.tabIndex=0;span.append(original);
+  return span;
+}
+const WIDGET_LABELS = Object.freeze({
+  i:'Archived images',image_group:'Archived images',image:'Archived image',images:'Archived images',
+  navlist:'Archived source list',entity:'Archived entity',video:'Archived video',audio:'Archived audio',
+  forecast:'Archived weather',weather:'Archived weather',finance:'Archived market data',
+  schedule:'Archived schedule',standings:'Archived standings',sports:'Archived sports data',
+  product_entity:'Archived product',product_query:'Archived products',businesses_map:'Archived locations',
+  map_widget:'Archived locations',visualization:'Archived visualization',chart:'Archived chart',
+  charts_widget_v2:'Archived chart',suggest_automation:'Archived suggestion',
+});
+function archivedWidgetNode(node, options) {
+  const {document,t,context}=options;
+  const figure=el(document,'aside','rich-passive rich-archived-widget');
+  const heading=el(document,'div','rich-passive-label');
+  heading.append(iconNode(['i','image','images','image_group'].includes(node.family)?'panels-top-left':'archive',options),document.createTextNode(t(Object.hasOwn(WIDGET_LABELS,node.family) ? WIDGET_LABELS[node.family] : 'Archived ChatGPT content')));figure.append(heading);
+  figure.dataset.archiveFamily=node.family;
+  const image=['i','image','images','image_group'].includes(node.family);
+  const parts=Array.isArray(node.data)?node.data:[];
+  if (node.family==='navlist' && parts.every(v=>typeof v==='string')) {
+    if(parts[0])figure.append(el(document,'p','',parts[0]));
+    const list=el(document,'ul');
+    for(const part of parts.slice(1,65)) {
+      const split=part.indexOf(';'),id=split<0?part:part.slice(0,split),title=split<0?part:part.slice(split+1);
+      const row=el(document,'li','',title);row.append(document.createTextNode(' '),referenceNode({ref:id},options));list.append(row);
+    }
+    figure.append(list);
+  } else {
+    if(image)figure.append(el(document,'p','',t('Image assets are unavailable unless they were included in the archive.')));
+    else figure.append(el(document,'p','',t('Saved content is available below. Live actions and interactive state are not replayed.')));
+    if(node.data && typeof node.data==='object' && !Array.isArray(node.data)) {
+      for(const key of ['title','label','name','description','text','body']) if(typeof node.data[key]==='string' && node.data[key].length<=32768) figure.append(el(document,key==='title'?'strong':'p','',node.data[key]));
+    }
+    const ids=parts.filter(v=>typeof v==='string' && /^turn\d+[a-z]+\d+$/.test(v)).slice(0,64);
+    if(ids.length)figure.append(referenceNode({refs:ids},options));
+  }
+  figure.append(originalDetails(node,options));
+  return figure;
 }
 function imagePlaceholderDesign(attrs, ancestors = []) {
   // Source-sized thumbnails stay compact even if a row wraps on a narrow
@@ -1514,14 +1991,16 @@ function unavailableImageNode(tag, attrs, options) {
   if (tag === 'AsyncImage') {
     const design = imagePlaceholderDesign(attrs, options.imageAncestors);
     const wide = design === 'soft-horizon';
+    const slotWidth = width || (wide ? undefined : '172px');
+    const slotRatio = attrs.aspectRatio || (wide ? undefined : '5:4');
     area.classList.add('rich-image-placeholder', `rich-image-${design}`);
     area.dataset.placeholderDesign = design;
-    if (width) area.style.width = `min(${width}, 100%)`;
+    if (slotWidth) area.style.width = `min(${slotWidth}, 100%)`;
     if (attrs.maxWidth) area.style.maxWidth = `min(${attrs.maxWidth}, 100%)`;
-    if (attrs.aspectRatio) area.style.aspectRatio = attrs.aspectRatio.replace(':', ' / ');
+    if (slotRatio) area.style.aspectRatio = slotRatio.replace(':', ' / ');
     // Without both dimensions, retain in-flow content for intrinsic sizing.
     // Absolutely positioned artwork alone would collapse a ratio-only row.
-    if (!attrs.aspectRatio || !width) area.classList.add('rich-image-natural');
+    if (!slotRatio || !slotWidth) area.classList.add('rich-image-natural');
     area.setAttribute('role', 'img'); area.setAttribute('aria-label', [label, description].filter(Boolean).join(': '));
     area.title = [label, description].filter(Boolean).join(': ');
     if (wide) {
@@ -1549,6 +2028,14 @@ function unavailableImageNode(tag, attrs, options) {
   area.append(el(document, 'span', 'rich-offline-label', tag === 'AsyncImage' ? t('Image unavailable') : label));
   if (description) area.append(el(document, 'span', 'rich-image-description', description));
   return area;
+}
+
+// Reuse the archived missing-source artwork for explicit Markdown images whose
+// source is unusable. This does not execute archived image queries.
+function createMissingImagePlaceholder(document, { compact = false, alt = '', t = value => value } = {}) {
+  return unavailableImageNode('AsyncImage', {
+    query: alt, width: compact ? '172px' : '100%', aspectRatio: compact ? '5:4' : '16:9',
+  }, { document, t });
 }
 function replaceMarkers(root, records, options) {
   const { document } = options;
@@ -1605,6 +2092,12 @@ function renderChildren(element, children, options) {
     }
   }
   source = separated + source.slice(last);
+  // Native marker text can also appear inside archived layout containers.
+  // Literal bindings already have opaque placeholders and cannot be reparsed.
+  if (/|<(?:grok[: -]|xaiArtifact|xai:tool_usage_card)|grok_render_citation_card_json=/.test(source)) {
+    const nested=prepareRichMarkdown(source);source=nested.content;
+    for(const [marker,record] of nested.records)records.set(marker,record);
+  }
   const template = document.createElement('template'); template.innerHTML = renderMarkdown(source);
   replaceMarkers(template.content, records, options);
   // Layout containers may hold inline Markdown paragraphs as flex/grid items;
@@ -1616,7 +2109,11 @@ function renderChildren(element, children, options) {
 }
 function renderRichNode(node, options) {
   const { document, t } = options;
+  if (['grok','native-citation','archived-widget'].includes(node.kind) && options.compatBudget && --options.compatBudget.remaining < 0) return el(document,node.inline?'span':'pre','rich-original-source',node.source||'');
+  if (node.kind === 'grok') return renderGrokNode(node, {...options, renderChart});
   if (node.kind === 'literal') return document.createTextNode(node.text);
+  if (node.kind === 'native-citation') return nativeCitationNode(node, options);
+  if (node.kind === 'archived-widget') return archivedWidgetNode(node, options);
   if (node.kind === 'static-svg') return staticSvgNode(node, options);
   if (node.kind === 'passive') {
     const figure = el(document, 'aside', 'rich-passive');
@@ -1659,17 +2156,17 @@ function renderRichNode(node, options) {
 function renderRichHtml(html, records, { renderMarkdown, document = globalThis.document, t = k => k, context = {} } = {}) {
   if (!records?.size) return html;
   const template = document.createElement('template'); template.innerHTML = html;
-  const options = { document, renderMarkdown, t, context };
+  const options = { document, renderMarkdown, t, context, grokBudget:{remaining:2000000}, referenceBudget:{remaining:2000000}, compatBudget:{remaining:256} };
   replaceMarkers(template.content, records, options);
   return template.innerHTML;
 }
 
-window.TSARich.Renderer=Object.freeze({renderRichNode,renderRichHtml});
+window.TSARich.Renderer=Object.freeze({createMissingImagePlaceholder,renderRichNode,renderRichHtml});
 })();
 
-
 /* math.js */
-(function(){'use strict';
+(function(){
+'use strict';
 const tr=k=>k;
 const pendingMath = new Map();
 
@@ -2066,8 +2563,6 @@ async function renderMathPlaceholders(container) {
       // document stylesheet. It includes the accessible MathML clipping rules;
       // without it both the SVG and its assistive MathML appear visibly.
       mathJax.startup?.document?.updateDocument?.();
-      for (const element of rendered.querySelectorAll('a,script,foreignObject')) { if (element.localName==='a') element.replaceWith(...element.childNodes); else element.remove(); }
-      for (const element of rendered.querySelectorAll('*')) for (const attribute of [...element.attributes]) { if (/^on/i.test(attribute.name) || (/^(?:href|xlink:href)$/i.test(attribute.name) && !attribute.value.startsWith('#'))) element.removeAttribute(attribute.name); }
       placeholder.replaceChildren(rendered);
       placeholder.classList.remove('chatgpt-math-placeholder');
       placeholder.removeAttribute('data-chatgpt-math-id');
@@ -2083,9 +2578,10 @@ async function renderMathPlaceholders(container) {
 window.TSARich.Math=Object.freeze({clearPendingMath,discardMathRecords,protectMathInMarkdown,restoreMathPlaceholders,renderMathPlaceholders});
 })();
 
-/* Local Reader deterministic Mermaid repairs, MIT. No archived source is changed. */
+/* mermaid-repair.js */
 (function(){
 'use strict';
+
 function firstMeaningfulLine(source) {
   for (const rawLine of String(source || '').replace(/^\uFEFF/, '').split(/\r?\n/)) {
     const line = rawLine.trim();

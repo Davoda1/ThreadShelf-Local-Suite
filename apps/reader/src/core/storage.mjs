@@ -43,7 +43,7 @@ async function backupDatabase(database,target){let own=false,db=database;if(type
 class DiskReader extends Reader{
   constructor(file){super();this.file=file;}
   async init({recovery=false}={}){await super.init();this.handle=await fs.open(this.file,'r');this.size=(await this.handle.stat()).size;}
-  async readUint8Array(index,length){const out=new Uint8Array(length);let read=0;while(read<length){const {bytesRead}=await this.handle.read(out,read,length-read,index+read);if(!bytesRead)throw storageError('Compressed snapshot is truncated.');read+=bytesRead;}return out;}
+  async readUint8Array(index,length){if(!Number.isSafeInteger(index)||!Number.isSafeInteger(length)||index<0||length<0||length>64*1024*1024||index+length>this.size)throw storageError('Invalid compressed snapshot read bounds (64 MiB limit).');const out=new Uint8Array(length);let read=0;while(read<length){const {bytesRead}=await this.handle.read(out,read,length-read,index+read);if(!bytesRead)throw storageError('Compressed snapshot is truncated.');read+=bytesRead;}return out;}
   async close(){await this.handle?.close();}
 }
 

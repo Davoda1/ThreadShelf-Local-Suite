@@ -1,8 +1,11 @@
 """Small synthetic release fixtures; never upload or build native packages."""
 import importlib.util
+import io
 import json
 from pathlib import Path
+import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -60,11 +63,15 @@ class ReleaseAssemblyTests(unittest.TestCase):
                 self.write_json(reports / (prefix + '-validation.json'), summary)
                 self.write_json(reports / (prefix + '-publication.json'), {'application': app, 'version': self.version,
                     'platform': platform, 'commit': self.commit, 'assets': ledger})
-        reader = self.artifacts / 'reader-linux-1.4.0/verification'
+        reader = self.artifacts / f'reader-linux-{self.version}/verification'
         self.write_json(reader / 'reader-linux-mathjax.json', {'passed': True})
         self.write_json(reader / 'reader-linux-file-citations.json', {'passed': ['rendering'], 'checks': 1, 'errors': [], 'remoteRequests': []})
-        alternative = self.artifacts / 'alternative-linux-1.4.0/verification'
+        alternative = self.artifacts / f'alternative-linux-{self.version}/verification'
         self.write_json(alternative / 'alternative-linux-file-citations.json', {'passed': True})
+        if tuple(map(int, self.version.split('.'))) >= (1, 4, 3):
+            self.write_json(reader / 'reader-linux-chatgpt.json', {'passed': True, 'checks': 4, 'networkRequests': 0, 'pageErrors': 0})
+            self.write_json(reader / 'reader-linux-grok.json', {'passed': True, 'views': 4, 'networkRequests': 0, 'pageErrors': 0})
+            self.write_json(alternative / 'alternative-linux-compat.json', {'passed': True, 'checks': 4, 'networkRequests': 0, 'pageErrors': 0})
 
     def test_complete_six_job_collection(self):
         assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
@@ -98,6 +105,30 @@ class ReleaseAssemblyTests(unittest.TestCase):
         self.write_json(self.artifacts / 'reader-linux-1.4.0/verification/reader-linux-mathjax.json', {'passed': False})
         with self.assertRaisesRegex(ValueError, 'Focused rendering checks'):
             release.collect_inputs(self.artifacts, self.version, self.commit)
+
+    def test_current_release_requires_all_new_compatibility_reports(self):
+        self.version = '1.4.3'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        for app, name in [('reader', 'reader-linux-chatgpt.json'), ('reader', 'reader-linux-grok.json'),
+                          ('alternative', 'alternative-linux-compat.json')]:
+            with self.subTest(report=name):
+                report = self.artifacts / f'{app}-linux-{self.version}/verification' / name
+                report.unlink()
+                with self.assertRaisesRegex(ValueError, 'successful Grok/ChatGPT views'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
+
+    def test_current_compatibility_gates_reject_partial_or_unsafe_execution(self):
+        self.version = '1.4.3'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        for change in ({'passed': False}, {'views': 3}, {'views': True}, {'networkRequests': 1},
+                       {'networkRequests': False}, {'pageErrors': 1}):
+            with self.subTest(change=change):
+                report = self.artifacts / f'reader-linux-{self.version}/verification/reader-linux-grok.json'
+                value = json.loads(report.read_text()); value.update(change); self.write_json(report, value)
+                with self.assertRaisesRegex(ValueError, 'successful Grok/ChatGPT views'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
 
     def test_rejects_missing_packaged_speech_evidence(self):
         (self.artifacts / 'alternative-windows-1.4.0/verification/alternative-win32-tts.json').unlink()
@@ -159,6 +190,153 @@ class ReleaseAssemblyTests(unittest.TestCase):
             self.assertFalse(any('apps/' in name for name in archive.namelist()))
         with self.assertRaisesRegex(ValueError, 'application version'):
             release.version_for_tag('v1.3.0', repository)
+
+    def test_current_release_includes_verified_runtime_source_update_in_single_manifest(self):
+        self.version = '1.4.3'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        repository = self.root / 'repository'; repository.mkdir()
+        fixture = RuntimeSourceFixture(repository)
+        for app in release.APPS:
+            self.write_json(repository / 'apps' / app / 'package.json', {
+                'name': app, 'version': self.version, 'devDependencies': {'electron': '45.2.3'}})
+        self.write_json(repository / 'tools/release-versions.json', dict.fromkeys(release.APPS, self.version))
+        (repository / 'docs').mkdir()
+        (repository / 'docs/index.html').write_text('<title>Synthetic offline manual</title>')
+        def git(*args):
+            return subprocess.check_output(['git', *args], cwd=repository, text=True, stderr=subprocess.DEVNULL).strip()
+        git('init'); git('config', 'user.name', 'Synthetic Fixture'); git('config', 'user.email', 'fixture@example.invalid')
+        git('add', '.'); git('commit', '-m', 'Synthetic release fixture'); git('tag', 'v1.4.3')
+        self.commit = git('rev-parse', 'HEAD'); self.populate()
+        original_run = release.run
+        def run(*args, **kwargs):
+            if str(args[0]) == release.sys.executable:
+                return fixture.build(*args, **kwargs)
+            return original_run(*args, **kwargs)
+        output = self.root / 'assembled'
+        with patch.object(release, 'run', side_effect=run):
+            version, ledger = release.assemble(self.artifacts, output, 'v1.4.3', 'example/suite', 'https://example.invalid/run', repository)
+        self.assertEqual(version, self.version)
+        self.assertEqual(len(ledger), 18)
+        manifest = (output / 'SHA256SUM.txt').read_text().splitlines()
+        self.assertEqual(len(manifest), 17)
+        self.assertIn(f'{release.digest(output / fixture.name)}  {fixture.name}', manifest)
+        with zipfile.ZipFile(output / 'ThreadShelf-Local-Suite-1.4.3-Verification-Evidence.zip') as archive:
+            receipt = json.loads(archive.read('verification/runtime-source-update.json'))
+            self.assertEqual(receipt['sha256'], release.digest(output / fixture.name))
+        self.assertIn(fixture.name, (output / 'ThreadShelf-Local-Suite-1.4.3-Verification.md').read_text())
+
+
+class RuntimeSourceFixture:
+    """A tiny source companion, with no real downloads or build execution."""
+    def __init__(self, root):
+        self.root = root
+        self.directory = root / 'maintainer/runtime-source-update'
+        self.directory.mkdir(parents=True)
+        self.manifest = self.directory / 'manifest.json'
+        self.manifest.write_text(json.dumps({'schema_version': 1, 'suite_version': '1.4.3', 'electron_version': '45.2.3'}))
+        (self.directory / 'build-source-update.py').write_text('# Synthetic builder; mocked in tests.\n')
+        (self.directory / 'update-runtime-sources.py').write_text('# Synthetic offline updater.\n')
+        for app in release.APPS:
+            path = root / 'apps' / app / 'package.json'; path.parent.mkdir(parents=True)
+            path.write_text(json.dumps({'devDependencies': {'electron': '45.2.3'}}))
+        self.name = 'ThreadShelf-Local-Suite-1.4.3-Runtime-Source-Update.tar.gz'
+        self.receipt_changes = {}
+        self.omit = set()
+        self.extra = None
+        self.extra_output = False
+
+    def build(self, *args, **kwargs):
+        args = tuple(map(str, args))
+        assert args == (release.sys.executable, str(self.directory / 'build-source-update.py'),
+                        '--out', args[3], '--version', '1.4.3')
+        assert kwargs['cwd'] == self.root
+        output = Path(args[3]); path = output / self.name
+        with tarfile.open(path, 'w:gz') as archive:
+            for name in ('manifest.json', 'update-runtime-sources.py'):
+                if name not in self.omit:
+                    archive.add(self.directory / name, 'runtime-source-update/' + name)
+            if self.extra:
+                name, content, kind = self.extra
+                info = tarfile.TarInfo(name); info.type = kind
+                if kind == tarfile.REGTYPE:
+                    info.size = len(content); archive.addfile(info, io.BytesIO(content))
+                else:
+                    info.linkname = content; archive.addfile(info)
+        if self.extra_output:
+            (output / 'unexpected-source.txt').write_text('unlisted')
+        receipt = {'schema': 'threadshelf-runtime-source-update-v1', 'version': '1.4.3', 'electron': '45.2.3',
+                   'file_name': self.name, 'bytes': path.stat().st_size, 'sha256': release.digest(path),
+                   'manifest_sha256': release.digest(self.manifest), 'verified': True}
+        return json.dumps({**receipt, **self.receipt_changes})
+
+
+class RuntimeSourceUpdateTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix='threadshelf-runtime-fixture-')
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.fixture = RuntimeSourceFixture(self.root)
+        self.output = self.root / 'out'; self.output.mkdir()
+
+    def invoke(self):
+        with patch.object(release, 'run', side_effect=self.fixture.build):
+            return release.build_runtime_source_update(self.output, '1.4.3', self.root)
+
+    def test_required_source_inputs_cannot_be_omitted(self):
+        self.fixture.manifest.unlink()
+        with self.assertRaisesRegex(ValueError, 'tagged runtime source-update inputs'):
+            self.invoke()
+
+    def test_source_version_must_cover_all_three_app_runtimes(self):
+        path = self.root / 'apps/analytics/package.json'
+        path.write_text(json.dumps({'devDependencies': {'electron': '45.1.0'}}))
+        with self.assertRaisesRegex(ValueError, 'analytics: runtime source-update Electron'):
+            self.invoke()
+
+    def test_wrong_release_or_manifest_receipt_is_rejected(self):
+        for change in ({'version': '1.4.2'}, {'electron': '45.1.0'}, {'verified': False}, {'manifest_sha256': 'f' * 64}):
+            with self.subTest(change=change):
+                self.fixture.receipt_changes = change
+                with self.assertRaisesRegex(ValueError, 'builder verification'):
+                    self.invoke()
+                shutil.rmtree(self.output); self.output.mkdir()
+
+    def test_wrong_archive_hash_or_size_is_rejected(self):
+        for change in ({'sha256': 'f' * 64}, {'bytes': 1}, {'file_name': '../outside.tar.gz'}):
+            with self.subTest(change=change):
+                self.fixture.receipt_changes = change
+                with self.assertRaises(ValueError):
+                    self.invoke()
+                shutil.rmtree(self.output); self.output.mkdir()
+
+    def test_unlisted_output_cannot_enter_release_ledger(self):
+        self.fixture.extra_output = True
+        with self.assertRaisesRegex(ValueError, 'output bytes'):
+            self.invoke()
+
+    def test_missing_or_duplicate_archived_provenance_is_rejected(self):
+        self.fixture.omit = {'update-runtime-sources.py'}
+        with self.assertRaisesRegex(ValueError, 'missing its tagged manifest'):
+            self.invoke()
+        shutil.rmtree(self.output); self.output.mkdir()
+        self.fixture.omit.clear()
+        self.fixture.extra = ('runtime-source-update/manifest.json', b'{}', tarfile.REGTYPE)
+        with self.assertRaisesRegex(ValueError, 'unsafe or duplicate'):
+            self.invoke()
+
+    def test_archive_traversal_and_links_are_rejected(self):
+        for extra in [('runtime-source-update/../outside', b'x', tarfile.REGTYPE),
+                      ('runtime-source-update/link', '../../outside', tarfile.SYMTYPE)]:
+            with self.subTest(extra=extra):
+                self.fixture.extra = extra
+                with self.assertRaisesRegex(ValueError, 'unsafe or duplicate'):
+                    self.invoke()
+                shutil.rmtree(self.output); self.output.mkdir()
+
+    def test_builder_failure_is_not_treated_as_optional(self):
+        with patch.object(release, 'run', side_effect=subprocess.CalledProcessError(1, ['fixture'])):
+            with self.assertRaises(subprocess.CalledProcessError):
+                release.build_runtime_source_update(self.output, '1.4.3', self.root)
 
 
 class ReleasePublicationTests(unittest.TestCase):

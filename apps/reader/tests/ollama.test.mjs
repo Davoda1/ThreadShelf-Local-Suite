@@ -116,6 +116,34 @@ test('model pull handles split NDJSON, reports progress and verifies downloaded 
   await assert.rejects(search.ollamaPull({ url, model: '../invalid' }), /valid Ollama model name/);
 });
 
+test('Ollama discovery and model deletion reject oversized responses without consuming the stream', async t => {
+  let cancelled = 0;
+  const oversized = () => new Response(new ReadableStream({ cancel() { cancelled++; } }), { headers: { 'content-length': String(32 * 1024 * 1024) } });
+  const { search, url } = await fixture(t);
+  const previousFetch = search.fetch;
+  search.fetch = async () => oversized();
+  const status = await search.ollamaModels({ url });
+  assert.equal(status.available, false);
+  assert.match(status.detail, /safety limit/);
+  search.fetch = async (url, options) => options.method === 'DELETE' ? oversized() : previousFetch(url, options);
+  await assert.rejects(search.ollamaDelete({ url, model: 'embeddinggemma' }), /safety limit/);
+  assert.equal(cancelled, 2);
+});
+
+test('Ollama rejects oversized complete progress lines before publishing them', async t => {
+  const progress = [], { search, url } = await fixture(t, { onProgress: event => progress.push(event) });
+  const previousFetch = search.fetch;
+  let cancelled = false;
+  search.fetch = async (url, options) => url.pathname.endsWith('/api/pull')
+    ? new Response(new ReadableStream({
+      start(controller) { controller.enqueue(new TextEncoder().encode(JSON.stringify({ status: 'x'.repeat(1_048_577) }) + '\n')); },
+      cancel() { cancelled = true; },
+    })) : previousFetch(url, options);
+  await assert.rejects(search.ollamaPull({ url, model: 'all-minilm' }), /oversized.*record/);
+  assert.equal(cancelled, true);
+  assert.ok(progress.every(event => String(event.message || '').length < 1000));
+});
+
 test('model pull cancellation aborts an active HTTP stream and preserves ordinary search', async t => {
   const controller = new AbortController();
   const { search, state, url } = await fixture(t, { onProgress: event => { if (event.current === 5) controller.abort(); } });

@@ -14,7 +14,7 @@ import { randomUUID } from 'node:crypto';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
-export const CODEC_VERSION = '26.03';
+export const CODEC_VERSION = '26.06';
 export const MAX_CODEC_BYTES = 64 * 1024 ** 2;
 export const MAX_CODEC_FILE_BYTES = 64 * 1024 ** 3;
 const MAX_METADATA_BYTES = 32 * 1024;

@@ -1,0 +1,698 @@
+diff --git a/front_end/panels/elements/DOMTreeWidget.test.ts b/front_end/panels/elements/DOMTreeWidget.test.ts
+index 41af4e5..af35395 100644
+--- a/front_end/panels/elements/DOMTreeWidget.test.ts
++++ b/front_end/panels/elements/DOMTreeWidget.test.ts
+@@ -1478,6 +1478,154 @@
+       }
+     });
+ 
++    function findElementsTreeWidget(treeElement: UI.TreeOutline.TreeElement):
++        Elements.ElementsTreeElement.ElementsTreeWidget|null {
++      const widgetElement = treeElement.listItemElement.querySelector('devtools-widget');
++      if (!widgetElement) {
++        return null;
++      }
++      return UI.Widget.Widget.get(widgetElement) as Elements.ElementsTreeElement.ElementsTreeWidget;
++    }
++
++    // Dispatches a mousedown event and returns the defaultPrevented state at
++    // the DOMTreeWidget element. Listeners that other tests leave on
++    // document.body (for example, a soft context menu) can call
++    // preventDefault() later in the bubble phase. This check ignores them.
++    function dispatchMouseDown(domTree: Elements.DOMTreeWidget.DOMTreeWidget, target: Element,
++                               init: MouseEventInit = {}): boolean {
++      let defaultPrevented: boolean|undefined;
++      const listener = (event: Event): void => {
++        defaultPrevented = event.defaultPrevented;
++      };
++      domTree.element.addEventListener('mousedown', listener);
++      try {
++        target.dispatchEvent(new MouseEvent('mousedown', {bubbles: true, composed: true, cancelable: true, ...init}));
++      } finally {
++        domTree.element.removeEventListener('mousedown', listener);
++      }
++      assert.isDefined(defaultPrevented, 'the mousedown event must reach the DOMTreeWidget element');
++      return Boolean(defaultPrevented);
++    }
++
++    describe('mouse interaction with an active inline attribute editor', () => {
++      async function setupEditingTree() {
++        const domModel = target.model(SDK.DOMModel.DOMModel) as SDK.DOMModel.DOMModel;
++        sinon.stub(domModel, 'requestDocument').resolves(null);
++        const {domTree} = setupDOMTreeWidget(target);
++        const rootNode = createTestDOMTree(domModel, {
++          nodeId: 1,
++          nodeName: 'DIV',
++          children: [
++            {nodeId: 2, nodeName: 'P', attributes: ['class', 'foo bar baz']},
++            {nodeId: 3, nodeName: 'SPAN'},
++          ],
++        });
++        const children = rootNode.children();
++        assert.exists(children);
++        const pNode = children[0];
++
++        domTree.rootDOMNode = rootNode;
++        domTree.selectEnabled = true;
++        domTree.setNodeExpanded(rootNode, true);
++        domTree.selectDOMNode(pNode);
++        domTree.performUpdate();
++        await waitForTreeUpdates();
++
++        const tree = domTree.contentElement.querySelector<UI.TreeOutline.TreeViewElement>('devtools-tree');
++        assert.exists(tree);
++        const rootTreeElement = tree.getInternalTreeOutlineForTest().rootElement().children()[0];
++        const [pTreeElement, spanTreeElement] = rootTreeElement.children();
++        assert.isTrue(pTreeElement.selected);
++        const pWidget = findElementsTreeWidget(pTreeElement);
++        assert.exists(pWidget);
++
++        pWidget.triggerEditAttribute('class');
++        await waitForTreeUpdates();
++        assert.isTrue(pWidget.isEditing);
++
++        const editingElement = pTreeElement.listItemElement.querySelector<HTMLElement>('.being-edited');
++        assert.exists(editingElement);
++        assert.strictEqual((editingElement.getRootNode() as ShadowRoot).activeElement, editingElement,
++                           'precondition: the editor must own the focus');
++        return {domTree, pWidget, pTreeElement, spanTreeElement, editingElement};
++      }
++
++      it('keeps the editor open and focused on mousedown inside the editor', async () => {
++        const {domTree, pWidget, pTreeElement, editingElement} = await setupEditingTree();
++        try {
++          const defaultPrevented = dispatchMouseDown(domTree, editingElement);
++
++          assert.isTrue(pWidget.isEditing);
++          assert.isTrue(pTreeElement.selected);
++          assert.isFalse(defaultPrevented, 'the browser must place the caret');
++          assert.strictEqual((editingElement.getRootNode() as ShadowRoot).activeElement, editingElement);
++          assert.isTrue(UI.UIUtils.isEditing());
++        } finally {
++          pWidget.editing?.cancel();
++          domTree.detach();
++        }
++      });
++
++      it('allows the native word selection on double click inside the editor', async () => {
++        const {domTree, pWidget, editingElement} = await setupEditingTree();
++        try {
++          const defaultPrevented = dispatchMouseDown(domTree, editingElement, {detail: 2});
++
++          assert.isTrue(pWidget.isEditing);
++          assert.isFalse(defaultPrevented);
++          assert.strictEqual((editingElement.getRootNode() as ShadowRoot).activeElement, editingElement);
++        } finally {
++          pWidget.editing?.cancel();
++          domTree.detach();
++        }
++      });
++
++      it('commits the editor on mousedown on another row', async () => {
++        const {domTree, pWidget, pTreeElement, spanTreeElement} = await setupEditingTree();
++        try {
++          spanTreeElement.listItemElement.dispatchEvent(
++              new MouseEvent('mousedown', {bubbles: true, composed: true, cancelable: true}));
++
++          assert.isFalse(pWidget.isEditing);
++          assert.isFalse(pTreeElement.selected);
++          assert.isTrue(spanTreeElement.selected);
++          assert.isTrue(spanTreeElement.listItemElement.hasFocus());
++        } finally {
++          pWidget.editing?.cancel();
++          domTree.detach();
++        }
++      });
++    });
++
++    it('prevents the native word selection on double click outside of an inline editor', async () => {
++      const domModel = target.model(SDK.DOMModel.DOMModel) as SDK.DOMModel.DOMModel;
++      sinon.stub(domModel, 'requestDocument').resolves(null);
++      const {domTree} = setupDOMTreeWidget(target);
++      try {
++        const rootNode = createTestDOMTree(domModel, {
++          nodeId: 1,
++          nodeName: 'DIV',
++          attributes: ['class', 'foo bar'],
++        });
++        domTree.rootDOMNode = rootNode;
++        domTree.selectEnabled = true;
++        domTree.performUpdate();
++        await waitForTreeUpdates();
++
++        const tree = domTree.contentElement.querySelector<UI.TreeOutline.TreeViewElement>('devtools-tree');
++        assert.exists(tree);
++        const widget = findElementsTreeWidget(tree.getInternalTreeOutlineForTest().rootElement().children()[0]);
++        assert.exists(widget);
++        const attrElement = widget.contentElement.querySelector('.webkit-html-attribute');
++        assert.exists(attrElement);
++
++        assert.isFalse(dispatchMouseDown(domTree, attrElement, {detail: 1}));
++        assert.isTrue(dispatchMouseDown(domTree, attrElement, {detail: 2}));
++      } finally {
++        domTree.detach();
++      }
++    });
++
+     it('handles clipboard operations (cut, copy, paste, .in-clipboard styling, and events) in declarative view',
+        async () => {
+          SDK.TargetManager.TargetManager.instance().setScopeTarget(target);
+diff --git a/front_end/panels/elements/DOMTreeWidget.ts b/front_end/panels/elements/DOMTreeWidget.ts
+index eee3ddc..40ce512 100644
+--- a/front_end/panels/elements/DOMTreeWidget.ts
++++ b/front_end/panels/elements/DOMTreeWidget.ts
+@@ -879,6 +879,16 @@
+       input.onContextMenu?.(node, event);
+     };
+ 
++    // Prevent the native word selection on double click. The double click
++    // starts inline editing instead. Inside an active inline editor the
++    // native selection must stay enabled.
++    const onMouseDown = (event: MouseEvent): void => {
++      if (event.detail < 2 || UI.UIUtils.isBeingEdited(event.target as Node)) {
++        return;
++      }
++      event.preventDefault();
++    };
++
+     const onDragStart = (event: DragEvent): void => {
+       event.stopPropagation();
+       const currentTarget = event.currentTarget as HTMLElement | null;
+@@ -930,6 +940,7 @@
+           @select=${on((event: UI.TreeOutline.TreeViewElement.SelectEvent) => onSelect(false, Boolean(event.detail?.selectedByUser)))}
+           @expand=${on(onExpand)}
+           @mousemove=${on(onOpeningMouseMove)}
++          @mousedown=${on(onMouseDown)}
+           @contextmenu=${on(onContextMenu)}
+           @dragstart=${on(onDragStart)}
+           @dragover=${on(onDragOver)}
+@@ -1014,6 +1025,7 @@
+                     @select=${on((event: UI.TreeOutline.TreeViewElement.SelectEvent) => onSelect(true, Boolean(event.detail?.selectedByUser)))}
+                     @contextmenu=${on(onContextMenu)}
+                     @mousemove=${on(onClosingMouseMove)}
++                    @mousedown=${on(onMouseDown)}
+                     @dragstart=${on(onDragStart)}
+                     @dragover=${on(onClosingTagDragOver)}
+                     @dragleave=${on(onDragLeave)}
+@@ -1059,11 +1071,15 @@
+   const totalVisibleRows = input.maxRowsShown ? countAllVisibleRows() : 0;
+   const truncatedLines = input.maxRowsShown ? Math.max(0, totalVisibleRows - input.maxRowsShown) : 0;
+ 
++  // This widget renders without a shadow root, so you must scope its
++  // stylesheets. Otherwise, broad rules such as `* {min-width: 0}` in
++  // `inspectorCommon.css` apply to the host's whole tree scope and break the
++  // layout of hosts such as the AI assistance chat.
+   // clang-format off
+   render(html`
+-    <style>${UI.inspectorCommonStyles}</style>
+-    <style>${elementsTreeOutlineStyles}</style>
+-    <style>${CodeHighlighter.codeHighlighterStyles}</style>
++    <style>@scope to (devtools-widget > *) { ${UI.inspectorCommonStyles} }</style>
++    <style>@scope to (devtools-widget > *) { ${elementsTreeOutlineStyles} }</style>
++    <style>@scope to (devtools-widget > *) { ${CodeHighlighter.codeHighlighterStyles} }</style>
+     <div class=${disclosureClasses} style=${disclosureStyles}>
+       <devtools-tree
+         class="elements-tree-outline ${input.wrap ? '' : 'elements-tree-nowrap'} ${input.hideGutter ? 'elements-hide-gutter' : ''} ${isSingleNode ? 'single-node' : ''}"
+diff --git a/front_end/panels/event_listeners/BUILD.gn b/front_end/panels/event_listeners/BUILD.gn
+index 3282bc1..68f8726 100644
+--- a/front_end/panels/event_listeners/BUILD.gn
++++ b/front_end/panels/event_listeners/BUILD.gn
+@@ -58,8 +58,12 @@
+ 
+   ts_deps = [
+     ":bundle",
++    "../../core/common:bundle",
++    "../../core/platform:bundle",
+     "../../core/sdk:bundle",
+     "../../generated",
+     "../../testing",
++    "../../ui/legacy:bundle",
++    "../../ui/legacy/components/object_ui:bundle",
+   ]
+ }
+diff --git a/front_end/panels/event_listeners/EventListenersView.test.ts b/front_end/panels/event_listeners/EventListenersView.test.ts
+index f26e1f2..cff5bfa 100644
+--- a/front_end/panels/event_listeners/EventListenersView.test.ts
++++ b/front_end/panels/event_listeners/EventListenersView.test.ts
+@@ -5,15 +5,23 @@
+ import {assert} from 'chai';
+ import sinon from 'sinon';
+ 
++import * as Common from '../../core/common/common.js';
++import * as Platform from '../../core/platform/platform.js';
+ import * as SDK from '../../core/sdk/sdk.js';
+ import * as Protocol from '../../generated/protocol.js';
+ import {assertScreenshot, renderElementIntoDOM} from '../../testing/DOMHelpers.js';
+ import {createTarget, describeWithEnvironment} from '../../testing/EnvironmentHelpers.js';
+ import {setupLocaleHooks} from '../../testing/LocaleHelpers.js';
++import {setUpEnvironment} from '../../testing/OverridesHelpers.js';
++import {createContentProviderUISourceCode} from '../../testing/UISourceCodeHelpers.js';
+ import {createViewFunctionStub} from '../../testing/ViewFunctionHelpers.js';
++import * as ObjectUI from '../../ui/legacy/components/object_ui/object_ui.js';
++import * as UI from '../../ui/legacy/legacy.js';
+ 
+ import * as EventListeners from './event_listeners.js';
+ 
++const {urlString} = Platform.DevToolsPath;
++
+ describeWithEnvironment('EventListenersView', () => {
+   setupLocaleHooks();
+   function assertElementDisplayStyle(
+@@ -297,42 +305,6 @@
+     assert.lengthOf(siblingMouseoverTreeElement.children(), 1);
+   });
+ 
+-  it('resets the linkifier on view updates', async () => {
+-    const target = createTarget();
+-    const domDebuggerModel = target.model(SDK.DOMDebuggerModel.DOMDebuggerModel);
+-    assert.exists(domDebuggerModel);
+-    const {eventTarget} = createMockEventTarget(target);
+-    const clickListener = createMockListener({
+-      domDebuggerModel,
+-      eventTarget,
+-      type: 'click',
+-    });
+-    sinon.stub(domDebuggerModel, 'eventListeners').withArgs(eventTarget).resolves([clickListener]);
+-
+-    const view = createViewFunctionStub(EventListeners.EventListenersView.EventListenersView);
+-    const eventListenersView = new EventListeners.EventListenersView.EventListenersView(undefined, view);
+-
+-    eventListenersView.objects = [];
+-    const {linkifier} = await view.nextInput;
+-    const resetSpy = sinon.spy(linkifier, 'reset');
+-
+-    eventListenersView.objects = [eventTarget];
+-    await view.nextInput;
+-    sinon.assert.calledOnce(resetSpy);
+-
+-    eventListenersView.filter = {showFramework: true, showPassive: true, showBlocking: true};
+-    await view.nextInput;
+-    sinon.assert.calledTwice(resetSpy);
+-
+-    view.input.togglePassiveListener(clickListener);
+-    await view.nextInput;
+-    sinon.assert.calledThrice(resetSpy);
+-
+-    view.input.removeListener(clickListener);
+-    await view.nextInput;
+-    sinon.assert.callCount(resetSpy, 4);
+-  });
+-
+   it('does not show stale event listeners when objects change while loading', async () => {
+     const target = createTarget();
+     const domDebuggerModel = target.model(SDK.DOMDebuggerModel.DOMDebuggerModel);
+@@ -381,6 +353,69 @@
+     assert.deepEqual([...view.input.listeners.keys()], ['click2']);
+   });
+ 
++  it('reveals the source location when the listener link is clicked', async () => {
++    const {debuggerWorkspaceBinding} = setUpEnvironment();
++    const target = createTarget();
++    const domDebuggerModel = target.model(SDK.DOMDebuggerModel.DOMDebuggerModel);
++    const debuggerModel = target.model(SDK.DebuggerModel.DebuggerModel);
++    assert.exists(domDebuggerModel);
++    assert.exists(debuggerModel);
++
++    const {uiSourceCode, project} = createContentProviderUISourceCode({
++      url: urlString`https://example.com/script.js`,
++      mimeType: 'text/javascript',
++    });
++    const uiLocation = uiSourceCode.uiLocation(10, 5);
++    sinon.stub(debuggerWorkspaceBinding, 'rawLocationToUILocation').resolves(uiLocation);
++    const revealStub = sinon.stub(Common.Revealer.RevealerRegistry.instance(), 'reveal').resolves();
++
++    const {eventTarget} = createMockEventTarget(target);
++    const location = new SDK.DebuggerModel.Location(debuggerModel, '1' as Protocol.Runtime.ScriptId, 10, 5);
++    const clickListener = createMockListener({
++      domDebuggerModel,
++      eventTarget,
++      type: 'click',
++      location,
++    });
++    const objectTree =
++        new ObjectUI.ObjectPropertiesSection.ObjectTree(SDK.RemoteObject.RemoteObject.fromLocalObject({}), {
++          readOnly: false,
++          propertiesMode: ObjectUI.ObjectPropertiesSection.ObjectPropertiesMode.OWN_AND_INTERNAL_AND_INHERITED,
++        });
++
++    const container = document.createElement('div');
++    renderElementIntoDOM(container, {includeCommonStyles: true});
++
++    const viewInput = {
++      listeners: new Map([['click', [{object: eventTarget, listener: clickListener, objectTree}]]]),
++      togglePassiveListener: () => {},
++      removeListener: () => false,
++      reveal: () => {},
++    };
++    EventListeners.EventListenersView.DEFAULT_VIEW(viewInput, {}, container);
++
++    await UI.Widget.Widget.allUpdatesComplete;
++    const tree = container.querySelector('devtools-tree');
++    assert.exists(tree);
++    tree.flushPendingUpdatesForTesting();
++    await debuggerWorkspaceBinding.pendingLiveLocationChangesPromise();
++
++    const [clickTreeElement] = tree.getInternalTreeOutlineForTest().rootElement().children();
++    assert.exists(clickTreeElement);
++    const [clickBar] = clickTreeElement.children();
++    assert.exists(clickBar);
++
++    const link = clickBar.listItemElement.querySelector<HTMLElement>('.event-listener-tree-subtitle .devtools-link');
++    assert.exists(link);
++    assert.strictEqual(link.textContent, 'script.js:11');
++
++    link.click();
++    sinon.assert.calledOnceWithExactly(revealStub, uiLocation, /* omitFocus= */ false);
++
++    project.dispose();
++    container.remove();
++  });
++
+   it('renders the event listeners view screenshot', async () => {
+     const target = createTarget();
+     const domDebuggerModel = target.model(SDK.DOMDebuggerModel.DOMDebuggerModel);
+diff --git a/front_end/panels/event_listeners/EventListenersView.ts b/front_end/panels/event_listeners/EventListenersView.ts
+index fe22771..51f6ccb 100644
+--- a/front_end/panels/event_listeners/EventListenersView.ts
++++ b/front_end/panels/event_listeners/EventListenersView.ts
+@@ -64,7 +64,6 @@
+   togglePassiveListener(listener: SDK.DOMDebuggerModel.EventListener): void;
+   removeListener(listener: SDK.DOMDebuggerModel.EventListener): boolean;
+   reveal(object: SDK.RemoteObject.RemoteObject): void;
+-  linkifier: Components.Linkifier.Linkifier;
+   listeners: Map<string, ListenerEntry[]>;
+   filter?: {showFramework: boolean, showPassive: boolean, showBlocking: boolean};
+ }
+@@ -167,7 +166,7 @@
+                    ?hidden=${shouldHide(listener)}>
+                  <span class=event-listener-details>
+                    ${ObjectUI.ObjectPropertiesSection.renderPropertyValue(
+-                     object, /* wasThrown */ false, /* showPreview */ false, input.linkifier)}
++                     object, /* wasThrown */ false, /* showPreview */ false)}
+                    <devtools-button
+                      .iconName=${'bin'}
+                      .variant=${Buttons.Button.Variant.ICON}
+@@ -184,9 +183,16 @@
+                          ${i18nString(UIStrings.togglePassive)}
+                      </button>` : Lit.nothing}
+                    <span class=event-listener-tree-subtitle>
+-                     ${input.linkifier.linkifyRawLocation(
+-                         listener.location(), listener.sourceURL(), /* FIXME template version */
+-                         undefined, {tabStop: true})}
++                     ${widget(Components.Linkifier.ScriptLocationLink, {
++                       target: listener.location().debuggerModel.target(),
++                       scriptId: listener.location().scriptId,
++                       sourceURL: listener.sourceURL(),
++                       lineNumber: listener.location().lineNumber,
++                       options: {
++                         columnNumber: listener.location().columnNumber,
++                         tabStop: true,
++                       },
++                     })}
+                    </span>
+                  </span>
+                  <ul role=group ${widget(ObjectUI.ObjectPropertiesSection.ObjectTreeWidget, {objectTree})} ${
+@@ -205,7 +211,6 @@
+   #filter: {showFramework: boolean, showPassive: boolean, showBlocking: boolean}|undefined;
+   #view: View;
+   #listeners?: Map<string, ListenerEntry[]>;
+-  #linkifier = new Components.Linkifier.Linkifier();
+   constructor(element?: HTMLElement, view: View = DEFAULT_VIEW) {
+     super(element);
+     this.#view = view;
+@@ -278,9 +283,7 @@
+           void Common.Revealer.reveal(object);
+         }
+       },
+-      linkifier: this.#linkifier,
+     };
+-    this.#linkifier.reset();
+     this.#view(input, {}, this.contentElement);
+     this.eventListenersArrivedForTest();
+   }
+diff --git a/front_end/ui/legacy/Treeoutline.test.ts b/front_end/ui/legacy/Treeoutline.test.ts
+index 06ba90c..0722ee2 100644
+--- a/front_end/ui/legacy/Treeoutline.test.ts
++++ b/front_end/ui/legacy/Treeoutline.test.ts
+@@ -616,6 +616,58 @@
+     assert.strictEqual((input.getRootNode() as Document | ShadowRoot).activeElement, input);
+   });
+ 
++  it('does not steal focus from focused child inside selected listItemElement on mousedown', async () => {
++    const component = await makeTree(html`<devtools-tree .template=${html`
++      <ul role="tree">
++         <li role="treeitem">
++           <input type="text" />
++           Node
++         </li>
++      </ul>
++    `}></devtools-tree>`);
++    const treeOutline = component.getInternalTreeOutlineForTest();
++    const node = treeOutline.rootElement().children()[0];
++    node.select();
++    assert.isTrue(node.selected);
++
++    const input = node.listItemElement.querySelector('input');
++    assert.isNotNull(input);
++    input.focus();
++    assert.strictEqual((input.getRootNode() as Document | ShadowRoot).activeElement, input);
++
++    const event = new MouseEvent('mousedown', {bubbles: true, composed: true, cancelable: true});
++    input.dispatchEvent(event);
++    assert.isTrue(node.selected);
++    assert.strictEqual((input.getRootNode() as Document | ShadowRoot).activeElement, input);
++  });
++
++  it('moves focus to another row on mousedown while a child of the selected row has focus', async () => {
++    const component = await makeTree(html`<devtools-tree .template=${html`
++      <ul role="tree">
++         <li role="treeitem">
++           <input type="text" />
++           First Node
++         </li>
++         <li role="treeitem">Second Node</li>
++      </ul>
++    `}></devtools-tree>`);
++    const treeOutline = component.getInternalTreeOutlineForTest();
++    const [firstNode, secondNode] = treeOutline.rootElement().children();
++    firstNode.select();
++
++    const input = firstNode.listItemElement.querySelector('input');
++    assert.isNotNull(input);
++    input.focus();
++    assert.strictEqual((input.getRootNode() as Document | ShadowRoot).activeElement, input);
++
++    const event = new MouseEvent('mousedown', {bubbles: true, composed: true, cancelable: true});
++    secondNode.listItemElement.dispatchEvent(event);
++    assert.isFalse(firstNode.selected);
++    assert.isTrue(secondNode.selected);
++    assert.isTrue(secondNode.listItemElement.hasFocus());
++    assert.strictEqual((input.getRootNode() as Document | ShadowRoot).activeElement, secondNode.listItemElement);
++  });
++
+   it('applies jslog contexts to tree elements', async () => {
+     const component = await makeTree(html`
+       <devtools-tree
+diff --git a/front_end/ui/legacy/Treeoutline.ts b/front_end/ui/legacy/Treeoutline.ts
+index dd875f6..c1dc4c4 100644
+--- a/front_end/ui/legacy/Treeoutline.ts
++++ b/front_end/ui/legacy/Treeoutline.ts
+@@ -1242,7 +1242,9 @@
+   select(omitFocus?: boolean, selectedByUser?: boolean): boolean {
+     omitFocus = omitFocus || this.disableSelectFocus;
+     if (!this.treeOutline || !this.selectable || this.selected) {
+-      if (!omitFocus) {
++      // An inline editor or other interactive child may already hold the focus
++      // inside this row; re-selecting must not take it away from them.
++      if (!omitFocus && !this.listItemElement.hasFocus()) {
+         this.listItemElement.focus();
+       }
+       return false;
+diff --git a/front_end/ui/legacy/UIUtils.test.ts b/front_end/ui/legacy/UIUtils.test.ts
+index 9de6f38..8810794 100644
+--- a/front_end/ui/legacy/UIUtils.test.ts
++++ b/front_end/ui/legacy/UIUtils.test.ts
+@@ -50,6 +50,35 @@
+     });
+   });
+ 
++  describe('isBeingEdited', () => {
++    it('returns true for the edited element and its descendants', () => {
++      const parent = document.createElement('div');
++      const child = parent.createChild('span');
++      const grandChild = child.createChild('b');
++      UI.UIUtils.markBeingEdited(parent, true);
++      try {
++        assert.isTrue(UI.UIUtils.isBeingEdited(parent));
++        assert.isTrue(UI.UIUtils.isBeingEdited(child));
++        assert.isTrue(UI.UIUtils.isBeingEdited(grandChild));
++      } finally {
++        UI.UIUtils.markBeingEdited(parent, false);
++      }
++      assert.isFalse(UI.UIUtils.isBeingEdited(parent));
++      assert.isFalse(UI.UIUtils.isBeingEdited(grandChild));
++    });
++
++    it('returns false for an element outside of the edited subtree', () => {
++      const edited = document.createElement('div');
++      const other = document.createElement('div');
++      UI.UIUtils.markBeingEdited(edited, true);
++      try {
++        assert.isFalse(UI.UIUtils.isBeingEdited(other));
++      } finally {
++        UI.UIUtils.markBeingEdited(edited, false);
++      }
++    });
++  });
++
+   describe('LongClickController', () => {
+     it('does not invoke callback when disposed', () => {
+       const clock = sinon.useFakeTimers({toFake: ['setTimeout']});
+diff --git a/front_end/ui/legacy/UIUtils.ts b/front_end/ui/legacy/UIUtils.ts
+index 72c04c5..a4bc951 100644
+--- a/front_end/ui/legacy/UIUtils.ts
++++ b/front_end/ui/legacy/UIUtils.ts
+@@ -345,7 +345,7 @@
+ 
+   let currentElement: (Element|null)|Element = element;
+   while (currentElement) {
+-    if (elementsBeingEdited.has(element)) {
++    if (elementsBeingEdited.has(currentElement)) {
+       return true;
+     }
+     currentElement = currentElement.parentElementOrShadowHost();
+diff --git a/test/e2e/elements/BUILD.gn b/test/e2e/elements/BUILD.gn
+index d567fea..c679ff2 100644
+--- a/test/e2e/elements/BUILD.gn
++++ b/test/e2e/elements/BUILD.gn
+@@ -25,6 +25,7 @@
+     "flexbox-editor.test.ts",
+     "grid-editor.test.ts",
+     "grid-lanes-editor.test.ts",
++    "inline-attribute-editing.test.ts",
+     "inspect-element.test.ts",
+     "layout-pane.test.ts",
+     "oopif-elements.test.ts",
+diff --git a/test/e2e/elements/inline-attribute-editing.test.ts b/test/e2e/elements/inline-attribute-editing.test.ts
+new file mode 100644
+index 0000000..d8da614
+--- /dev/null
++++ b/test/e2e/elements/inline-attribute-editing.test.ts
+@@ -0,0 +1,117 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++import {assert} from 'chai';
++import type * as puppeteer from 'puppeteer-core';
++
++import {
++  expandSelectedNodeRecursively,
++  waitForAndClickTreeElementWithPartialText,
++  waitForPartialContentOfSelectedElementsNode,
++} from '../helpers/elements-helpers.js';
++import type {DevToolsPage} from '../shared/DevToolsPage.js';
++import type {InspectedPage} from '../shared/InspectedPage.js';
++
++const CLASS_VALUE = 'align_left color_primary en_iconbox_kunden';
++const WORD = 'color_primary';
++const EDITOR_SELECTOR = '.webkit-html-attribute.being-edited';
++
++async function startEditingClassAttribute(devToolsPage: DevToolsPage): Promise<puppeteer.ElementHandle<Element>> {
++  const selected = await devToolsPage.waitFor('.selected[role="treeitem"]');
++  // `class` is the first attribute of the test node.
++  await devToolsPage.doubleClick('.webkit-html-attribute', {root: selected});
++  return await devToolsPage.waitFor(EDITOR_SELECTOR);
++}
++
++/**
++ * Returns the viewport box of `word` inside the attribute value of the editor.
++ */
++async function getWordBox(editor: puppeteer.ElementHandle<Element>,
++                          word: string): Promise<{left: number, right: number, y: number}> {
++  return await editor.evaluate((element, word) => {
++    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
++    let node: Node|null;
++    while ((node = walker.nextNode())) {
++      const index = node.textContent?.indexOf(word) ?? -1;
++      if (index === -1) {
++        continue;
++      }
++      const range = document.createRange();
++      range.setStart(node, index);
++      range.setEnd(node, index + word.length);
++      const rect = range.getBoundingClientRect();
++      return {left: rect.left, right: rect.right, y: rect.top + rect.height / 2};
++    }
++    throw new Error(`Word ${word} not found in the editor`);
++  }, word);
++}
++
++async function getSelectionText(devToolsPage: DevToolsPage): Promise<string> {
++  return await devToolsPage.page.evaluate(() => {
++    let root: Document|ShadowRoot = document;
++    while (root.activeElement?.shadowRoot) {
++      root = root.activeElement.shadowRoot;
++    }
++    return (root as unknown as {getSelection(): Selection | null}).getSelection()?.toString() ?? '';
++  });
++}
++
++async function isEditorFocused(devToolsPage: DevToolsPage): Promise<boolean> {
++  const active = await devToolsPage.activeElement();
++  return await active.evaluate(e => e.classList.contains('being-edited'));
++}
++
++describe('Inline attribute editing in the Elements tab', function() {
++  async function setup(devToolsPage: DevToolsPage,
++                       inspectedPage: InspectedPage): Promise<puppeteer.ElementHandle<Element>> {
++    await inspectedPage.goToHtml(`<div class="${CLASS_VALUE}" id="target">content</div>`);
++    await expandSelectedNodeRecursively(devToolsPage);
++    await waitForAndClickTreeElementWithPartialText(devToolsPage, '"target"');
++    await waitForPartialContentOfSelectedElementsNode(devToolsPage, '"target"');
++    return await startEditingClassAttribute(devToolsPage);
++  }
++
++  it('keeps the editor open and places the caret on click', async ({devToolsPage, inspectedPage}) => {
++    const editor = await setup(devToolsPage, inspectedPage);
++    const box = await getWordBox(editor, WORD);
++
++    await devToolsPage.page.mouse.click((box.left + box.right) / 2, box.y);
++    await devToolsPage.raf();
++
++    assert.isNotNull(await devToolsPage.$(EDITOR_SELECTOR), 'editor must stay open');
++    assert.isTrue(await isEditorFocused(devToolsPage), 'editor must keep the focus');
++    assert.strictEqual(await getSelectionText(devToolsPage), '', 'click must collapse the selection to a caret');
++  });
++
++  it('selects a single word on double click inside the editor', async ({devToolsPage, inspectedPage}) => {
++    const editor = await setup(devToolsPage, inspectedPage);
++    const box = await getWordBox(editor, WORD);
++
++    await devToolsPage.page.mouse.click((box.left + box.right) / 2, box.y, {count: 2});
++    await devToolsPage.raf();
++
++    assert.isNotNull(await devToolsPage.$(EDITOR_SELECTOR), 'editor must stay open');
++    assert.isTrue(await isEditorFocused(devToolsPage), 'editor must keep the focus');
++    // Windows includes the trailing space in the native word selection.
++    assert.strictEqual((await getSelectionText(devToolsPage)).trim(), WORD);
++  });
++
++  it('selects text on drag inside the editor and does not drag the node', async ({devToolsPage, inspectedPage}) => {
++    const editor = await setup(devToolsPage, inspectedPage);
++    const box = await getWordBox(editor, WORD);
++    const {mouse} = devToolsPage.page;
++
++    await mouse.move(box.left, box.y);
++    await mouse.down();
++    await mouse.move((box.left + box.right) / 2, box.y, {steps: 5});
++    await mouse.move(box.right, box.y, {steps: 5});
++    await mouse.up();
++    await devToolsPage.raf();
++
++    assert.isNotNull(await devToolsPage.$(EDITOR_SELECTOR), 'editor must stay open');
++    assert.isTrue(await isEditorFocused(devToolsPage), 'editor must keep the focus');
++    assert.strictEqual(await getSelectionText(devToolsPage), WORD);
++    assert.isNull(await devToolsPage.$('.elements-drag-over'), 'no DOM node drag must start');
++  });
++});

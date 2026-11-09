@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Private build toolchain. Upstream npm is unchanged except for the complete
-// official Undici security update. Never use or modify an ambient/global npm.
+// official dependency security updates. Never use or modify an ambient/global npm.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import https from 'node:https';
@@ -10,13 +10,17 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const TOOLCHAIN = Object.freeze({
-  id: 'npm-12.2.1-undici-6.29.1', npm: '12.2.1', undici: '6.29.1',
-  treeSha256: '9ebc2520cba8d11db8eb1ad2dcf01cc1f5be769a880631166553660c0837b0ca',
-  files: 1984,
+  id: 'npm-12.2.2-security-20261109', npm: '12.2.2', undici: '6.29.1',
+  treeSha256: '504d1c0eaa0621f2e644739ed26e2d7ce73b6bcd32b9a38788d0b58bbd2c740b',
+  files: 2101,
 });
 export const ARCHIVES = Object.freeze({
-  npm: Object.freeze({name:'npm-12.2.1.tgz', url:'https://registry.npmjs.org/npm/-/npm-12.2.1.tgz', integrity:'sha512-bKCmFRVT/BB+YPEYbZwQ1XUI3N5t4xKSpU1MxOjo7z3iWzKBJ0ZXRC1xFdEN+TC7N5TdywaBzf2dMXGJq/e2PQ=='}),
-  undici: Object.freeze({name:'undici-6.29.1.tgz', url:'https://registry.npmjs.org/undici/-/undici-6.29.1.tgz', integrity:'sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA=='}),
+  npm: Object.freeze({"name":"npm-12.2.2.tgz","package":"npm","version":"12.2.2","url":"https://registry.npmjs.org/npm/-/npm-12.2.2.tgz","integrity":"sha512-KglgbZyacf7jH+FHuNRqVuCzQi8VhI2a7J87Ix43FsPTuZoGWmIXXGdZtBUOA79vwL+IJREqURVzupA7PsQTcA=="}),
+  undici: Object.freeze({"name":"undici-6.29.1.tgz","package":"undici","version":"6.29.1","url":"https://registry.npmjs.org/undici/-/undici-6.29.1.tgz","integrity":"sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA=="}),
+  glob: Object.freeze({"name":"glob-14.0.3.tgz","package":"glob","version":"14.0.3","url":"https://registry.npmjs.org/glob/-/glob-14.0.3.tgz","integrity":"sha512-A1vjIwC3qpdCso45Iw127gnp7sPhqgY8lUQhDrArIs+GbmfaaVPFuoyy7WyLT9EPZCRZ7j7aLdwUhQmHWesEow=="}),
+  minimatch: Object.freeze({"name":"minimatch-11.0.2.tgz","package":"minimatch","version":"11.0.2","url":"https://registry.npmjs.org/minimatch/-/minimatch-11.0.2.tgz","integrity":"sha512-pWTgz5CN3tjqyZNSK2tePlSmu9IwM41q8yn8Usdqqwe9TIHh+9dEpLLjF4uApsfPEAZY71qtSiA2B2APEr+1Yw=="}),
+  pathScurry: Object.freeze({"name":"path-scurry-3.0.0.tgz","package":"path-scurry","version":"3.0.0","url":"https://registry.npmjs.org/path-scurry/-/path-scurry-3.0.0.tgz","integrity":"sha512-1pTbQqH1wIwMi/eleQ5leFTTCkzFsPcgXNjwOA8YGGW/W4/kHT3dssE7Z6NH+zuqNLOzOB0uaD61yl7cAcVhgg=="}),
+  matcher: Object.freeze({"name":"nonrecursive-glob-match-1.1.0.tgz","package":"@isaacs/nonrecursive-glob-match","version":"1.1.0","url":"https://registry.npmjs.org/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.1.0.tgz","integrity":"sha512-GPm/Dbvk5RLmhRnxXIa7nTpK0xtl4E0wj0MslsuNiJ1FIROU+2+9lgUC/dgF7Ey4QCWhfEsgxilMRMCdHPfDfw=="}),
 });
 const self = fileURLToPath(import.meta.url);
 const defaultCache = path.resolve(path.dirname(self), '..', '.tooling', 'npm');
@@ -66,12 +70,16 @@ export async function verifyNpm(cli) {
   if (resolved !== path.join(root, 'node_modules/undici/package.json')) throw new Error('npm resolves an unexpected Undici copy.');
   const undici = await json(resolved);
   if (undici.name !== 'undici' || undici.version !== TOOLCHAIN.undici) throw new Error(`npm must resolve patched Undici ${TOOLCHAIN.undici}; found ${undici.version}.`);
+  for (const archive of Object.values(ARCHIVES).filter(item => item.package !== 'npm')) {
+    const dependency = await json(path.join(root, 'node_modules', archive.package, 'package.json'));
+    if (dependency.name !== archive.package || dependency.version !== archive.version) throw new Error(`Managed npm dependency mismatch: ${archive.package}.`);
+  }
   const fingerprint = await treeFingerprint(root);
   if (fingerprint.files !== TOOLCHAIN.files || fingerprint.sha256 !== TOOLCHAIN.treeSha256) throw new Error('Managed npm file integrity mismatch. Remove the private toolchain cache and prepare it again.');
   return {id:TOOLCHAIN.id, npm:pkg.version, undici:undici.version, root, cli,
     bin:path.join(path.dirname(root),'bin'), treeSha256:fingerprint.sha256, files:fingerprint.files,
     consumer:'node-gyp@13.0.0', consumerRange:'^6.25.0', resolvedUndici:'node_modules/undici/package.json',
-    modification:'Official npm 12.2.1 with only its bundled Undici replaced by official 6.29.1.',
+    modification:'Official npm 12.2.2 with hash-verified upstream Undici, glob, minimatch, path-scurry and matcher security updates.',
     sources:ARCHIVES};
 }
 
@@ -136,11 +144,16 @@ export async function ensureNpm({cacheRoot=defaultCache}={}) {
       verifyIntegrity(await fs.readFile(file),archive.integrity);
     }
     stage=await fs.mkdtemp(path.join(cache,'.stage-'));
-    const staged=path.join(stage,'npm'),replacement=path.join(stage,'undici');
+    const staged=path.join(stage,'npm');
     await extract(path.join(downloads,ARCHIVES.npm.name),staged);
-    await extract(path.join(downloads,ARCHIVES.undici.name),replacement);
-    await removeTree(path.join(staged,'node_modules/undici'));
-    await fs.rename(replacement,path.join(staged,'node_modules/undici'));
+    for (const [key,archive] of Object.entries(ARCHIVES)) {
+      if (key === 'npm') continue;
+      const replacement=path.join(stage,key),destination=path.join(staged,'node_modules',archive.package);
+      await extract(path.join(downloads,archive.name),replacement);
+      await removeTree(destination);
+      await fs.mkdir(path.dirname(destination),{recursive:true});
+      await fs.rename(replacement,destination);
+    }
     await verifyNpm(path.join(staged,'bin/npm-cli.js'));
     await fs.mkdir(home,{recursive:true});
     await fs.rename(staged,root);

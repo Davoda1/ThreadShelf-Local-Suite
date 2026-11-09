@@ -8,6 +8,11 @@ import { encodeBuffer, decodeBuffer, normalizeProfile } from './codec.mjs';
 
 export const CONTENT_FORMAT = 'threadshelf-content-v2';
 export const CONTENT_BLOCK_BYTES = 16 * 1024 * 1024;
+// A single source record is limited to 512 MiB by the importer. A normalized
+// conversation may retain that record plus its readable turns, so allow twice
+// that aggregate while bounding every JSON value assembled for parsing.
+export const CONTENT_BLOB_BYTES = 512 * 1024 * 1024;
+export const CONTENT_DOCUMENT_BYTES = 2 * CONTENT_BLOB_BYTES;
 export const DEFAULT_CONTENT_CACHE_BYTES = 256 * 1024 * 1024;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const validHash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
@@ -29,6 +34,7 @@ export function validateObject(object) {
 
 function validateBlob(blob) {
   if (!blob || !integer(blob.bytes) || !Array.isArray(blob.blocks) || !blob.blocks.length || blob.blocks.length > 1000000) throw new Error('Invalid Local content record.');
+  if (blob.bytes > CONTENT_BLOB_BYTES) throw new Error('Local content record exceeds the 512 MiB safety limit.');
   let bytes = 0;
   for (const block of blob.blocks) { validateObject(block); bytes += block.bytes; }
   if (bytes !== blob.bytes || !Number.isSafeInteger(bytes)) throw new Error('Local content record size is inconsistent.');
@@ -38,10 +44,11 @@ function validateBlob(blob) {
 export function validateContentRef(ref) {
   if (!ref || ref.format !== CONTENT_FORMAT || ref.version !== 1 || !integer(ref.turnCount) || ref.turnCount < 1 || !Array.isArray(ref.groups) || !ref.groups.length || ref.groups.length > ref.turnCount) throw new Error('Unsupported Local conversation content format.');
   validateBlob(ref.header);
-  let turns = 0;
+  let turns = 0, bytes = ref.header.bytes;
   for (const group of ref.groups) {
     if (!integer(group.first) || group.first !== turns || !integer(group.count) || group.count < 1) throw new Error('Local conversation turn ordering is inconsistent.');
-    validateBlob(group.blob); turns += group.count;
+    validateBlob(group.blob); turns += group.count; bytes += group.blob.bytes;
+    if (bytes > CONTENT_DOCUMENT_BYTES) throw new Error('Local conversation content exceeds the 1 GiB safety limit.');
   }
   if (turns !== ref.turnCount) throw new Error('Local conversation turn count is inconsistent.');
   return ref;
@@ -141,6 +148,7 @@ export class ContentStore {
 
   writeBlob(bytes) {
     if (!Buffer.isBuffer(bytes)) bytes = Buffer.from(bytes);
+    if (bytes.length > CONTENT_BLOB_BYTES) throw new Error('Local content record exceeds the 512 MiB safety limit.');
     const blocks = [];
     for (let offset = 0; offset < bytes.length; offset += this.blockBytes) blocks.push(this.writeBlock(bytes.subarray(offset, offset + this.blockBytes)));
     if (!blocks.length) blocks.push(this.writeBlock(Buffer.alloc(0)));

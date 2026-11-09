@@ -1,0 +1,1074 @@
+diff --git a/gn/sksl_tests.gni b/gn/sksl_tests.gni
+index cbce6d7..ab4dccb 100644
+--- a/gn/sksl_tests.gni
++++ b/gn/sksl_tests.gni
+@@ -547,6 +547,7 @@
+   "runtime_errors/InvalidColorFilterFeatures.rtcf",
+   "runtime_errors/InvalidColorFilterMain.rtcf",
+   "runtime_errors/InvalidShaderMain.rts",
++  "runtime_errors/InvalidTypeInStruct.rts",
+   "runtime_errors/InvalidUniformTypes.rts",
+   "runtime_errors/InvalidUniformTypesES3.rts",
+   "runtime_errors/LoopConditionErrors.rts",
+diff --git a/resources/sksl/BUILD.bazel b/resources/sksl/BUILD.bazel
+index e937158..7c32781 100644
+--- a/resources/sksl/BUILD.bazel
++++ b/resources/sksl/BUILD.bazel
+@@ -703,6 +703,7 @@
+         "runtime_errors/InvalidColorFilterFeatures.rtcf",
+         "runtime_errors/InvalidColorFilterMain.rtcf",
+         "runtime_errors/InvalidShaderMain.rts",
++        "runtime_errors/InvalidTypeInStruct.rts",
+         "runtime_errors/InvalidUniformTypes.rts",
+         "runtime_errors/InvalidUniformTypesES3.rts",
+         "runtime_errors/LoopConditionErrors.rts",
+diff --git a/resources/sksl/errors/Ossfuzz56373.sksl b/resources/sksl/errors/Ossfuzz56373.sksl
+index f369f9d..276b355 100644
+--- a/resources/sksl/errors/Ossfuzz56373.sksl
++++ b/resources/sksl/errors/Ossfuzz56373.sksl
+@@ -4,5 +4,4 @@
+ 
+ /*%%*
+ expected a type, found 'bufferThree'
+-invalid type
+ *%%*/
+diff --git a/resources/sksl/runtime_errors/InvalidTypeInStruct.rts b/resources/sksl/runtime_errors/InvalidTypeInStruct.rts
+new file mode 100644
+index 0000000..5cae8b8
+--- /dev/null
++++ b/resources/sksl/runtime_errors/InvalidTypeInStruct.rts
+@@ -0,0 +1,11 @@
++// In runtime effects, private types like sampler2D are aliases of the invalid type.
++// See kPrivateTypes in SkSLModuleLoader.cpp for the exhaustive list.
++struct S { sampler2D x; };
++struct T { texture2D x; };
++
++void main() {}
++
++/*%%*
++invalid type
++invalid type
++*%%*/
+diff --git a/src/core/SkImageFilter.cpp b/src/core/SkImageFilter.cpp
+index 35b9768..fc2cb43 100644
+--- a/src/core/SkImageFilter.cpp
++++ b/src/core/SkImageFilter.cpp
+@@ -135,10 +135,10 @@
+ // SkImageFilter_Base
+ ///////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-static int32_t next_image_filter_unique_id() {
+-    static std::atomic<int32_t> nextID{1};
++static uint64_t next_image_filter_unique_id() {
++    static std::atomic<uint64_t> nextID{1};
+ 
+-    int32_t id;
++    uint64_t id;
+     do {
+         id = nextID.fetch_add(1, std::memory_order_relaxed);
+     } while (id == 0);
+diff --git a/src/core/SkImageFilterCache.h b/src/core/SkImageFilterCache.h
+index a2909e0..92f40eb 100644
+--- a/src/core/SkImageFilterCache.h
++++ b/src/core/SkImageFilterCache.h
+@@ -21,7 +21,7 @@
+ namespace skif { class FilterResult; }
+ 
+ struct SkImageFilterCacheKey {
+-    SkImageFilterCacheKey(const uint32_t uniqueID, const SkMatrix& matrix,
++    SkImageFilterCacheKey(const uint64_t uniqueID, const SkMatrix& matrix,
+         const SkIRect& clipBounds, uint32_t srcGenID, const SkIRect& srcSubset)
+         : fUniqueID(uniqueID)
+         , fMatrix(matrix)
+@@ -29,18 +29,20 @@
+         , fSrcGenID(srcGenID)
+         , fSrcSubset(srcSubset) {
+         // Assert that Key is tightly-packed, since it is hashed.
+-        static_assert(sizeof(SkImageFilterCacheKey) == sizeof(uint32_t) + sizeof(SkMatrix) +
+-                                     sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t),
++        static_assert(sizeof(SkImageFilterCacheKey) == sizeof(uint64_t) + sizeof(SkMatrix) +
++                                     sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t) +
++                                     sizeof(uint32_t),
+                                      "image_filter_key_tight_packing");
+         fMatrix.getType();  // force initialization of type, so hashes match
+         SkASSERT(fMatrix.isFinite());   // otherwise we can't rely on == self when comparing keys
+     }
+ 
+-    uint32_t fUniqueID;
++    uint64_t fUniqueID;
+     SkMatrix fMatrix;
+     SkIRect fClipBounds;
+     uint32_t fSrcGenID;
+     SkIRect fSrcSubset;
++    uint32_t fPad = 0;
+ 
+     bool operator==(const SkImageFilterCacheKey& other) const {
+         return fUniqueID == other.fUniqueID &&
+diff --git a/src/core/SkImageFilter_Base.h b/src/core/SkImageFilter_Base.h
+index 8beea3d..9b3d461 100644
+--- a/src/core/SkImageFilter_Base.h
++++ b/src/core/SkImageFilter_Base.h
+@@ -127,7 +127,7 @@
+     using MatrixCapability = skif::MatrixCapability;
+     MatrixCapability getCTMCapability() const;
+ 
+-    uint32_t uniqueID() const { return fUniqueID; }
++    uint64_t uniqueID() const { return fUniqueID; }
+ 
+     static SkFlattenable::Type GetFlattenableType() {
+         return kSkImageFilter_Type;
+@@ -302,7 +302,7 @@
+     skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
+ 
+     bool fUsesSrcInput;
+-    uint32_t fUniqueID; // Globally unique
++    uint64_t fUniqueID; // Globally unique
+ 
+     using INHERITED = SkImageFilter;
+ };
+diff --git a/src/gpu/ganesh/GrResourceCache.cpp b/src/gpu/ganesh/GrResourceCache.cpp
+index 80727af..2e1bae5 100644
+--- a/src/gpu/ganesh/GrResourceCache.cpp
++++ b/src/gpu/ganesh/GrResourceCache.cpp
+@@ -295,8 +295,14 @@
+                 old->resourcePriv().isPurgeable()) {
+                 old->cacheAccess().release();
+             } else {
+-                // removeUniqueKey expects an external owner of the resource.
+-                this->removeUniqueKey(sk_ref_sp(old).get());
++                // GrResourceCache::removeUniqueKey() expects a non-zero refcount, we refcount with
++                // GrResourceCache::refResource() instead of sk_ref_sp since the first ref of a
++                // resource must be by the resource cache. In the case that this is the first ref
++                // on the resource, refResource() also transfers the resource to the unpurgeable
++                // queue, which is required as unref() expects the resource to be there.
++                this->refResource(old);
++                this->removeUniqueKey(old);
++                old->unref();
+             }
+         }
+         SkASSERT(nullptr == fUniqueHash.find(newKey));
+diff --git a/src/gpu/ganesh/gl/GrGLCaps.cpp b/src/gpu/ganesh/gl/GrGLCaps.cpp
+index 0682b44..b7b863f 100644
+--- a/src/gpu/ganesh/gl/GrGLCaps.cpp
++++ b/src/gpu/ganesh/gl/GrGLCaps.cpp
+@@ -2195,7 +2195,7 @@
+                     auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                     ioFormat.fColorType = GrColorType::kRGB_888x;
+                     ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+-                    ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
++                    ioFormat.fExternalTexImageFormat = 0;
+                     ioFormat.fExternalReadFormat = GR_GL_RGBA;
+                 }
+             }
+diff --git a/src/gpu/ganesh/vk/GrVkGpu.cpp b/src/gpu/ganesh/vk/GrVkGpu.cpp
+index e41868a..0c7e419 100644
+--- a/src/gpu/ganesh/vk/GrVkGpu.cpp
++++ b/src/gpu/ganesh/vk/GrVkGpu.cpp
+@@ -2658,6 +2658,7 @@
+         case VK_SUCCESS:
+             return true;
+         case VK_ERROR_DEVICE_LOST:
++        case VK_ERROR_UNKNOWN:
+             if (!fDeviceIsLost) {
+                 // Callback should only be invoked once, and device should be marked as lost first.
+                 fDeviceIsLost = true;
+@@ -2665,7 +2666,8 @@
+                                                 device(),
+                                                 fDeviceLostContext,
+                                                 fDeviceLostProc,
+-                                                vkCaps().supportsDeviceFaultInfo());
++                                                vkCaps().supportsDeviceFaultInfo(),
++                                                /*isUnknownError=*/result == VK_ERROR_UNKNOWN);
+             }
+             return false;
+         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+diff --git a/src/gpu/graphite/vk/VulkanSharedContext.cpp b/src/gpu/graphite/vk/VulkanSharedContext.cpp
+index 2b27b49..4ddcce6 100644
+--- a/src/gpu/graphite/vk/VulkanSharedContext.cpp
++++ b/src/gpu/graphite/vk/VulkanSharedContext.cpp
+@@ -268,6 +268,7 @@
+     case VK_SUCCESS:
+         return true;
+     case VK_ERROR_DEVICE_LOST:
++    case VK_ERROR_UNKNOWN:
+         {
+             SkAutoMutexExclusive lock(fDeviceIsLostMutex);
+             if (fDeviceIsLost) {
+@@ -282,7 +283,8 @@
+                                         device(),
+                                         fDeviceLostContext,
+                                         fDeviceLostProc,
+-                                        vulkanCaps().supportsDeviceFaultInfo());
++                                        vulkanCaps().supportsDeviceFaultInfo(),
++                                        /*isUnknownError=*/result == VK_ERROR_UNKNOWN);
+         return false;
+     case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+     case VK_ERROR_OUT_OF_HOST_MEMORY:
+diff --git a/src/gpu/vk/VulkanUtilsPriv.cpp b/src/gpu/vk/VulkanUtilsPriv.cpp
+index 0c17025..943f615 100644
+--- a/src/gpu/vk/VulkanUtilsPriv.cpp
++++ b/src/gpu/vk/VulkanUtilsPriv.cpp
+@@ -232,7 +232,8 @@
+                               VkDevice vkDevice,
+                               skgpu::VulkanDeviceLostContext deviceLostContext,
+                               skgpu::VulkanDeviceLostProc deviceLostProc,
+-                              bool supportsDeviceFaultInfoExtension) {
++                              bool supportsDeviceFaultInfoExtension,
++                              bool isUnknownError) {
+     if (!deviceLostProc) {
+         return;
+     }
+@@ -241,6 +242,15 @@
+     std::vector<VkDeviceFaultVendorInfoEXT> vendorInfos = {};
+     std::vector<std::byte> vendorBinaryData = {};
+ 
++    if (isUnknownError) {
++        deviceLostProc(deviceLostContext,
++                       "No details: A VK_UNKNOWN_ERROR has occured.",
++                       addressInfos,
++                       vendorInfos,
++                       vendorBinaryData);
++        return;
++    }
++
+     if (!supportsDeviceFaultInfoExtension) {
+         deviceLostProc(deviceLostContext,
+                        "No details: VK_EXT_device_fault not available/enabled.",
+diff --git a/src/gpu/vk/VulkanUtilsPriv.h b/src/gpu/vk/VulkanUtilsPriv.h
+index c9cadcd..9865b0d 100644
+--- a/src/gpu/vk/VulkanUtilsPriv.h
++++ b/src/gpu/vk/VulkanUtilsPriv.h
+@@ -39,9 +39,9 @@
+ namespace skgpu {
+ 
+ class ShaderErrorHandler;
+-struct VulkanInterface;
+-struct VulkanBackendContext;
+ class VulkanExtensions;
++struct VulkanBackendContext;
++struct VulkanInterface;
+ 
+ enum VkVendor {
+     kAMD_VkVendor = 0x1002,
+@@ -362,15 +362,17 @@
+ #endif // SK_BUILD_FOR_ANDROID
+ 
+ /**
+- * Calls faultProc with faultContext; passes debug info if VK_EXT_device_fault is supported/enabled.
++ * Calls faultProc with faultContext; passes debug info if VK_EXT_device_fault is supported/enabled
++ * and the error is VK_ERROR_DEVICE_LOST.
+  *
+- * Note: must only be called *after* receiving VK_ERROR_DEVICE_LOST.
++ * Note: must only be called *after* receiving VK_ERROR_DEVICE_LOST or VK_ERROR_UNKNOWN.
+  */
+ void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
+                               VkDevice vkDevice,
+                               skgpu::VulkanDeviceLostContext faultContext,
+                               skgpu::VulkanDeviceLostProc faultProc,
+-                              bool supportsDeviceFaultInfoExtension);
++                              bool supportsDeviceFaultInfoExtension,
++                              bool isUnknownError);
+ 
+ sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext&,
+                                             const skgpu::VulkanExtensions* extOverride,
+diff --git a/src/sksl/SkSLParser.cpp b/src/sksl/SkSLParser.cpp
+index 49d801d..7860963 100644
+--- a/src/sksl/SkSLParser.cpp
++++ b/src/sksl/SkSLParser.cpp
+@@ -1292,6 +1292,12 @@
+         this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
+         return fCompiler.context().fTypes.fInvalid.get();
+     }
++    if (result->matches(*fCompiler.context().fTypes.fInvalid)) {
++        // In runtime effects, reserved type names (e.g. sampler2D and texture2D) are aliases of the
++        // invalid type. Reject the type whenever it is used.
++        this->error(type, "invalid type");
++        return result;
++    }
+     Token bracket;
+     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
+         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
+diff --git a/src/sksl/codegen/SkSLRasterPipelineBuilder.cpp b/src/sksl/codegen/SkSLRasterPipelineBuilder.cpp
+index f85df4e5..686c5e1 100644
+--- a/src/sksl/codegen/SkSLRasterPipelineBuilder.cpp
++++ b/src/sksl/codegen/SkSLRasterPipelineBuilder.cpp
+@@ -344,6 +344,18 @@
+     return false;
+ }
+ 
++// This function is used to guard peephole optimization sites. If it fails, fInstructions adds both
++// both instructions, but the count goes over INT_MAX and is caught downstream.
++static bool add_into(int* target, int delta) {
++    SkSafeMath safe;
++    int sum = safe.addInt(*target, delta);
++    if (!safe) {
++        return false;
++    }
++    *target = sum;
++    return true;
++}
++
+ void Builder::discard_stack(int32_t count, int stackID) {
+     // If we pushed something onto the stack and then immediately discarded part of it, we can
+     // shrink or eliminate the push.
+@@ -356,8 +368,10 @@
+         switch (lastInstruction->fOp) {
+             case BuilderOp::discard_stack:
+                 // Our last op was actually a separate discard_stack; combine the discards.
+-                lastInstruction->fImmA += count;
+-                return;
++                if (add_into(&lastInstruction->fImmA, count)) {
++                    return;
++                }
++                break;
+ 
+             case BuilderOp::push_clone:
+             case BuilderOp::push_clone_from_stack:
+@@ -647,8 +661,9 @@
+     if (count > 0) {
+         if (Instruction* lastInstruction = this->lastInstruction()) {
+             // If the previous op is pushing the same value, we can just push more of them.
+-            if (lastInstruction->fOp == BuilderOp::push_constant && lastInstruction->fImmB == val) {
+-                lastInstruction->fImmA += count;
++            if (lastInstruction->fOp == BuilderOp::push_constant &&
++                lastInstruction->fImmB == val &&
++                add_into(&lastInstruction->fImmA, count)) {
+                 return;
+             }
+         }
+@@ -659,8 +674,8 @@
+ void Builder::push_duplicates(int count) {
+     if (Instruction* lastInstruction = this->lastInstruction()) {
+         // If the previous op is pushing a constant, we can just push more of them.
+-        if (lastInstruction->fOp == BuilderOp::push_constant) {
+-            lastInstruction->fImmA += count;
++        if (lastInstruction->fOp == BuilderOp::push_constant &&
++            add_into(&lastInstruction->fImmA, count)) {
+             return;
+         }
+     }
+@@ -688,9 +703,9 @@
+     if (numSlots == 1 && offsetFromStackTop == 0) {
+         // ... and the previous op is pushing a constant...
+         if (Instruction* lastInstruction = this->lastInstruction()) {
+-            if (lastInstruction->fOp == BuilderOp::push_constant) {
++            if (lastInstruction->fOp == BuilderOp::push_constant &&
++                add_into(&lastInstruction->fImmA, 1)) {
+                 // ... we can just push more of them.
+-                lastInstruction->fImmA += 1;
+                 return;
+             }
+         }
+@@ -1284,7 +1299,7 @@
+                                      numImmutableSlots, fNumLabels, debugTrace);
+ }
+ 
+-static int stack_usage(const Instruction& inst) {
++static int stack_usage(const Instruction& inst, SkSafeMath* safe) {
+     switch (inst.fOp) {
+         case BuilderOp::push_condition_mask:
+         case BuilderOp::push_loop_mask:
+@@ -1323,20 +1338,20 @@
+         case ALL_MULTI_SLOT_BINARY_OP_CASES:
+         case BuilderOp::discard_stack:
+         case BuilderOp::select:
+-            return -inst.fImmA;
++            return safe->subInt(0, inst.fImmA);
+ 
+         case ALL_N_WAY_TERNARY_OP_CASES:
+         case ALL_MULTI_SLOT_TERNARY_OP_CASES:
+-            return 2 * -inst.fImmA;
++            return safe->mulInt(-2, inst.fImmA);
+ 
+         case BuilderOp::swizzle_1:
+-            return 1 - inst.fImmA;  // consumes immA slots and emits a scalar
++            return safe->subInt(1, inst.fImmA);  // consumes immA slots and emits a scalar
+         case BuilderOp::swizzle_2:
+-            return 2 - inst.fImmA;  // consumes immA slots and emits a 2-slot vector
++            return safe->subInt(2, inst.fImmA);  // consumes immA slots and emits a 2-slot vector
+         case BuilderOp::swizzle_3:
+-            return 3 - inst.fImmA;  // consumes immA slots and emits a 3-slot vector
++            return safe->subInt(3, inst.fImmA);  // consumes immA slots and emits a 3-slot vector
+         case BuilderOp::swizzle_4:
+-            return 4 - inst.fImmA;  // consumes immA slots and emits a 4-slot vector
++            return safe->subInt(4, inst.fImmA);  // consumes immA slots and emits a 4-slot vector
+ 
+         case BuilderOp::dot_2_floats:
+             return -3;  // consumes two 2-slot vectors and emits one scalar
+@@ -1352,12 +1367,13 @@
+         case BuilderOp::matrix_multiply_3:
+         case BuilderOp::matrix_multiply_4:
+             // consumes the left- and right-matrices; emits result over existing padding slots
+-            return -(inst.fImmA * inst.fImmB + inst.fImmC * inst.fImmD);
++            return safe->subInt(0, safe->addInt(safe->mulInt(inst.fImmA, inst.fImmB),
++                                                safe->mulInt(inst.fImmC, inst.fImmD)));
+ 
+         case BuilderOp::shuffle: {
+             int consumed = inst.fImmA;
+             int generated = inst.fImmB;
+-            return generated - consumed;
++            return safe->subInt(generated, consumed);
+         }
+         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
+         case ALL_MULTI_SLOT_UNARY_OP_CASES:
+@@ -1367,6 +1383,11 @@
+     }
+ }
+ 
++static int stack_usage(const Instruction& inst) {
++    SkSafeMath safe;
++    return stack_usage(inst, &safe);
++}
++
+ Program::StackDepths Program::tempStackMaxDepths() const {
+     // Count the number of separate temp stacks that the program uses.
+     int numStacks = 1;
+@@ -1379,9 +1400,14 @@
+     largest.push_back_n(numStacks, 0);
+     current.push_back_n(numStacks, 0);
+ 
++    SkSafeMath safe;
+     for (const Instruction& inst : fInstructions) {
+         int stackID = inst.fStackID;
+-        current[stackID] += stack_usage(inst);
++        current[stackID] = safe.addInt(current[stackID], stack_usage(inst, &safe));
++        if (!safe) {
++            largest[stackID] = -1;
++            return largest;
++        }
+         largest[stackID] = std::max(current[stackID], largest[stackID]);
+         // If we assert here, the generated program has popped off the top of the stack.
+         SkASSERTF_RELEASE(current[stackID] >= 0, "unbalanced temp stack push/pop on stack");
+@@ -1410,9 +1436,18 @@
+         , fDebugTrace(debugTrace) {
+     fTempStackMaxDepths = this->tempStackMaxDepths();
+ 
++    SkSafeMath safe;
+     fNumTempStackSlots = 0;
+     for (const int depth : fTempStackMaxDepths) {
+-        fNumTempStackSlots += depth;
++        if (depth < 0) {
++            fNumTempStackSlots = -1;
++            break;
++        }
++        fNumTempStackSlots = safe.addInt(fNumTempStackSlots, depth);
++        if (!safe) {
++            fNumTempStackSlots = -1;
++            break;
++        }
+     }
+ 
+     if (fDebugTrace) {
+@@ -1673,6 +1708,13 @@
+ }
+ 
+ std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) const {
++    if (fNumValueSlots < 0 ||
++        fNumUniformSlots < 0 ||
++        fNumTempStackSlots < 0 ||
++        fNumImmutableSlots < 0 ||
++        fNumLabels < 0) {
++        return std::nullopt;
++    }
+     // Allocate a contiguous slab of slot data for immutables, values, and stack entries.
+     const size_t N = SkOpts::raster_pipeline_highp_stride;
+     const int scalarWidth = 1 * sizeof(float);
+diff --git a/src/sksl/codegen/SkSLRasterPipelineCodeGenerator.cpp b/src/sksl/codegen/SkSLRasterPipelineCodeGenerator.cpp
+index 905455d..c0d8700 100644
+--- a/src/sksl/codegen/SkSLRasterPipelineCodeGenerator.cpp
++++ b/src/sksl/codegen/SkSLRasterPipelineCodeGenerator.cpp
+@@ -11,7 +11,9 @@
+ #include "include/core/SkSpan.h"
+ #include "include/private/SkEnumBitMask.h"
+ #include "include/private/SkTArray.h"
++#include "include/private/SkTFitsIn.h"
+ #include "include/private/SkTo.h"
++#include "src/core/SkSafeMath.h"
+ #include "src/core/SkStringView.h"
+ #include "src/core/SkTHash.h"
+ #include "src/core/SkUtils.h"
+@@ -139,9 +141,13 @@
+     /** Returns the total number of slots consumed. */
+     int slotCount() const { return fSlotCount; }
+ 
++    /** Returns true if the slot count overflowed. */
++    bool overflowed() const { return fOverflowed; }
++
+ private:
+     THashMap<const IRNode*, SlotRange> fSlotMap;
+     int fSlotCount = 0;
++    bool fOverflowed = false;
+     std::vector<SlotDebugInfo>* fSlotDebugInfo;
+ };
+ 
+@@ -218,6 +224,13 @@
+      */
+     int getFunctionDebugInfo(const FunctionDeclaration& decl);
+ 
++    /** Returns true if any slot table overflowed. */
++    bool hasOverflowed() const {
++        return fProgramSlots.overflowed() ||
++               fUniformSlots.overflowed() ||
++               fImmutableSlots.overflowed();
++    }
++
+     /** Returns true for variables with slots in fProgramSlots; immutables or uniforms are false. */
+     bool hasVariableSlots(const Variable& v) {
+         return !IsUniform(v) && !fImmutableVariables.contains(&v);
+@@ -1174,25 +1187,31 @@
+     if (nslots == 0) {
+         return {};
+     }
++    SkSafeMath safe;
++    size_t newSlotCount = safe.add(fSlotCount, nslots);
++    if (!safe || !SkTFitsIn<int>(newSlotCount)) {
++        fOverflowed = true;
++        return {0, SkToInt(std::min<size_t>(nslots, INT_MAX))};
++    }
+     if (fSlotDebugInfo) {
+         // Our debug slot-info table should have the same length as the actual slot table.
+         SkASSERT(fSlotDebugInfo->size() == (size_t)fSlotCount);
+ 
+         // Append slot names and types to our debug slot-info table.
+-        fSlotDebugInfo->reserve(fSlotCount + nslots);
++        fSlotDebugInfo->reserve(newSlotCount);
+         this->addSlotDebugInfo(name, type, pos, isFunctionReturnValue);
+ 
+         // Confirm that we added the expected number of slots.
+-        SkASSERT(fSlotDebugInfo->size() == (size_t)(fSlotCount + nslots));
++        SkASSERT(fSlotDebugInfo->size() == newSlotCount);
+     }
+ 
+     SlotRange result = {fSlotCount, (int)nslots};
+-    fSlotCount += nslots;
++    fSlotCount = SkToInt(newSlotCount);
+     return result;
+ }
+ 
+ std::optional<SlotRange> SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
+-    SkASSERT(v.type().slotCount() == SkToSizeT(range.count));
++    SkASSERT(fOverflowed || v.type().slotCount() == SkToSizeT(range.count));
+     const SlotRange* existingEntry = fSlotMap.find(&v);
+     std::optional<SlotRange> originalRange = existingEntry ? std::optional(*existingEntry)
+                                                            : std::nullopt;
+@@ -1487,6 +1506,9 @@
+     // Set up a slot range dedicated to this function's return value.
+     SlotRange lastFunctionResult = fCurrentFunctionResult;
+     fCurrentFunctionResult = this->getFunctionSlots(callSite, function.declaration());
++    if (this->hasOverflowed()) {
++        return std::nullopt;
++    }
+ 
+     // Save off the return mask.
+     if (this->needsReturnMask(&function)) {
+@@ -1657,10 +1679,17 @@
+         }
+     }
+ 
++    if (this->hasOverflowed()) {
++        return unsupported();
++    }
++
+     return true;
+ }
+ 
+ bool Generator::writeStatement(const Statement& s) {
++    if (this->hasOverflowed()) {
++        return unsupported();
++    }
+     switch (s.kind()) {
+         case Statement::Kind::kBlock:
+             // The debugger will stop on statements inside Blocks; there's no need for an additional
+@@ -3963,6 +3992,9 @@
+     if (IsUniform(var)) {
+         // Push a uniform.
+         r = this->getUniformSlots(var);
++        if (this->hasOverflowed()) {
++            return unsupported();
++        }
+         SkASSERT(r.count == (int)var.type().slotCount());
+         r.index += subset.index;
+         r.count = subset.count;
+@@ -3980,6 +4012,9 @@
+         }
+         // Push the immutable slot range.
+         r = this->getImmutableSlots(var);
++        if (this->hasOverflowed()) {
++            return unsupported();
++        }
+         SkASSERT(r.count == (int)var.type().slotCount());
+         r.index += subset.index;
+         r.count = subset.count;
+@@ -3987,6 +4022,9 @@
+     } else {
+         // Push the variable.
+         r = this->getVariableSlots(var);
++        if (this->hasOverflowed()) {
++            return unsupported();
++        }
+         SkASSERT(r.count == (int)var.type().slotCount());
+         r.index += subset.index;
+         r.count = subset.count;
+@@ -4078,10 +4116,17 @@
+         fTraceMask->exit();
+     }
+ 
++    if (this->hasOverflowed()) {
++        return unsupported();
++    }
++
+     return true;
+ }
+ 
+ std::unique_ptr<RP::Program> Generator::finish() {
++    if (this->hasOverflowed()) {
++        return nullptr;
++    }
+     return fBuilder.finish(fProgramSlots.slotCount(),
+                            fUniformSlots.slotCount(),
+                            fImmutableSlots.slotCount(),
+diff --git a/src/sksl/ir/SkSLVarDeclarations.cpp b/src/sksl/ir/SkSLVarDeclarations.cpp
+index 0d49ea3..8d83473 100644
+--- a/src/sksl/ir/SkSLVarDeclarations.cpp
++++ b/src/sksl/ir/SkSLVarDeclarations.cpp
+@@ -303,7 +303,8 @@
+                                          const Type* baseType,
+                                          std::unique_ptr<Expression>& value) {
+     if (baseType->matches(*context.fTypes.fInvalid)) {
+-        context.fErrors->error(var.fPosition, "invalid type");
++        // Parser::type() has already reported the error (e.g. a reserved type name like sampler2D
++        // in a runtime effect). Skip the declaration so it doesn't cause further errors.
+         return false;
+     }
+     if (baseType->isVoid()) {
+diff --git a/tests/ImageFilterCacheTest.cpp b/tests/ImageFilterCacheTest.cpp
+index fa72b9c..3d7080f 100644
+--- a/tests/ImageFilterCacheTest.cpp
++++ b/tests/ImageFilterCacheTest.cpp
+@@ -47,6 +47,7 @@
+ #endif
+ 
+ #include <cstddef>
++#include <cstdint>
+ #include <tuple>
+ #include <utility>
+ 
+@@ -109,10 +110,12 @@
+     SkIRect clip2 = SkIRect::MakeWH(200, 200);
+     SkImageFilterCacheKey key0(0, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
+     SkImageFilterCacheKey key1(1, SkMatrix::I(), clip1, image->uniqueID(), image->subset());
+-    SkImageFilterCacheKey key2(0, SkMatrix::Translate(5, 5), clip1,
+-                                   image->uniqueID(), image->subset());
+-    SkImageFilterCacheKey key3(0, SkMatrix::I(), clip2, image->uniqueID(), image->subset());
+-    SkImageFilterCacheKey key4(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());
++    SkImageFilterCacheKey key2(1ULL << 32, SkMatrix::I(), clip1,
++                               image->uniqueID(), image->subset());
++    SkImageFilterCacheKey key3(0, SkMatrix::Translate(5, 5), clip1,
++                               image->uniqueID(), image->subset());
++    SkImageFilterCacheKey key4(0, SkMatrix::I(), clip2, image->uniqueID(), image->subset());
++    SkImageFilterCacheKey key5(0, SkMatrix::I(), clip1, subset->uniqueID(), subset->subset());
+ 
+     SkIPoint offset = SkIPoint::Make(3, 4);
+     auto filter = make_filter();
+@@ -123,6 +126,7 @@
+     REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
+     REPORTER_ASSERT(reporter, !cache->get(key3, &foundImage));
+     REPORTER_ASSERT(reporter, !cache->get(key4, &foundImage));
++    REPORTER_ASSERT(reporter, !cache->get(key5, &foundImage));
+ }
+ 
+ // Test purging when the max cache size is exceeded
+@@ -362,3 +366,45 @@
+         REPORTER_ASSERT(r, cache);
+     }
+ }
++
++DEF_TEST(ImageFilterCache_64BitUniqueID, reporter) {
++    static const size_t kCacheSize = 1000000;
++    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
++
++    SkBitmap bm = create_bm();
++    const SkIRect full = SkIRect::MakeWH(kFullSize, kFullSize);
++    sk_sp<SkSpecialImage> img1(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
++    sk_sp<SkSpecialImage> img2(SkSpecialImages::MakeFromRaster(full, bm, SkSurfaceProps()));
++
++    constexpr uint64_t kBaseId = 42;
++    constexpr uint64_t kUpperBitDiffId = kBaseId + (1ULL << 32);
++
++    SkIRect clip = SkIRect::MakeWH(100, 100);
++    SkImageFilterCacheKey key1(kBaseId, SkMatrix::I(), clip, img1->uniqueID(), img1->subset());
++    SkImageFilterCacheKey key2(
++            kUpperBitDiffId, SkMatrix::I(), clip, img1->uniqueID(), img1->subset());
++
++    REPORTER_ASSERT(reporter, key1 == key1);
++    REPORTER_ASSERT(reporter, key2 == key2);
++    REPORTER_ASSERT(reporter, !(key1 == key2));
++
++    auto filter1 = make_filter();
++    auto filter2 = make_filter();
++    SkIPoint offset1 = SkIPoint::Make(1, 2);
++    SkIPoint offset2 = SkIPoint::Make(5, 6);
++
++    cache->set(key1, filter1.get(), skif::FilterResult(img1, skif::LayerSpace<SkIPoint>(offset1)));
++
++    skif::FilterResult found;
++    REPORTER_ASSERT(reporter, cache->get(key1, &found));
++    REPORTER_ASSERT(reporter, found.image() == img1.get());
++    REPORTER_ASSERT(reporter, !cache->get(key2, &found));
++
++    cache->set(key2, filter2.get(), skif::FilterResult(img2, skif::LayerSpace<SkIPoint>(offset2)));
++    SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->count());)
++
++    REPORTER_ASSERT(reporter, cache->get(key1, &found));
++    REPORTER_ASSERT(reporter, found.image() == img1.get());
++    REPORTER_ASSERT(reporter, cache->get(key2, &found));
++    REPORTER_ASSERT(reporter, found.image() == img2.get());
++}
+diff --git a/tests/RasterPipelineCodeGeneratorTest.cpp b/tests/RasterPipelineCodeGeneratorTest.cpp
+index 63089e0..c8dde52 100644
+--- a/tests/RasterPipelineCodeGeneratorTest.cpp
++++ b/tests/RasterPipelineCodeGeneratorTest.cpp
+@@ -380,3 +380,90 @@
+             SkSL::MakeRasterPipelineProgram(*program, *main->definition());
+     REPORTER_ASSERT(r, rasterProg);
+ }
++
++DEF_TEST(SkSLRasterPipelineSlotCountWraparound, r) {
++    auto names = [](const char* prefix, int n) {
++        std::stringstream s;
++        for (int i = 0; i < n; ++i) {
++            if (i > 0) {
++                s << ",";
++            }
++            s << prefix << i;
++        }
++        return s.str();
++    };
++
++    // Struct E has 98,364 slots and struct G has 99,996 slots (both under kVariableSlotLimit).
++    // Without overflow protection in SlotManager::createSlots, 43,663 call sites of f() allocate
++    // 43,663 * 98,364 + 99,996 + 6 = 4,294,967,334 = 2^32 + 38 value slots, wrapping fSlotCount
++    // around 32-bit int to 38. Dynamic indexing via uniform `k` in `gg[k].e` emits a single
++    // push_slots_indirect instruction per call.
++    constexpr int kCalls = 43663;
++    std::stringstream str;
++    str << "struct A{float4x4 " << names("a", 64) << ";};";
++    str << "struct E{A " << names("b", 96) << ";float " << names("c", 60) << ";};";
++    str << "struct G{E e;float4x4 " << names("y", 102) << ";};";
++    str << "uniform int k;";
++    str << "G gg[1];";
++    str << "noinline E f(){return gg[k].e;}";
++    str << "half4 main(float2 p){if(k>0){";
++    for (int i = 0; i < kCalls; ++i) {
++        str << "f();";
++    }
++    str << "}return half4(0);}";
++    std::string src = str.str();
++
++    SkSL::Compiler compiler;
++    SkSL::ProgramSettings settings;
++    settings.fMaxVersionAllowed = SkSL::Version::k300;
++    std::unique_ptr<SkSL::Program> program =
++            compiler.convertProgram(SkSL::ProgramKind::kRuntimeShader, src, settings);
++    if (!program) {
++        ERRORF(r, "Unexpected error compiling program:\n%s", compiler.errorText().c_str());
++        return;
++    }
++    const SkSL::FunctionDeclaration* main = program->getFunction("main");
++    if (!main) {
++        ERRORF(r, "Program must have a 'main' function");
++        return;
++    }
++    std::unique_ptr<SkSL::RP::Program> rasterProg =
++            SkSL::MakeRasterPipelineProgram(*program, *main->definition());
++    REPORTER_ASSERT(r, !rasterProg);
++}
++
++DEF_TEST(SkSLRasterPipelineTempStackOverflow, r) {
++    SkArenaAlloc alloc(1000);
++    SkRasterPipeline pipeline(&alloc);
++
++    // 1. Single temp-stack depth overflowing int in tempStackMaxDepths().
++    {
++        SkSL::RP::Builder builder;
++        builder.init_lane_masks();
++        builder.pad_stack(INT_MAX);
++        builder.pad_stack(10);
++        builder.label(builder.nextLabelID());
++        builder.discard_stack(10);
++        builder.discard_stack(INT_MAX);
++        std::unique_ptr<SkSL::RP::Program> prog = builder.finish(
++                /*numValueSlots=*/0, /*numUniformSlots=*/0, /*numImmutableSlots=*/0);
++        REPORTER_ASSERT(r, prog);
++        REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
++    }
++
++    // 2. Sum of multiple temp-stack depths wrapping past 2^32 in Program::Program().
++    {
++        SkSL::RP::Builder builder;
++        builder.init_lane_masks();
++        for (int stackID = 0; stackID < 5; ++stackID) {
++            builder.set_current_stack(stackID);
++            builder.pad_stack(1000000000);
++            builder.label(builder.nextLabelID());
++            builder.discard_stack(1000000000);
++        }
++        std::unique_ptr<SkSL::RP::Program> prog = builder.finish(
++                /*numValueSlots=*/0, /*numUniformSlots=*/0, /*numImmutableSlots=*/0);
++        REPORTER_ASSERT(r, prog);
++        REPORTER_ASSERT(r, !prog->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {}));
++    }
++}
+diff --git a/tests/sksl/errors/Ossfuzz56373.glsl b/tests/sksl/errors/Ossfuzz56373.glsl
+index 7cd3cfc..6df13bf 100644
+--- a/tests/sksl/errors/Ossfuzz56373.glsl
++++ b/tests/sksl/errors/Ossfuzz56373.glsl
+@@ -3,7 +3,4 @@
+ error: 2: expected a type, found 'bufferThree'
+ layout (binding=0) uniform bufferThree t;
+                            ^^^^^^^^^^^
+-error: 2: invalid type
+-layout (binding=0) uniform bufferThree t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-2 errors
++1 error
+diff --git a/tests/sksl/intrinsics/Sample.skrp b/tests/sksl/intrinsics/Sample.skrp
+index 6628c2b..4d35940 100644
+--- a/tests/sksl/intrinsics/Sample.skrp
++++ b/tests/sksl/intrinsics/Sample.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/SampleGrad.skrp b/tests/sksl/intrinsics/SampleGrad.skrp
+index 760fabd..2151084 100644
+--- a/tests/sksl/intrinsics/SampleGrad.skrp
++++ b/tests/sksl/intrinsics/SampleGrad.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 4: unknown identifier 'sampleGrad'
+     return sampleGrad(t, coords, dFdx(coords), dFdy(coords));
+            ^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/SampleLod.skrp b/tests/sksl/intrinsics/SampleLod.skrp
+index c48b3c1..80667ff 100644
+--- a/tests/sksl/intrinsics/SampleLod.skrp
++++ b/tests/sksl/intrinsics/SampleLod.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureReadImage.skrp b/tests/sksl/intrinsics/TextureReadImage.skrp
+index c0a385e..6cc2bff 100644
+--- a/tests/sksl/intrinsics/TextureReadImage.skrp
++++ b/tests/sksl/intrinsics/TextureReadImage.skrp
+@@ -5,7 +5,7 @@
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ error: 2: invalid type
+ layout(binding=0, rgba32f) readonly texture2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                                    ^^^^^^^^^
+ error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureReadSampler.skrp b/tests/sksl/intrinsics/TextureReadSampler.skrp
+index f75811c..8116589 100644
+--- a/tests/sksl/intrinsics/TextureReadSampler.skrp
++++ b/tests/sksl/intrinsics/TextureReadSampler.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureReadTexture.skrp b/tests/sksl/intrinsics/TextureReadTexture.skrp
+index a0a888d..6203864 100644
+--- a/tests/sksl/intrinsics/TextureReadTexture.skrp
++++ b/tests/sksl/intrinsics/TextureReadTexture.skrp
+@@ -5,7 +5,7 @@
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ error: 2: invalid type
+ layout(binding=0) readonly texture2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                           ^^^^^^^^^
+ error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureSizeImage.skrp b/tests/sksl/intrinsics/TextureSizeImage.skrp
+index b99d235..2deb902 100644
+--- a/tests/sksl/intrinsics/TextureSizeImage.skrp
++++ b/tests/sksl/intrinsics/TextureSizeImage.skrp
+@@ -5,7 +5,7 @@
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ error: 1: invalid type
+ layout(binding=0, rgba32f) readonly texture2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                                    ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureSizeSampler.skrp b/tests/sksl/intrinsics/TextureSizeSampler.skrp
+index 45b2d4e..641b2b7 100644
+--- a/tests/sksl/intrinsics/TextureSizeSampler.skrp
++++ b/tests/sksl/intrinsics/TextureSizeSampler.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/intrinsics/TextureSizeTexture.skrp b/tests/sksl/intrinsics/TextureSizeTexture.skrp
+index 3e1174a..638b224 100644
+--- a/tests/sksl/intrinsics/TextureSizeTexture.skrp
++++ b/tests/sksl/intrinsics/TextureSizeTexture.skrp
+@@ -5,7 +5,7 @@
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ error: 1: invalid type
+ layout(binding=0) readonly texture2D t;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                           ^^^^^^^^^
+ error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main()
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/realistic/GaussianBlur.skrp b/tests/sksl/realistic/GaussianBlur.skrp
+index 99812c4..4832740 100644
+--- a/tests/sksl/realistic/GaussianBlur.skrp
++++ b/tests/sksl/realistic/GaussianBlur.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D uTextureSampler_0_Stage1;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: interface blocks are not allowed in this kind of program
+ layout (binding=0) uniform uniformBuffer
+                            ^^^^^^^^^^^^^
+diff --git a/tests/sksl/shared/ComplexDelete.skrp b/tests/sksl/shared/ComplexDelete.skrp
+index 7fe6cdf..05d8bb4 100644
+--- a/tests/sksl/shared/ComplexDelete.skrp
++++ b/tests/sksl/shared/ComplexDelete.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 2: invalid type
+ layout(binding=0) sampler2D s;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main() {
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/shared/FunctionParametersOfTextureAndSamplerType.skrp b/tests/sksl/shared/FunctionParametersOfTextureAndSamplerType.skrp
+index cc67a0e..41682d1 100644
+--- a/tests/sksl/shared/FunctionParametersOfTextureAndSamplerType.skrp
++++ b/tests/sksl/shared/FunctionParametersOfTextureAndSamplerType.skrp
+@@ -5,28 +5,40 @@
+ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ error: 1: invalid type
+ layout(set = 0, binding = 1) readonly texture2D aTexture;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                                      ^^^^^^^^^
+ error: 2: invalid type
+ layout(set = 0, binding = 2) sampler2D aSampledTexture;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                             ^^^^^^^^^
+ error: 3: invalid type
+ layout(set = 0, binding = 3) sampler2D aSecondSampledTexture;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                             ^^^^^^^^^
+ error: 5: 'in' is not permitted here
+ layout(location = 1) in float2 c;
+ ^^^^^^^^^^^^^^^^^^^^^^^
+ error: 5: layout qualifier 'location' is not permitted here
+ layout(location = 1) in float2 c;
+ ^^^^^^^^^^^^^^^^^^^^^^^
++error: 7: invalid type
++noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
++                              ^^^^^^^^^
+ error: 7: type 'texture2D' does not support qualifier 'readonly'
+ noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
+                                            ^^^^^^^^
++error: 7: invalid type
++noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
++                                                    ^^^^^^^^^
+ error: 8: unknown identifier 'sample'
+     return sample(s, c);
+            ^^^^^^
+ error: 11: type 'texture2D' does not support qualifier 'readonly'
+ noinline half4 helper(readonly texture2D t, sampler2D s) {
+                       ^^^^^^^^
++error: 11: invalid type
++noinline half4 helper(readonly texture2D t, sampler2D s) {
++                               ^^^^^^^^^
++error: 11: invalid type
++noinline half4 helper(readonly texture2D t, sampler2D s) {
++                                            ^^^^^^^^^
+ error: 15: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main() {
+ ^^^^^^^^^^^
+@@ -57,4 +69,4 @@
+ error: 18: unknown identifier 'aSampledTexture'
+     sk_FragColor = helper(aTexture, aSampledTexture);
+                                     ^^^^^^^^^^^^^^^
+-19 errors
++23 errors
+diff --git a/tests/sksl/shared/RectangleTexture.skrp b/tests/sksl/shared/RectangleTexture.skrp
+index a136e8e..85fe0af 100644
+--- a/tests/sksl/shared/RectangleTexture.skrp
++++ b/tests/sksl/shared/RectangleTexture.skrp
+@@ -2,10 +2,10 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D test2D;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 2: invalid type
+ layout(binding=1) sampler2D test2DRect;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main() {
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/shared/Texture2D.skrp b/tests/sksl/shared/Texture2D.skrp
+index 1ffcee4..4d84c99 100644
+--- a/tests/sksl/shared/Texture2D.skrp
++++ b/tests/sksl/shared/Texture2D.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 1: invalid type
+ layout(binding=0) sampler2D tex;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main() {
+ ^^^^^^^^^^^
+diff --git a/tests/sksl/shared/TextureSharpen.skrp b/tests/sksl/shared/TextureSharpen.skrp
+index 96938d4..df14f69 100644
+--- a/tests/sksl/shared/TextureSharpen.skrp
++++ b/tests/sksl/shared/TextureSharpen.skrp
+@@ -2,7 +2,7 @@
+ 
+ error: 3: invalid type
+ layout(binding=0) sampler2D s;
+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++                  ^^^^^^^^^
+ error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
+ void main() {
+ ^^^^^^^^^^^

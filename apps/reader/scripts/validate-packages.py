@@ -510,7 +510,7 @@ def verify_application_inputs(runtime):
         else:
             compared += 1
     for relative in ['7zip/linux-x64/7zz', '7zip/win32-x64/7za.exe',
-                     '7zip/7z2603-src.tar.xz', '7zip/License.txt', '7zip/copying.txt',
+                     '7zip/7z2606-src.tar.xz', '7zip/License.txt', '7zip/copying.txt',
                      '7zip/provenance.json', '7zip/README.md']:
         if not (app / 'vendor' / relative).is_file():
             raise ValueError(f'Bundled 7-Zip component missing: {relative}')

@@ -2,7 +2,7 @@
 
 Derived from ThreadShelf Local Suite 1.0.0. Holiday algorithms, data and parser pins are retained, with adapted output/import paths and the merge dependency security replacement described below. Original provenance and workflow notes are in `ENGINE-README.md`.
 
-From this directory in a source checkout/archive, use Node 24.22.1 and the parent source helper. It prepares an isolated managed npm 12.2.1 copy with its bundled Undici replaced by the complete official 6.29.1 package, verifies pinned archive integrity and the resulting files, and does not modify global npm. This is a local toolchain modification, not an official patched npm release.
+From this directory in a source checkout/archive, use Node 26.13.0 and the parent source helper. It prepares an isolated managed npm 12.2.2 copy with verified upstream dependency fixes (Undici 6.29.1, glob 14.0.3, minimatch 11.0.2 and their pinned dependencies), verifies pinned archive integrity and the resulting files, and does not modify global npm. This is a local toolchain modification, not an official patched npm release.
 
 ```sh
 node ../npm-toolchain.mjs -- ci

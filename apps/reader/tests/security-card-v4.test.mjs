@@ -17,12 +17,17 @@ test('synthetic severity cards retain labels, value, structured rows, and safe s
   assert.ok(nodes.some(n => n.tag === 'text' && n.attrs.color === 'danger'));
 });
 
-test('ordinary security Markdown and unavailable visualization references are preserved unchanged', () => {
-  for (const source of [securityMarkdown, visualizeReference]) {
-    const parsed = prepareRichMarkdown(source);
-    assert.equal(parsed.content, source);
-    assert.equal(parsed.records.size, 0);
-  }
+test('ordinary security Markdown stays unchanged and unavailable visualization retains exact inspectable source', () => {
+  const parsed = prepareRichMarkdown(securityMarkdown);
+  assert.equal(parsed.content, securityMarkdown);
+  assert.equal(parsed.records.size, 0);
+  const visual = prepareRichMarkdown(visualizeReference);
+  assert.equal(visual.records.size, 1);
+  const record = [...visual.records.values()][0];
+  assert.equal(record.kind, 'archived-widget');
+  assert.equal(record.family, 'visualize');
+  assert.equal(record.source, visualizeReference);
+  assert.equal(record.data.path, '/unavailable/security-cards.html');
 });
 
 test('severity card inputs cannot add script, events, or unsafe source links', () => {

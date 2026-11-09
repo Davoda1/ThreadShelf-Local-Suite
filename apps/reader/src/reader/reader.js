@@ -9,6 +9,7 @@ import { setRendererLocale, tr } from './locale.js';
 import './reader.css';
 import './rich-layout.css';
 import './rich-charts.css';
+import './grok-renderer.css';
 
 let assetsReady;
 function assetURL(name) {

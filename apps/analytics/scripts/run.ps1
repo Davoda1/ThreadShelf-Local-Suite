@@ -16,10 +16,10 @@ try {
   $toolingDir=Join-Path $projectDir '.tooling'; $downloadDir=Join-Path $toolingDir 'downloads'
   New-Item -ItemType Directory -Path $downloadDir -Force|Out-Null
   $sumPath=Join-Path $downloadDir 'SHASUMS256.txt'
-  Invoke-WebRequest -UseBasicParsing -Uri 'https://nodejs.org/dist/v24.22.1/SHASUMS256.txt' -OutFile $sumPath
+  Invoke-WebRequest -UseBasicParsing -Uri 'https://nodejs.org/dist/v26.13.0/SHASUMS256.txt' -OutFile $sumPath
   $pattern='^([a-fA-F0-9]{64})\s+(node-v[0-9.]+-win-x64\.zip)$'
   $entry=@(Get-Content -LiteralPath $sumPath|ForEach-Object{if($_ -match $pattern){@{Hash=$Matches[1];File=$Matches[2]}}})
-  if($entry.Count -ne 1){throw 'Cannot resolve pinned Node.js 24.22.1 LTS.'}
+  if($entry.Count -ne 1){throw 'Cannot resolve pinned Node.js 26.13.0 LTS.'}
   $archivePath=Join-Path $downloadDir $entry[0].File
   if((Test-Path -LiteralPath $archivePath) -and (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash -ne $entry[0].Hash){Remove-Item -LiteralPath $archivePath -Force}
   if(-not(Test-Path -LiteralPath $archivePath)){

@@ -4,8 +4,8 @@ project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 latest=0
 action=run
 actions=0
-node_version='24.22.1'
-electron_version='45.1.0'
+node_version='26.13.0'
+electron_version='45.2.3'
 explicit_version=0
 while (($#)); do
   case "$1" in
@@ -18,7 +18,7 @@ while (($#)); do
       shift ;;
     --help|-h)
       echo 'Usage: ./scripts/run.sh [--latest] [--build|--test|--package|--resolve-only]'
-      echo 'Default: exact Node 24.22.1 LTS and Electron 45.1.0.'
+      echo 'Default: exact Node 26.13.0 LTS and Electron 45.2.3.'
       echo '--latest: resolve stable Current Node (not LTS, alpha, beta, or nightly).'
       echo 'Exact reproduction: --node-version X.Y.Z --electron-version X.Y.Z'
       exit 0 ;;

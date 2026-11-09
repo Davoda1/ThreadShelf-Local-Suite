@@ -22,7 +22,7 @@ const fixtures={
  hostile:'%%{init: {"securityLevel":"loose","htmlLabels":true}}%%\nflowchart TD\n A["<img src=x onerror=window.PWNED=1>"] --> B[Safe]\n click B "https://example.invalid/remote" "Remote"'
 };
 (async()=>{
- const browser=await playwright.chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
+ const browser=process.env.ELECTRON_PATH ? await require('./electron-page.cjs')(playwright,1000,850) : await playwright.chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
  try{
  const page=await browser.newPage({viewport:{width:1000,height:850}});
  const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
@@ -30,7 +30,7 @@ const fixtures={
  await page.setContent('<!doctype html><html data-theme="light"><head></head><body><main id="content"></main></body></html>');
  await page.evaluate(href=>{const base=document.createElement('base');base.href=href;document.head.prepend(base);},pathToFileURL(path.join(root,'renderer/')).href);
  for(const f of ['vendor/mathjax-original-tex-font.js','vendor/mathjax-compat.js','vendor/math-config.js','vendor/marked.umd.js','vendor/mathjax-tex-svg.js','vendor/mermaid.min.js','vendor/reader-rich.js','vendor/highlight.bundle.js','renderer/message-visibility.js','renderer/json-response.js','renderer/content.js'])await page.addScriptTag({path:path.join(root,f)});
- for(const f of ['renderer/app.css','renderer/content.css','renderer/code-themes.css'])await page.addStyleTag({path:path.join(root,f)});
+ for(const f of ['renderer/app.css','renderer/content.css','renderer/rich-compat.css','renderer/code-themes.css'])await page.addStyleTag({path:path.join(root,f)});
  await page.addStyleTag({content:'html,body{height:auto;overflow:auto}body{min-height:100vh}#content{max-width:760px;margin:24px auto;padding:0 20px;font:16px/1.7 system-ui}'});
  const initial=await page.evaluate(async fixtures=>{
    const messages=Object.entries(fixtures).map(([key,source])=>({role:'assistant',content:'## '+key+'\n\n```mermaid\n'+source+'\n```'}));

@@ -20,6 +20,15 @@ async function fixture(t,options={}){
   return f;
 }
 
+test('forged ZIP directory length is rejected before allocating declared bytes',async t=>{
+  const f=await fixture(t);await f.open();
+  const end=Buffer.alloc(22);end.writeUInt32LE(0x06054b50,0);end.writeUInt16LE(1,8);end.writeUInt16LE(1,10);end.writeUInt32LE(0x7fffffff,12);
+  const forged=path.join(f.root,'invalid-directory.zip');await fs.writeFile(forged,end);
+  const original=f.storage.pointer.file;
+  await assert.rejects(f.storage.prepareRestore(forged),/snapshot read bounds/);
+  assert.equal(f.storage.pointer.file,original);assert.deepEqual(f.values(),[]);
+});
+
 test('7z snapshot and committed records recover after all temporary files disappear',async t=>{
   const f=await fixture(t);await f.open();const working=f.storage.workingDir;
   await f.storage.commit({id:'a',value:'α 🌍'},record=>f.apply(record));await f.storage.commit({id:'b',value:'preserved'},record=>f.apply(record));

@@ -1,0 +1,270 @@
+diff --git a/src/libANGLE/renderer/metal/BufferMtl.mm b/src/libANGLE/renderer/metal/BufferMtl.mm
+index aec1ca8..435890d 100644
+--- a/src/libANGLE/renderer/metal/BufferMtl.mm
++++ b/src/libANGLE/renderer/metal/BufferMtl.mm
+@@ -229,17 +229,20 @@
+     if (mapPtr)
+     {
+         ContextMtl *contextMtl = mtl::GetImpl(context);
++        uint8_t *ptr           = nullptr;
+         if (mShadowCopy.size() == 0)
+         {
+-            *mapPtr = mBuffer
+-                          ->mapWithOpt(contextMtl, (access & GL_MAP_WRITE_BIT) == 0,
+-                                       access & GL_MAP_UNSYNCHRONIZED_BIT, offset, length)
+-                          .data();
++            ptr = mBuffer
++                      ->mapWithOpt(contextMtl, (access & GL_MAP_WRITE_BIT) == 0,
++                                   access & GL_MAP_UNSYNCHRONIZED_BIT, offset, length)
++                      .data();
+         }
+         else
+         {
+-            *mapPtr = syncAndObtainShadowCopy(contextMtl, offset, length).data();
++            ptr = syncAndObtainShadowCopy(contextMtl, offset, length).data();
+         }
++        ANGLE_TRY(contextMtl->checkCommandBufferError());
++        *mapPtr = ptr;
+     }
+ 
+     return angle::Result::Continue;
+diff --git a/src/libANGLE/renderer/metal/ContextMtl.h b/src/libANGLE/renderer/metal/ContextMtl.h
+index 4ea4a3c..9d0f561 100644
+--- a/src/libANGLE/renderer/metal/ContextMtl.h
++++ b/src/libANGLE/renderer/metal/ContextMtl.h
+@@ -341,6 +341,7 @@
+     void flushCommandBuffer(mtl::CommandBufferFinishOperation operation);
+     void present(const gl::Context *context, id<CAMetalDrawable> presentationDrawable);
+     angle::Result finishCommandBuffer();
++    angle::Result checkCommandBufferError();
+ 
+     void addCommandBufferScheduledCallback(std::function<void()> callback);
+ 
+@@ -525,8 +526,6 @@
+ 
+     angle::Result startOcclusionQueryInRenderPass(QueryMtl *query, bool clearOldValue);
+ 
+-    angle::Result checkCommandBufferError();
+-
+     // Dirty bits.
+     enum DirtyBitType : size_t
+     {
+@@ -641,6 +640,8 @@
+     ProvokingVertexHelper mProvokingVertexHelper;
+ 
+     mtl::ContextDevice mContextDevice;
++
++    bool mContextLost = false;
+ };
+ 
+ }  // namespace rx
+diff --git a/src/libANGLE/renderer/metal/ContextMtl.mm b/src/libANGLE/renderer/metal/ContextMtl.mm
+index 4977011..c8d7639 100644
+--- a/src/libANGLE/renderer/metal/ContextMtl.mm
++++ b/src/libANGLE/renderer/metal/ContextMtl.mm
+@@ -1031,6 +1031,10 @@
+ // Device loss
+ gl::GraphicsResetStatus ContextMtl::getResetStatus()
+ {
++    if (mContextLost)
++    {
++        return gl::GraphicsResetStatus::UnknownContextReset;
++    }
+     return gl::GraphicsResetStatus::NoError;
+ }
+ 
+@@ -2908,9 +2912,19 @@
+ 
+ angle::Result ContextMtl::checkCommandBufferError()
+ {
+-    ANGLE_CHECK_GL_ALLOC(
+-        this, mCmdBuffer.cmdQueue().popCmdBufferError() != MTLCommandBufferErrorOutOfMemory);
+-    return angle::Result::Continue;
++    switch (mCmdBuffer.cmdQueue().popCmdBufferError())
++    {
++        case MTLCommandBufferErrorNone:
++            return angle::Result::Continue;
++        case MTLCommandBufferErrorOutOfMemory:
++            ANGLE_CHECK_GL_ALLOC(this, false);
++            return angle::Result::Stop;
++        default:
++            mContextLost = true;
++            ANGLE_CHECK(this, false, "Metal command buffer execution failed.",
++                        GL_INVALID_OPERATION);
++            return angle::Result::Stop;
++    }
+ }
+ 
+ }  // namespace rx
+diff --git a/src/libANGLE/renderer/metal/FrameBufferMtl.mm b/src/libANGLE/renderer/metal/FrameBufferMtl.mm
+index 2825a7c..bc45219 100644
+--- a/src/libANGLE/renderer/metal/FrameBufferMtl.mm
++++ b/src/libANGLE/renderer/metal/FrameBufferMtl.mm
+@@ -1655,6 +1655,9 @@
+ 
+         buffer->syncContent(contextMtl, contextMtl->getBlitCommandEncoder());
+         const uint8_t *bufferData = buffer->mapReadOnly(contextMtl).data();
++        // Verify that the command buffer (including any pending clears/draws and the readback
++        // blit) executed without GPU faults before reading back the buffer contents.
++        ANGLE_TRY(contextMtl->checkCommandBufferError());
+ 
+         angle::Result result = readPixelsCopyImpl(
+             context, area, packPixelsParams, renderTarget,
+@@ -1674,6 +1677,8 @@
+     {
+         contextMtl->flushCommandBuffer(mtl::WaitUntilFinished);
+     }
++    // Verify that prior command buffers affecting this texture completed without GPU faults.
++    ANGLE_TRY(contextMtl->checkCommandBufferError());
+ 
+     angle::MemoryBuffer readPixelRowBuffer;
+     auto checkedRowPitch = angle::CheckedNumeric<size_t>(area.width) * readAngleFormat.pixelBytes;
+diff --git a/src/libANGLE/renderer/metal/TextureMtl.mm b/src/libANGLE/renderer/metal/TextureMtl.mm
+index ab28138..e60b91e 100644
+--- a/src/libANGLE/renderer/metal/TextureMtl.mm
++++ b/src/libANGLE/renderer/metal/TextureMtl.mm
+@@ -713,6 +713,19 @@
+     return levelTextureViews[level];
+ }
+ 
++// Returns the texture extents in GL terms, substituting arrayLength into depth for array textures
++// since MTLTexture stores layer count in arrayLength with depth == 1.
++gl::Extents GetTextureGLSize(const mtl::TextureRef &texture,
++                             const mtl::MipmapNativeLevel &nativeLevel)
++{
++    gl::Extents size = texture->size(nativeLevel);
++    if (texture->textureType() == MTLTextureType2DArray)
++    {
++        size.depth = static_cast<int>(texture->arrayLength());
++    }
++    return size;
++}
++
+ }  // namespace
+ 
+ // TextureMtl::NativeTextureWrapper implementation.
+@@ -799,6 +812,10 @@
+     uint32_t depth(GLuint glLevel) const { return mNativeTexture->depth(getNativeLevel(glLevel)); }
+ 
+     gl::Extents size(GLuint glLevel) const { return mNativeTexture->size(getNativeLevel(glLevel)); }
++    gl::Extents getGLSize(GLuint glLevel) const
++    {
++        return GetTextureGLSize(mNativeTexture, getNativeLevel(glLevel));
++    }
+ 
+     // Get width, height, depth, size at base level.
+     uint32_t widthAt0() const { return width(mBaseGLLevel); }
+@@ -2094,7 +2111,7 @@
+         // must release it.
+         ASSERT(mNativeTextureStorage->textureType() == mtl::GetTextureType(index.getType()));
+         if (mNativeTextureStorage->getFormat() != mtlFormat ||
+-            size != mNativeTextureStorage->size(glLevel))
++            size != mNativeTextureStorage->getGLSize(glLevel))
+         {
+             // Keep other images
+             deallocateNativeStorage(/*keepImages=*/true);
+@@ -2118,7 +2135,7 @@
+             imageDef.image->textureType() ==
+                 mtl::GetTextureType(GetTextureImageType(index.getType())) &&
+             imageDef.formatID == mNativeTextureStorage->getFormat().intendedFormatId &&
+-            imageDef.image->sizeAt0() == size)
++            GetTextureGLSize(imageDef.image, mtl::kZeroNativeMipLevel) == size)
+         {
+             // Keep it! (No-op)
+         }
+diff --git a/src/libANGLE/renderer/metal/mtl_command_buffer.h b/src/libANGLE/renderer/metal/mtl_command_buffer.h
+index 2221ba0..9da3d60 100644
+--- a/src/libANGLE/renderer/metal/mtl_command_buffer.h
++++ b/src/libANGLE/renderer/metal/mtl_command_buffer.h
+@@ -59,7 +59,7 @@
+ class AtomicCommandBufferError : angle::NonCopyable
+ {
+   public:
+-    void store(MTLCommandBufferError value) { mValue.store(value, std::memory_order_release); }
++    void store(MTLCommandBufferError value);
+     MTLCommandBufferError pop()
+     {
+         return mValue.exchange(MTLCommandBufferErrorNone, std::memory_order_acq_rel);
+diff --git a/src/libANGLE/renderer/metal/mtl_command_buffer.mm b/src/libANGLE/renderer/metal/mtl_command_buffer.mm
+index 1dd725d..04a52b9 100644
+--- a/src/libANGLE/renderer/metal/mtl_command_buffer.mm
++++ b/src/libANGLE/renderer/metal/mtl_command_buffer.mm
+@@ -481,6 +481,21 @@
+     }
+ }
+ 
++// AtomicCommandBufferError implementation
++void AtomicCommandBufferError::store(MTLCommandBufferError value)
++{
++    // Do not overwrite an existing non-OOM GPU fault error (e.g. Timeout, PageFault,
++    // DeviceRemoved) with a subsequent error (such as NotPermitted from rejected follow-up
++    // submissions or OutOfMemory) so the root-cause fault is preserved until popped.
++    MTLCommandBufferError prevError = mValue.load(std::memory_order_relaxed);
++    while (
++        (prevError == MTLCommandBufferErrorNone || prevError == MTLCommandBufferErrorOutOfMemory) &&
++        !mValue.compare_exchange_weak(prevError, value, std::memory_order_release,
++                                      std::memory_order_consume))
++    {
++    }
++}
++
+ // CommandQueue implementation
+ void CommandQueue::reset()
+ {
+diff --git a/src/tests/gl_tests/TextureTest.cpp b/src/tests/gl_tests/TextureTest.cpp
+index da2ff61..cf6f9c8 100644
+--- a/src/tests/gl_tests/TextureTest.cpp
++++ b/src/tests/gl_tests/TextureTest.cpp
+@@ -9814,6 +9814,52 @@
+     EXPECT_PIXEL_COLOR_EQ(px, py, GLColor::green);
+ }
+ 
++// Test that redefining level 0 of a multi-layer 2D array texture to 1 layer (with unchanged
++// width, height, and format) followed by glGenerateMipmap preserves the newly uploaded level 0
++// data and generates mipmaps from it.
++TEST_P(Texture2DArrayTestES3, RedefineBaseLevelLayerCountToOneThenGenerateMipmap)
++{
++    constexpr GLsizei kSize          = 8;
++    constexpr GLsizei kInitialLayers = 4;
++
++    glBindTexture(GL_TEXTURE_2D_ARRAY, m2DArrayTexture);
++    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++
++    // Define level 0 with 4 layers filled with red and draw to materialize native storage.
++    const std::vector<GLColor> pixelsRed(kSize * kSize * kInitialLayers, GLColor::red);
++    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, kSize, kSize, kInitialLayers, 0, GL_RGBA,
++                 GL_UNSIGNED_BYTE, pixelsRed.data());
++    ASSERT_GL_NO_ERROR();
++
++    glUseProgram(mProgram);
++    glUniform1i(mTextureArraySliceUniformLocation, 0);
++    drawQuad(mProgram, "position", 0.5f);
++    ASSERT_GL_NO_ERROR();
++    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::red);
++
++    // Redefine level 0 with 1 layer (unchanged width, height, and format) filled with green.
++    const std::vector<GLColor> pixelsGreen(kSize * kSize * 1, GLColor::green);
++    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, kSize, kSize, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE,
++                 pixelsGreen.data());
++    ASSERT_GL_NO_ERROR();
++
++    // Generate mipmaps; this recreates storage for the full mip chain of the 1-layer array.
++    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
++    ASSERT_GL_NO_ERROR();
++
++    // Verify level 0 and level 1 contain green.
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m2DArrayTexture, 0, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::green);
++
++    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m2DArrayTexture, 1, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize / 2, kSize / 2, GLColor::green);
++}
++
+ // Create a 2D array texture, use it, then redefine one level without changing dimensions.
+ TEST_P(Texture2DArrayTestES3, RedefineLevelData)
+ {

@@ -6,7 +6,7 @@ These versions address DOMPurify advisories [GHSA-55q2-fjhq-7xh7](https://github
 
 ## Rebuild
 
-Use **Node.js 24.22.1** and the [managed npm 12.2.1 profile with bundled Undici 6.29.1](../../maintainer/NPM-TOOLCHAIN.md). From this directory:
+Use **Node.js 26.13.0** and the [managed npm 12.2.2 profile with bundled Undici 6.29.1](../../maintainer/NPM-TOOLCHAIN.md). From this directory:
 
 ```text
 node ../npm.mjs -- ci --ignore-scripts

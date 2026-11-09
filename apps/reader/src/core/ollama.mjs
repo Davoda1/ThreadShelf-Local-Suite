@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { boundedResponseText } from './bounded-response.mjs';
 
 export function normalizeOllamaUrl(raw = 'http://127.0.0.1:11434') {
   let url;
@@ -47,7 +48,7 @@ export async function deleteOllamaModel(searcher, { url, model, signal } = {}) {
       method: 'DELETE', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: name }), signal: combined, redirect: 'error',
     });
-    text = await response.text();
+    text = await boundedResponseText(response, 1024 * 1024, 'Ollama model-removal');
   } catch (error) {
     signal?.throwIfAborted();
     throw new Error(`Ollama model removal could not be confirmed at ${base.origin}: ${error.message}. Refresh models before retrying.`);

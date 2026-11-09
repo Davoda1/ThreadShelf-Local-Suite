@@ -2,14 +2,14 @@
 export const renderingPreview = {
   "id": "preview-rendering-4",
   "collection": "Reader examples",
-  "title": "1.4.2 rendering examples",
+  "title": "1.4.3 rendering examples",
   "provider": "openai",
   "sourceFile": "synthetic/rendering-examples.json",
   "conversationKey": "preview-rendering-4",
   "turnCount": 8,
   "turns": [
     {
-      "user": "Show how 1.4.2 handles embedded images and empty ChatGPT intermediate statuses.",
+      "user": "Show how 1.4.3 handles embedded images and empty ChatGPT intermediate statuses.",
       "turn_index": 1
     },
     {
@@ -42,3 +42,34 @@ export const renderingPreview = {
     }
   ]
 };
+
+// Saved metadata is bound to this synthetic message explicitly. Links describe
+// source identities; the offline preview never fetches the referenced pages.
+const compatibilityTurn = {
+  ai: [
+    '## Grok and ChatGPT archive rendering',
+    'Saved web citation citeturn0search0 and file citation fileciteturn1file0L4-L8 use metadata included in this example.',
+    'entity["software","ThreadShelf Local Reader","Synthetic archive example"]',
+    'genui{"future_widget":{"title":"Saved interactive content","text":"Its source remains inspectable. No action is run."}}',
+    'Grok source <grok:render card_id="preview-source" card_type="citation_card" type="render_inline_citation"><argument name="citation_id">0</argument></grok:render>',
+    '<grok-card data-id="preview-chart" data-type="chart_card" data-plain-type="render_chart"></grok-card>',
+    '<xaiArtifact artifact_id="preview-svg" title="Saved SVG artifact" contentType="image/svg+xml"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60"><rect width="240" height="60" rx="8" fill="#2868b2"/><text x="120" y="37" text-anchor="middle" fill="white" font-size="16">Saved SVG artifact</text></svg></xaiArtifact>',
+    'Original markup remains literal inside code:',
+    '```xml\n<grok:render card_id="preview-source" card_type="citation_card"/>\n```',
+  ].join('\n\n'),
+  turn_index: 9,
+  source_message_id: 'preview-compatibility-message',
+  source_node_id: 'preview-compatibility-node',
+  cardAttachments: [
+    { id: 'preview-source', cardType: 'citation_card', title: 'Synthetic saved source', url: 'https://example.com/saved-source' },
+    { id: 'preview-chart', cardType: 'chart_card', config: { type: 'bar', data: { labels: ['Alpha', 'Beta'], datasets: [{ label: 'Synthetic values', data: [-3, 7] }] } } },
+  ],
+};
+renderingPreview.turns.push(compatibilityTurn);
+renderingPreview.turnCount = renderingPreview.turns.length;
+renderingPreview.raw = { mapping: { 'preview-compatibility-node': { message: {
+  id: 'preview-compatibility-message', metadata: { content_references: [
+    { type: 'webpage', ref_id: 'turn0search0', title: 'Synthetic saved source', url: 'https://example.com/saved-source' },
+    { type: 'file', ref_id: 'turn1file0', filename: 'Synthetic-report.pdf' },
+  ] },
+} } } };

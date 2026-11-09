@@ -9,6 +9,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { initializeVectorCatalog, VectorBlockReader, VectorBlockWriter } from './search-index.mjs';
 import { SearchSpill } from './search-spill.mjs';
 import { SearchTextIndex, searchPeriodRange, matchesSearchPeriod } from './search-text-index.mjs';
+import { boundedResponseText } from './bounded-response.mjs';
 
 export const SEMANTIC_MODEL = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
 const MODEL_KEY = `${SEMANTIC_MODEL}:q8:chunks-v1`;
@@ -565,7 +566,7 @@ export class SearchService {
       checkAbort(options.signal);
       throw new Error(`Cannot reach Ollama at ${base.origin}: ${error.message}. Start Ollama and check its address.`);
     }
-    const text = await response.text();
+    const text = await boundedResponseText(response, 16 * 1024 * 1024, 'Ollama');
     let body; try { body = JSON.parse(text); } catch { body = null; }
     if (!response.ok) throw Object.assign(new Error(`Ollama ${response.status}: ${body?.error ?? text.slice(0, 300) ?? response.statusText}`), { status: response.status });
     if (!body || typeof body !== 'object') throw new Error('Ollama returned an invalid JSON response. Check that this address belongs to an Ollama server.');
@@ -686,9 +687,10 @@ export class SearchService {
     this._progress({ operation: 'ollama.pull', phase: 'download', message: `Downloading ${model} through the configured Ollama server.` });
     const response = await this.fetch(new URL('api/pull', base), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: model, stream: true }), signal: combined, redirect: 'error' });
     if (!response.ok || !response.body) throw new Error(`Ollama model download failed: HTTP ${response.status}. Start Ollama and check the model name.`);
-    let pending = '', succeeded = false;
+    let pending = '', succeeded = false, progressBytes = 0;
     const decoder = new TextDecoder('utf-8', { fatal: true });
     const consume = line => {
+      if (line.length > 1_048_576) throw new Error('Ollama returned an oversized model-download progress record.');
       if (!line.trim()) return;
       let event; try { event = JSON.parse(line); } catch { throw new Error('Ollama returned invalid model-download progress.'); }
       if (!event || typeof event !== 'object') throw new Error('Ollama returned invalid model-download progress.');
@@ -698,6 +700,8 @@ export class SearchService {
     };
     try {
       for await (const chunk of response.body) {
+        progressBytes += chunk.byteLength;
+        if (progressBytes > 64 * 1024 * 1024) throw new Error('Ollama model-download progress exceeds its 64 MiB safety limit.');
         checkAbort(combined); pending += decoder.decode(chunk, { stream: true });
         let end; while ((end = pending.indexOf('\n')) !== -1) { consume(pending.slice(0, end)); pending = pending.slice(end + 1); }
         if (pending.length > 1_048_576) throw new Error('Ollama returned an oversized model-download progress record.');

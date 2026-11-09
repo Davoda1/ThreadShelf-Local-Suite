@@ -44,7 +44,7 @@ async function verifyBundledCodec() {
   // The source offer and notices travel with the executables in every release.
   // This is a release gate: do not emit a package that can only use ZIP.
   for (const relative of ['vendor/7zip/linux-x64/7zz', 'vendor/7zip/win32-x64/7za.exe',
-    'vendor/7zip/7z2603-src.tar.xz', 'vendor/7zip/License.txt', 'vendor/7zip/copying.txt',
+    'vendor/7zip/7z2606-src.tar.xz', 'vendor/7zip/License.txt', 'vendor/7zip/copying.txt',
     'vendor/7zip/README.md', 'vendor/7zip/provenance.json']) {
     const full = path.join(root, relative);
     if (!exists(full) || !(await fsp.stat(full)).size) throw new Error(`Bundled 7-Zip release input missing: ${relative}`);

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "electron_version": "45.2.3",
+  "old_electron_revision": "45d20ec03000aac41e73b2abdb707936b4f98ed0",
+  "electron_revision": "d0a18d02058b21ff292e25d5f53f00bd120f2f61",
+  "selected_checkout_count": 179,
+  "added_checkouts": [],
+  "removed_checkouts": [],
+  "unchanged_non_git_dependency_records": true,
+  "changed_checkouts": [
+    {
+      "path": "src",
+      "old": "https://chromium.googlesource.com/chromium/src.git@156.0.8078.49",
+      "new": "https://chromium.googlesource.com/chromium/src.git@156.0.8078.80"
+    },
+    {
+      "path": "src/third_party/electron_node",
+      "old": "https://github.com/nodejs/node.git@v24.22.1",
+      "new": "https://github.com/nodejs/node.git@v24.22.2"
+    },
+    {
+      "path": "src/third_party/angle",
+      "old": "https://chromium.googlesource.com/angle/angle.git@3b89d84e9d59f75675ac4e2bef58fc068a9f0577",
+      "new": "https://chromium.googlesource.com/angle/angle.git@127e783de33425c27a70a3f48da9d9202d6a0745"
+    },
+    {
+      "path": "src/third_party/dawn",
+      "old": "https://dawn.googlesource.com/dawn.git@1da41e55bb915dd03f61028fad64a99ee1786d48",
+      "new": "https://dawn.googlesource.com/dawn.git@8114a24a35eed1db88d1d897e8bd193a8c334712"
+    },
+    {
+      "path": "src/third_party/devtools-frontend/src",
+      "old": "https://chromium.googlesource.com/devtools/devtools-frontend@bf69d041b0ad1f74730204a73bff29f3ef1d4ead",
+      "new": "https://chromium.googlesource.com/devtools/devtools-frontend@8c62f844ad8e0664ff41a633bfc17c472f1c5fd6"
+    },
+    {
+      "path": "src/third_party/icu",
+      "old": "https://chromium.googlesource.com/chromium/deps/icu.git@19dfb44a62ae60ce6b0060de8c0cef5d5c527177",
+      "new": "https://chromium.googlesource.com/chromium/deps/icu.git@2a51536dfb3b448bdf3dae70c782ea2879c90904"
+    },
+    {
+      "path": "src/third_party/libaom/source/libaom",
+      "old": "https://aomedia.googlesource.com/aom.git@7b6197cb8fdc1ce555a03d23a9d25242c61d38e6",
+      "new": "https://aomedia.googlesource.com/aom.git@016144ea8b8b84b9cfa1c3fba56227b2d3471229"
+    },
+    {
+      "path": "src/third_party/libvpx/source/libvpx",
+      "old": "https://chromium.googlesource.com/webm/libvpx.git@5e680f30801d03c21078f8c4b772464752516211",
+      "new": "https://chromium.googlesource.com/webm/libvpx.git@de61454cf81594d5927899da122fc53dcc4a846e"
+    },
+    {
+      "path": "src/third_party/pdfium",
+      "old": "https://pdfium.googlesource.com/pdfium.git@2f22dfe030ded6a7666aeea4899d400bd2e338a4",
+      "new": "https://pdfium.googlesource.com/pdfium.git@c97f02a3519c99d5969514970fd8186318cdb2b0"
+    },
+    {
+      "path": "src/third_party/skia",
+      "old": "https://skia.googlesource.com/skia.git@886e42fda11610a56dd1b22e8697e27f9d1e34f2",
+      "new": "https://skia.googlesource.com/skia.git@aa789d9bd566b9865add4070dc6777b3266c64e9"
+    },
+    {
+      "path": "src/third_party/webrtc",
+      "old": "https://webrtc.googlesource.com/src.git@ce13eaa8e5750b09c46b088a35d74bdadbac25dc",
+      "new": "https://webrtc.googlesource.com/src.git@19576e37870bfe5a0a910a32f98ff411f722f43a"
+    },
+    {
+      "path": "src/v8",
+      "old": "https://chromium.googlesource.com/v8/v8.git@392e44423f46d75904da712fadea4c7d5d97967f",
+      "new": "https://chromium.googlesource.com/v8/v8.git@c9b3cfcab30ace06c21f9b48a0f0a34805e81e9d"
+    }
+  ],
+  "all_changed_selected_git_checkouts_listed": true,
+  "unchanged_supplemental_source_inputs": true,
+  "scope": "Recursive Linux x64/Windows x64 DEPS comparison using the existing restricted data-only evaluator; no upstream hooks or source programs executed. Electron itself is a full replacement archive in addition to the selected DEPS checkouts."
+}

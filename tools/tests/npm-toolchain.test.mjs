@@ -94,7 +94,7 @@ describe('managed npm archive and cache boundary', { concurrency: false }, () =>
         assert.doesNotMatch(args[1], /[:\\]/, 'tar archive path must contain neither a drive colon nor backslash separators');
         assert.equal(path.dirname(path.dirname(options.cwd)), cache, 'native cwd must be inside the private extraction stage');
         assert.match(path.basename(path.dirname(options.cwd)), /^\.stage-/);
-        assert.ok(['npm', 'undici'].includes(path.basename(options.cwd)));
+        assert.ok(Object.keys(ARCHIVES).includes(path.basename(options.cwd)));
         assert.equal(path.resolve(options.cwd, args[1]), path.join(cache, 'downloads', path.basename(args[1])));
         archives.push(path.basename(args[1]));
       }
@@ -293,7 +293,7 @@ console.log('MANAGED_NESTED_PROFILE_OK');\n`);
   });
 });
 
-test('upstream content-encoding advisory crashes original npm child but patched profile rejects safely', async () => {
+test('official npm 12.2.2 and the managed profile both reject the content-encoding advisory safely', async () => {
   const original = path.join(temporary, 'original npm');
   await fs.mkdir(original);
   // Feed the already integrity-checked pristine fixture through stdin. Native
@@ -313,17 +313,12 @@ const server=createServer(socket=>{socket.on('error',()=>{});socket.once('data',
 await assert.rejects(fetch('http://127.0.0.1:'+server.address().port,{dispatcher}),error=>{assert.match(error.cause?.message||'',/content-encoding/);console.log('CAUGHT_FETCH_REJECTION');return true;});
 await new Promise(resolve=>setTimeout(resolve,100));await dispatcher.close();await new Promise(resolve=>server.close(resolve));clearTimeout(timeout);console.log('SURVIVED_EARLY_CLOSE');
 })().catch(error=>{console.error(error);process.exit(3);});\n`);
-  for (const [root, vulnerable] of [[original, true], [toolchain.root, false]]) {
+  for (const root of [original, toolchain.root]) {
+    assert.equal(JSON.parse(await fs.readFile(path.join(root, 'node_modules/undici/package.json'))).version, '6.29.1');
     const result = node(['--max-old-space-size=128', child, path.join(root, 'node_modules/undici')]);
     assert.match(result.stdout, /CAUGHT_FETCH_REJECTION/);
-    if (vulnerable) {
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, /Unhandled 'error' event/);
-      assert.match(result.stderr, /UND_ERR_RES_CONTENT_LENGTH_MISMATCH/);
-      assert.doesNotMatch(result.stdout, /SURVIVED_EARLY_CLOSE/);
-    } else {
-      assert.equal(result.status, 0, result.stderr);
-      assert.match(result.stdout, /SURVIVED_EARLY_CLOSE/);
-    }
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /SURVIVED_EARLY_CLOSE/);
+    assert.doesNotMatch(result.stderr, /Unhandled 'error' event/);
   }
 });

@@ -81,7 +81,7 @@ function add(turns, kind, value, sourceIndex, message = {}, conversation = {}, e
   if (!nonempty(text)) return;
   const model = message.modelName ?? message.model ?? message.model_slug ?? message.modelId ?? message.metadata?.model_slug ?? conversation.default_model_slug ?? conversation.model ?? conversation.runSettings?.model ?? conversation.lastUsedModel?.identifier;
   turns.push({ [kind]: text, turn_index: Number.isSafeInteger(message.turn_index) && message.turn_index >= 0 ? message.turn_index : sourceIndex,
-    source_message_id: message.id ?? message.uuid ?? message._id,
+    source_message_id: message.id ?? message.uuid ?? message._id ?? message.response_id ?? message.responseId,
     createdAt: timestamp(message, conversation), ...(typeof model === 'string' ? { model } : {}), ...extra });
 }
 function build(provider, record, turns, sourceFile, explicit, extra = {}) {

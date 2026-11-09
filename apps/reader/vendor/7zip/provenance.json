@@ -1,39 +1,42 @@
 {
-  "version": "26.03",
-  "releaseDate": "2026-09-03",
-  "retrievedDate": "2026-09-28",
+  "version": "26.06",
+  "releaseDate": "2026-11-06",
+  "retrievedDate": "2026-11-09",
   "officialDownloadPage": "https://www.7-zip.org/download.html",
-  "sourceArchive": "7z2603-src.tar.xz",
+  "sourceArchive": "7z2606-src.tar.xz",
   "modifications": "None. Upstream Linux static executable 7zzs is renamed to 7zz. Windows executable is x64/7za.exe from Extra.",
   "upstreamDownloads": [
     {
-      "url": "https://github.com/ip7z/7zip/releases/download/26.03/7z2603-linux-x64.tar.xz",
-      "sha256": "dc99eff5008f1ab79bd7084c68513701547a808a89502bf4133683535ab3c695"
+      "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-extra.7z",
+      "sha256": "396c180f12d2247c24b0b1fcd482c6fc2a2700f61211ffede1061dd971f5e104",
+      "upstreamAssetDigestVerified": true
     },
     {
-      "url": "https://github.com/ip7z/7zip/releases/download/26.03/7z2603-extra.7z",
-      "sha256": "191894e6acb3647ffb69ce630479ff318523b2e2b9890aa7f05c1127c2e59b8f"
+      "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-linux-x64.tar.xz",
+      "sha256": "2b539cf067b2ad48e1baa5093dbaa8818b73542d1222a0ffde9dc5f2922ea62e",
+      "upstreamAssetDigestVerified": true
     },
     {
-      "url": "https://github.com/ip7z/7zip/releases/download/26.03/7z2603-src.tar.xz",
-      "sha256": "9cbde5099c6deb73691b0579063da5827522ccbbcba3f0020fd04e8c8c16c0d4"
+      "url": "https://github.com/ip7z/7zip/releases/download/26.06/7z2606-src.tar.xz",
+      "sha256": "a4e374c8f864f51df48c2cfd0e1413ec3b2ea030deae852d6a655402ebb61ac4",
+      "upstreamAssetDigestVerified": true
     }
   ],
   "files": [
     {
       "file": "linux-x64/7zz",
-      "bytes": 3767416,
-      "sha256": "eab4c8d7f193e3d6d3237370bbcaa879a160a3f1dc82202207e27baeab79b6ac"
+      "bytes": 3759224,
+      "sha256": "0b58a64e71ebdf53751cd954cad1cc552c6a11ef51336bee6acafbdc54c28c1f"
     },
     {
       "file": "win32-x64/7za.exe",
-      "bytes": 1335296,
-      "sha256": "edbee35370e14030e4c785cf88200f42dc651c1eb4217c1e3963c38a12f099b0"
+      "bytes": 1328640,
+      "sha256": "dd3757f31c97e33776f2590317d4fb12f2da075db3dbb1e3f94d0f2a01d84ffa"
     },
     {
-      "file": "7z2603-src.tar.xz",
-      "bytes": 1552200,
-      "sha256": "9cbde5099c6deb73691b0579063da5827522ccbbcba3f0020fd04e8c8c16c0d4"
+      "file": "7z2606-src.tar.xz",
+      "bytes": 1567328,
+      "sha256": "a4e374c8f864f51df48c2cfd0e1413ec3b2ea030deae852d6a655402ebb61ac4"
     },
     {
       "file": "License.txt",
@@ -45,5 +48,7 @@
       "bytes": 27032,
       "sha256": "1e7e6bae5a5bde32f1ae5a7c37a082d1ab03cf89354f7f936ac40be9e39a6531"
     }
-  ]
+  ],
+  "officialReleasePage": "https://github.com/ip7z/7zip/releases/tag/26.06",
+  "publishedAt": "2026-11-07T11:45:33Z"
 }

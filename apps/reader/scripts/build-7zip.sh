@@ -10,7 +10,7 @@ fi
 command -v make >/dev/null
 command -v c++ >/dev/null
 mkdir -p "$codec_build"
-tar -xJf "$codec_root/vendor/7zip/7z2603-src.tar.xz" -C "$codec_build"
+tar -xJf "$codec_root/vendor/7zip/7z2606-src.tar.xz" -C "$codec_build"
 cd "$codec_build/CPP/7zip/Bundles/Alone2"
 make -j2 -f ../../cmpl_gcc.mak
 printf '%s\n' "Built executable: $codec_build/CPP/7zip/Bundles/Alone2/b/g/7zz"

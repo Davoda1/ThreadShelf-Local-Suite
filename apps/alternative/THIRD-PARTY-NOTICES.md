@@ -10,28 +10,21 @@ Browser rendering components and their licenses are listed in `vendor/RENDERER-N
 
 The shared Mermaid 12.2.0 bundle uses DOMPurify 3.4.17 and KaTeX 0.19.1. `vendor/licenses/Mermaid-BUNDLE-NOTICES.txt` preserves notices for every incorporated component; the adjacent `Mermaid-BUNDLE-MANIFEST.json` records exact versions and hashes. The reproducible recipe and npm lockfile are in `tools/mermaid-bundle/` at the suite repository root.
 
-The desktop packages include Electron 45.1.0. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v45.1.0 and https://www.electronjs.org/.
+The desktop packages include Electron 45.2.3. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v45.2.3 and https://www.electronjs.org/.
 
 Windows executable branding produces an unsigned application executable. The package does not claim a publisher signature.
 
 ## Electron runtime source access
 
-The 1.3.0 candidate uses Electron **45.1.0**, Chromium **156.0.8078.49** and
-embedded Node.js **24.22.1**. Original runtime notices remain intact.
-[Runtime source access and rebuilding](licenses/ELECTRON-SOURCE-ACCESS.md)
-records the exact upstream revisions and source preparation status.
-
-The complete matching runtime source companion is still pending; publication
-of the new binaries is blocked until it is assembled, verified and supplied
-beside them. The historical v1.0.0 runtime mirror covers Electron 44.9.1 and
-must not be represented as matching source for 45.1.0. The unchanged Reader
-sharp/libvips source materials retain their separate versioned provenance.
-
-Original license grants continue to apply. Chromium's Blink
-`platform/wtf/text/base64.cc` retains its original LGPL version 2 grant without
-an “or later” option; the new source was checked and its hash retained. The
-old per-file license-selection index cannot be reused as evidence for the new
-Chromium source. Preserve original notices and complete corresponding sources.
+Suite 1.4.3 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+embedded Node.js **24.22.2**. Original runtime notices remain intact.
+Matching runtime source is the historical 1.3.0 original source collection
+plus the 1.4.3 runtime source update; both are required. Historical source
+verification records remain specific to Electron 45.1.0. See
+[Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
+offline update instructions and upstream build/replacement guidance.
+The unchanged sharp/libvips and ONNX source companions keep their original
+versions, notices and verification scope.
 
 ## Bundled CPU Text-to-Speech
 

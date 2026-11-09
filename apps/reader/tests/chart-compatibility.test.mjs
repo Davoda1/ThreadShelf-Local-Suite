@@ -72,7 +72,7 @@ for(const fixture of readerFixtures) test(`${fixture.id}: existing Reader-owned 
 test('native Chart and chart contracts accept evidenced types without adding unknown families',()=>{
   const c=content('C01');assert.equal(normalizeChart(c).ok,true);assert.equal(adapt({chart:{content:c}}).ok,true);
   const component=[...prepareRichMarkdown(`<Chart content={${fixtureLiteral(c)}}/>`).records.values()][0];assert.equal(normalizeChart(component.attrs.content).ok,true);
-  for(const type of ['area','doughnut','scatter','horizontal-bar']){const v=copy(c);v.chartType=type;assert.equal(normalizeChart(v,{family:'Chart'}).ok,false);assert.equal(normalizeChart(v,{family:'chart'}).ok,false);}
+  for(const type of ['doughnut','scatter','horizontal-bar']){const v=copy(c);v.chartType=type;assert.equal(normalizeChart(v,{family:'Chart'}).ok,false);assert.equal(normalizeChart(v,{family:'chart'}).ok,false);}
   assert.equal(adapt({charts_widget_v2:{language:'recharts-json',content:content('C07')}}).ok,true);
 });
 
@@ -81,8 +81,8 @@ test('unknown versions, unsupported chart semantics/layouts and unrecognized fie
   // A nonempty unit and suffix on the same series are conflicting semantics.
   const base=content('C04');for(const mutate of mutations){const v=copy(base);mutate(v);const r=widget(v);assert.equal(r.ok,false,fixtureLiteral(v));assert.deepEqual(JSON.parse(JSON.stringify(r.payload)),v);}
   for(const id of ['C05','C07','C09']){const v=content(id);v.layout='vertical';assert.equal(widget(v).ok,false);}
-  for(const type of ['area','doughnut','horizontal-bar','radar']){const v=content('C01');v.chartType=type;assert.equal(widget(v).ok,false);}
-  for(const extra of [{version:3},{language:'javascript'},{callback:'run'}])assert.equal(wrapped({charts_widget_v2:{content:content('C01'),...extra}}).length,0);
+  for(const type of ['doughnut','horizontal-bar','radar']){const v=content('C01');v.chartType=type;assert.equal(widget(v).ok,false);}
+  for(const extra of [{version:3},{language:'javascript'},{callback:'run'}]){const payload={charts_widget_v2:{content:content('C01'),...extra}},nodes=wrapped(payload);assert.equal(nodes.length,1);assert.equal(nodes[0].kind,'archived-widget');assert.equal(nodes[0].source,genuiMessage(payload));}
   const r=copy(fixtureById('R04').content);r.version=2;assert.equal(normalizeChart(r).ok,false);
 });
 

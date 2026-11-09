@@ -1,0 +1,278 @@
+diff --git a/.gn b/.gn
+index 34988d8..c99a3f3 100644
+--- a/.gn
++++ b/.gn
+@@ -79,3 +79,8 @@
+ # Export compile_commands.json to build dir for all generated targets.
+ # Useful for editors that parse the compilation database for symbol lookup.
+ export_compile_commands = [ "*" ]
++
++# V8 does not pass unrestricted header inclusion checks (it sets
++# no_check_targets in its own .gn). Exclude it here so gn gen --check does not
++# fail when checkout_v8 is enabled on CQ builders.
++no_check_targets = [ "//third_party/v8/*" ]
+diff --git a/src/dawn/native/CreatePipelineAsyncEvent.cpp b/src/dawn/native/CreatePipelineAsyncEvent.cpp
+index 80a7947..5190633 100644
+--- a/src/dawn/native/CreatePipelineAsyncEvent.cpp
++++ b/src/dawn/native/CreatePipelineAsyncEvent.cpp
+@@ -201,8 +201,8 @@
+                 const std::string& label = mPipeline->GetLabel();
+                 mPipeline = PipelineType::MakeError(device.Get(), label.c_str());
+             }
+-            pipeline = std::move(mPipeline);
+         } else if (mError != nullptr) {
++            mPipeline = nullptr;
+             switch (mError->GetType()) {
+                 case InternalErrorType::Validation:
+                     status = WGPUCreatePipelineAsyncStatus_ValidationError;
+@@ -214,8 +214,8 @@
+             message = mError->GetFormattedMessage();
+         } else {
+             AddOrGetCachedPipeline();
+-            pipeline = std::move(mPipeline);
+         }
++        pipeline = std::move(mPipeline);
+     }
+ 
+     if (mCallback) {
+diff --git a/src/dawn/native/vulkan/RenderPipelineVk.cpp b/src/dawn/native/vulkan/RenderPipelineVk.cpp
+index 0516dba..d46a8c1 100644
+--- a/src/dawn/native/vulkan/RenderPipelineVk.cpp
++++ b/src/dawn/native/vulkan/RenderPipelineVk.cpp
+@@ -903,19 +903,15 @@
+         // Without any specific toggle only vertex inputs can be made robust enough for WebGPU.
+         robustnessCreateInfo.vertexInputs =
+             VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS;
+-        robustnessCreateInfo.uniformBuffers = VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED;
+-        robustnessCreateInfo.storageBuffers = VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED;
+-        robustnessCreateInfo.images = VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED;
+ 
+-        if (device->IsToggleEnabled(Toggle::VulkanUseBufferRobustAccess2)) {
+-            // Uniform buffers are checked with WebGPU validation and don't need robustness.
+-            robustnessCreateInfo.storageBuffers =
+-                VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_ROBUST_BUFFER_ACCESS_2;
+-        }
+-        if (device->IsToggleEnabled(Toggle::VulkanUseImageRobustAccess2)) {
+-            robustnessCreateInfo.images =
+-                VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_ROBUST_IMAGE_ACCESS_2;
+-        }
++        // Device default for uniform and storage buffers is based on
++        // Toggle::VulkanUseBufferRobustAccess2.
++        robustnessCreateInfo.uniformBuffers =
++            VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT_EXT;
++        robustnessCreateInfo.storageBuffers =
++            VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT_EXT;
++        // Device default for images is based on Toggle::VulkanUseImageRobustAccess2.
++        robustnessCreateInfo.images = VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT_EXT;
+     }
+ 
+     // Record cache key information now since createInfo is not stored. Only store for the noop
+diff --git a/src/dawn/node/napi_v8/BUILD.gn b/src/dawn/node/napi_v8/BUILD.gn
+index c65ed37..3c9211e 100644
+--- a/src/dawn/node/napi_v8/BUILD.gn
++++ b/src/dawn/node/napi_v8/BUILD.gn
+@@ -45,7 +45,8 @@
+     public_configs = [ ":napi_v8_public_config" ]
+ 
+     deps = [
+-      "${dawn_abseil_dir}/absl/container:linked_hash_map",
++      "${dawn_abseil_dir}:absl",
++      "${dawn_root}/src/utils",
+       "//third_party/v8/src:v8",
+     ]
+   }
+diff --git a/src/dawn/node/napi_v8/napi_v8.cpp b/src/dawn/node/napi_v8/napi_v8.cpp
+index e6ff904..6232bec 100644
+--- a/src/dawn/node/napi_v8/napi_v8.cpp
++++ b/src/dawn/node/napi_v8/napi_v8.cpp
+@@ -1486,12 +1486,6 @@
+     std::abort();
+ }
+ 
+-static napi_module* g_registered_module = nullptr;
+-
+-void napi_module_register(napi_module* mod) {
+-    g_registered_module = mod;
+-}
+-
+ // ============================================================================
+ // References, ObjectWrap & Instance Data
+ // ============================================================================
+diff --git a/src/dawn/node/standalone/BUILD.gn b/src/dawn/node/standalone/BUILD.gn
+index 220410e..7895297 100644
+--- a/src/dawn/node/standalone/BUILD.gn
++++ b/src/dawn/node/standalone/BUILD.gn
+@@ -72,6 +72,7 @@
+ 
+     deps = [
+       "${dawn_root}/src/dawn/common",
++      "${dawn_root}/src/dawn/node:dawn_node_interop",
+       "${dawn_root}/src/dawn/node/napi_v8",
+       "//third_party/v8/src:v8",
+     ]
+diff --git a/src/dawn/node/standalone/EventLoop.cpp b/src/dawn/node/standalone/EventLoop.cpp
+index 20698fc..d03b382 100644
+--- a/src/dawn/node/standalone/EventLoop.cpp
++++ b/src/dawn/node/standalone/EventLoop.cpp
+@@ -44,6 +44,7 @@
+ #pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
+ #pragma clang diagnostic ignored "-Wunique-object-duplication"
+ #pragma clang diagnostic ignored "-Wundefined-reinterpret-cast"
++#pragma clang diagnostic ignored "-Wsign-conversion"
+ #include <v8.h>
+ 
+ #include "libplatform/libplatform.h"
+diff --git a/src/dawn/tests/BUILD.gn b/src/dawn/tests/BUILD.gn
+index 6851338..c4f53ac 100644
+--- a/src/dawn/tests/BUILD.gn
++++ b/src/dawn/tests/BUILD.gn
+@@ -449,7 +449,8 @@
+     deps += [ "${dawn_spirv_tools_dir}:spvtools_opt" ]
+   }
+ 
+-  if (checkout_v8 && dawn_node) {
++  # V8 does not build with MSVC.
++  if (checkout_v8 && dawn_node && is_clang) {
+     sources += [
+       "${dawn_root}/src/dawn/node/test/EventLoopTest.cpp",
+       "${dawn_root}/src/dawn/node/test/NapiV8Test.cpp",
+diff --git a/src/dawn/tests/unittests/native/CreatePipelineAsyncEventTests.cpp b/src/dawn/tests/unittests/native/CreatePipelineAsyncEventTests.cpp
+index 054efe6..e7ae647 100644
+--- a/src/dawn/tests/unittests/native/CreatePipelineAsyncEventTests.cpp
++++ b/src/dawn/tests/unittests/native/CreatePipelineAsyncEventTests.cpp
+@@ -46,9 +46,12 @@
+ namespace {
+ 
+ using ::testing::_;
++using ::testing::ByMove;
+ using ::testing::HasSubstr;
++using ::testing::InSequence;
+ using ::testing::IsNull;
+ using ::testing::MockCppCallback;
++using ::testing::Return;
+ 
+ using MockComputePipelineAsyncCallback = MockCppCallback<
+     void (*)(wgpu::CreatePipelineAsyncStatus, wgpu::ComputePipeline, wgpu::StringView)>;
+@@ -86,13 +89,16 @@
+     desc.depthStencil = &ds;
+     Ref<RenderPipelineMock> renderPipelineMock =
+         RenderPipelineMock::Create(mDeviceMock, FromCppAPI(&desc));
++    RenderPipelineMock* renderPipelineMockPtr = renderPipelineMock.Get();
+ 
+     ON_CALL(*renderPipelineMock.Get(), InitializeImpl)
+         .WillByDefault(testing::Return(
+             testing::ByMove(DAWN_MAKE_VALIDATION_ERROR(std::string(kErrorMessage)))));
+     ON_CALL(*mDeviceMock.get(), CreateUninitializedRenderPipelineImpl)
+-        .WillByDefault(testing::Return(testing::ByMove(renderPipelineMock)));
++        .WillByDefault(Return(ByMove(std::move(renderPipelineMock))));
+ 
++    InSequence s;
++    EXPECT_CALL(*renderPipelineMockPtr, DestroyImpl).Times(1);
+     EXPECT_CALL(mockRenderPipelineCb, Call(wgpu::CreatePipelineAsyncStatus::ValidationError,
+                                            IsNull(), HasSubstr(kErrorMessage)))
+         .Times(1);
+@@ -100,8 +106,6 @@
+     device.CreateRenderPipelineAsync(&desc, wgpu::CallbackMode::AllowProcessEvents,
+                                      mockRenderPipelineCb.Callback());
+     ProcessEvents();
+-
+-    EXPECT_CALL(*renderPipelineMock.Get(), DestroyImpl).Times(1);
+ }
+ 
+ // Verify CreateComputePipelineAsync and the internal CreateComputePipelineAsyncEvent behavior
+@@ -117,13 +121,16 @@
+     desc.depthStencil = &ds;
+     Ref<RenderPipelineMock> renderPipelineMock =
+         RenderPipelineMock::Create(mDeviceMock, FromCppAPI(&desc));
++    RenderPipelineMock* renderPipelineMockPtr = renderPipelineMock.Get();
+ 
+     ON_CALL(*renderPipelineMock.Get(), InitializeImpl)
+         .WillByDefault(testing::Return(testing::ByMove(
+             DAWN_MAKE_INTERNAL_ERROR(InternalErrorType::Internal, std::string(kErrorMessage)))));
+     ON_CALL(*mDeviceMock.get(), CreateUninitializedRenderPipelineImpl)
+-        .WillByDefault(testing::Return(testing::ByMove(renderPipelineMock)));
++        .WillByDefault(Return(ByMove(std::move(renderPipelineMock))));
+ 
++    InSequence s;
++    EXPECT_CALL(*renderPipelineMockPtr, DestroyImpl).Times(1);
+     EXPECT_CALL(mockRenderPipelineCb, Call(wgpu::CreatePipelineAsyncStatus::InternalError, IsNull(),
+                                            HasSubstr(kErrorMessage)))
+         .Times(1);
+@@ -131,8 +138,6 @@
+     device.CreateRenderPipelineAsync(&desc, wgpu::CallbackMode::AllowProcessEvents,
+                                      mockRenderPipelineCb.Callback());
+     ProcessEvents();
+-
+-    EXPECT_CALL(*renderPipelineMock.Get(), DestroyImpl).Times(1);
+ }
+ 
+ // Test that a long async task's execution won't extend to after the device is dropped.
+@@ -173,13 +178,16 @@
+     desc.compute.module = utils::CreateShaderModule(device, kComputeShader.data());
+     Ref<ComputePipelineMock> computePipelineMock =
+         ComputePipelineMock::Create(mDeviceMock, FromCppAPI(&desc));
++    ComputePipelineMock* computePipelineMockPtr = computePipelineMock.Get();
+ 
+     ON_CALL(*computePipelineMock.Get(), InitializeImpl)
+         .WillByDefault(testing::Return(
+             testing::ByMove(DAWN_MAKE_VALIDATION_ERROR(std::string(kErrorMessage)))));
+     ON_CALL(*mDeviceMock.get(), CreateUninitializedComputePipelineImpl)
+-        .WillByDefault(testing::Return(testing::ByMove(computePipelineMock)));
++        .WillByDefault(Return(ByMove(std::move(computePipelineMock))));
+ 
++    InSequence s;
++    EXPECT_CALL(*computePipelineMockPtr, DestroyImpl).Times(1);
+     EXPECT_CALL(mockComputePipelineCb, Call(wgpu::CreatePipelineAsyncStatus::ValidationError,
+                                             IsNull(), HasSubstr(kErrorMessage)))
+         .Times(1);
+@@ -187,8 +195,6 @@
+     device.CreateComputePipelineAsync(&desc, wgpu::CallbackMode::AllowProcessEvents,
+                                       mockComputePipelineCb.Callback());
+     ProcessEvents();
+-
+-    EXPECT_CALL(*computePipelineMock.Get(), DestroyImpl).Times(1);
+ }
+ 
+ // Verify CreateComputePipelineAsync and the internal CreateComputePipelineAsyncEvent behavior
+@@ -198,13 +204,16 @@
+     desc.compute.module = utils::CreateShaderModule(device, kComputeShader.data());
+     Ref<ComputePipelineMock> computePipelineMock =
+         ComputePipelineMock::Create(mDeviceMock, FromCppAPI(&desc));
++    ComputePipelineMock* computePipelineMockPtr = computePipelineMock.Get();
+ 
+     ON_CALL(*computePipelineMock.Get(), InitializeImpl)
+         .WillByDefault(testing::Return(testing::ByMove(DAWN_MAKE_INTERNAL_ERROR(
+             dawn::native::InternalErrorType::Internal, std::string(kErrorMessage)))));
+     ON_CALL(*mDeviceMock.get(), CreateUninitializedComputePipelineImpl)
+-        .WillByDefault(testing::Return(testing::ByMove(computePipelineMock)));
++        .WillByDefault(Return(ByMove(std::move(computePipelineMock))));
+ 
++    InSequence s;
++    EXPECT_CALL(*computePipelineMockPtr, DestroyImpl).Times(1);
+     EXPECT_CALL(mockComputePipelineCb, Call(wgpu::CreatePipelineAsyncStatus::InternalError,
+                                             IsNull(), HasSubstr(kErrorMessage)))
+         .Times(1);
+@@ -212,8 +221,6 @@
+     device.CreateComputePipelineAsync(&desc, wgpu::CallbackMode::AllowProcessEvents,
+                                       mockComputePipelineCb.Callback());
+     ProcessEvents();
+-
+-    EXPECT_CALL(*computePipelineMock.Get(), DestroyImpl).Times(1);
+ }
+ 
+ // Verify that noexcept callbacks work with CreateComputePipelineAsync.
+diff --git a/src/utils/warning_suppression_mappings.txt b/src/utils/warning_suppression_mappings.txt
+index 89f3bb0..2f8a73c 100644
+--- a/src/utils/warning_suppression_mappings.txt
++++ b/src/utils/warning_suppression_mappings.txt
+@@ -104,6 +104,10 @@
+ # absl uses enable_if.
+ src:*third_party{/,\\}abseil-cpp{/,\\}absl{/,\\}*
+ 
++[redundant-parens]
++# absl's btree_container.h declares `const_iterator(hint)` parameters through a macro.
++src:*third_party{/,\\}abseil-cpp{/,\\}absl{/,\\}*
++
+ [implicit-float-conversion]
+ # Implicit float conversions in tests, samples, and external dependencies.
+ src:*src{/,\\}dawn{/,\\}tests{/,\\}*

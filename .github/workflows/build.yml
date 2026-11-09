@@ -48,7 +48,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.22.1
+          node-version: 26.13.0
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.12'
@@ -82,7 +82,7 @@ jobs:
       - name: Build Alternative offline demo
         if: runner.os == 'Linux' && matrix.app == 'alternative'
         run: python apps/alternative/scripts/build-demo.py --output "release/ThreadShelf-Local-Alternative-${{ steps.component.outputs.version }}-Demo.html"
-      - name: Verify MathJax migration and Reader file citations
+      - name: Verify Reader math, citations and Grok/ChatGPT rendering
         if: runner.os == 'Linux' && matrix.app == 'reader'
         timeout-minutes: 10
         env:
@@ -96,7 +96,9 @@ jobs:
           xvfb-run -a node tools/tests/mathjax-migration.mjs > release/verification/reader-linux-mathjax.json
           xvfb-run -a node apps/reader/tests/file-citations.browser.mjs
           mv release/verification/file-citations-native.json release/verification/reader-linux-file-citations.json
-      - name: Verify Alternative file citations
+          xvfb-run -a node apps/reader/tests/chatgpt-grok.browser.mjs > release/verification/reader-linux-chatgpt.json
+          xvfb-run -a node apps/reader/tests/grok-rendering.browser.mjs > release/verification/reader-linux-grok.json
+      - name: Verify Alternative citations and Grok/ChatGPT rendering
         if: runner.os == 'Linux' && matrix.app == 'alternative'
         timeout-minutes: 10
         env:
@@ -105,6 +107,7 @@ jobs:
         run: |
           node tools/mermaid-bundle/node_modules/playwright-core/cli.js install chromium
           node apps/alternative/test/file-citations.browser.cjs
+          node apps/alternative/test/compat-rendering.cjs > release/verification/alternative-linux-compat.json
       - name: Record exact publication inputs
         run: python tools/assemble-release.py --record-inputs release --app ${{ matrix.app }} --platform ${{ matrix.platform }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

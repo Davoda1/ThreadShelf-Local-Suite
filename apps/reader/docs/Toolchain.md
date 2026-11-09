@@ -1,8 +1,8 @@
 # Reproducible build toolchain
 
-The public application version is **1.4.2**. Release tools are pinned to Node.js **24.22.1 LTS**, Electron **45.1.0**, and an isolated managed copy of npm **12.2.1** with its bundled Undici replaced by the complete official **6.29.1** package. This is a documented local toolchain modification, not a new official npm release. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
+The public application version is **1.4.3**. Release tools are pinned to Node.js **26.13.0 LTS**, Electron **45.2.3**, and an isolated managed copy of npm **12.2.2** with verified upstream dependency fixes (Undici **6.29.1**, glob **14.0.3**, minimatch **11.0.2** and their pinned dependencies). This is a documented local toolchain modification, not a new official npm release. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
 
-The source helper verifies both upstream toolchain archives against pinned SHA-512 integrity values, checks the resulting file manifest and verifies the Undici actually resolved by npm's node-gyp consumer. It does not modify global npm or fall back to an unverified system copy. npm still reports 12.2.1; the managed profile records Undici 6.29.1 separately.
+The source helper verifies all six upstream toolchain archives against pinned SHA-512 integrity values, checks the resulting file manifest and verifies the Undici actually resolved by npm's node-gyp consumer. It does not modify global npm or fall back to an unverified system copy. npm still reports 12.2.2; the managed profile records Undici 6.29.1 separately.
 
 `package-lock.json` records application dependency versions and integrity values. Use `node scripts/npm-toolchain.mjs -- ci` from the application source directory to reproduce that release graph. The bundled 7-Zip codec includes corresponding source, checksums and license notices.
 
@@ -37,7 +37,7 @@ The packager accepts a runtime cache with `--runtime-cache DIRECTORY`. Each cach
 
 ## Entry points
 
-Windows ZIPs contain the native EXE at the extraction root. Linux TAR.GZ/DEB entry points link directly to the native ELF executable. Development scripts are not application launchers. See [Packaging policy](Packaging-Policy.md).
+Windows ZIPs contain the native EXE at the extraction root. Linux TAR.GZ entry points are regular native ELF executables; DEB installs a regular static ELF entry point under `/usr/bin/` that executes the native payload under `/opt/`. Development scripts are not application launchers. See [Packaging policy](Packaging-Policy.md).
 
 ## Manual screenshots
 
