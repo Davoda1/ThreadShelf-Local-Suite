@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Production UI with a controlled persistent resource bridge; no private data.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -14,7 +15,7 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-resources-ui-'));
 const evidence=process.env.READER_RESOURCES_UI_REPORT||path.join(root,'.verification/resources-cache-ui.json');
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 await build({absWorkingDir:root,entryPoints:['src/ui/app.js'],outdir:tmp,bundle:true,format:'iife',platform:'browser',loader:{'.woff':'dataurl','.woff2':'dataurl','.ttf':'dataurl','.svg':'dataurl','.png':'dataurl'},logLevel:'silent'});
 const server=http.createServer(async(req,res)=>{try{
  const pathname=new URL(req.url,'http://localhost').pathname,base=path.basename(pathname);

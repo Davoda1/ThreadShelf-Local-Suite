@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic chat-derived chart contents through actual native import, an
 // explicitly supplied unmodified server, and Copy-to-Local. No converter or
 // future account-export coverage is claimed. All server data is disposable.
@@ -51,7 +52,7 @@ try {
   const web=path.join(tmp,'web');await fs.cp(path.join(root,'public'),web,{recursive:true});
   await build({stdin:{contents:`import {ReaderView} from ${JSON.stringify(path.join(root,'src/reader/reader.js'))};window.ReaderView=ReaderView;`,resolveDir:root},outfile:path.join(web,'test.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
   await fs.writeFile(path.join(web,'index.html'),'<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="test.css"><style>html,body{margin:0;height:100%;overflow:hidden}#host{height:100vh}</style><div id="host"></div><script src="test.js"></script>');
-  const playwright=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');browser=await playwright.chromium.launch({executablePath:process.env.READER_CHROMIUM,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+  const playwright=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));browser=await playwright.chromium.launch({executablePath:process.env.READER_CHROMIUM,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
   const page=await browser.newPage({viewport:{width:1000,height:800}});page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',r=>{if(/^https?:/.test(r.request().url())){network.push(r.request().url());return r.abort();}return r.continue();});await page.goto(pathToFileURL(path.join(web,'index.html')).href);
   await page.evaluate(()=>{window.reader=new ReaderView({container:document.getElementById('host'),settings:{language:'en',theme:'light',compact:false,animations:false}});});
   for(const [route,thread] of [['direct-native',direct],['actual-server',remote],['copied-local',local]]) {

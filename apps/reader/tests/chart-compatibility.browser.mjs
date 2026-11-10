@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic chat-derived fixtures through the real ReaderView/message pipeline.
 // This is browser rendering coverage, not a claim of an account-export round trip.
 import assert from 'node:assert/strict';
@@ -17,7 +18,7 @@ const baseline=process.env.READER_CHART_BASELINE;
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'reader-chart-browser-'));
 const evidence=process.env.READER_CHART_EVIDENCE;
 if(evidence)await fs.mkdir(evidence,{recursive:true});
-const {chromium,_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium,_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const baselineNames=new Set(['rich-charts.js','rich-charts.css','rich-parser.js','rich-renderer.js','rich-layout.css','renderer.js']);
 async function sourceFingerprints(){
  const files=['package.json','package-lock.json','scripts/preview-rich.mjs','tests/fixtures/chart-compatibility.mjs','tests/chart-compatibility.browser.mjs'];

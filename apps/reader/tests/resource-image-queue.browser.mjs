@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Production shell and renderer with 80 synthetic images and a bounded mock bridge.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -9,7 +10,7 @@ import { build } from 'esbuild';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'reader-image-queue-ui-'));
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 await build({ absWorkingDir: root, entryPoints: ['src/ui/app.js'], outdir: temporary, bundle: true, format: 'iife', platform: 'browser', loader: { '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.svg': 'dataurl', '.png': 'dataurl' }, logLevel: 'silent' });
 const server = http.createServer(async (request, response) => {
   try {

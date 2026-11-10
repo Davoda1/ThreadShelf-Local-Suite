@@ -9,6 +9,7 @@
 - Add a dedicated manual duplicate review with survivor/reason details and a stale-review guard; run applicable automatic checks after imports, server-copy batches and collection operations.
 - Keep public network protections, app identities, profile/archive formats, runtime/dependency pins and existing speech functionality. Align all three apps at 1.4.4 and include Analytics with no functional changes.
 - Correct the Alternative notice version and refresh the manual, focused regression tests, source supplement metadata and release gates.
+- Normalize native filesystem paths before ESM test-driver imports on Windows and Linux. Add shared path-regression and early real-driver import gates; application runtime behavior is unchanged by this CI correction.
 
 ## 1.4.3 — 2026-11-09
 

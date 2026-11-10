@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual Electron/Chromium layout and animation samples. Synthetic content only.
 // Include global application CSS: its generic button centering caused the original regression.
 import assert from 'node:assert/strict';
@@ -12,7 +13,7 @@ const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_RO
 const componentRoot=process.env.READER_COMPONENT_ROOT?path.resolve(process.env.READER_COMPONENT_ROOT):appRoot;
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/motion'));
 await mkdir(evidence,{recursive:true});
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const temp=await mkdtemp(path.join(os.tmpdir(),'tslr-motion-111-2-'));
 const assets=await access(path.join(appRoot,'public')).then(()=>path.join(appRoot,'public'),()=>path.join(appRoot,'dist'));
 await cp(assets,temp,{recursive:true});

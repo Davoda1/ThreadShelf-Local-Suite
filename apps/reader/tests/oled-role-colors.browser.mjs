@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real bundled reader CSS compared with the released revision-2 renderer.
 // Synthetic IPC/data only; never reads or writes a user's archive.
 import assert from 'node:assert/strict';
@@ -11,7 +12,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {UI_PALETTES,CODE_THEMES} from '../src/core/themes.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-oled-roles-'));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0-revision-3/oled'));
 await fs.mkdir(evidence,{recursive:true});

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Opt-in native package acceptance for the supplied ThreadShelf Format Testing export.
 // Usage: READER_FORMAT_EXPORT=/private/export.json node tests/packaged-format-testing-r4.browser.mjs ENTRY EXPECTED_SYMLINK REPORT_JSON
 // ENTRY must be the real extracted Linux TAR or DEB native symlink. A graphical
@@ -18,7 +19,7 @@ import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url);
-const {chromium}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {chromium}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 
 const [entry, expectedLink, evidencePath] = process.argv.slice(2);
 assert.ok(entry && expectedLink && evidencePath, 'Usage: node harness.mjs entry expected-link evidence-json');

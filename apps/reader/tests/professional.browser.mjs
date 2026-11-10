@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Revision 6 source-built offline preview: real UI/Reader DOM and bundled MP4s.
 // Run after build + preview; use Chromium or READER_ELECTRON with a display.
 // Pixel probes never add a background: they pause the actual decoded wave and
@@ -17,7 +18,7 @@ const filename = process.env.READER_PREVIEW_FILE || path.join(root, 'release', r
 const previewSha256 = createHash('sha256').update(await fs.readFile(filename)).digest('hex');
 const evidence = process.env.READER_EVIDENCE || await fs.mkdtemp(path.join(os.tmpdir(), 'threadshelf-professional-'));
 await fs.mkdir(evidence, { recursive: true });
-const { chromium, _electron } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium, _electron } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const compositor = ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
 let browser, page, electronHarness;
 if (process.env.READER_ELECTRON) {

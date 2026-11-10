@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real-browser tests for reflow versus user scrolling; synthetic content only.
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-const playwright = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const playwright = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const executablePath = process.env.THREADSHELF_BROWSER_EXECUTABLE;
 let browser;
 if (executablePath) {

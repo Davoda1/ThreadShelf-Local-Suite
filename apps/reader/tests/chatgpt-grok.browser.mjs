@@ -1,10 +1,11 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic production-renderer integration; no real conversation data.
 import assert from 'node:assert/strict';
 import {mkdtemp,mkdir,rm,readFile,writeFile} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
 const root=fileURLToPath(new URL('..',import.meta.url));
-const {chromium,_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium,_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const tmp=await mkdtemp(path.join(os.tmpdir(),'reader-chatgpt-grok-'));
 await build({stdin:{contents:'import {ConversationRenderer} from "./src/reader/renderer.js";import "./src/reader/reader.css";import "./src/reader/rich-layout.css";import "./src/reader/grok-renderer.css";window.ConversationRenderer=ConversationRenderer;',resolveDir:root},outfile:path.join(tmp,'test.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
 let browser;

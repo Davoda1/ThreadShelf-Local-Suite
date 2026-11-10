@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic, offline regression for source-sized missing-image slots and citations.
 // No private conversation text or source URLs are embedded in this test.
 import assert from 'node:assert/strict';
@@ -5,7 +6,7 @@ import {mkdtemp,rm,readFile} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
 const root=fileURLToPath(new URL('..',import.meta.url));
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const tmp=await mkdtemp(path.join(os.tmpdir(),'reader-rich-content-r5-'));
 await build({stdin:{contents:'import {ConversationRenderer} from "./src/reader/renderer.js";import {setRendererLocale} from "./src/reader/locale.js";import "./src/reader/reader.css";import "./src/reader/rich-layout.css";window.ConversationRenderer=ConversationRenderer;window.setRendererLocale=setRendererLocale;',resolveDir:root},outfile:path.join(tmp,'test.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
 const browser=await chromium.launch({headless:true,...(process.env.READER_CHROMIUM?{executablePath:process.env.READER_CHROMIUM}:{}),args:['--no-sandbox']});

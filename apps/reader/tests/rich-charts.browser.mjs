@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic chart-only DOM/accessibility/layout checks. No private inputs.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const browser=await chromium.launch({headless:true,executablePath:process.env.READER_CHROMIUM,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const context=await browser.newContext({viewport:{width:680,height:540}}),page=await context.newPage();
 const requests=[],errors=[];page.on('pageerror',e=>errors.push(e.message));

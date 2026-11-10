@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual Electron/IPC workflow against a temporary synthetic archive.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 import {ApplicationService} from '../src/core/service.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'reader-dedup-ui-')),dataDir=path.join(temp,'profile');

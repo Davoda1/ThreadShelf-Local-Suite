@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Production image states and the optional authoritative resource resolver.
 // Fixtures are synthetic; all direct HTTP image requests are intercepted.
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'reader-images-r2-'));
 const files = ['src/reader/markdown-images.js', 'src/reader/renderer.js', 'src/reader/reader.css', 'src/reader/rich-renderer.js', 'src/reader/rich-layout.css'];
 const hashSources = async () => Object.fromEntries(await Promise.all(files.map(async file => [file, createHash('sha256').update(await fs.readFile(path.join(root, file))).digest('hex')])));

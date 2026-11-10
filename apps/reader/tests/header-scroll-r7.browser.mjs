@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Focused Professional header scroll regression. Run against any preview with
 // READER_PREVIEW_FILE; set READER_EXPECTED_HEADER_BLUR=10 for the R6 baseline.
 // READER_ELECTRON (with DISPLAY) or READER_CHROMIUM selects the tested engine.
@@ -20,7 +21,7 @@ const filename = process.env.READER_PREVIEW_FILE || path.join(root, 'release', r
 const expectedBlur = Number(process.env.READER_EXPECTED_HEADER_BLUR || 12);
 const evidence = path.resolve(process.env.READER_EVIDENCE || await fs.mkdtemp(path.join(os.tmpdir(), 'threadshelf-header-r7-')));
 await fs.mkdir(evidence, { recursive: true });
-const { chromium, _electron } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium, _electron } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const flags = ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
 let browser, page, engine;
 if (process.env.READER_ELECTRON) {

@@ -1,7 +1,8 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,readFile,rm,mkdir} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';import {fileURLToPath} from 'node:url';import{build}from'esbuild';;
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const root=fileURLToPath(new URL('..',import.meta.url)),temp=await mkdtemp(path.join(os.tmpdir(),'html-preview-ui-'));
 const hostPath=path.join(root,'src/desktop/html-preview-host.cjs');
 await build({stdin:{contents:'import {ConversationRenderer} from "./src/reader/renderer.js";import "./src/reader/reader.css";window.ConversationRenderer=ConversationRenderer;',resolveDir:root},outfile:path.join(temp,'app.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real production Electron main, sandboxed preload and archive worker. The test
 // harness delays the heavy renderer file and then the bootstrap IPC independently
 // so the initial appearance can be inspected before either is available.
@@ -13,7 +14,7 @@ import {DEFAULTS} from '../src/core/state.mjs';
 import {UI_PALETTES} from '../src/core/themes.mjs';
 
 const require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const root=fileURLToPath(new URL('..',import.meta.url)),appRoot=path.resolve(process.env.READER_APP_ROOT||root);
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0-revision-5/startup'));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-startup-r5-'));

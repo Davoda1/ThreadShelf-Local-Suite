@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Opt-in test of the supplied account export through the real import/storage and
 // ReaderView pipelines. Private input and screenshots stay outside the source
 // tree. The optional JSON report contains only counts, checks and SHA-256 hashes.
@@ -112,7 +113,7 @@ try {
     outfile: path.join(web, 'test.js'), bundle: true, format: 'iife', platform: 'browser', loader: {'.woff2': 'file', '.woff': 'file', '.ttf': 'file'}, logLevel: 'silent'});
   assert.deepEqual(await fingerprints(), sourceHashes, 'Production files remain stable during bundle preparation.');
   await fs.writeFile(path.join(web, 'index.html'), '<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="test.css"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}#host{width:100vw;height:100vh;min-width:0;min-height:0}</style></head><body><div id="host"></div><script src="test.js"></script></body></html>');
-  const playwright = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+  const playwright = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
   let page;
   if (process.env.READER_ELECTRON) {
     await fs.writeFile(path.join(tmp, 'main.cjs'), `const {app,BrowserWindow,session}=require('electron');app.setPath('userData',${JSON.stringify(path.join(tmp, 'electron-profile'))});app.whenReady().then(()=>{session.defaultSession.setPermissionRequestHandler((_w,_p,cb)=>cb(false));const w=new BrowserWindow({width:1100,height:780,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.setMenu(null);w.loadURL('about:blank');});`);

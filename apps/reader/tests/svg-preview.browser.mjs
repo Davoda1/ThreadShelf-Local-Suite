@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Production renderer and CSP regression. Chromium by default; READER_ELECTRON enables native verification.
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, copyFile, rm } from 'node:fs/promises';
@@ -9,7 +10,7 @@ import { build } from 'esbuild';
 import { createServer } from 'node:http';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const { chromium, _electron } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium, _electron } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const temporary = await mkdtemp(path.join(os.tmpdir(), 'reader-svg-preview-'));
 const reportPath = path.resolve(process.env.READER_SVG_REPORT || path.join(root, '.verification', 'svg-preview.json'));
 const {version} = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));

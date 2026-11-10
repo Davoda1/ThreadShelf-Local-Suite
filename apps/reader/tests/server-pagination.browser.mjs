@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual main/preload/UI paging against faithful synthetic legacy and extension routes.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -8,7 +9,7 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 import {ApplicationService} from '../src/core/service.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-paging-111-2-')),dataDir=path.join(temp,'profile'),evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/server-pagination'));
 await fs.mkdir(evidence,{recursive:true});
 const summary={collection:'Pagination fixture',sourceFile:'/remote/synthetic.json',conversationKey:'beyond-fifty',provider:'openai',title:'Live archive with 127 matching messages',turnCount:127};

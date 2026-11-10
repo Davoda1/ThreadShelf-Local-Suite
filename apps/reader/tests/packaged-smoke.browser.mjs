@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Native Linux package smoke test. Requires a display and Playwright.
 // Usage: node tests/packaged-smoke.browser.mjs RUNTIME_DIRECTORY REPORT.json
 // Synthetic profile only. The inspector accommodates this test host's singleton
@@ -9,7 +10,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const runtime = path.resolve(process.argv[2]);
 const reportFile = path.resolve(process.argv[3]);
 const appRoot = path.join(runtime, 'resources/app');

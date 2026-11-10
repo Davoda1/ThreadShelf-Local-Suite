@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Complete rendered-feature regression in the same Electron engine as the desktop.
 // Synthetic conversations only. Requires READER_ELECTRON (or installed Electron), DISPLAY on Linux.
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_RO
 const componentRoot=process.env.READER_COMPONENT_ROOT?path.resolve(process.env.READER_COMPONENT_ROOT):appRoot;
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0'));await mkdir(evidence,{recursive:true});
 const geometry=[];
-const playwright = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const playwright = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const tmp = await mkdtemp(path.join(os.tmpdir(),'threadshelf-reader-ui-'));
 // Installers carry these assets in dist; source checkouts carry them in public.
 const assets=await access(path.join(appRoot,'public')).then(()=>path.join(appRoot,'public'),()=>path.join(appRoot,'dist'));

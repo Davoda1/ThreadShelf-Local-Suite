@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Compare the R7 header-only change against the corrected R6 offline preview.
 // This tests production UI settings and actual Reader nodes, without pixel/video
 // comparisons. Every non-Professional palette must keep exact styles/geometry.
@@ -16,7 +17,7 @@ const baseline = path.resolve(process.env.READER_R6_PREVIEW || '../../baseline/T
 const current = path.resolve(process.env.READER_PREVIEW_FILE || path.join(root, 'release', releaseFilename('ThreadShelf-Local-Reader-1.0.0-Preview.html')));
 const reportFile = path.resolve(process.env.READER_THEME_REPORT || '../qa/header-theme-regression-r7.json');
 assert.ok(process.env.READER_ELECTRON, 'Use the packaged Electron runtime for this comparison');
-const { _electron } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { _electron } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const palettes = UI_PALETTE_IDS.filter(id => id !== 'professional');
 assert.equal(palettes.length, 17);
 const properties = ['display','visibility','position','inset','z-index','isolation','opacity','transform','transform-origin','filter','backdrop-filter','backface-visibility','contain','will-change','overflow','overflow-x','overflow-y','color','background-color','background-image','background-position','background-size','background-blend-mode','box-shadow','border-top-width','border-right-width','border-bottom-width','border-left-width','border-top-color','border-right-color','border-bottom-color','border-left-color','border-style','border-radius','outline-color','outline-width','outline-style','outline-offset','width','height','min-width','min-height','max-width','max-height','box-sizing','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-right','margin-bottom','margin-left','gap','row-gap','column-gap','align-items','align-self','justify-content','flex-direction','flex-grow','flex-shrink','flex-basis','font-family','font-size','font-weight','line-height','letter-spacing','text-shadow','text-align','text-overflow','white-space','pointer-events','content','transition-property','transition-duration','animation-name','animation-duration'];

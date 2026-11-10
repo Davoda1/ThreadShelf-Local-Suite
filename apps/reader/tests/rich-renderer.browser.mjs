@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Reader-owned synthetic regression for component indentation and opaque markers.
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -6,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 const root = fileURLToPath(new URL('..', import.meta.url));
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const tmp = await mkdtemp(path.join(os.tmpdir(), 'reader-rich-layout-'));
 await build({stdin:{contents:'import {ConversationRenderer} from "./src/reader/renderer.js"; window.ConversationRenderer=ConversationRenderer;',resolveDir:root},outfile:path.join(tmp,'renderer.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
 const browser=await chromium.launch({headless:true,...(process.env.READER_CHROMIUM ? {executablePath:process.env.READER_CHROMIUM} : {}),args:['--no-sandbox']});

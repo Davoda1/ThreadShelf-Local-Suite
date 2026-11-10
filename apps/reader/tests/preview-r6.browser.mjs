@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs/promises';
@@ -7,7 +8,7 @@ import {releaseFilename} from '../scripts/release-filenames.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
 const filename=path.join(root,'release',releaseFilename(`ThreadShelf-Local-Reader-${version}-Preview.html`));
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const browser=await chromium.launch({headless:true,executablePath:process.env.READER_CHROMIUM,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1280,height:850}}),errors=[],requests=[],checks=[];
 page.on('pageerror',e=>errors.push(e.message));

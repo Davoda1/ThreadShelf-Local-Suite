@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Full UI surface regression using an isolated synthetic read-only data bridge.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -7,7 +8,7 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
 const root=fileURLToPath(new URL('..',import.meta.url)),tmp=await fs.mkdtemp(path.join(os.tmpdir(),'thoughts-interface-v4-'));
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 await build({absWorkingDir:root,entryPoints:['src/ui/app.js'],outdir:tmp,bundle:true,format:'iife',platform:'browser',loader:{'.woff':'dataurl','.woff2':'dataurl','.ttf':'dataurl','.svg':'dataurl','.png':'dataurl'},logLevel:'silent'});
 const server=http.createServer(async(req,res)=>{try{
  const pathname=new URL(req.url,'http://localhost').pathname,base=path.basename(pathname);let bytes;

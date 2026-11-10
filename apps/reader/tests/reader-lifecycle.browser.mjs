@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Exercise queued observer/frame callbacks against the real ReaderView in Chromium.
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
@@ -7,7 +8,7 @@ import fs from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const bundled=await build({absWorkingDir:root,stdin:{contents:"export {ReaderView} from './src/reader/reader.js';",resolveDir:root},bundle:true,outdir:'lifecycle-test-bundle',format:'iife',globalName:'ReaderLifecycle',write:false,loader:{'.woff2':'dataurl','.woff':'dataurl'},logLevel:'silent'});
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const browser=await chromium.launch({headless:true,executablePath:process.env.READER_CHROMIUM,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:680,height:540}}),errors=[];page.on('pageerror',error=>errors.push(error.message));
 try{

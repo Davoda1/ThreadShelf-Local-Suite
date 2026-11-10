@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual Electron recovery from a corrupt compressed-storage pointer, using a valid external backup.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -9,7 +10,7 @@ import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {ApplicationService} from '../src/core/service.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
-const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-recovery-120-')),dataDir=path.join(temp,'profile'),backup=path.join(temp,'known-good.zip'),evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/recovery'));await fs.mkdir(evidence,{recursive:true});
 const serverThread={collection:'Remote',sourceFile:'remote.json',conversationKey:'remote-one',title:'Live server remains available',turnCount:1,provider:'openai',turns:[{user:'Server data is independent of the damaged Local database.',turn_index:0}]};
 const server=http.createServer((request,response)=>{const url=new URL(request.url,'http://localhost');const result=url.pathname.endsWith('/api/collections')?{collections:['Remote']}:url.pathname.endsWith('/api/files')?{files:[serverThread]}:url.pathname.endsWith('/api/thread')?serverThread:{ok:true};response.setHeader('Content-Type','application/json');response.end(JSON.stringify(result));});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const serverUrl=`http://127.0.0.1:${server.address().port}/`;

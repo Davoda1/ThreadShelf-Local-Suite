@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 import {mkdtemp,writeFile,readFile,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import os from 'node:os';import path from 'node:path';import assert from 'node:assert/strict';
 import {releaseFilename} from '../scripts/release-filenames.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const {version}=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
-const playwright=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const playwright=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const tmp=await mkdtemp(path.join(os.tmpdir(),'threadshelf-preview-test-'));
 await writeFile(path.join(tmp,'main.cjs'),`const {app,BrowserWindow}=require('electron');app.whenReady().then(()=>{const w=new BrowserWindow({width:1280,height:850,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile(${JSON.stringify(path.join(root,'release',releaseFilename(`ThreadShelf-Local-Reader-${version}-Preview.html`)))})});`);
 const env={...process.env};delete env.ELECTRON_RUN_AS_NODE;

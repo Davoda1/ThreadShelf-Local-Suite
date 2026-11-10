@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from '../tests/esm-module-specifier.mjs';
 // Reproducible screenshots of the production renderer in its synthetic offline preview.
 // Generate the preview first with node scripts/preview.mjs. Requires Playwright Chromium.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { pathToFileURL } from 'node:url';
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const input = path.resolve(process.argv[2] || 'release/ThreadShelf-Local-Reader-1.4.0-Preview.html');
 const output = path.resolve(process.argv[3] || 'docs/screenshots');
 await fs.mkdir(output, { recursive: true });

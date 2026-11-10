@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Saved-reading scope regression in the actual main/preload/UI, with synthetic identical threads.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -10,7 +11,7 @@ import {createRequire} from 'node:module';
 import {ApplicationService} from '../src/core/service.mjs';
 import {remoteId} from '../src/core/server.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
-const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-reading-scope-')),dataDir=path.join(temp,'profile'),evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/reading-scope'));await fs.mkdir(evidence,{recursive:true});
 const thread={collection:'Shared collection',provider:'openai',sourceFile:'/same/path/export.json',conversationKey:'same-thread',title:'Shared conversation identity',turnCount:4,turns:[{user:'The same conversation can exist in three independent sources.',turn_index:0},...[10,20,30].map(i=>({ai:`## Source turn ${i}\n\n`+`Saved reading stays inside its source namespace. Turn ${i}. `.repeat(130),turn_index:i}))]};
 const servers=[];

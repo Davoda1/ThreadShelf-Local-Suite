@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Linux package-entry integration test, included in source only.
 // Usage: node tests/package-symlink.browser.mjs ENTRY EXPECTED_LINK EVIDENCE_JSON
 // Run on a Linux graphical display (or Xvfb). Supply Playwright through
@@ -19,7 +20,7 @@ import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {exportedFixtures,genuiMessage} from './fixtures/chart-compatibility.mjs';
 const require=createRequire(import.meta.url);
-const {chromium}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {chromium}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 
 const [entry, expectedLink, evidencePath] = process.argv.slice(2);
 assert.ok(entry && expectedLink && evidencePath, 'Usage: node harness.mjs entry expected-link evidence-json');

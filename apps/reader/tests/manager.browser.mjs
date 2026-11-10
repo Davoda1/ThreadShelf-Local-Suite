@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual application, IPC, persistent Local storage and manager UI. Synthetic profiles only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -8,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {ApplicationService} from '../src/core/service.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
-const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-manager-120-')),dataDir=path.join(temp,'profile'),backup=path.join(temp,'manager-backup.zip'),evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/manager'));await fs.mkdir(evidence,{recursive:true});
 const input=path.join(temp,'manager-fixture.json');await fs.writeFile(input,JSON.stringify({conversations:Array.from({length:45},(_,i)=>({provider:'openai',conversationKey:'manager-'+i,title:`Fixture conversation ${String(i).padStart(2,'0')}`,turns:[{user:`Question ${i}`,turn_index:0},{ai:`A searchable manager answer ${i}.`,turn_index:3}]}))}));
 const service=await new ApplicationService({dataDir}).init();await service.handle('settings.save',{values:{mode:'local',theme:'light',language:'en',animations:false,serverUrl:'http://127.0.0.1:1/',localCollection:'Alpha'}});await service.handle('import.paths',{paths:[input],collection:'Alpha'});const initial=(await service.handle('files',{})).files,bookmarked=initial.find(f=>f.title.endsWith('00')),localKey=JSON.stringify({mode:'local',id:bookmarked.id}),serverKey=JSON.stringify({mode:'server',serverUrl:'http://127.0.0.1:1',id:'server-fixture',collection:'remote',sourceFile:'remote.json',conversationKey:'server'});

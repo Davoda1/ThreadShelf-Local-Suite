@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Bounded native renderer acceptance; fixtures are synthetic and contain no user data.
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
@@ -10,7 +11,7 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'.citation-evidence'));
 await mkdir(evidence,{recursive:true});
 const tmp=await mkdtemp(path.join(os.tmpdir(),'reader-file-citations-'));
-const playwright=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const playwright=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 await build({stdin:{contents:`import {ConversationRenderer} from ${JSON.stringify(path.join(root,'src/reader/renderer.js'))};import ${JSON.stringify(path.join(root,'src/reader/reader.css'))};window.ConversationRenderer=ConversationRenderer;`,resolveDir:root},outfile:path.join(tmp,'test.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
 await writeFile(path.join(tmp,'index.html'),`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><link rel="stylesheet" href="./test.css"><style>html,body{margin:0;height:100%;overflow:hidden;font-family:Arial;background:#f7f8fb;color:#202830}html[data-theme=dark],html[data-theme=dark] body{background:#141820;color:#edf0f6}#host{height:100vh;overflow:auto;box-sizing:border-box;padding:16px;--text-accent:#1859b8;--text-secondary:#566273;--border-color:#c8cfda;--text-primary:#202830;--bg-primary:#f7f8fb;--bg-secondary:#fff;--bg-tertiary:#eef1f6;--code-bg:#edf0f5}html[data-theme=dark] #host{--text-accent:#99bfff;--text-secondary:#c0cad8;--border-color:#56657a;--text-primary:#edf0f6;--bg-primary:#141820;--bg-secondary:#1c232d;--bg-tertiary:#252e3b;--code-bg:#252e3b}.message{padding:14px;min-width:0}.message-content{min-width:0;line-height:1.7}.message-header{margin-bottom:12px}.message-content pre{white-space:pre-wrap;overflow-wrap:anywhere}</style></head><body><div class="reader-view" id="host"></div><script src="./test.js"></script></body></html>`);
 await writeFile(path.join(tmp,'main.cjs'),`const {app,BrowserWindow}=require('electron');app.whenReady().then(()=>{const w=new BrowserWindow({width:1000,height:800,show:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadFile(${JSON.stringify(path.join(tmp,'index.html'))});});`);

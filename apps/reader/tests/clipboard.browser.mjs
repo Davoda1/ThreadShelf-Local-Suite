@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Uses the production main/preload and the actual OS clipboard. No clipboard API is mocked.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -8,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 
 const root=fileURLToPath(new URL('..',import.meta.url));
 const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-clipboard-'));
 const env={...process.env,THREADSHELF_READER_TEST_DATA:path.join(temporary,'profile')};
 delete env.ELECTRON_RUN_AS_NODE;

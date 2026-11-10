@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real bundled renderer in Electron; synthetic IPC isolates navigation, paging and slow-search UI.
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,mkdir,rm} from 'node:fs/promises';
@@ -7,7 +8,7 @@ import os from 'node:os';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('..',import.meta.url)),require=createRequire(path.join(root,'package.json'));
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const tmp=await mkdtemp(path.join(os.tmpdir(),'threadshelf-revision2-ui-')),evidence=process.env.READER_EVIDENCE||tmp;await mkdir(evidence,{recursive:true});
 await writeFile(path.join(tmp,'preload.cjs'),`const {contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('desktop',{invoke:(a,b)=>ipcRenderer.invoke('call',a,b),onProgress:fn=>{ipcRenderer.on('progress',(_e,p)=>fn(p));},onMenu:()=>{}});`);
 function main(config){

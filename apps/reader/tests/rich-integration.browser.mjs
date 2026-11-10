@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual ReaderView + ApplicationService + optional real Analytics Rev4 capture.
 // Browser component harness: no privileged bridge or mocked storage dependencies.
 // All displayed/exported test content is synthetic, not user conversation data.
@@ -35,7 +36,7 @@ const sourceFingerprints=await sourceHashes();
 await fs.cp(path.join(root,'public'),path.join(tmp,'web'),{recursive:true});
 await build({stdin:{contents:`import {ReaderView} from ${JSON.stringify(path.join(root,'src/reader/reader.js'))};import {applyAppearance} from ${JSON.stringify(path.join(root,'src/ui/appearance.js'))};import {translator} from ${JSON.stringify(path.join(root,'src/ui/i18n.js'))};import ${JSON.stringify(path.join(root,'src/ui/style.css'))};import ${JSON.stringify(path.join(root,'src/ui/themes.css'))};import ${JSON.stringify(path.join(root,'src/ui/code-themes.css'))};import ${JSON.stringify(path.join(root,'src/ui/glassy.css'))};window.ReaderView=ReaderView;window.applyAppearance=applyAppearance;window.translator=translator;`,resolveDir:root},outfile:path.join(tmp,'web/test.js'),bundle:true,format:'iife',platform:'browser',loader:{'.woff2':'file'},logLevel:'silent'});
 await fs.writeFile(path.join(tmp,'web/index.html'),'<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="test.css"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}#readerHost{height:100vh;width:100%;}</style></head><body><div id="readerHost"></div><script src="test.js"></script></body></html>');
-const playwright=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const playwright=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 let electronApp,browser,page;
 if(process.env.READER_ELECTRON){
  await fs.writeFile(path.join(tmp,'main.cjs'),`const {app,BrowserWindow,session}=require('electron');app.setPath('userData',${JSON.stringify(path.join(tmp,'Electron-profile'))});app.whenReady().then(()=>{session.defaultSession.setPermissionRequestHandler((_w,_p,callback)=>callback(false));const w=new BrowserWindow({width:680,height:540,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.loadURL('about:blank');});`);

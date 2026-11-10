@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // R8: compare Platinum Plus with Professional in the real offline app preview.
 // Only header/settings blur may differ. Native persistence is tested separately.
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ const preview=process.env.READER_PREVIEW_FILE||path.join(root,'release',releaseF
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'../qa/platinum-plus'));
 await fs.mkdir(evidence,{recursive:true});
 assert.ok(process.env.READER_ELECTRON,'Use the release Electron runtime');
-const {_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const scratch=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-r8-plus-'));
 const main=path.join(scratch,'main.cjs');
 await fs.writeFile(main,`const {app,BrowserWindow}=require('electron');app.setPath('userData',${JSON.stringify(path.join(scratch,'profile'))});app.whenReady().then(()=>{const w=new BrowserWindow({width:1440,height:1000,useContentSize:true,show:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});w.setMenu(null);w.loadURL('about:blank')});`);

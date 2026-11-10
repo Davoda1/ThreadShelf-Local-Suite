@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Revision 5 theme regression: actual bundled renderer and production persistence.
 // Original themes are compared with the released revision-4 Windows archive.
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {ApplicationService} from '../src/core/service.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url)),require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-r5-')),snapshot=path.join(tmp,'app');
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0-revision-5/ui'));
 await fs.mkdir(evidence,{recursive:true});await fs.mkdir(snapshot);

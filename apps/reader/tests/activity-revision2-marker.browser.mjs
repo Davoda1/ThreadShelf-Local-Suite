@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Revision 2 marker audit: independent getScreenCTM oracle; synthetic IPC only.
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,mkdir,rm,cp} from 'node:fs/promises';
@@ -9,7 +10,7 @@ import {fileURLToPath} from 'node:url';
 
 const root=fileURLToPath(new URL('..',import.meta.url));
 const require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const tmp=await mkdtemp(path.join(os.tmpdir(),'threadshelf-revision2-marker-'));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0-revision-2/marker-audit'));
 await mkdir(evidence,{recursive:true});

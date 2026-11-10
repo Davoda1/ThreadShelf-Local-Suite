@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Supplemental browser compatibility check. Production Reader inference uses
 // Node worker_threads, so this fixture never relaxes the desktop renderer CSP.
 import assert from 'node:assert/strict';
@@ -45,7 +46,7 @@ const server = http.createServer(async (request, response) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const browser = await chromium.launch({ headless: true, executablePath: process.env.READER_CHROMIUM, args: ['--no-sandbox'] });
 const checks = [], externalRequests = [], errors = [], consoleErrors = [], requests = [];
 try {

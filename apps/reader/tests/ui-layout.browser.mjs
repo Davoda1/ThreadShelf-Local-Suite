@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual bundled UI/Reader with synthetic IPC: layout and keyboard focus only.
 // Never opens the user's profile, imports, server, clipboard, or model service.
 import assert from 'node:assert/strict';
@@ -11,7 +12,7 @@ import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
 const require=createRequire(path.join(root,'package.json'));
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const tmp=await mkdtemp(path.join(os.tmpdir(),'threadshelf-ui-111-'));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs','evidence','v1.2.0','ui-layout'));
 await mkdir(evidence,{recursive:true});

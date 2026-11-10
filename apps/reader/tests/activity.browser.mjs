@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // The real bundled renderer and ReaderView with deterministic, synthetic IPC.
 // Does not open an existing profile, source archive, remote server, or clipboard.
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ import {translator,localeCode} from '../src/ui/i18n.js';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
 const require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const tmp=await mkdtemp(path.join(os.tmpdir(),'threadshelf-activity-ui-'));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0/activity-ui'));
 await mkdir(evidence,{recursive:true});

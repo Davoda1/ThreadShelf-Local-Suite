@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Paint and interaction regression for the four 3.1.0 glass palettes. Uses the
 // production renderer, isolated synthetic IPC, and the exact Revision 6 bundle.
 // Set THREADSHELF_PLAYWRIGHT_MODULE if Playwright is installed outside this repo.
@@ -14,7 +15,7 @@ import {UI_PALETTES,CODE_THEMES} from '../src/core/themes.mjs';
 import {dictionaries} from '../src/ui/i18n.js';
 
 const root=fileURLToPath(new URL('..',import.meta.url));
-const playwright=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const playwright=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-glass-ui-'));
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.1.0/ui'));
 await fs.mkdir(evidence,{recursive:true});

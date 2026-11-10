@@ -57,6 +57,12 @@ jobs:
       - name: Install pinned native GUI test driver
         working-directory: tools/mermaid-bundle
         run: node "${{ github.workspace }}/tools/npm.mjs" -- ci --ignore-scripts
+      - name: Check native test-driver imports before packaging
+        env:
+          THREADSHELF_PLAYWRIGHT_MODULE: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core/index.mjs
+        run: |
+          node --test apps/reader/tests/esm-module-specifier.test.mjs
+          node tools/check-browser-driver.mjs
       - name: Prepare Linux display and ordinary Chromium sandbox
         if: runner.os == 'Linux'
         working-directory: tools/mermaid-bundle

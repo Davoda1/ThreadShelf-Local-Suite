@@ -8,6 +8,18 @@ Reader adds provider/model/collection-aware duplicate cleanup, applicable automa
 
 All three applications report 1.4.4. Analytics has no functional or dependency changes; its product version, package filenames and current documentation are aligned. The Alternative notice version is corrected. Original suite licensing remains MIT, Copyright (c) 2026 davoda1; imported parse5 and entities source retains its correct MIT and BSD-2-Clause notices.
 
+## Windows test-harness correction
+
+The initial tagged candidate `732dde5` failed the Windows Reader job in the separate **Verify isolated HTML previews on the native platform** step. Its package build and **Verify packages, native runtime and graphical application** step had already succeeded. The 838-test source run reported 816 passes, zero failures and 22 platform/fixture skips. The five other application/platform package jobs succeeded. The release publication job was skipped, and no 1.4.4 release or draft existed when the correction was prepared.
+
+The later `html-preview-ui.browser.mjs` startup passed the native Windows path from `THREADSHELF_PLAYWRIGHT_MODULE` directly to dynamic `import()`. Node interpreted the drive letter as the unsupported `d:` URL scheme. These separate `.browser.mjs` harnesses are not imported by the ordinary `.test.mjs` source runner. Repeating the same tagged code and path reproduced the same deterministic startup error; it did not identify a failed application assertion.
+
+A shared test-only specifier normalizer now converts absolute filesystem paths through `pathToFileURL`, preserving existing URLs, package identifiers and relative specifiers. All 82 affected ESM harness imports use it. CommonJS `require()` consumers retain their filesystem-path contract. A mechanical diff check confirms that the 82 existing harness changes only add the normalizer import and wrap the driver specifier; no assertions, sandbox settings or release gates were removed or relaxed. Production application/runtime code, dependency versions and package manifests are unchanged by this correction.
+
+Six focused regressions pass. They reproduce the original unsupported drive-scheme error, check Windows drive and UNC paths, protect spaces/hash/percent/Unicode characters, perform actual native-path and file-URL imports, verify child-process startup, and reject new direct environment-path ESM imports. The guard failed against the original 82 unsafe call sites before their correction. All changed harnesses pass syntax checks; the real pinned Playwright driver imports successfully through both supported path forms. The exact HTML preview UI harness now passes its four native Linux layout/theme cases with Chromium sandbox enabled and no page errors. Native Windows execution of the correction remains a CI check, not a local claim.
+
+Linux and Windows source checks run the new regressions early. Every native package job also loads the exact configured driver before packaging, so this class of failure is detected before expensive builds. The unpublished 1.4.4 tag is advanced to the correction commit and all six jobs are restarted from that same commit; old and new artifact provenance is not mixed. CI remains asynchronous.
+
 ## Toolchain and source access
 
 Node.js 26.13.0, the verified managed npm 12.2.2 profile, Electron 45.2.3, Chromium 156.0.8078.80 and embedded Node.js 24.22.2 are unchanged. Existing lockfiles/runtime pins and CPU speech assets are retained. Dependency audits for Reader, Analytics, Alternative, the diagram tool and holiday tooling report zero known vulnerabilities at validation time.

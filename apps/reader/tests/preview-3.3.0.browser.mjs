@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real offline file:// preview; synthetic bundled conversations only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -23,7 +24,7 @@ for(const [theme,file] of Object.entries({dark:'quiet-water-v4-1920x1080-24fps.m
  assert.equal(media.length,original.length);assert.equal(hash(media),hash(original));
  assetRecords.push({theme,file,bytes:media.length,sha256:hash(media),matchesBundledSource:true});
 }
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const browser=await chromium.launch({headless:true,executablePath:process.env.READER_CHROMIUM,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1280,height:850},colorScheme:'dark'});
 const pageErrors=[],externalRequests=[],consoleErrors=[],checks=[],playback=[],styles=[];

@@ -1,10 +1,11 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // End-to-end synthetic archive rendering, source copying and offline safety.
 import assert from 'node:assert/strict';
 import {mkdtemp,rm,readFile,writeFile} from 'node:fs/promises';
 import os from 'node:os';import path from 'node:path';import {fileURLToPath,pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 const root=fileURLToPath(new URL('..',import.meta.url)),tmp=await mkdtemp(path.join(os.tmpdir(),'reader-grok-rendering-'));
-const {chromium,_electron}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium,_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 await build({stdin:{contents:'import {ConversationRenderer} from "./src/reader/renderer.js";import "./src/reader/reader.css";import "./src/reader/rich-layout.css";import "./src/reader/rich-charts.css";import "./src/reader/grok-renderer.css";window.ConversationRenderer=ConversationRenderer;',resolveDir:root},outfile:path.join(tmp,'test.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
 const csp=(await readFile(path.join(root,'index.html'),'utf8')).match(/<meta http-equiv="Content-Security-Policy"[^>]+>/)[0];
 await writeFile(path.join(tmp,'index.html'),'<!doctype html><html><head><meta charset="utf-8">'+csp+'<link rel="stylesheet" href="test.css"></head><body><div class="reader-view"><main id="host" class="conversation-content"></main></div><script src="test.js"></script></body></html>');

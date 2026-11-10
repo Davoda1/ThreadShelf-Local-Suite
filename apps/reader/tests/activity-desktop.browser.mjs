@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // End-to-end Activity/Insights verification against production main, sandboxed
 // preload, archive worker and compressed storage. Only native file dialogs and
 // the isolated fixture's HTTP server are controlled by this test.
@@ -13,7 +14,7 @@ import { ApplicationService } from '../src/core/service.mjs';
 import { localReadingKey } from '../src/core/manager-reading.mjs';
 
 const require = createRequire(import.meta.url);
-const { _electron } = process.env.THREADSHELF_PLAYWRIGHT_MODULE ? await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE) : require('playwright');
+const { _electron } = process.env.THREADSHELF_PLAYWRIGHT_MODULE ? await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)) : require('playwright');
 const root = fileURLToPath(new URL('..', import.meta.url));
 const appRoot = path.resolve(process.env.READER_APP_ROOT || root);
 const version = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8')).version;

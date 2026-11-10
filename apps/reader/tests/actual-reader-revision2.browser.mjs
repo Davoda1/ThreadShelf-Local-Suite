@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual production Electron main/preload/worker/renderer and optional real Server.
 // Requires READER_ELECTRON, READER_FIXTURE (an export), READER_R2_REPORT.
 // No content or profile bytes are written to evidence. The only runtime bypass
@@ -10,7 +11,7 @@ import os from 'node:os';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {fileURLToPath,pathToFileURL} from 'node:url';
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const root=fileURLToPath(new URL('..',import.meta.url));
 const appRoot=path.resolve(process.env.READER_APP_ROOT||root);
 const expectedVersion='1.0.0',serverUrl=process.env.READER_R2_SERVER;

@@ -1,3 +1,4 @@
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Selected SVG designs against the actual Reader theme styles. Synthetic only.
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
@@ -8,7 +9,7 @@ import { build } from 'esbuild';
 import { UI_PALETTES } from '../src/core/themes.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const { chromium } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { chromium } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const tmp = await mkdtemp(path.join(os.tmpdir(), 'reader-placeholder-r6-'));
 await build({ stdin: { contents: 'import {ConversationRenderer} from "./src/reader/renderer.js";import {setRendererLocale} from "./src/reader/locale.js";import "./src/ui/style.css";import "./src/ui/themes.css";import "./src/reader/reader.css";import "./src/reader/rich-layout.css";window.ConversationRenderer=ConversationRenderer;window.setRendererLocale=setRendererLocale;', resolveDir: root }, outfile: path.join(tmp, 'renderer.js'), bundle: true, format: 'iife', platform: 'browser', loader: { '.woff2': 'file', '.woff': 'file', '.ttf': 'file' }, logLevel: 'silent' });
 const browser = await chromium.launch({ headless: true, ...(process.env.READER_CHROMIUM ? { executablePath: process.env.READER_CHROMIUM } : {}), args: ['--no-sandbox'] });

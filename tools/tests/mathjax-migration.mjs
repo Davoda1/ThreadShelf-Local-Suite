@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from '../../apps/reader/tests/esm-module-specifier.mjs';
 // Bounded native integration gate. Optional baseline is read from git, never shipped.
 import assert from 'node:assert/strict';
 import {readFile,mkdtemp,writeFile,rm} from 'node:fs/promises';
@@ -9,7 +10,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../..',import.meta.url));
-const { _electron }=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const { _electron }=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const executablePath=process.env.READER_ELECTRON;
 assert.ok(executablePath,'Set READER_ELECTRON to the native Electron executable');
 const revision=process.env.MATHJAX_BASELINE_REV;

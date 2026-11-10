@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Exact generated offline HTML. Synthetic records only; external requests fail.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -10,7 +11,7 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
 const filename=process.env.READER_PREVIEW_FILE||path.join(root,'release',releaseFilename(`ThreadShelf-Local-Reader-${version}-Preview.html`));
 const evidence=process.env.READER_EVIDENCE||path.join(root,'docs/evidence/revision3-preview');await fs.mkdir(evidence,{recursive:true});
-const {chromium}=await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright');
+const {chromium}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 const browser=await chromium.launch({headless:true,executablePath:process.env.READER_CHROMIUM,args:['--no-sandbox']});
 const page=await browser.newPage({viewport:{width:1280,height:850},colorScheme:'dark'}),errors=[],consoleErrors=[],requests=[],checks=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});

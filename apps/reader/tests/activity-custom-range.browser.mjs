@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Custom ranges through the production renderer/preload/main/worker/storage.
 // Fixtures and HTTP responses are synthetic; no user profile or server is used.
 import assert from 'node:assert/strict';
@@ -9,7 +10,7 @@ import http from 'node:http';
 import {createRequire} from 'node:module';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const root=fileURLToPath(new URL('..',import.meta.url)),require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'threadshelf-custom-range-')),appRoot=path.join(temp,'app'),dataDir=path.join(temp,'profile');
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v3.0.0-revision-2/custom-range'));
 await fs.mkdir(evidence,{recursive:true});await fs.mkdir(appRoot);

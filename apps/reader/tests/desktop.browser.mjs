@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Real Electron integration. Only isolated synthetic profiles/exports are written.
 // Set READER_APP_ROOT to a packaged/staged app for the final shipped-runtime check.
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ import { fileURLToPath,pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import {ApplicationService} from '../src/core/service.mjs';
 const require=createRequire(import.meta.url);
-const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const {_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const root=fileURLToPath(new URL('..',import.meta.url));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-desktop-111-'));
 const dataDir=path.join(temp,'profile'),evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs','evidence','v1.2.0'));

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Actual application preferences and rendered colors; isolated synthetic profiles only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -11,7 +12,7 @@ const root=fileURLToPath(new URL('..',import.meta.url));
 const appRoot=process.env.READER_APP_ROOT?path.resolve(process.env.READER_APP_ROOT):root;
 const currentBaseline=process.env.READER_APPEARANCE_CURRENT==='1';
 const legacyRoot=currentBaseline?appRoot:process.env.READER_LEGACY_ROOT||path.join(path.dirname(root.replace(/[\\/]$/,'')),'baseline','ThreadShelf-Local-Reader-2.0.0-Source');
-const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE):require('playwright');
+const require=createRequire(import.meta.url),{_electron}=process.env.THREADSHELF_PLAYWRIGHT_MODULE?await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE)):require('playwright');
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'tslr-appearance-111-')),dataDir=path.join(temp,'profile');
 const evidence=path.resolve(process.env.READER_EVIDENCE||path.join(root,'docs/evidence/v1.2.0/appearance'));await fs.mkdir(evidence,{recursive:true});
 const source='// A readable local archive — Árvíztűrő 🧪\nconst greeting = "Bonjour, 你好";\nfunction score(value) {\n  return value === 42 ? true : false;\n}';

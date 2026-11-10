@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Compare all 18 existing themes against the final R7 offline preview.
 // Use production appearance controls and actual Reader/settings nodes. The new
 // Platinum Plus catalog option is the only allowed settings-content addition;
@@ -17,7 +18,7 @@ const baseline = path.resolve(process.env.READER_R7_PREVIEW || '../../revision7/
 const current = path.resolve(process.env.READER_PREVIEW_FILE || path.join(root, 'release', releaseFilename('ThreadShelf-Local-Reader-1.0.0-Preview.html')));
 const reportFile = path.resolve(process.env.READER_THEME_REPORT || '../qa/theme-regression-r8.json');
 assert.ok(process.env.READER_ELECTRON, 'Use the packaged Electron runtime for this comparison');
-const { _electron } = await import(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright');
+const { _electron } = await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE || 'playwright'));
 const palettes = UI_PALETTE_IDS.filter(id => id !== 'platinum-plus');
 assert.equal(palettes.length, 18);
 const viewports = [{ width: 1440, height: 1000 }, { width: 680, height: 540 }];
