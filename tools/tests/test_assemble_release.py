@@ -106,6 +106,88 @@ class ReleaseAssemblyTests(unittest.TestCase):
         self.assertTrue(all(p.suffix == '.json' for p in evidence.values()))
         self.assertNotIn('SHA256SUM.txt', evidence)
 
+    def legacy_host_capture(self):
+        self.version, self.commit = release.LEGACY_HOST_CAPTURE[:2]
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        path = self.artifacts / f'reader-linux-{self.version}/verification' / release.LEGACY_HOST_CAPTURE[2]
+        original = (Path(__file__).parent / 'fixtures/release/reader-linux-html-preview-host.txt').read_bytes()
+        path.write_bytes(original)
+        return path, original
+
+    def test_replays_exact_failed_run_and_preserves_auditable_original(self):
+        path, original = self.legacy_host_capture()
+        with self.assertRaisesRegex(ValueError, path.name + ': invalid verification JSON'):
+            release.read_verification_report(path)
+        assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
+        self.assertEqual((len(assets), len(summaries)), (11, 6))
+        output = self.root / 'evidence.zip'
+        with zipfile.ZipFile(output, 'w') as archive:
+            release.write_verification_evidence(archive, evidence, self.version, self.commit)
+        with zipfile.ZipFile(output) as archive:
+            reports = {name: json.loads(archive.read(name)) for name in archive.namelist() if name.endswith('.json')}
+            receipt = reports['verification/host-report-recovery.json']
+            self.assertEqual(archive.read(receipt['original_capture']), original)
+            self.assertEqual(receipt['original_sha256'], release.digest(path))
+            self.assertEqual(receipt['report_sha256'], release.hashlib.sha256(archive.read('verification/' + path.name)).hexdigest())
+            self.assertEqual(receipt['commit'], self.commit)
+            self.assertTrue(reports['verification/' + path.name]['sandbox'])
+        self.assertEqual(path.read_bytes(), original)
+
+    def test_recovery_receipt_cannot_shadow_an_original_report(self):
+        self.legacy_host_capture()
+        _, evidence, _ = release.collect_inputs(self.artifacts, self.version, self.commit)
+        receipt = self.root / 'host-report-recovery.json'; self.write_json(receipt, {'original': True})
+        evidence[receipt.name] = receipt
+        with zipfile.ZipFile(self.root / 'evidence.zip', 'w') as archive:
+            with self.assertRaisesRegex(ValueError, 'overwrite original evidence'):
+                release.write_verification_evidence(archive, evidence, self.version, self.commit)
+
+    def test_legacy_recovery_rejects_changed_identity_or_any_changed_bytes(self):
+        path, original = self.legacy_host_capture()
+        for identity in (('1.4.5', self.commit), (self.version, 'b' * 40), None):
+            with self.subTest(identity=identity), self.assertRaisesRegex(ValueError, 'invalid verification JSON'):
+                release.read_verification_report(path, release_identity=identity)
+        other = path.with_name('other.json'); other.write_bytes(original)
+        with self.assertRaisesRegex(ValueError, 'invalid verification JSON'):
+            release.read_verification_report(other, release_identity=(self.version, self.commit))
+        other.unlink()
+        for content in (original + b' ', original + b'{}', b'unexpected text\n' + original,
+                        original.replace(b'"sandbox":true', b'"sandbox":false'), original[:-3]):
+            path.write_bytes(content)
+            with self.subTest(content=content[-40:]), self.assertRaisesRegex(ValueError, 'invalid verification JSON'):
+                release.collect_inputs(self.artifacts, self.version, self.commit)
+
+    def test_reports_reject_non_objects_invalid_encoding_and_trailing_output(self):
+        path = self.root / 'broken-report.json'
+        for content in (b'[]', b'null', b'1', b'{}{}', b'{}\nlog output', b'\xff', b'{"passed":'):
+            path.write_bytes(content)
+            with self.subTest(content=content), self.assertRaisesRegex(ValueError, 'broken-report.json'):
+                release.read_verification_report(path)
+
+    def test_record_inputs_rejects_bad_json_before_recording_or_hashing_packages(self):
+        path, original = self.legacy_host_capture()
+        repository = self.root / 'repository'
+        self.write_json(repository / 'apps/reader/package.json', {'version': self.version})
+        publication = path.with_name('reader-linux-publication.json'); publication.unlink()
+        with patch.object(release, 'digest') as digest, patch.object(release, 'run') as run:
+            with self.assertRaisesRegex(ValueError, path.name + ': invalid verification JSON'):
+                release.record_inputs(path.parent.parent, 'reader', 'linux', repository)
+            digest.assert_not_called(); run.assert_not_called()
+        self.assertFalse(publication.exists())
+        path.write_text(original.decode('utf-8').splitlines()[-1] + '\n')
+        # Native citation checks also leave screenshots beside their JSON.
+        (path.parent / 'file-citations-light.png').write_bytes(b'\x89PNG\r\n\x1a\n')
+        with patch.object(release, 'run', return_value=self.commit):
+            release.record_inputs(path.parent.parent, 'reader', 'linux', repository)
+        self.assertEqual(json.loads(publication.read_text())['commit'], self.commit)
+
+    def test_record_inputs_rejects_screenshot_only_directory(self):
+        directory = self.root / 'screenshots'; (directory / 'verification').mkdir(parents=True)
+        (directory / 'verification/view.png').write_bytes(b'\x89PNG\r\n\x1a\n')
+        self.write_json(self.root / 'repository/apps/reader/package.json', {'version': self.version})
+        with self.assertRaisesRegex(ValueError, 'At least one verification JSON'):
+            release.record_inputs(directory, 'reader', 'linux', self.root / 'repository')
+
     def test_rejects_missing_package(self):
         next(self.artifacts.glob('reader-windows-*/*.zip')).unlink()
         with self.assertRaisesRegex(ValueError, 'missing publication files'):

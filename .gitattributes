@@ -65,3 +65,6 @@ apps/*/tts/cpu/support/** -text
 maintainer/runtime-source-update/** -text
 # Upstream deltas retain their context-line spaces and original source bytes.
 maintainer/runtime-source-update/provenance/** -whitespace
+
+# Preserve the exact native stdout capture used by hash-bound release recovery.
+tools/tests/fixtures/release/reader-linux-html-preview-host.txt -text -whitespace

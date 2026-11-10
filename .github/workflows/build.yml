@@ -137,7 +137,7 @@ jobs:
           export ELECTRON_PATH="$READER_ELECTRON"
           if [[ "$RUNNER_OS" == "Linux" ]]; then native_display=(xvfb-run -a); else native_display=(); fi
           if [[ "${{ matrix.app }}" == "reader" ]]; then
-            "${native_display[@]}" "$READER_ELECTRON" apps/reader/tests/html-preview-host.electron.cjs > release/verification/reader-${{ matrix.platform }}-html-preview-host.json
+            HTML_PREVIEW_HOST_REPORT="release/verification/reader-${{ matrix.platform }}-html-preview-host.json" "${native_display[@]}" "$READER_ELECTRON" apps/reader/tests/html-preview-host.electron.cjs
             "${native_display[@]}" node apps/reader/tests/html-preview-ui.browser.mjs > release/verification/reader-${{ matrix.platform }}-html-preview-ui.json
           else
             "${native_display[@]}" node apps/alternative/test/html-preview.electron.cjs > release/verification/alternative-${{ matrix.platform }}-html-preview.json

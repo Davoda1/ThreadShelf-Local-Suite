@@ -21,6 +21,11 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 APPS = ('reader', 'analytics', 'alternative')
 PLATFORMS = (('linux', 'linux'), ('windows', 'win32'))
+# One original v1.4.4 capture mixed native diagnostics with a successful result.
+# Recover only these exact, reviewed bytes; future package jobs require pure JSON.
+LEGACY_HOST_CAPTURE = ('1.4.4', '3ad8623607f5929c7228cf28bbd67b1998e17722',
+                       'reader-linux-html-preview-host.json',
+                       'b9ed182292b961d30e9f91145e2456dac133b8088c14d800e44c1b761d1ffd21')
 
 
 def run(*args, cwd=ROOT):
@@ -57,9 +62,39 @@ def expected_names(app, target, version):
     return names
 
 
+def read_verification_report(path, *, release_identity=None):
+    """Keep process diagnostics out of machine-readable release evidence."""
+    if (not path.is_file() or path.is_symlink() or path.suffix != '.json'
+            or path.stat().st_size > 20 * 1024 * 1024):
+        raise ValueError(f'{path.name}: verification evidence must be a bounded regular JSON file.')
+    raw = path.read_bytes()
+    try:
+        report = json.loads(raw.decode('utf-8'))
+    except (UnicodeError, json.JSONDecodeError) as error:
+        if (release_identity == LEGACY_HOST_CAPTURE[:2] and path.name == LEGACY_HOST_CAPTURE[2]
+                and hashlib.sha256(raw).hexdigest() == LEGACY_HOST_CAPTURE[3]):
+            report = json.loads(raw.decode('utf-8').splitlines()[-1])
+        else:
+            raise ValueError(f'{path.name}: invalid verification JSON; write reports directly to a file, '
+                             'separately from native process output.') from error
+    if not isinstance(report, dict):
+        raise ValueError(f'{path.name}: verification JSON must contain one object.')
+    return report
+
+
 def record_inputs(directory, app, platform, root=ROOT):
     version = json.loads((root / 'apps' / app / 'package.json').read_text())['version']
     target = 'windows' if platform == 'win32' else 'linux'
+    reports = directory / 'verification'
+    if reports.is_symlink() or not reports.is_dir():
+        raise ValueError('Verification evidence must be a nonempty regular directory.')
+    report_paths = sorted(reports.glob('*.json'))
+    if not report_paths:
+        raise ValueError('At least one verification JSON report is required.')
+    # Fail the originating package job before uploading an unusable artifact.
+    # Screenshots share this directory but the workflow uploads only *.json.
+    for path in report_paths:
+        read_verification_report(path)
     assets = []
     for name in expected_names(app, target, version):
         path = directory / name
@@ -68,15 +103,13 @@ def record_inputs(directory, app, platform, root=ROOT):
         assets.append({'name': name, 'bytes': path.stat().st_size, 'sha256': digest(path)})
     record = {'application': app, 'version': version, 'platform': platform,
               'commit': run('git', 'rev-parse', 'HEAD', cwd=root), 'assets': assets}
-    reports = directory / 'verification'
-    reports.mkdir(exist_ok=True)
     (reports / f'{app}-{platform}-publication.json').write_text(json.dumps(record, indent=2) + '\n')
     (directory / 'SHA256SUM.txt').write_text(''.join(f'{a["sha256"]}  {a["name"]}\n' for a in assets))
 
 
 def collect_inputs(artifacts, version, commit):
     """Fail closed on missing, duplicate, stale or failed platform results."""
-    assets, evidence, summaries = {}, {}, []
+    assets, evidence, summaries, all_records = {}, {}, [], {}
     expected_directories = {f'{app}-{target}-{version}' for app in APPS for target, _ in PLATFORMS}
     if {p.name for p in artifacts.iterdir()} != expected_directories:
         raise ValueError('Exactly the six named application/platform artifacts are required.')
@@ -94,12 +127,11 @@ def collect_inputs(artifacts, version, commit):
             prefix = f'{app}-{platform}'
             records = {}
             for path in reports.iterdir():
-                if not path.is_file() or path.is_symlink() or path.suffix != '.json' or path.stat().st_size > 20 * 1024 * 1024:
-                    raise ValueError('Verification evidence must contain bounded regular JSON files.')
                 if path.name in evidence:
                     raise ValueError(f'Duplicate evidence: {path.name}')
-                records[path.name] = json.loads(path.read_text(encoding='utf-8'))
+                records[path.name] = read_verification_report(path, release_identity=(version, commit))
                 evidence[path.name] = path
+            all_records.update(records)
             summary = records.get(prefix + '-validation.json', {})
             if any(summary.get(k) != v for k, v in {'application': app, 'version': version,
                     'platform': platform, 'result': 'PASS', 'nativeGUIExecuted': True}.items()):
@@ -133,9 +165,9 @@ def collect_inputs(artifacts, version, commit):
             summaries.append(summary)
     if len(assets) != 11 or len(summaries) != 6:
         raise ValueError('Release requires nine native packages, two previews and six successful jobs.')
-    math = json.loads(evidence['reader-linux-mathjax.json'].read_text())
-    reader = json.loads(evidence['reader-linux-file-citations.json'].read_text())
-    alternative = json.loads(evidence['alternative-linux-file-citations.json'].read_text())
+    math = all_records.get('reader-linux-mathjax.json', {})
+    reader = all_records.get('reader-linux-file-citations.json', {})
+    alternative = all_records.get('alternative-linux-file-citations.json', {})
     if math.get('passed') is not True or alternative.get('passed') is not True:
         raise ValueError('Focused rendering checks must pass.')
     if not reader.get('checks') or not reader.get('passed') or reader.get('errors') != [] or reader.get('remoteRequests') != []:
@@ -144,16 +176,14 @@ def collect_inputs(artifacts, version, commit):
         for name, count in [('reader-linux-chatgpt.json', 'checks'),
                             ('reader-linux-grok.json', 'views'),
                             ('alternative-linux-compat.json', 'checks')]:
-            path = evidence.get(name)
-            report = json.loads(path.read_text()) if path else {}
+            report = all_records.get(name, {})
             if (report.get('passed') is not True or type(report.get(count)) is not int or report[count] < 4
                     or type(report.get('networkRequests')) is not int or report['networkRequests'] != 0
                     or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
                 raise ValueError(f'{name}: four successful Grok/ChatGPT views without requests or page errors are required.')
     if tuple(map(int, version.split('.'))) >= (1, 4, 4):
         def report_for(name):
-            path = evidence.get(name)
-            return json.loads(path.read_text()) if path else {}
+            return all_records.get(name, {})
 
         for app in ('reader', 'alternative'):
             name = f'{app}-linux-inline-html.json'
@@ -202,6 +232,27 @@ def collect_inputs(artifacts, version, commit):
                 or any(report.get(key) != [] for key in ('captureRequests', 'crashFilesBefore', 'crashFilesAfter'))):
             raise ValueError(f'{name}: successful native crash-reporting privacy checks are required.')
     return assets, evidence, summaries
+
+
+def write_verification_evidence(archive, evidence, version, commit):
+    for name, path in sorted(evidence.items()):
+        raw = path.read_bytes()
+        if ((version, commit, name, hashlib.sha256(raw).hexdigest()) == LEGACY_HOST_CAPTURE):
+            if 'host-report-recovery.json' in evidence:
+                raise ValueError('The generated recovery receipt must not overwrite original evidence.')
+            report = read_verification_report(path, release_identity=(version, commit))
+            canonical = (json.dumps(report, indent=2) + '\n').encode('utf-8')
+            original_name = 'raw-output/' + name.removesuffix('.json') + '.log'
+            archive.writestr(original_name, raw)
+            archive.writestr('verification/' + name, canonical)
+            archive.writestr('verification/host-report-recovery.json', json.dumps({
+                'version': version, 'commit': commit, 'report': name,
+                'original_capture': original_name, 'original_sha256': hashlib.sha256(raw).hexdigest(),
+                'report_sha256': hashlib.sha256(canonical).hexdigest(),
+                'reason': 'Separate ten native diagnostic lines from the original successful JSON result; '
+                          'all release validation requirements remain enforced.'}, indent=2) + '\n')
+        else:
+            archive.write(path, 'verification/' + name)
 
 
 def release_title(version):
@@ -343,8 +394,7 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
     run('git', 'archive', '--format=zip', f'--prefix={stem}-Manual/',
         f'--output={output / (stem + "-Manual.zip")}', f'{commit}:docs', cwd=root)
     with zipfile.ZipFile(output / (stem + '-Verification-Evidence.zip'), 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        for name, path in sorted(evidence.items()):
-            archive.write(path, 'verification/' + name)
+        write_verification_evidence(archive, evidence, version, commit)
         if source_update:
             archive.writestr('verification/runtime-source-update.json', json.dumps(source_update, indent=2) + '\n')
     rows = '\n'.join(f'| {s["application"].title()} | {s["platform"]} | PASS | Executed |'
@@ -368,6 +418,7 @@ This report is generated only after all six package jobs complete successfully. 
 {rows}
 
 The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation and Grok/ChatGPT compatibility browser checks before publication. The new compatibility gates require four successful layout/theme views per suite, with no unsolicited requests or page errors. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
+If the original v1.4.4 Linux host capture contains native diagnostics, only its exact reviewed hash is accepted. The evidence ZIP includes the clean report, the byte-for-byte original under `raw-output/`, and a recovery receipt binding both hashes to the tagged commit. Every application, security and package-integrity gate still applies.
 {preview_report}
 
 The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md).

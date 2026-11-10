@@ -5,9 +5,10 @@ const path=require('node:path');
 const { createHtmlPreviewHost }=require('../src/desktop/html-preview-host.cjs');
 app.commandLine.appendSwitch('disable-gpu');
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const reportFile=process.env.HTML_PREVIEW_HOST_REPORT ? path.resolve(process.env.HTML_PREVIEW_HOST_REPORT) : null;
 const page=body=>`<!DOCTYPE html><html><head><title>Preview test</title></head><body>${body}</body></html>`;
 let owner,host,external=false;
-(async()=>{assert.equal(app.commandLine.hasSwitch('no-sandbox'),false);await app.whenReady();owner=new BrowserWindow({width:680,height:540,show:true,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});await owner.loadURL('data:text/html,<body>Trusted application</body>');
+(async()=>{if(reportFile)fs.rmSync(reportFile,{force:true});assert.equal(app.commandLine.hasSwitch('no-sandbox'),false);await app.whenReady();owner=new BrowserWindow({width:680,height:540,show:true,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});await owner.loadURL('data:text/html,<body>Trusted application</body>');
 const events=[];host=createHtmlPreviewHost({getWindow:()=>owner,getExternalEnabled:()=>external,openExternal:()=>assert.fail('No automatic browser launch'),onEvent:e=>events.push(e)});
 const source=page(`<h1>Isolated preview</h1><p id="value">0</p><button id="add" onclick="document.getElementById('value').textContent=Number(document.getElementById('value').textContent)+1">Add</button><script>document.body.dataset.script='ran';document.body.dataset.node=typeof require;document.body.dataset.bridge=typeof window.desktop;fetch('https://example.com').then(()=>document.body.dataset.network='allowed').catch(()=>document.body.dataset.network='blocked');window.open('https://example.com');</script>`);
 await host.invoke('html.preview.open',{id:'test',source,language:'html',bounds:{x:20,y:90,width:620,height:300}});await delay(1200);
@@ -39,7 +40,9 @@ dns.lookup=originalLookup;https.request=originalRequest;
 await host.invoke('html.preview.closeAll');await host.invoke('html.preview.open',{id:'runaway',source:page('<script>while(true){}</script>'),language:'html',bounds:{x:20,y:90,width:620,height:300}});await delay(200);
 assert.equal(await owner.webContents.executeJavaScript('1+1'),2);const runaway=host.entries.get('runaway').view.webContents;await host.invoke('html.preview.close',{id:'runaway'});await delay(200);assert.equal(runaway.isDestroyed(),true);
 const shot=await owner.webContents.capturePage();const folder=process.env.HTML_PREVIEW_EVIDENCE;if(folder){fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(folder,'host-680x540.png'),shot.toPNG());}
-console.log(JSON.stringify({passed:true,checks:11,chromiumSandboxEnabled:true,isolation:result,separateProcess:true,sandbox:true,privateRequestsBlocked:true,navigationBlocked:true,staleOpenCancelled:true,publicTransportFixture:online,runawayIsolated:true,rendererCanRestrictNetwork:true,events}));
+const report={passed:true,checks:11,chromiumSandboxEnabled:true,isolation:result,separateProcess:true,sandbox:true,privateRequestsBlocked:true,navigationBlocked:true,staleOpenCancelled:true,publicTransportFixture:online,runawayIsolated:true,rendererCanRestrictNetwork:true,events};
+// Chromium diagnostics may use stdout. Keep machine-readable evidence separate.
+if(reportFile){fs.mkdirSync(path.dirname(reportFile),{recursive:true});fs.writeFileSync(reportFile,JSON.stringify(report,null,2)+'\n',{flag:'wx'});}else console.log(JSON.stringify(report));
 host.dispose();owner.destroy();app.exit(0);
 })().catch(error=>{console.error(error);host?.dispose();owner?.destroy();app.exit(1);});
 setTimeout(()=>{console.error('HTML preview host test timed out');host?.dispose();owner?.destroy();app.exit(1);},25000).unref();

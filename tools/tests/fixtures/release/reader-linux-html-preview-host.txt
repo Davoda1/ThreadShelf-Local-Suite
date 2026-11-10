@@ -1,0 +1,11 @@
+[14817:1110/160132.211937:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[14817:1110/160132.229560:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[14817:1110/160132.240817:ERROR:dbus/object_proxy.cc:589] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[14817:1110/160132.241667:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[14817:1110/160132.245825:ERROR:dbus/object_proxy.cc:589] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[14817:1110/160134.489506:ERROR:mojo/public/cpp/bindings/lib/interface_endpoint_client.cc:652] Message 0 rejected by interface blink.mojom.WidgetHost
+[14817:1110/160135.396639:ERROR:mojo/public/cpp/bindings/lib/interface_endpoint_client.cc:652] Message 2 rejected by interface blink.mojom.Widget
+[14817:1110/160135.396717:ERROR:mojo/public/cpp/bindings/lib/interface_endpoint_client.cc:652] Message 0 rejected by interface blink.mojom.WidgetHost
+[14817:1110/160135.396728:ERROR:mojo/public/cpp/bindings/lib/interface_endpoint_client.cc:652] Message 6 rejected by interface blink.mojom.WidgetHost
+[14817:1110/160135.396750:ERROR:mojo/public/cpp/bindings/lib/interface_endpoint_client.cc:652] Message 7 rejected by interface blink.mojom.WidgetHost
+{"passed":true,"checks":11,"chromiumSandboxEnabled":true,"isolation":{"script":"ran","node":"undefined","bridge":"undefined","network":"blocked","storage":"blocked"},"separateProcess":true,"sandbox":true,"privateRequestsBlocked":true,"navigationBlocked":true,"staleOpenCancelled":true,"publicTransportFixture":{"script":"ran","data":"public fixture","color":"rgb(7, 8, 9)","redirect":"blocked"},"runawayIsolated":true,"rendererCanRestrictNetwork":true,"events":[{"id":"test","state":"closed"},{"id":"online","state":"closed"},{"id":"fixture","state":"closed"},{"id":"restricted","state":"closed"},{"id":"runaway","state":"closed"}]}
