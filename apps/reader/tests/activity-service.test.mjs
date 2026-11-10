@@ -116,7 +116,7 @@ test('import, reimport, new messages, rebuild and reopen keep Conversations star
   current = await started(); assert.equal(current.summary.value, 1); assert.equal(current.summary.messages, 4);
   assert.equal(current.daily.find(day => day.date === '2023-12-31').conversations, 1);
   assert.equal(current.daily.find(day => day.date === '2024-01-01').conversations, 0);
-  await imported(f, { id: 'second-creation', doc: { ...originalDocument('second-creation'), create_time: null, created_at: '2024-01-02' } });
+  await imported(f, { id: 'second-creation', doc: { ...originalDocument('second-creation', 'Second independent conversation'), create_time: null, created_at: '2024-01-02' } });
   current = await started(); assert.equal(current.summary.value, 2); assert.equal(current.summary.messages, 7);
   const before = await f.service.handle('thread', { id: first.id });
   await f.reopen(); const reopened = await started();

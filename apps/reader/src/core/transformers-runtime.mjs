@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { assertTransformersPrivacy } from './transformers-privacy.mjs';
 
 // The upstream Node bundle embeds an older Web runtime. Its public source
 // entry instead imports the exact external ONNX dependencies pinned by Reader.
@@ -15,5 +16,7 @@ export async function resolveTransformersSource() {
 }
 
 export async function loadTransformers() {
-  return import((await resolveTransformersSource()).href);
+  const source = await resolveTransformersSource();
+  assertTransformersPrivacy(await readFile(new URL('utils/hub.js', source), 'utf8'));
+  return import(source.href);
 }

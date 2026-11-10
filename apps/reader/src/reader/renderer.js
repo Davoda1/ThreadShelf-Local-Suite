@@ -2,7 +2,12 @@ import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
 import { isHiddenThoughtsMessage } from './messages.js';
 import { formatJsonResponse } from './json-response.js';
 import { createFileCitationExtension } from './file-citations.js';
+import './safe-html.css';
+import { SAFE_HTML_TAGS, renderSafeHtml, safeHtmlAttribute } from './safe-html.js';
+import { createVeniceCitationExtension } from './venice-citations.js';
 import SvgPreview from './svg-preview.cjs';
+import { validHtmlPreview, HTML_PREVIEW_LANGUAGES } from './html-preview-validation.mjs';
+import { HtmlPreviewClient } from './html-preview-client.js';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
 import { highlighter, normalizeCodeLanguage, getCodeLanguageLabel } from './highlight.js';
 export { normalizeCodeLanguage } from './highlight.js';
@@ -46,6 +51,7 @@ const marked = new Marked({
   gfm: true,
   extensions: [createFileCitationExtension()],
 });
+marked.use(createVeniceCitationExtension({ t: tr }));
 
 function escapeHtml(value = '') {
   return String(value)
@@ -71,7 +77,8 @@ function createMarkedRenderer() {
     const language = normalizeCodeLanguage(lang);
     const svgFence = ['', 'svg', 'xml'].includes(String(lang).trim().toLowerCase())
       ? ` data-svg-fence="${escapeHtml(lang)}"` : '';
-    return `<pre class="language-${language}" data-language="${escapeHtml(getCodeLanguageLabel(language, lang))}"${svgFence}><code class="language-${language}" data-language="${language}">${escapeHtml(text)}</code></pre>\n`;
+    const htmlFence = HTML_PREVIEW_LANGUAGES.includes(String(lang).trim().toLowerCase()) ? ` data-html-fence="${escapeHtml(lang)}"` : '';
+    return `<pre class="language-${language}" data-language="${escapeHtml(getCodeLanguageLabel(language, lang))}"${svgFence}${htmlFence}><code class="language-${language}" data-language="${language}">${escapeHtml(text)}</code></pre>\n`;
   };
 
   renderer.link = function link(token) {
@@ -79,11 +86,11 @@ function createMarkedRenderer() {
     return html.replace(/^<a /, '<a target="_blank" rel="noopener noreferrer" ');
   };
 
-  // Raw HTML from archived messages is displayed literally rather than injected.
-  // Math placeholders are restored from opaque text after sanitization.
+  // Only reconstructed formatting tags reach the message DOM. Archived
+  // scripts, event handlers, app attributes and resource URLs stay literal.
   renderer.html = function html(token) {
     const raw = typeof token === 'string' ? token : token?.raw || token?.text || '';
-    return escapeHtml(raw);
+    return renderSafeHtml(raw);
   };
 
   return renderer;
@@ -145,6 +152,7 @@ function sanitizeRenderedHtml(html) {
   template.innerHTML = html;
 
   const allowedTags = new Set([
+    ...[...SAFE_HTML_TAGS].map(tag => tag.toUpperCase()),
     'P', 'BR', 'HR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
     'BLOCKQUOTE', 'UL', 'OL', 'LI', 'STRONG', 'B', 'EM', 'I', 'DEL', 'S',
     'CODE', 'PRE', 'A', 'TABLE', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'TH', 'TD',
@@ -154,9 +162,9 @@ function sanitizeRenderedHtml(html) {
   const perTagAttrs = {
     A: new Set(['href', 'target', 'rel']),
     IMG: new Set(['src', 'alt']),
-    PRE: new Set(['data-language', 'data-svg-fence']),
+    PRE: new Set(['data-language', 'data-svg-fence', 'data-html-fence']),
     CODE: new Set(['data-language', 'data-highlighted', 'data-original-code']),
-    SPAN: new Set(['data-chatgpt-math-id', 'role', 'aria-disabled', 'aria-hidden']),
+    SPAN: new Set(['data-chatgpt-math-id', 'role', 'aria-label', 'aria-disabled', 'aria-hidden']),
     DIV: new Set(['data-chatgpt-math-id']),
     TH: new Set(['align', 'colspan', 'rowspan']),
     TD: new Set(['align', 'colspan', 'rowspan']),
@@ -171,6 +179,12 @@ function sanitizeRenderedHtml(html) {
 
     for (const attr of [...element.attributes]) {
       const name = attr.name.toLowerCase();
+      if (['style', 'lang', 'dir', 'scope', 'value', 'datetime', 'open'].includes(name)) {
+        const safe = safeHtmlAttribute(element.tagName, name, attr.value);
+        if (safe === null || (name === 'style' && !safe)) element.removeAttribute(attr.name);
+        else element.setAttribute(name, safe);
+        continue;
+      }
       const allowed = globalAttrs.has(name) || perTagAttrs[element.tagName]?.has(name);
       if (!allowed || name.startsWith('on') || name === 'style') {
         element.removeAttribute(attr.name);
@@ -185,7 +199,7 @@ function sanitizeRenderedHtml(html) {
       element.setAttribute('rel', 'noopener noreferrer');
     }
     if (element.tagName === 'IMG') {
-      // IMG is produced only by Markdown; raw archived HTML remains literal.
+      // IMG is produced only by Markdown; archived image tags stay literal.
       const marker = document.createTextNode('');
       element.replaceWith(marker);
       marker.replaceWith(wrapMarkdownImage(element, tr));
@@ -262,6 +276,12 @@ function addCodeBlockControls(container, refreshLayout) {
         controls.append(toggle, copyButton);
         titlebar.append(controls);
       }
+    }
+    if (!pre.svgPreviewSource && pre.hasAttribute('data-html-fence') && validHtmlPreview(code.dataset.originalCode ?? code.textContent ?? '', pre.dataset.htmlFence)) {
+      const controls=document.createElement('span');controls.className='code-svg-controls';
+      const toggle=document.createElement('button');toggle.type='button';toggle.className='code-copy-button code-html-toggle';toggle.dataset.toggleHtml='1';toggle.textContent=tr('Render');toggle.setAttribute('aria-pressed','false');toggle.title=tr('Show isolated HTML preview');
+      const preview=document.createElement('span');preview.className='code-html-preview';preview.hidden=true;preview.setAttribute('aria-label',tr('HTML preview'));
+      pre.append(preview);controls.append(toggle,copyButton);titlebar.append(controls);
     }
     pre.insertBefore(titlebar, pre.firstChild);
     pre.classList.add('has-code-controls');
@@ -545,6 +565,7 @@ function highlightTextInHtml(html, query) {
 export class ConversationRenderer {
   constructor(container) {
     this.contentContainer = container;
+    this.htmlPreviews = new HtmlPreviewClient(container);
     this.disposeChartInteractions = mountChartInteractions(container);
     this.currentQuery = '';
     this.conversationKey = '';
@@ -579,6 +600,7 @@ export class ConversationRenderer {
   }
 
   destroy() {
+    this.htmlPreviews.destroy();
     destroyMarkdownImages(this.contentContainer);
     this.disposeChartInteractions();
     this.renderGeneration++;
@@ -590,6 +612,7 @@ export class ConversationRenderer {
   beginConversation(key) {
     const nextKey = String(key || '');
     if (nextKey === this.conversationKey) return;
+    this.htmlPreviews.closeAll();
     destroyMarkdownImages(this.contentContainer);
     this.imageRenderPending = true;
     this.conversationKey = nextKey;
@@ -640,6 +663,7 @@ export class ConversationRenderer {
   }
 
   renderMessages(messages) {
+    this.htmlPreviews.closeAll();
     destroyMarkdownImages(this.contentContainer);
     this.imageRenderPending = false;
     dismissChartInteractions(this.contentContainer);
@@ -1108,6 +1132,8 @@ export class ConversationRenderer {
       return;
     }
 
+    const htmlToggle = event.target.closest('[data-toggle-html]');
+    if (htmlToggle && this.contentContainer.contains(htmlToggle)) { event.preventDefault(); void this.htmlPreviews.toggle(htmlToggle.closest('pre')); return; }
     const svgToggle = event.target.closest('[data-toggle-svg]');
     if (svgToggle && this.contentContainer.contains(svgToggle)) {
       event.preventDefault();

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.4 — 2026-11-10
+
+- Render bounded safe inline HTML formatting and CSS colors in ordinary user and response text. Preserve code, math, source copying and existing SVG behavior.
+- Display VeniceAI numeric citation markers such as `^1^` as theme-aware soft-square badges without inventing missing source destinations.
+- Add Code / Render controls for eligible complete HTML5 pages. Native previews run in a temporary sandbox without Node.js or application APIs; closing a preview destroys its state. A separate reading preference controls guarded public HTTPS resources and stops active previews when changed.
+- Add Reader duplicate cleanup within collection, provider and actual-model boundaries. Preserve divergent answered histories, substantive reasoning and attachments; retain source history and remap saved reading when duplicates merge. Grok export artifacts receive targeted handling, while optional prompt-only cleanup for other providers starts disabled.
+- Add a dedicated manual duplicate review with survivor/reason details and a stale-review guard; run applicable automatic checks after imports, server-copy batches and collection operations.
+- Keep public network protections, app identities, profile/archive formats, runtime/dependency pins and existing speech functionality. Align all three apps at 1.4.4 and include Analytics with no functional changes.
+- Correct the Alternative notice version and refresh the manual, focused regression tests, source supplement metadata and release gates.
+
 ## 1.4.3 — 2026-11-09
 
 - Render archived Grok XML cards, citations, supported charts and media through bounded parsing, SVG icons and original-source inspection. Keep unavailable data explicit and interactive actions inert.

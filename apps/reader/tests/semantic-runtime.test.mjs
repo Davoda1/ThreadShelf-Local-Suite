@@ -71,7 +71,7 @@ test('production portable workers load actual ONNX module and WASM from paths wi
   const relocated = path.join(temporary, 'Thread Shelf # 50% árvíz');
   const runtime = path.join(relocated, 'node_modules', 'onnxruntime-web');
   await fs.mkdir(path.join(runtime, 'dist'), { recursive: true });
-  for (const name of ['search-worker.mjs', 'search-wasm.mjs', 'transformers-runtime.mjs']) {
+  for (const name of ['search-worker.mjs', 'search-wasm.mjs', 'transformers-runtime.mjs', 'transformers-privacy.mjs', 'search-privacy.mjs', 'onnx-privacy.cjs']) {
     await fs.copyFile(path.join(root, 'src/core', name), path.join(relocated, name));
   }
   for (const name of ['package.json', 'dist/ort.node.min.js', 'dist/ort.node.min.mjs',

@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { ContentStore, contentObjects, validateContentRef } from './content-packs.mjs';
+import { describeDeduplication, compareDeduplication, planDeduplication, retainDeduplicationSources, deduplicationTurnMap } from './deduplication.mjs';
 
 const SCHEMA_VERSION = 3;
 const APPLICATION_ID = 0x54534c52;
@@ -258,19 +259,47 @@ export class ArchiveStore {
   }
 
   prepareUpsert(input) {
-    const document = normalize(input);
+    let document = normalize(input);
     const record = this._record('upsert');
     let collection = input.collectionId ? this._collection(input.collectionId) : this._collection(document.collection, false, true);
     if (!collection) collection = { id: `collection:${randomUUID()}`, name: this._name(document.collection), create: true };
     document.collection = collection.name;
     const sourceIdentity = conversationIdentity(document);
-    const contentHash = this._contentHash(document);
-    const candidates = this._open().prepare(`SELECT ${SUMMARY_COLUMNS},content_hash FROM conversations WHERE collection_id=? AND source_identity_json=? ORDER BY id`).all(collection.id, sourceIdentity);
+    let contentHash = this._contentHash(document);
+    const candidates = this._open().prepare(`SELECT ${SUMMARY_COLUMNS},content_hash,content_ref FROM conversations WHERE collection_id=? AND source_identity_json=? ORDER BY id`).all(collection.id, sourceIdentity);
     const exact = candidates.find(row => row.content_hash === contentHash);
     // A merged source may have divergent histories. Only replace a single
     // unambiguous history; retain additional versions rather than guessing.
-    const previous = exact || (candidates.length === 1 ? candidates[0] : null);
+    let previous = exact || (candidates.length === 1 ? candidates[0] : null), preserveConflict = false;
     if (exact) return { ...record, collection, sourceIdentity, contentHash, id: exact.id, previousId: exact.id, unchanged: true, summary: summary(exact) };
+    // Keep a newer complete snapshot when an older export with the same native
+    // identity arrives later. Other established source-ID update rules remain
+    // unchanged. Different identities are handled by the post-import pass.
+    if (previous) {
+      const older = { ...this.content.readDocument(JSON.parse(previous.content_ref)), ...summary(previous) };
+      const a = describeDeduplication(older, { ...summary(previous), collectionId: collection.id });
+      const b = describeDeduplication(document, { id: '__incoming__', collectionId: collection.id, importedAt: record.at });
+      // A stable native identity is stronger evidence than missing model
+      // metadata. Protect its exact prefix snapshots without widening the
+      // unknown-model rule for otherwise unrelated conversation identities.
+      if (!a.model && !b.model && a.provider === b.provider && a.title === b.title) a.key = b.key = '__same_native_identity__';
+      let match = compareDeduplication(a, b);
+      if (match?.reason === 'identical') match = { ...match, keep: b, remove: a };
+      if (match) {
+        record.turnRemap = { [previous.id]: deduplicationTurnMap(a, match.keep) };
+        document = normalize(retainDeduplicationSources(match.keep.id === previous.id ? older : document, [match.remove.id === previous.id ? older : document]));
+        contentHash = this._contentHash(document);
+      } else if (a.model && b.model && a.key && a.key === b.key) {
+        // Same-ID edited answered branches or changed attachments are distinct
+        // histories, not source bookkeeping updates. Keep both visible.
+        previous = null; preserveConflict = true;
+      } else {
+        // Preserve original native-ID update semantics, but retain the entire
+        // prior source so an exporter metadata/model change cannot erase it.
+        document = normalize(retainDeduplicationSources(document, [older]));
+        contentHash = this._contentHash(document);
+      }
+    }
     const contentRef = this.content.writeDocument(document);
     let passageCount = 0; for (const ignored of passageRows(document, 'count')) passageCount++;
     const metadata = { provider: document.provider, sourceFile: document.sourceFile, conversationKey: document.conversationKey,
@@ -278,7 +307,7 @@ export class ArchiveStore {
       sortTime: latestTime(document), passageCount };
     return { ...record, collection, document: metadata, contentRef, sourceIdentity, contentHash,
       id: previous?.id ?? `local:${randomUUID()}`, previousId: previous?.id ?? null,
-      conflict: candidates.length > 1, unchanged: false };
+      conflict: preserveConflict || candidates.length > 1, unchanged: false };
   }
 
   _selection(args) {
@@ -377,6 +406,7 @@ export class ArchiveStore {
   }
 
   previewMutation(args = {}) {
+    if ((args.action ?? args.operation) === 'deduplicate') return this.previewDeduplication(args);
     const record = this.prepareMutation(args);
     let duplicates = 0;
     let conflicts = 0;
@@ -404,7 +434,77 @@ export class ArchiveStore {
   }
 
   manage(args = {}) {
-    return this.applyMutation(args.kind === 'manage' && args.opId ? args : this.prepareMutation(args));
+    return this.applyMutation(args.kind === 'manage' && args.opId ? args : (args.action ?? args.operation) === 'deduplicate' ? this.prepareDeduplication(args) : this.prepareMutation(args));
+  }
+
+  _deduplicationPlan(args = {}) {
+    this._record('manage', args); // Validate the review revision before scanning.
+    let collections;
+    if (args.collectionIds !== undefined) {
+      if (!Array.isArray(args.collectionIds) || args.collectionIds.length > 100000 || args.collectionIds.some(id => typeof id !== 'string')) throw new TypeError('Deduplication needs valid collection IDs.');
+      collections = new Set(args.collectionIds.map(id => this._collection(id).id));
+    } else if (args.collectionId || args.collection && args.collection !== 'all') collections = new Set([this._collection(args.collectionId || args.collection).id]);
+    const entries = [];
+    let group = [], key, scanned = 0;
+    const flush = () => { if (group.length) entries.push(...planDeduplication(group, { deletePromptOnly: args.deletePromptOnly === true })); group = []; };
+    const rows = this._open().prepare(`SELECT ${SUMMARY_COLUMNS},content_ref FROM conversations ORDER BY collection_id,CASE WHEN provider IN ('grok','xai','x.ai') THEN 'grok' ELSE provider END,trim(title),id`).iterate();
+    for (const row of rows) {
+      if (collections && !collections.has(row.collection_id)) continue;
+      const groupKey = stableJSON([row.collection_id, row.provider === 'xai' || row.provider === 'x.ai' ? 'grok' : row.provider, row.title.trim()]);
+      if (key !== groupKey) { flush(); key = groupKey; }
+      const document = this.content.readDocument(JSON.parse(row.content_ref));
+      group.push(describeDeduplication(document, summary(row))); scanned++;
+    }
+    flush();
+    if (args.ids !== undefined) {
+      if (!Array.isArray(args.ids) || args.ids.length > 1000000 || args.ids.some(id => typeof id !== 'string')) throw new TypeError('Select valid cleanup candidates.');
+      const selected = new Set(args.ids), eligible = new Set(entries.map(entry => entry.remove.id));
+      if ([...selected].some(id => !eligible.has(id))) throw new Error('A selected cleanup candidate changed. Review the list again.');
+      return { scanned, entries: entries.filter(entry => selected.has(entry.remove.id)) };
+    }
+    return { scanned, entries };
+  }
+
+  _deduplicationPreview(plan) {
+    const entries = plan.entries.map(({ remove, keep, reason }) => ({
+      id: remove.id, title: remove.title, provider: remove.provider, model: remove.model, collection: remove.collection, collectionId: remove.collectionId,
+      sourceFile: remove.sourceFile, importedAt: remove.importedAt, turnCount: remove.events.length,
+      snippet: remove.events.at(-1)?.text.slice(0, 260) || '', reason,
+      keepId: keep?.id || null, keepTitle: keep?.title || '', keepTurnCount: keep?.events.length || 0,
+      keepSnippet: keep?.events.at(-1)?.text.slice(0, 260) || '', keepSourceFile: keep?.sourceFile || '',
+    }));
+    return { action: 'deduplicate', revision: this.revision(), scanned: plan.scanned, count: entries.length,
+      duplicates: entries.filter(entry => entry.keepId).length,
+      superseded: entries.filter(entry => entry.reason === 'grok-superseded').length,
+      promptOnly: entries.filter(entry => !entry.keepId).length, entries, truncated: false };
+  }
+
+  previewDeduplication(args = {}) { return this._deduplicationPreview(this._deduplicationPlan(args)); }
+
+  prepareDeduplication(args = {}) {
+    const record = this._record('manage', args), plan = this._deduplicationPlan(args);
+    const preview = this._deduplicationPreview(plan);
+    const byWinner = new Map(), remap = {}, turnRemap = {};
+    for (const entry of plan.entries) {
+      if (!entry.keep) continue;
+      if (!byWinner.has(entry.keep.id)) byWinner.set(entry.keep.id, []);
+      byWinner.get(entry.keep.id).push(entry.remove.id);
+      remap[entry.remove.id] = entry.keep.id;
+      turnRemap[entry.remove.id] = deduplicationTurnMap(entry.remove, entry.keep);
+    }
+    const replacements = [];
+    for (const [id, loserIds] of byWinner) {
+      const previous = this._open().prepare('SELECT * FROM conversations WHERE id=?').get(id);
+      const document = normalize(retainDeduplicationSources(this.thread({ id }), loserIds.map(loserId => this.thread({ id: loserId }))));
+      const contentRef = this.content.writeDocument(document);
+      let passageCount = 0; for (const ignored of passageRows(document, id)) passageCount++;
+      replacements.push({ id, collection: this._collection(previous.collection_id), sourceIdentity: previous.source_identity_json,
+        contentHash: this._contentHash(document), contentRef,
+        document: { provider: document.provider, sourceFile: document.sourceFile, conversationKey: document.conversationKey,
+          title: document.title, turnCount: document.turns.length, lastTurnAt: document.lastTurnAt, sortTime: latestTime(document), passageCount } });
+    }
+    return { ...record, action: 'deduplicate', ids: plan.entries.map(entry => entry.remove.id), replacements,
+      remap, turnRemap, removedCollections: [], preview };
   }
 
   applyMutation(record) {
@@ -459,7 +559,7 @@ export class ArchiveStore {
     this._insertDocument({ ...record, previous });
     return { status: previous ? 'updated' : 'imported', conflict: record.conflict,
       summary: summary(db.prepare(`SELECT ${SUMMARY_COLUMNS} FROM conversations WHERE id=?`).get(record.id)),
-      changed: true, removedIds: [], remap: {} };
+      changed: true, removedIds: [], remap: {}, ...(record.turnRemap ? { turnRemap: record.turnRemap } : {}) };
   }
 
   _setCollection(id, target, at) {
@@ -479,6 +579,27 @@ export class ArchiveStore {
     const result = { operation: record.action, count: record.count ?? record.ids.length, moved: 0, copied: 0,
       duplicates: 0, conflicts: 0, removedIds: [], remap: {}, copies: {},
       copyBookmarks: record.copyBookmarks === true, removedCollections: record.removedCollections, changed: false };
+    if (record.action === 'deduplicate') {
+      const seen = new Set(record.ids);
+      for (const replacement of record.replacements || []) {
+        if (seen.has(replacement.id)) throw new Error('Deduplication cannot remove its retained conversation.');
+        const previous = db.prepare('SELECT * FROM conversations WHERE id=?').get(replacement.id);
+        if (!previous || previous.collection_id !== replacement.collection.id) throw new Error('A retained conversation changed. Review cleanup again.');
+        this._insertDocument({ ...replacement, previous, at: record.at });
+      }
+      for (const id of record.ids) {
+        const row = db.prepare('SELECT collection_id,provider FROM conversations WHERE id=?').get(id);
+        if (!row) throw new Error('A cleanup candidate is no longer present. Review cleanup again.');
+        const targetId = record.remap?.[id];
+        if (targetId) {
+          const target = db.prepare('SELECT collection_id,provider FROM conversations WHERE id=?').get(targetId);
+          if (!target || target.collection_id !== row.collection_id) throw new Error('Deduplication cannot cross collection boundaries.');
+        }
+        db.prepare('DELETE FROM conversations WHERE id=?').run(id);
+      }
+      return { ...result, ...record.preview, operation: 'deduplicate', removedIds: [...record.ids],
+        remap: record.remap || {}, turnRemap: record.turnRemap || {}, changed: record.ids.length > 0 };
+    }
     if (record.action === 'create') {
       this._ensureCollection({ id: record.collectionId, name: record.name, create: true }, record.at);
       result.collection = { id: record.collectionId, name: record.name, count: 0 };

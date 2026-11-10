@@ -72,6 +72,32 @@ class ReleaseAssemblyTests(unittest.TestCase):
             self.write_json(reader / 'reader-linux-chatgpt.json', {'passed': True, 'checks': 4, 'networkRequests': 0, 'pageErrors': 0})
             self.write_json(reader / 'reader-linux-grok.json', {'passed': True, 'views': 4, 'networkRequests': 0, 'pageErrors': 0})
             self.write_json(alternative / 'alternative-linux-compat.json', {'passed': True, 'checks': 4, 'networkRequests': 0, 'pageErrors': 0})
+        if tuple(map(int, self.version.split('.'))) >= (1, 4, 4):
+            for directory, app in ((reader, 'reader'), (alternative, 'alternative')):
+                self.write_json(directory / f'{app}-linux-inline-html.json',
+                                {'passed': True, 'checks': 4, 'networkRequests': 0, 'pageErrors': 0})
+            for target, platform in release.PLATFORMS:
+                directory = self.artifacts / f'reader-{target}-{self.version}/verification'
+                self.write_json(directory / f'reader-{platform}-html-preview-host.json', {
+                    'passed': True, 'checks': 11, 'separateProcess': True, 'sandbox': True, 'chromiumSandboxEnabled': True,
+                    'privateRequestsBlocked': True, 'navigationBlocked': True, 'staleOpenCancelled': True,
+                    'runawayIsolated': True, 'rendererCanRestrictNetwork': True})
+                self.write_json(directory / f'reader-{platform}-html-preview-ui.json',
+                                {'passed': True, 'chromiumSandboxEnabled': True, 'checks': 4, 'pageErrors': 0})
+                directory = self.artifacts / f'alternative-{target}-{self.version}/verification'
+                self.write_json(directory / f'alternative-{platform}-html-preview.json', {
+                    'passed': True, 'productionApplication': True, 'sandbox': True, 'eligibleSwitches': 3,
+                    'chromiumSandboxEnabled': True, 'singleInstanceLockUnmodified': True,
+                    'svgUnchanged': True, 'embeddedJavascript': True, 'noApplicationBridge': True,
+                    'copyUnchanged': True, 'codeTeardown': True, 'settingsTeardown': True,
+                    'externalDisabled': True, 'privateAndFileBlocked': True, 'pageErrors': 0})
+            self.write_json(reader / 'reader-linux-deduplication.json', {
+                'passed': True, 'sandbox': True, 'chromiumSandboxEnabled': True, 'socketlessHarness': False, 'pageErrors': [],
+                'checks': ['Synthetic check'] * 4, 'geometry': [{'synthetic': True}] * 80})
+            self.write_json(alternative / 'alternative-linux-privacy.json', {
+                'passed': True, 'chromiumSandboxEnabled': True, 'uploadToServer': False,
+                'nativeStarts': 0, 'nativeUploadChanges': 0,
+                'captureRequests': [], 'crashFilesBefore': [], 'crashFilesAfter': []})
 
     def test_complete_six_job_collection(self):
         assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
@@ -134,6 +160,63 @@ class ReleaseAssemblyTests(unittest.TestCase):
         (self.artifacts / 'alternative-windows-1.4.0/verification/alternative-win32-tts.json').unlink()
         with self.assertRaisesRegex(ValueError, 'packaged CPU speech validation'):
             release.collect_inputs(self.artifacts, self.version, self.commit)
+
+    def test_144_requires_all_native_preview_inline_and_deduplication_reports(self):
+        self.version = '1.4.4'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
+        self.assertEqual((len(assets), len(summaries)), (11, 6))
+        names = ['reader-linux-inline-html.json', 'alternative-linux-inline-html.json',
+                 'reader-linux-deduplication.json', 'alternative-linux-privacy.json']
+        for _, platform in release.PLATFORMS:
+            names.extend([f'reader-{platform}-html-preview-host.json', f'reader-{platform}-html-preview-ui.json',
+                          f'alternative-{platform}-html-preview.json'])
+        for name in names:
+            with self.subTest(report=name):
+                evidence[name].unlink()
+                with self.assertRaisesRegex(ValueError, 'required'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
+
+    def test_144_rejects_incomplete_or_unsafe_native_preview_evidence(self):
+        self.version = '1.4.4'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+        cases = [
+            ('reader-linux-inline-html.json', {'networkRequests': 1}),
+            ('alternative-linux-inline-html.json', {'checks': True}),
+            ('reader-win32-html-preview-host.json', {'separateProcess': False}),
+            ('reader-linux-html-preview-host.json', {'privateRequestsBlocked': False}),
+            ('reader-linux-html-preview-host.json', {'chromiumSandboxEnabled': False}),
+            ('reader-linux-html-preview-host.json', {'checks': 10}),
+            ('reader-win32-html-preview-ui.json', {'pageErrors': 1}),
+            ('reader-win32-html-preview-ui.json', {'chromiumSandboxEnabled': False}),
+            ('alternative-win32-html-preview.json', {'noApplicationBridge': False}),
+            ('alternative-win32-html-preview.json', {'singleInstanceLockUnmodified': False}),
+            ('alternative-linux-html-preview.json', {'externalDisabled': False}),
+            ('alternative-linux-html-preview.json', {'eligibleSwitches': True}),
+            ('reader-linux-deduplication.json', {'socketlessHarness': True}),
+            ('reader-linux-deduplication.json', {'chromiumSandboxEnabled': False}),
+            ('reader-linux-deduplication.json', {'checks': []}),
+            ('reader-linux-deduplication.json', {'geometry': []}),
+            ('alternative-linux-privacy.json', {'uploadToServer': True}),
+            ('alternative-linux-privacy.json', {'nativeStarts': False}),
+            ('alternative-linux-privacy.json', {'captureRequests': ['synthetic upload']}),
+        ]
+        for name, change in cases:
+            with self.subTest(report=name, change=change):
+                path = next(self.artifacts.rglob(name))
+                value = json.loads(path.read_text()); value.update(change); self.write_json(path, value)
+                with self.assertRaisesRegex(ValueError, 'required'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
+
+    def test_144_notes_describe_opt_in_execution_and_current_scope(self):
+        notes = release.release_notes('1.4.4', 'example/suite')
+        for text in ('VeniceAI', 'Code is selected initially', 'embedded page JavaScript',
+                     'enabled by default', 'duplicate cleanup', 'Stale reviews',
+                     'without application-functionality or dependency changes'):
+            self.assertIn(text, notes)
+        self.assertNotIn('HTML and interactive components remain passive and never execute', notes)
 
     def test_rejects_failed_streaming_speech(self):
         path = self.artifacts / 'reader-linux-1.4.0/verification/reader-linux-tts.json'

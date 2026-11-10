@@ -56,6 +56,18 @@ Filter and select the source collections, then choose **Merge collections**. Pic
 
 Merging is not the same as importing a server collection again. It reorganizes the already retained Local archive and should not be used to solve missing source content or a bad provider parser result.
 
+## Duplicate cleanup
+
+Open **Settings → Database Manager → Deduplication**, the fifth manager section. Automatic checks follow successful import/server-copy batches and applicable collection operations. Existing records can be reviewed through a separate manual review surface, showing the collection, survivor/removal relationship and reason before confirmation. If the archive changes after review, review it again; an outdated plan cannot be applied.
+
+Separate collections keep independent copies until explicitly merged. Matching uses provider, title, actual model identity and ordered saved contents. Different model variants, substantive reasoning, attachments, message order and answered branches remain meaningful. Missing model information is not proof of a duplicate. Identical conversations can merge; a complete shorter history can be replaced by its exact longer continuation. Divergent answered histories remain separate.
+
+For Grok/xAI exports, eligible prompt-only artifacts can be cleaned up and an unanswered trailing-prompt variant can be superseded by its matching answered continuation. Provider identity controls this rule: a VeniceAI conversation using a Grok model remains VeniceAI. Content/attachment preservation checks still apply.
+
+Prompt-only cleanup for other providers is optional and disabled by default. Enabling automatic cleanup requires explicit confirmation. Manual review can include this category without changing the automatic preference. Records with attachments or substantive response/tool/reasoning content are not treated as simple empty prompt artifacts.
+
+When conversations merge, relevant source information and saved reading references follow the survivor. Explicit prompt-only deletion has no survivor. The current conversation, list and derived indexes refresh after cleanup. Use [Storage & backup](backup.md) for a recovery point before broad archive maintenance.
+
 ## Delete a collection or conversation
 
 A collection deletion can either remove the collection’s contents or move those contents into another collection before the source collection is removed. Review the destination and count in the confirmation. Deleting selected conversations removes their Local records and associated Local reading/search references. Deleting the currently open Local conversation clears the reader coherently.

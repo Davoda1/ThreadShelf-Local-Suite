@@ -18,7 +18,7 @@ function refFor(row, previous = {}) {
     sourceFile: row.sourceFile ?? row.source_file ?? '', conversationKey: row.conversationKey ?? row.conversation_key ?? '' };
 }
 function newest(a, b) { return Number(a?.updatedAt || 0) >= Number(b?.updatedAt || 0) ? a : b; }
-export function reconcileLocalReading(value, { removedIds = [], remap = {}, copies = {}, clearLocal = false, copyBookmarks = false } = {}, lookup = () => null) {
+export function reconcileLocalReading(value, { removedIds = [], remap = {}, turnRemap = {}, copies = {}, clearLocal = false, copyBookmarks = false } = {}, lookup = () => null) {
   const removed = new Set(removedIds);
   const positions = {}, bookmarks = [], recent = [];
   const transform = (key, entry) => {
@@ -28,9 +28,21 @@ export function reconcileLocalReading(value, { removedIds = [], remap = {}, copi
     if (clearLocal || (removed.has(id) && !remap[id])) return null;
     const row = lookup(nextId);
     const next = { ...entry };
+    const moveAnchor = anchor => {
+      const role = anchor.role === 'assistant' ? 'ai' : anchor.role;
+      const target = turnRemap[id]?.[`${anchor.turnIndex}:${role}`];
+      if (!target) return anchor;
+      const moved = { ...anchor, turnIndex: target.turnIndex, role: target.role === 'ai' && anchor.role === 'assistant' ? 'assistant' : target.role };
+      if (target.superseded) {
+        moved.supersededSource = { conversationId: id, turnIndex: anchor.turnIndex, role: anchor.role, text: target.sourceExcerpt, fingerprint: target.sourceFingerprint };
+        if (Object.hasOwn(anchor, 'text')) moved.text = anchor.text;
+      }
+      return moved;
+    };
+    Object.assign(next, moveAnchor(next));
     if (row) { next.ref = refFor(row, next.ref); if (Object.hasOwn(next, 'title')) next.title = row.title; }
     else if (next.ref) next.ref = { ...next.ref, id: nextId };
-    if (next.position) next.position = { ...next.position, ...(row ? { ref: refFor(row, next.position.ref) } : {}) };
+    if (next.position) next.position = { ...moveAnchor(next.position), ...(row ? { ref: refFor(row, next.position.ref) } : {}) };
     if (Object.hasOwn(next, 'key')) next.key = localReadingKey(nextId);
     return { key: localReadingKey(nextId), entry: next };
   };
@@ -40,7 +52,7 @@ export function reconcileLocalReading(value, { removedIds = [], remap = {}, copi
   }
   const bookmarkKeys = new Map();
   const putBookmark = entry => {
-    const key = JSON.stringify([entry.key, entry.turnIndex, entry.role]);
+    const key = JSON.stringify([entry.key, entry.turnIndex, entry.role, entry.supersededSource?.fingerprint || entry.supersededSource?.text || '']);
     const index = bookmarkKeys.get(key);
     if (index !== undefined) bookmarks[index] = newest(bookmarks[index], entry);
     else { bookmarkKeys.set(key, bookmarks.length); bookmarks.push(entry); }

@@ -14,6 +14,8 @@ import { JsonState, DEFAULTS, INTERFACE_DEFAULTS, APPEARANCE_DEFAULTS, LAYOUT_DE
 import { EXTENDED_DEFAULTS, EXTENDED_PREFERENCES_FILE, extendedPreferenceDefaults, validateExtendedPreferences, mergeExtendedPreferences } from './extended-preferences.mjs';
 import { REMOTE_IMAGE_DEFAULTS, REMOTE_IMAGES_FILE, validateRemoteImageSettings } from './remote-images.mjs';
 import { localIdFor, localReadingKey, reconcileLocalReading, replaceLocalReading, localReadingOnly } from './manager-reading.mjs';
+import { HTML_PREVIEW_DEFAULTS, HTML_PREVIEW_SETTINGS_FILE, validateHtmlPreviewSettings } from './html-preview-settings.mjs';
+import { DEDUPLICATION_DEFAULTS, DEDUPLICATION_SETTINGS_FILE, validateDeduplicationSettings, validateDeduplicationPreferenceChange } from './deduplication-settings.mjs';
 
 export class ApplicationService {
   constructor({dataDir,onProgress=()=>{},storageOptions={},resourceCacheOptions={}}) {
@@ -35,7 +37,9 @@ export class ApplicationService {
     // Keep all 3.2 preference files byte-compatible with its strict readers.
     this.readerAppearanceSettings=await new JsonState(this.dataDir,'reader-appearance.json',READER_APPEARANCE_DEFAULTS,validateReaderAppearanceSettings).init();
     this.remoteImageSettings=await new JsonState(this.dataDir,REMOTE_IMAGES_FILE,REMOTE_IMAGE_DEFAULTS,validateRemoteImageSettings).init();
+    this.htmlPreviewSettings=await new JsonState(this.dataDir,HTML_PREVIEW_SETTINGS_FILE,HTML_PREVIEW_DEFAULTS,validateHtmlPreviewSettings).init();
     this.resourceSettings=await new JsonState(this.dataDir,RESOURCE_CACHE_PREFERENCES_FILE,RESOURCE_CACHE_DEFAULTS,validateResourceCacheSettings).init();
+    this.deduplicationSettings=await new JsonState(this.dataDir,DEDUPLICATION_SETTINGS_FILE,DEDUPLICATION_DEFAULTS,validateDeduplicationSettings).init();
     this.resourceCache=new ResourceCache({dataDir:this.dataDir,...this.resourceCacheOptions});
     try{await this.resourceCache.init();}catch{this.resourceError='cache-unavailable';}
     this.resourceCache.setEnabled(this.resourceSettings.value.resourceCacheEnabled);
@@ -193,7 +197,7 @@ export class ApplicationService {
       // Reading state can be newer than the compressed archive snapshot.
       // Persist the redo watermark with its effects, so an old copy operation
       // cannot recreate a bookmark the user subsequently removed.
-      if(mutation.kind==='manage'){
+      if(mutation.kind==='manage'||Object.keys(result.turnRemap||{}).length){
         const epoch=this.storage.epoch,sequence=meta.sequence;
         const mark=this.reading.value._localRecovery;
         if(!(mark?.epoch===epoch&&Number.isSafeInteger(sequence)&&mark.sequence>=sequence))
@@ -260,7 +264,7 @@ export class ApplicationService {
     this.shutdownTask=(async()=>{
       await Promise.allSettled([...this.inFlight]);await this.mutationQueue;
       this.serverSearch.clear();this.resourceContexts.clear();await this.resourceCache?.close();
-      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.resourceSettings.queue,this.reading.queue]);
+      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.htmlPreviewSettings.queue,this.resourceSettings.queue,this.deduplicationSettings.queue,this.reading.queue]);
       // Direct ArchiveStore callers (test/embedding integrations) also receive a
       // durable close. Normal GUI mutations have already been committed.
       try{
@@ -280,7 +284,7 @@ export class ApplicationService {
     switch(action) {
       case 'bootstrap': {
         const searchStatus=await this.localStatus();
-        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.3',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
+        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.4',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.htmlPreviewSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
       }
       case 'settings.save': {
         const values=validateSettings(args.values),core=validateCoreSettings(values);
@@ -290,6 +294,7 @@ export class ApplicationService {
         const readerAppearance=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)));
         const extended=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(EXTENDED_DEFAULTS,key)));
         const remoteImages=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(REMOTE_IMAGE_DEFAULTS,key)));
+        const htmlPreview=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(HTML_PREVIEW_DEFAULTS,key)));
         if(Object.keys(extended).length)await this.extendedSettings.update(s=>mergeExtendedPreferences(s,extended));
         if(Object.keys(core).length)await this.settings.update(s=>({...s,...core}));
         if(Object.keys(ui).length)await this.interfaceSettings.update(s=>({...s,...ui}));
@@ -297,7 +302,8 @@ export class ApplicationService {
         if(Object.keys(layout).length)await this.layoutSettings.update(s=>({...s,...layout}));
         if(Object.keys(readerAppearance).length)await this.readerAppearanceSettings.update(s=>({...s,...readerAppearance}));
         if(Object.keys(remoteImages).length)await this.remoteImageSettings.update(s=>({...s,...remoteImages}));
-        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot()};
+        if(Object.keys(htmlPreview).length)await this.htmlPreviewSettings.update(s=>({...s,...htmlPreview}));
+        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot()};
       }
       case 'collections':
         if(args.mode==='server')return {collections:await this.client(args).collections()};
@@ -367,6 +373,13 @@ export class ApplicationService {
       case 'ollama.pull':return this.runOperation('ollama.pull',async signal=>{await this.ensureLocal();return this.searcher.ollamaPull({url:args.url||this.settings.value.ollamaUrl,model:args.model,signal});});
       case 'storage.convert':return this.runOperation('storage.convert',signal=>this.convertStorage(args,signal));
       case 'manager.status':return this.managerStatus();
+      case 'manager.dedup.settings':return this.serialized(async()=>{
+        const next=validateDeduplicationPreferenceChange(args,this.deduplicationSettings.value);
+        await this.deduplicationSettings.update(()=>next);
+        return this.deduplicationSettings.snapshot();
+      });
+      case 'manager.dedup.preview':return this.runOperation('manager.dedup.preview',signal=>this.previewDeduplication(args,signal));
+      case 'manager.dedup.apply':return this.runOperation('manager.dedup.apply',signal=>this.applyDeduplication(args,signal));
       case 'manager.files':await this.ensureLocal();return this.store.files({...args,q:args.query??args.q??''});
       case 'manager.preview':await this.ensureLocal();return this.store.previewMutation(args);
       case 'manager.mutate':return this.runOperation('manager.mutate',signal=>this.managerMutate(args,signal));
@@ -430,7 +443,7 @@ export class ApplicationService {
         if(!current())continue;
         const searchStatus=await searcher.status();
         if(!current())continue;
-        return {revision:store.revision(),collections:store.collections({includeEmpty:true}),storage,searchStatus};
+        return {revision:store.revision(),collections:store.collections({includeEmpty:true}),storage,searchStatus,deduplication:this.deduplicationSettings.snapshot()};
       }catch(error){if(current())throw error;}
       // A restore started during asynchronous size/status reads. Retry against
       // its final generation instead of returning mixed or closed resources.
@@ -442,15 +455,85 @@ export class ApplicationService {
       signal.throwIfAborted();
       const selectedId=this.settings.value.localCollection==='all'?null:this.store.collections({includeEmpty:true}).find(c=>c.name===this.settings.value.localCollection)?.id;
       const mutation=this.store.prepareMutation({...args,action:args.operation||args.action});
-      const result=await this.commitMutation(mutation,{copyBookmarks:args.copyBookmarks===true});
+      let result=await this.commitMutation(mutation,{copyBookmarks:args.copyBookmarks===true});
       const operation=args.operation||args.action;
       if(operation==='clear') {
         await this.finishClearPurge();
+      }
+      if(mutation.target&&['merge','move','copy'].includes(operation)) {
+        try {
+          const cleanup=await this.commitDeduplication({collectionIds:[mutation.target.id],automatic:true,
+            deletePromptOnly:this.deduplicationSettings.value.deleteOtherPromptOnlyAutomatically},signal);
+          result=this.combineDeduplicationResult(result,cleanup);
+        }catch(error){
+          if(this.storage.poisoned)throw error;
+          // The requested move/copy/merge is already durable. Return its effects
+          // so the reader is reconciled even if subsequent cleanup is cancelled.
+          result.deduplicationError=error.message||String(error);
+        }
       }
       const localCollection=selectedId?this.store.collections({includeEmpty:true}).find(c=>c.id===selectedId)?.name||'all':'all';
       if(this.settings.value.localCollection!==localCollection)await this.settings.update(s=>({...s,localCollection}));
       return {...result,localCollection,reading:this.reading.snapshot(),revision:this.store.revision()};
     });
+  }
+  deduplicationArgs(args,{apply=false}={}) {
+    if(Object.keys(args).some(key=>!['collectionIds','deletePromptOnly','expectedRevision','ids'].includes(key)))throw new Error('Invalid deduplication request.');
+    if(args.deletePromptOnly!==undefined&&typeof args.deletePromptOnly!=='boolean')throw new Error('Choose whether to include unanswered prompts.');
+    if(apply&&(!Number.isSafeInteger(args.expectedRevision)||args.expectedRevision<0))throw new Error('Review the cleanup before confirming it.');
+    if(apply&&(!Array.isArray(args.ids)||!args.ids.length))throw new Error('Select at least one conversation to clean up.');
+    return {...args,automatic:false,deletePromptOnly:args.deletePromptOnly===true};
+  }
+  async previewDeduplication(args,signal) {
+    const options=this.deduplicationArgs(args);await this.ensureLocal();
+    return this.serialized(async()=>{
+      signal.throwIfAborted();this.progress({phase:'deduplicating',message:'Reviewing conversations'});
+      return this.store.previewDeduplication(options);
+    });
+  }
+  async commitDeduplication(args,signal) {
+    signal.throwIfAborted();
+    const mutation=this.store.prepareDeduplication(args);
+    signal.throwIfAborted();
+    if(!mutation.ids.length)return {...mutation.preview,operation:'deduplicate',removedIds:[],remap:{},turnRemap:{},changed:false,revision:this.store.revision()};
+    return this.commitMutation(mutation);
+  }
+  async applyDeduplication(args,signal) {
+    const options=this.deduplicationArgs(args,{apply:true});await this.ensureLocal();await this.quiesceSearches();
+    return this.serialized(async()=>{
+      const result=await this.commitDeduplication(options,signal);
+      return {...result,reading:this.reading.snapshot(),localCollection:this.settings.value.localCollection,revision:this.store.revision()};
+    });
+  }
+  combineDeduplicationResult(result,cleanup) {
+    const remap={...(result.remap||{}),...(cleanup.remap||{})};
+    for(const id of Object.keys(remap)){
+      const seen=new Set([id]);let target=remap[id];
+      while(remap[target]&&!seen.has(target)){seen.add(target);target=remap[target];}
+      remap[id]=target;
+    }
+    return {...result,changed:result.changed||cleanup.changed,remap,
+      removedIds:[...new Set([...(result.removedIds||[]),...(cleanup.removedIds||[])])],
+      deduplication:{duplicates:cleanup.duplicates||0,promptOnly:cleanup.promptOnly||0,superseded:cleanup.superseded||0,
+        removed:(cleanup.removedIds||[]).length}};
+  }
+  async finishImportDeduplication(result,collectionNames,signal) {
+    if(signal.aborted||this.storage.poisoned)return result;
+    await this.quiesceSearches();
+    try {
+      return await this.serialized(async()=>{
+        const selected=new Set(collectionNames),collectionIds=this.store.collections({includeEmpty:true}).filter(c=>selected.has(c.name)).map(c=>c.id);
+        if(!collectionIds.length)return result;
+        this.progress({phase:'deduplicating',message:'Cleaning up imported conversations'});
+        const cleanup=await this.commitDeduplication({collectionIds,automatic:true,
+          deletePromptOnly:this.deduplicationSettings.value.deleteOtherPromptOnlyAutomatically},signal);
+        return {...this.combineDeduplicationResult(result,cleanup),reading:this.reading.snapshot()};
+      });
+    }catch(error){
+      if(signal.aborted||error.name==='AbortError')result.cancelled=true;
+      else result.errors.push({error:'The import was saved, but automatic cleanup could not finish: '+error.message});
+      return result;
+    }
   }
   async maintenance({operation},signal) {
     await this.ensureLocal();await this.quiesceSearches();signal.throwIfAborted();
@@ -571,12 +654,12 @@ export class ApplicationService {
         this.progress({phase:'importing',current:result.imported+result.updated+result.skipped,message:conversation.title||''});
       }
     }catch(error){if(signal.aborted||error.name==='AbortError')result.cancelled=true;else result.errors.push({error:error.message});}
-    return result;
+    return this.finishImportDeduplication(result,[collection],signal);
   }
   async importServer({serverUrl,collections},signal) {
     if(!Array.isArray(collections)||!collections.length||collections.length>1000||collections.some(c=>typeof c!=='string'||!c||c==='all'))throw new Error('Select at least one non-empty collection.');
     await this.ensureLocal();const client=new ThreadShelfClient(serverUrl||this.settings.value.serverUrl,{signal});
-    const result={imported:0,updated:0,skipped:0,errors:[],cancelled:false};
+    const result={imported:0,updated:0,skipped:0,errors:[],cancelled:false},touchedCollections=new Set();
     try {
       const available=await client.collections(),names=new Set(available.map(c=>c.name)),selected=[...new Set(collections)];
       if(selected.some(c=>!names.has(c)))throw new Error('A selected collection is empty or no longer available. Refresh the collection list.');
@@ -589,11 +672,12 @@ export class ApplicationService {
             const thread=await client.thread(item);signal.throwIfAborted();
             const saved=await this.serialized(()=>this.commitMutation(this.store.prepareUpsert({...thread,provider:thread.provider||'unknown',raw:{serverUrl:normalizeServerUrl(client.url),summary:item,thread},sourceIdentity:thread.sourceIdentity})));
             result[saved.status]=(result[saved.status]||0)+1;
+            if(saved.summary?.collection)touchedCollections.add(saved.summary.collection);
           }catch(error){if(signal.aborted||this.storage.poisoned)throw error;result.errors.push({sourceFile:item.sourceFile,collection:item.collection,error:error.message});}
         }
       }
       this.progress({phase:'copied',current:result.imported+result.updated+result.skipped});
     }catch(error){if(signal.aborted||error.name==='AbortError')result.cancelled=true;else result.errors.push({error:error.message});}
-    return result;
+    return this.finishImportDeduplication(result,[...touchedCollections],signal);
   }
 }

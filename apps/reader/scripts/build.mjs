@@ -3,8 +3,10 @@ import { build } from 'esbuild';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { prepareTransformersPrivacy } from './transformers-privacy-patches.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+await prepareTransformersPrivacy();
 const dist = path.join(root, 'dist');
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });

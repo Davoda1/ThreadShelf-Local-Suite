@@ -108,16 +108,24 @@ test('source adapter works without prebuilt dist and rejects unreviewed or missi
   const temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'threadshelf-transformers-source-'));
   t.after(() => fs.rm(temporary, { recursive: true, force: true }));
   const adapter = await fs.readFile(path.join(root, 'src/core/transformers-runtime.mjs'));
+  const privacy = await fs.readFile(path.join(root, 'src/core/transformers-privacy.mjs'));
+  const hub = await fs.readFile(new URL('utils/hub.js', await resolveTransformersSource()));
   for (const [index, version] of ['4.3.2', '4.3.1', '5.0.0', undefined].entries()) {
     const fixture = path.join(temporary, String(index));
     const upstream = path.join(fixture, 'node_modules/@huggingface/transformers');
-    await fs.mkdir(path.join(upstream, 'src'), { recursive: true });
+    await fs.mkdir(path.join(upstream, 'src/utils'), { recursive: true });
     await fs.writeFile(path.join(fixture, 'adapter.mjs'), adapter);
+    await fs.writeFile(path.join(fixture, 'transformers-privacy.mjs'), privacy);
+    await fs.writeFile(path.join(upstream, 'src/utils/hub.js'), hub);
     await fs.writeFile(path.join(upstream, 'package.json'), JSON.stringify({ name: '@huggingface/transformers', version,
       type: 'module', exports: './dist/transformers.node.mjs' }));
     await fs.writeFile(path.join(upstream, 'src/transformers.js'), 'export const fixtureSourceLoaded = true;');
     const { loadTransformers } = await import(pathToFileURL(path.join(fixture, 'adapter.mjs')));
-    if (version === '4.3.2') assert.equal((await loadTransformers()).fixtureSourceLoaded, true);
+    if (version === '4.3.2') {
+      assert.equal((await loadTransformers()).fixtureSourceLoaded, true);
+      await fs.appendFile(path.join(upstream, 'src/utils/hub.js'), '\n');
+      await assert.rejects(loadTransformers(), /privacy source is missing or changed/);
+    }
     else await assert.rejects(loadTransformers(), /Unsupported Transformers source package: expected.*4\.3\.2/);
   }
 });

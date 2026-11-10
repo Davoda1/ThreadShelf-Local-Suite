@@ -1,4 +1,4 @@
-# Local Database Manager — 1.2.0
+# Local Database Manager — 1.4.4
 
 Open **Settings → Database Manager**. It always manages this computer’s Local data, even when the reader is browsing a ThreadShelf server. Manager actions save immediately; the Settings **Cancel** button does not undo a completed manager action.
 
@@ -22,6 +22,10 @@ Choose a collection and provider, optionally enter a title/message/source-file f
 - **Delete selected** removes the chosen Local records and their associated Local reading references and search results. Deleting the currently open Local conversation clears the reader coherently.
 
 Different content variants are retained. Matching titles alone are not a reason to combine conversations. A stale preview is rejected if the database changes; refresh and review the action again.
+
+## Deduplication
+
+The fifth manager section explains automatic duplicate checks and opens a separate manual review. Matching respects collection/provider/title/model and ordered saved content. Different collections and divergent answered histories stay independent. Grok-only unanswered export artifacts use provider identity. Other-provider automatic prompt-only cleanup starts disabled and requires confirmation. Review shows each selected removal and survivor; stale results must be scanned again. Saved reading and retained source information follow survivors. See [Duplicate cleanup](Deduplication.md) for exact rules.
 
 ## Compression and working space
 

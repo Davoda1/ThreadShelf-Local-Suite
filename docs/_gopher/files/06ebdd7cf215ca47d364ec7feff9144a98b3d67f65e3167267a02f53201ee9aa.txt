@@ -34,6 +34,16 @@ Available images load within the conversation according to **Settings → Readin
 
 Useful JSON-only assistant and reasoning responses render as formatted, syntax-highlighted JSON; empty or internal-only responses remain hidden. Whole-message copying and export retain the source. Exported file citations use readable filename chips and a document icon; a label does not create access to a missing attachment.
 
+## Safe formatting and HTML previews
+
+Ordinary prompts and responses can show safe inline HTML formatting, including `<mark>` and spans with bounded text/background colors. Scripts, event handlers, URL-bearing CSS and styles that affect the application are rejected. Numeric VeniceAI markers such as `^1^` appear as small theme-aware badges; they do not invent a source URL. Code and mathematical expressions remain protected.
+
+Complete HTML5 documents in unlabelled, `unknown`, `html`, `htm` or `html5` code blocks can offer **Code / Render**. The page must include its doctype and explicit html, head and body structure. Fragments, malformed or multiple documents, escaped examples and blocks labelled as programming languages stay code. The initial view is Code. Copy and download always use the original source; standalone SVG keeps its separate image-only preview.
+
+Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
+
+**Allow external resources in HTML previews** starts enabled in the reading settings. It permits guarded public HTTPS resources only; local/private destinations and unsupported protocols are blocked. Turning it off stops active previews and blocks further external requests, while embedded scripts/assets remain usable. It does not control ordinary conversation images or configured providers and cannot undo a completed request. The standalone offline demo does not execute these native previews.
+
 ## Listen to a message
 
 The desktop application can read an individual message through the optional [Text-to-Speech controls](08-Text-to-Speech.md). Enable speech in Settings, choose a voice and select a message speaker button. This does not create a new answer or change the retained server conversation.

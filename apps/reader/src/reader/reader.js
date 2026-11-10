@@ -154,6 +154,7 @@ export class ReaderView {
     this.renderer.animationsEnabled = this.settings.animations !== false;
     this.renderer.setPromptExpandStyle(this.settings.promptExpandStyle);
     this.renderer.setRemoteImages(this.settings.remoteImages);
+    this.renderer.htmlPreviews.setExternalResources(this.settings.htmlPreviewExternalResources);
     this.waveBackground.setSettings(this.settings);
     this.renderer.setCompactMessagesEnabled(this.settings.compact !== false, {animate: false});
     this.byId('conversationNavigator').setAttribute('aria-label', tr('Conversation navigation'));

@@ -1,5 +1,6 @@
 'use strict';
 const {app,BrowserWindow,ipcMain,shell,clipboard,dialog,session,nativeTheme}=require('electron');
+require('./core/privacy-policy.cjs').enforcePrivacy(require('electron').crashReporter);
 const path=require('node:path');
 const fs=require('node:fs/promises');
 const {pathToFileURL}=require('node:url');
@@ -8,16 +9,17 @@ const {ServerClient}=require('./core/server.cjs');
 const {allowRendererRequest,imageRequestHeaders,imageResponseHeaders}=require('./core/image-policy.cjs');
 const {isTrustedMainFrame}=require('./core/trusted-entry.cjs');
 const {createTtsService}=require('./tts/index.cjs');
+const {createHtmlPreviewHost}=require('./core/html-preview-host.cjs');
 const PRODUCT='ThreadShelf Local Alternative';
 const PACKAGE=require('./package.json');
 app.setName(PRODUCT);
 app.setAppUserModelId('io.github.davoda1.threadshelf-local-alternative');
-// Image resources are display-only. Do not persist Chromium’s HTTP image cache.
+// Image resources are display-only. Do not persist Chromium's HTTP image cache.
 app.commandLine.appendSwitch('disable-http-cache');
 // This profile is deliberately independent of Reader, Analytics, and the server.
 app.setPath('userData',path.join(app.getPath('appData'),'ThreadShelf Local Alternative'));
 const store=new StateStore(app.getPath('userData'));
-let win,client,connectionEpoch=0,appearancePreference='system',ttsQuitting=false;
+let win,client,htmlPreviews,connectionEpoch=0,appearancePreference='system',ttsQuitting=false;
 const tts=createTtsService({profileDir:app.getPath('userData'),assetsDir:app.isPackaged?path.join(process.resourcesPath,'tts-assets'):path.join(__dirname,'tts-assets'),onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('alternative:tts-event',value);}});
 const backgroundFor=theme=>(theme==='dark'||(theme==='system'&&nativeTheme.shouldUseDarkColors))?'#141c1d':'#f3f1eb';
 function applyWindowAppearance(theme){
@@ -54,12 +56,13 @@ async function start(){
   // Read appearance before the native surface or any renderer document can paint.
   applyWindowAppearance(store.load().theme);
   win=new BrowserWindow({width:1360,height:880,minWidth:680,minHeight:540,title:PRODUCT,backgroundColor:backgroundFor(appearancePreference),icon:path.join(__dirname,'assets','icon.png'),show:false,autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,spellcheck:false}});
+  htmlPreviews=createHtmlPreviewHost({getWindow:()=>win,getExternalEnabled:()=>store.load().htmlPreviewExternal,openExternal:external,onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('alternative:html-preview-event',value);}});
   win.removeMenu();
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   win.webContents.on('will-navigate',(event,url)=>{if(url!==trustedURL)event.preventDefault();});
   win.webContents.on('will-attach-webview',event=>event.preventDefault());
-  win.webContents.on('render-process-gone',()=>{void tts.invoke('tts.cancel',{}).catch(()=>{});});
-  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame)void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('render-process-gone',()=>{htmlPreviews?.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame){htmlPreviews?.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});}});
   win.once('ready-to-show',()=>win.show());
   let closing=false;
   win.on('close',event=>{
@@ -68,7 +71,7 @@ async function start(){
     Promise.race([current.webContents.executeJavaScript('window.TSAFlush ? window.TSAFlush() : null'),new Promise(resolve=>setTimeout(resolve,2000))])
       .catch(()=>{}).finally(()=>{if(!current.isDestroyed())current.destroy();});
   });
-  win.on('closed',()=>{win=null});
+  win.on('closed',()=>{htmlPreviews?.dispose();htmlPreviews=null;win=null});
   // Preload needs a tiny synchronous bootstrap value before parsing the page.
   // A reload re-reads the saved preference rather than using stale launch arguments.
   ipcMain.on('alternative:startup-theme',event=>{
@@ -77,7 +80,9 @@ async function start(){
   nativeTheme.on('updated',()=>{if(win&&!win.isDestroyed())win.setBackgroundColor(backgroundFor(appearancePreference));});
   handle('load-state',()=>{const state=store.load();if(store.error)throw new Error(store.error);return state;});
   handle('tts',(action,args)=>tts.invoke(action,args));
-  handle('save-state',state=>{const saved=store.save(state);applyWindowAppearance(saved.theme);return saved;});
+  handle('save-state',state=>{const previous=store.load().htmlPreviewExternal;const saved=store.save(state);if(previous!==saved.htmlPreviewExternal)htmlPreviews?.closeAll();applyWindowAppearance(saved.theme);return saved;});
+  const htmlPreviewActions=new Set(['html.preview.open','html.preview.update','html.preview.close','html.preview.closeAll']);
+  handle('html-preview',(action,args)=>{if(!htmlPreviewActions.has(action))throw new Error('Unknown HTML preview action.');return htmlPreviews.invoke(action,args);});
   handle('connect',async url=>{const epoch=++connectionEpoch;const next=new ServerClient(url);try{const collections=await next.collections();if(epoch!==connectionEpoch){next.dispose();throw new Error('A newer connection request replaced this one.');}client?.dispose();client=next;return collections;}catch(e){next.dispose();throw e;}});
   handle('request',async(method,args)=>{if(!methods.has(method))throw new Error('Unsupported server operation.');if(!client)throw new Error('Connect to a ThreadShelf server first.');return client[method](args||{});});
   handle('open-external',external);

@@ -2,6 +2,12 @@
 let language = 'en';
 let external = null;
 const rows = {
+  'Render':['Megjelenítés','Rendern','Afficher'],
+  'Show isolated HTML preview':['Elkülönített HTML-előnézet megjelenítése','Isolierte HTML-Vorschau anzeigen','Afficher l’aperçu HTML isolé'],
+  'HTML preview':['HTML-előnézet','HTML-Vorschau','Aperçu HTML'],
+  'Scroll the preview fully into view.':['Görgessen az előnézet teljes megjelenítéséhez.','Scrollen Sie die Vorschau vollständig ins Bild.','Faites défiler pour afficher l’aperçu en entier.'],
+  'HTML previews are available in the desktop application.':['A HTML-előnézetek az asztali alkalmazásban érhetők el.','HTML-Vorschauen sind in der Desktop-Anwendung verfügbar.','Les aperçus HTML sont disponibles dans l’application de bureau.'],
+
   'Share of total (calculated)': ['Részesedés az összegből (számított)', 'Anteil am Gesamtwert (berechnet)', 'Part du total (calculée)'],
   'Use arrow keys to inspect values; Escape dismisses. Exact values are available below.': ['Az értékeket a nyílbillentyűkkel vizsgálhatja meg; az Escape bezárja a buborékot. A pontos értékek lent érhetők el.', 'Werte mit den Pfeiltasten prüfen; Escape schließt den Hinweis. Exakte Werte stehen unten.', 'Utilisez les flèches pour examiner les valeurs ; Échap ferme l’infobulle. Les valeurs exactes sont disponibles ci-dessous.'],
   'Chart': ['Diagram', 'Diagramm', 'Graphique'],
@@ -67,6 +73,12 @@ const rows = {
   'Equation rendering failed': ['Az egyenlet nem jeleníthető meg', 'Gleichung konnte nicht dargestellt werden', 'Échec du rendu de l’équation'],
 };
 const japanese = Object.freeze({
+  'Render':'表示',
+  'Show isolated HTML preview':'分離されたHTMLプレビューを表示',
+  'HTML preview':'HTMLプレビュー',
+  'Scroll the preview fully into view.':'プレビュー全体が見える位置までスクロールしてください。',
+  'HTML previews are available in the desktop application.':'HTMLプレビューはデスクトップアプリで利用できます。',
+
   "Load image": "画像を読み込む",
   "Loading image…": "画像を読み込み中…",
   'Share of total (calculated)': '合計に占める割合（計算値）',

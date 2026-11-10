@@ -81,6 +81,16 @@ A citation opens a destination only when the retained message's metadata binds t
 
 Automation suggestions, maps, dynamic components and unsupported markup remain passive labels or safe source where no supported local representation exists. No schedule is created by reading an old automation suggestion. No map tiles, live exchange rates or missing interactive data are invented.
 
+## Safe formatting and HTML previews
+
+Ordinary prompts and responses can show safe inline HTML formatting, including `<mark>` and spans with bounded text/background colors. Scripts, event handlers, URL-bearing CSS and styles that affect the application are rejected. Numeric VeniceAI markers such as `^1^` appear as small theme-aware badges; they do not invent a source URL. Code and mathematical expressions remain protected.
+
+Complete HTML5 documents in unlabelled, `unknown`, `html`, `htm` or `html5` code blocks can offer **Code / Render**. The page must include its doctype and explicit html, head and body structure. Fragments, malformed or multiple documents, escaped examples and blocks labelled as programming languages stay code. The initial view is Code. Copy and download always use the original source; standalone SVG keeps its separate image-only preview.
+
+Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
+
+**Allow external resources in HTML previews** starts enabled in the reading settings. It permits guarded public HTTPS resources only; local/private destinations and unsupported protocols are blocked. Turning it off stops active previews and blocks further external requests, while embedded scripts/assets remain usable. It does not control ordinary conversation images or configured providers and cannot undo a completed request. The standalone offline demo does not execute these native previews.
+
 ## Listen to a message
 
 Enable the optional [Text-to-Speech](text-to-speech.md) feature to add speaker buttons to readable messages. Each button opens the playback bar for that message; saved or retained matching audio can be reused. Speech controls do not alter the archive, copying or export.

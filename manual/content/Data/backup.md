@@ -63,7 +63,7 @@ Portable program folders do not contain the normal profile. Moving just the extr
 
 ## Updating or moving this public release
 
-The public release is **1.4.0**. Application version and archive schema are separate. Reader uses `threadshelf-local-storage-v2`, archive format 2, catalog schema 3 and `reading-v2.json`; those numbers do not require editing when the application version changes.
+The public release is **1.4.4**. Application version and archive schema are separate. Reader uses `threadshelf-local-storage-v2`, archive format 2, catalog schema 3 and `reading-v2.json`; those numbers do not require editing when the application version changes.
 
 1. Create a managed Local backup and close Reader.
 2. Preserve the complete existing profile as an additional backup when moving machines or testing a future release.

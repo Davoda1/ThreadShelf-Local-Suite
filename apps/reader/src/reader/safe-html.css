@@ -1,0 +1,7 @@
+/* Styling-only archived markup and soft-square Venice references use the active theme. */
+.message-content .venice-citation{display:inline-flex;align-items:center;justify-content:center;position:relative;top:-.1em;vertical-align:baseline;min-width:1.65em;height:1.6em;box-sizing:border-box;margin-inline:.25em .05em;padding-inline:.35em;border-radius:5px;background:color-mix(in srgb,var(--text-accent) 12%,var(--bg-primary));color:var(--text-accent);font-family:inherit;font-size:.74em;font-weight:650;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:default}
+.message-content mark{background:color-mix(in srgb,var(--text-accent) 22%,var(--bg-primary));color:var(--text-primary);padding-inline:.12em;border-radius:2px}
+.message-content details{border:1px solid var(--border-color);border-radius:6px;padding:.5em .75em;margin-block:.75em}
+.message-content summary{cursor:pointer;color:var(--text-primary)}
+.message-content :is(small,abbr,time){max-width:100%}
+@media(forced-colors:active){.message-content .venice-citation{background:Canvas;color:LinkText;border:1px solid LinkText}.message-content mark{background:Highlight;color:HighlightText}}

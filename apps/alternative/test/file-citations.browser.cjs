@@ -7,7 +7,7 @@ const os=require('node:os');
 const {pathToFileURL}=require('node:url');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const root=path.resolve(__dirname,'..'),appPath=path.resolve(process.env.TSA_APP_PATH||root);
-const report={product:'ThreadShelf Local Alternative',version:'1.4.3',checks:[],layouts:[],requests:[],errors:[],passed:false};
+const report={product:'ThreadShelf Local Alternative',version:'1.4.4',checks:[],layouts:[],requests:[],errors:[],passed:false};
 let browser,electron,temporary,page;
 const marker=name=>`:codex-file-citation{path="sandbox:/delivery/${name}" purpose="output"}`;
 async function check(name,fn){report.checks.push({name,...await fn()});}

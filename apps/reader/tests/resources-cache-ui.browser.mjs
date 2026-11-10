@@ -80,7 +80,7 @@ try{
   geometry.push({label,...value});
  };
  await go();await open();
- assert.deepEqual(await page.locator('.manager-tabs [data-view]').evaluateAll(nodes=>nodes.map(n=>n.dataset.view)),['collections','conversations','storage','resources']);
+ assert.deepEqual(await page.locator('.manager-tabs [data-view]').evaluateAll(nodes=>nodes.map(n=>n.dataset.view)),['collections','conversations','storage','resources','deduplication']);
  assert.equal(await page.locator('#resourcesCacheEnabled').isChecked(),false);assert.equal(await page.locator('[data-action="resources-clear-all"]').isDisabled(),true);
  assert.match(await page.locator('#resourcesCacheHelp').innerText(),/Save loaded images for offline use\. Previously cached images remain available until deleted\./);
  await page.evaluate(()=>fixture.seed());await page.locator('[data-action="manager-refresh"]').click();await ready();

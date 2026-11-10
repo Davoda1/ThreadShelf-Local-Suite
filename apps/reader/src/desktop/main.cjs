@@ -1,5 +1,6 @@
 require('../core/onnx-privacy.cjs');
 const {app,BrowserWindow,ipcMain,dialog,shell,screen,Menu,session,clipboard,nativeTheme}=require('electron');
+require('./privacy-policy.cjs').enforcePrivacy(require('electron').crashReporter);
 const fs=require('node:fs');
 const fsp=require('node:fs/promises');
 const path=require('node:path');
@@ -8,6 +9,7 @@ const {Worker}=require('node:worker_threads');
 const {pathToFileURL}=require('node:url');
 const {isTrustedMainFrame}=require('./trusted-entry.cjs');
 const {createTtsService}=require('../../tts/index.cjs');
+const {createHtmlPreviewHost}=require('./html-preview-host.cjs');
 
 app.setName('ThreadShelf Local Reader');
 const dataDir=process.env.THREADSHELF_READER_TEST_DATA || path.join(process.platform==='win32'?(process.env.APPDATA||path.join(os.homedir(),'AppData','Roaming')):(process.env.XDG_CONFIG_HOME||path.join(os.homedir(),'.config')),'ThreadShelf Local Reader');
@@ -21,6 +23,7 @@ const page=path.join(root,'dist','index.html');
 const pageUrl=pathToFileURL(page).href;
 let win,worker,sequence=0,quitting=false,workerFailure=null;
 const tts=createTtsService({profileDir:dataDir,assetsDir:app.isPackaged?path.join(process.resourcesPath,'tts-assets'):path.join(root,'tts-assets'),onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('reader:tts',value);}});
+const htmlPreviews=createHtmlPreviewHost({getWindow:()=>win,getExternalEnabled:async()=>{const result=await request('bootstrap');return result.settings.htmlPreviewExternalResources!==false;},openExternal:external,onEvent:value=>{if(win&&!win.isDestroyed()&&!win.webContents.isDestroyed())win.webContents.send('reader:html-preview',value);}});
 let startupHoliday=Promise.resolve({isHoliday:false});
 const pending=new Map();const selectedPaths=new Set();const selectedBackups=new Set();
 function failWorker(error){workerFailure=error;for(const p of pending.values())p.reject(error);pending.clear();}
@@ -47,6 +50,8 @@ function markdown(thread){
   const title=String(thread.title||'Conversation');return '# '+title+'\n\n'+thread.turns.map(t=>{const role=Object.hasOwn(t,'user')?'User':Object.hasOwn(t,'thinking')?'Thinking':t.source_role==='tool'?'Tool':t.source_role==='system'?'System':'Assistant';return '## '+role+(t.model?' · '+t.model:'')+'\n\n'+String(t.user??t.thinking??t.ai??'');}).join('\n\n---\n\n')+'\n';
 }
 async function invoke(action,args){
+  if(typeof action==='string'&&action.startsWith('html.preview.'))return htmlPreviews.invoke(action,args);
+  if(action==='settings.save'&&Object.hasOwn(args?.values||{},'htmlPreviewExternalResources')){const result=await request(action,args);htmlPreviews.closeAll();return result;}
   if(typeof action==='string'&&action.startsWith('tts.'))return tts.invoke(action,args);
   if(typeof action==='string'&&action.startsWith('resources.')){
     const {validateResourceRequest}=await import('../core/resource-requests.mjs');
@@ -114,7 +119,7 @@ async function invoke(action,args){
     if(output.canceled||!output.filePath)return {cancelled:true};
     const {csv}=await request('activity.csv',args);await fsp.writeFile(output.filePath,csv,'utf8');return {saved:true,path:output.filePath};
   }
-  const allowed=new Set(['bootstrap','settings.save','collections','files','thread','search','import.paths','operation.cancel','server.collections','server.import','reading.save','semantic.setup','semantic.index','search.status','search.prepare','ollama.models','ollama.test','ollama.start','ollama.pull','ollama.delete','storage.convert','manager.status','manager.files','manager.preview','manager.mutate','manager.maintenance','activity.query','activity.rebuild','activity.csv','activity.cancel','server.insights','server.insights.cancel']);
+  const allowed=new Set(['bootstrap','settings.save','collections','files','thread','search','import.paths','operation.cancel','server.collections','server.import','reading.save','semantic.setup','semantic.index','search.status','search.prepare','ollama.models','ollama.test','ollama.start','ollama.pull','ollama.delete','storage.convert','manager.status','manager.dedup.settings','manager.dedup.preview','manager.dedup.apply','manager.files','manager.preview','manager.mutate','manager.maintenance','activity.query','activity.rebuild','activity.csv','activity.cancel','server.insights','server.insights.cancel']);
   if(!allowed.has(action))throw new Error('Unknown application action.');
   return request(action,args);
 }
@@ -135,11 +140,11 @@ app.whenReady().then(async()=>{
   session.defaultSession.setPermissionRequestHandler((_web,_permission,callback)=>callback(false));
   win.webContents.setWindowOpenHandler(({url})=>{void external(url).catch(()=>{});return {action:'deny'};});
   win.webContents.on('will-navigate',(event,url)=>{if(url!==pageUrl){event.preventDefault();void external(url).catch(()=>{});}});
-  win.webContents.on('render-process-gone',()=>{void tts.invoke('tts.cancel',{}).catch(()=>{});});
-  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame)void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('render-process-gone',()=>{htmlPreviews.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});});
+  win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame){htmlPreviews.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});}});
   ipcMain.handle('reader:invoke',(event,action,args={})=>{if(!isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}))throw new Error('Untrusted application request.');return invoke(action,args);});
   win.on('ready-to-show',()=>{if(b.maximized)win.maximize();if(b.fullscreen)win.setFullScreen(true);win.show();});
-  win.on('close',saveWindow);
+  win.on('close',()=>{saveWindow();htmlPreviews.closeAll();});
   // Use the same canonical encoding as the trust guard, including literal percent signs.
   await win.loadURL(pageUrl);
   if(process.env.THREADSHELF_READER_SMOKE==='1'){
@@ -147,5 +152,5 @@ app.whenReady().then(async()=>{
   }
 }).catch(e=>{console.error(e);app.exit(1);});
 app.on('window-all-closed',()=>app.quit());
-app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;saveWindow();Promise.resolve(tts.dispose()).catch(()=>{}).then(()=>worker?request('shutdown'):null).catch(error=>console.error('Archive shutdown:',error.message)).finally(async()=>{if(worker)await worker.terminate().catch(()=>{});app.quit();});});
+app.on('before-quit',event=>{if(quitting)return;event.preventDefault();quitting=true;htmlPreviews.dispose();saveWindow();Promise.resolve(tts.dispose()).catch(()=>{}).then(()=>worker?request('shutdown'):null).catch(error=>console.error('Archive shutdown:',error.message)).finally(async()=>{if(worker)await worker.terminate().catch(()=>{});app.quit();});});
 }

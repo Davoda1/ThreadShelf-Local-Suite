@@ -35,6 +35,13 @@ These declarations are metadata, not a replacement for the actual license
 texts. They do not enumerate every library inside Chromium or native DLLs.
 Bundling preserves extracted JavaScript legal comments beside the bundles.
 
+Reader loads the pinned Transformers.js 4.3.2 source with a marked local change
+by davoda1 in `src/utils/hub.js`: requested model downloads omit the library
+version and CI-state User-Agent metadata. Model download content and the upstream
+host-restricted authorization behavior are unchanged. The reproducible patch and
+source hashes are retained in `scripts/transformers-privacy-patches.mjs` and
+`src/core/transformers-privacy.mjs`; upstream Apache-2.0 licensing is retained.
+
 The interface palettes and code-theme CSS are newly authored. Their
 color references and original adaptations are documented in `docs/Themes.md`;
 no additional vendor stylesheet or executable is included. Existing
@@ -141,10 +148,10 @@ comprehensive legal audit of Chromium or a substitute for upstream terms.
 
 ## Electron runtime source access
 
-Suite 1.4.3 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+Suite 1.4.4 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
 embedded Node.js **24.22.2**. Original runtime notices remain intact.
 Matching runtime source is the historical 1.3.0 original source collection
-plus the 1.4.3 runtime source update; both are required. Historical source
+plus the 1.4.4 runtime source update; both are required. Historical source
 verification records remain specific to Electron 45.1.0. See
 [Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
 offline update instructions and upstream build/replacement guidance.

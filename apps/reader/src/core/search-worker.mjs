@@ -1,6 +1,7 @@
 // Model inference is isolated so cancellation can stop downloads and CPU inference.
 import { parentPort, workerData } from 'node:worker_threads';
 import { loadTransformers } from './transformers-runtime.mjs';
+import './search-privacy.mjs';
 
 let extractor;
 let lastProgress = 0;

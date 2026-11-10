@@ -1,12 +1,12 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.4.3 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.4.4 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
 Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The original [ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf) provides the optional server. See the suite's illustrated Gopher manual for the full user guide.
 
-Version 1.4.3 improves Grok XML cards and ChatGPT rich-content markers, refreshes dependencies, and tightens archive and network-response limits. Existing data formats and profile paths remain compatible. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
+Version 1.4.4 adds safe inline HTML styling, VeniceAI numeric citation badges, isolated full-page HTML previews, and collection-aware duplicate cleanup. Existing data formats and profile paths remain compatible. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
 
 **Prefer API recordings** is on by default. For the same conversation and unchanged full message, playback chooses a valid pinned recording first, then available API audio, then an exact match for the spoken text and selected generation settings. Disabling this option keeps pinned recordings first and otherwise uses only exact matches. API audio includes self-hosted speech endpoints, ElevenLabs, OpenAI and OpenRouter; this preference never makes a new provider request by itself. A reused recording preserves its original voice and code/citation selection, even if those settings have changed. To hear a different reading, unpin the recording and turn this preference off. New recordings use the unchanged full message for cross-settings reuse; an exact spoken-text and generation-settings match remains reusable after excluded-content edits. Older recordings are reused only when their stored spoken-text or synthesis identity proves a match. Pinned files are never overwritten; a replacement for a missing or corrupt pinned recording can be saved separately when caching and space permit. Persistent files are considered only while the disk cache is enabled; eligible session recordings can be reused with disk caching off.
 
@@ -14,9 +14,9 @@ The reader uses bundled MathJax 4.1.3 with compatibility settings that preserve 
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.3-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.3-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.3_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.3_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.4-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.4-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.4_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.4_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js, npm, Python or a GPU for the bundled voices. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -30,6 +30,10 @@ The distributions include their Electron runtime. Users do not need Node.js, npm
 
 Supported import adapters include ChatGPT, Claude/Anthropic, Gemini/Google AI Studio, Grok, OpenRouter, LM Studio, Meta, Venice and supported normalized exports. Provider export formats vary; an unavailable or unrecognized export is reported rather than silently fabricated.
 
+## Duplicate cleanup
+
+**Settings → Database Manager → Deduplication** shows automatic cleanup rules and opens a separate review surface for existing records. Matching respects collection, provider, title and actual model identity. Exact duplicates and complete shorter prefixes can retain one survivor; divergent answered histories, attachments and meaningful structured content remain distinct. Grok/xAI-only unanswered export artifacts are recognized by their provider, never merely the chosen model. Other providers’ prompt-only automatic deletion is disabled by default and requires explicit confirmation. Manual review lists keep/remove relationships and applies only selected records; stale review results must be rescanned. Saved reading and retained source information follow the survivor. See [Duplicate cleanup](docs/Deduplication.md).
+
 ## Local archive and optional server
 
 Local and Server are independent sources. Reading from a server does not automatically import that server's archive. Explicit server import copies selected data into the local archive. Enter your own server URL in Settings; the default is `http://localhost:3000/`.
@@ -39,6 +43,11 @@ Complete cursor-paged server search needs the suite's [ThreadShelf server patch]
 The standalone Local Analytics application can capture supported Reader archive data through Analytics' read-only adapter. Reader's integrated **Activity** and server **Insights** views are separate features.
 
 ## Reading and appearance
+
+Ordinary message text supports a bounded set of safe HTML formatting and inline CSS, including `<mark>` and text/background colours. Scripts, event attributes, resource-bearing CSS and global styling remain inert. VeniceAI `^1^` numeric references use small, theme-aware citation badges; missing source metadata is never invented. Code and math stay literal, and original copying/export is unchanged.
+
+Complete HTML5 code blocks tagged `html`, `htm`, `html5`, `unknown` or left untagged gain a **Render / Code** control. They start in Code view. Render runs embedded HTML/CSS/JavaScript in a separate temporary sandbox with no application API, archive access or Node.js. **Settings → Reading → Allow external resources in HTML previews** starts enabled and permits guarded public HTTPS resources only; switching it off closes active previews. Private/local destinations, HTTP, popups, device permissions and arbitrary navigation remain blocked. This is separate from conversation image settings. Returning to Code or leaving the conversation destroys the preview. The offline demo cannot execute these native previews. See [HTML previews](docs/HTML-Previews.md).
+
 
 Grok XML cards render as citations, media placeholders, supported charts, or labelled archive panels with SVG icons and original-source inspection. ChatGPT source/file references, entities, source lists and archived widgets use metadata already present in the export. Missing references stay unresolved; unsupported interactive content remains inert. Inline and fenced code preserve literal markers, and whole-message Copy/export retains the exact original source.
 

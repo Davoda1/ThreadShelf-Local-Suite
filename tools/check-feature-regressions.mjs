@@ -52,7 +52,7 @@ if (mode === 'integration') {
   assert.deepEqual(totals, { tests: 2, pass: 2, fail: 0, cancelled: 0, skipped: 0, todo: 0 },
     'Both 7z and ZIP6 Reader-Analytics workflows must execute and pass without skips');
   jsonCheck('apps/reader/tests/resource-cache-storage.integration.mjs', { checks: 9 });
-  for (const version of ['1.0.0', '1.1.0']) {
+  for (const version of ['1.0.0', '1.1.0', '1.4.3']) {
     const publicBaseline = path.join(root, '.verification', `public-${version}`, 'apps', 'reader');
     assert.equal(JSON.parse(fs.readFileSync(path.join(publicBaseline, 'package.json'), 'utf8')).version, version,
       `Check out the pinned public Reader ${version} baseline before running integration checks`);
@@ -85,10 +85,12 @@ if (mode === 'integration') {
   jsonCheck('apps/reader/tests/svg-preview.browser.mjs', { fixtures: 27, checks: 5, layouts: 4 });
   jsonCheck('apps/reader/tests/chatgpt-grok.browser.mjs', { checks: 4 });
   jsonCheck('apps/reader/tests/grok-rendering.browser.mjs', { views: 4 });
+  jsonCheck('apps/reader/tests/inline-html.browser.mjs', { checks: 4 });
   jsonCheck('apps/alternative/test/image-loading.cjs', { checks: 4 });
   jsonCheck('apps/alternative/test/image-sizing.cjs', { checks: 4, layouts: 8 });
   jsonCheck('apps/alternative/test/json-rendering.cjs', { checks: 9, layouts: 4 });
   jsonCheck('apps/alternative/test/svg-preview.browser.cjs', { fixtures: 32 });
   jsonCheck('apps/alternative/test/compat-rendering.cjs', { checks: 4 });
+  jsonCheck('apps/alternative/test/inline-html.browser.cjs', { checks: 4 });
 }
 console.log(`\nPublic ${mode} feature regressions passed without skipped feature checks.`);

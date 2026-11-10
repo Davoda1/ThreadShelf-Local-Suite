@@ -1,6 +1,6 @@
 # Build and package
 
-Application version: **1.4.3**. This is an independent product.
+Application version: **1.4.4**. This is an independent product.
 
 ## Requirements
 
@@ -109,7 +109,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.4.3.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.4.4.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 
@@ -208,3 +208,24 @@ Chromium; `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` can select existing installation
 no provider requests and contains no API keys. `TTS_ELECTRON_BROWSER=1` runs the
 same browser checks in an isolated, offscreen Electron window selected by
 `CHROMIUM_PATH`; this does not alter the application entry point.
+
+### HTML rendering and preview verification
+
+The bundled validator is rebuilt with `node scripts/build-html-preview.mjs`
+after installing the suite Reader's pinned development dependencies. The source
+module is `core/html-preview-validation-source.mjs`; parse5 and entities notices
+are retained under `licenses/`. Runtime application packages need no npm modules.
+
+`node test/inline-html.browser.cjs` checks safe formatting, VeniceAI citations,
+literal code/math, exact copying and light/dark minimum-window layouts.
+`node test/html-preview.electron.cjs` exercises the production native host,
+eligibility, embedded scripts, sandbox/bridge isolation, copy preservation,
+resource-policy changes and teardown. Set `PLAYWRIGHT_PATH` and `ELECTRON_PATH`
+for the pinned suite dependencies and official Electron executable. Set
+`TSA_APP_PATH` to a staged `resources/app` directory to test those packaged
+application files. `TSA_TEST_NO_UNIX_SOCKETS=1` is a test-only opt-in for hosts
+which cannot create the native lock socket; its report records the limitation.
+Normal CI leaves it unset and requires the real lock and Chromium sandbox.
+`node test/privacy-policy.electron.cjs` verifies crash reporting remains disabled
+after activation and mutation attempts and after a deliberate test-renderer crash.
+All tests use synthetic content and temporary profiles.

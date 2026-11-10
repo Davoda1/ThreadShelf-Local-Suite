@@ -4,7 +4,7 @@ The suite source archive is an editable repository tree. Extract it and read the
 
 ## Build documentation
 
-Follow the root maintainer instructions for the pinned Node.js 24.22.1/npm 12.2.1 toolchain, dependency installation, native packaging and release checks. All three public 1.4.0 applications use Electron **45.1.0** with Chromium **156.0.8078.49**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
+Follow the root maintainer instructions for the pinned Node.js 26.13.0/managed npm 12.2.2 toolchain, dependency installation, native packaging and release checks. All three public 1.4.4 applications use Electron **45.2.3** with Chromium **156.0.8078.80**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
 
 The source uses build scripts for development; the delivered Windows/Linux GUI packages launch native executables. A build script is not a portable-app launcher.
 
@@ -25,13 +25,13 @@ This release preserves the pinned runtime and existing native dependencies. Thei
 
 | Source material | Matching offer and scope |
 | --- | --- |
-| Application source | The 1.4.0 suite Source archive, including the speech service and its preparation/build instructions |
-| Electron 45.1.0 / Chromium 156.0.8078.49 | All six numbered `ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip` through `-06.zip`, plus the Runtime-Sources-Metadata ZIP, in the [v1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0) |
+| Application source | The 1.4.4 suite Source archive, including the speech service and its preparation/build instructions |
+| Electron 45.2.3 / Chromium 156.0.8078.80 | All six numbered `ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip` through `-06.zip`, plus the Runtime-Sources-Metadata ZIP, in the [v1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0), **plus** the [v1.4.4 runtime source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.4/ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz) |
 | Reader ONNX Runtime 1.31.1 | The source/provenance companion identified by Reader's `licenses/ONNX-SOURCE-ACCESS.md`, associated with v1.3.0 |
 | Unchanged Reader sharp/libvips dependencies | The [v1.0.0 Native-Sources companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz), reused only for its verified unchanged sharp/libvips scope |
 | Speech engines, model assets and their runtime dependencies | The TTS preparation instructions, pinned asset inventory and third-party notices in each speech-enabled application's source/package |
 
-Verify downloaded source parts with the checksum manifest from the release that supplies them. The old Electron 44.9.1 collection does **not** establish source coverage for Electron 45.1.0; similarly, the historical native companion does not establish ONNX Runtime 1.31.1 source coverage.
+Verify downloaded source parts with the checksum manifest from the release that supplies them. The old Electron 44.9.1 collection does **not** establish source coverage for Electron 45.2.3; similarly, the historical native companion does not establish ONNX Runtime 1.31.1 source coverage.
 
 For the current Electron collection, retain **all six numbered ZIPs** together. Extract only the metadata ZIP, which creates `source-publication/`. The assembler reads the numbered ZIPs directly; do not extract their repeated `PART-MANIFEST.json` files over one another. With Python 3.10+:
 
@@ -40,6 +40,8 @@ python source-publication/assemble-runtime-sources.py --manifest source-publicat
 ```
 
 To assemble a new inspectable source tree with the retained Electron patches, add `--destination /path/to/new-source-tree --apply-patches`. Git, symlink support and enough space for expanded sources are required. The assembler verifies and extracts retained data; it does not download sources, run upstream hooks or compile the runtime.
+
+Apply the versioned runtime source update to the historical assembled tree using its included offline update instructions. The historical parts alone do not match Electron 45.2.3.
 
 Read each application's **`licenses/ELECTRON-SOURCE-ACCESS.md`** for exact source revisions and platform build requirements. Reader additionally includes **`licenses/SOURCE-AND-REBUILD.md`** and **`licenses/ONNX-SOURCE-ACCESS.md`**. These guides distinguish source preservation from rebuilding and explain compatible replacement procedures. Keep source inventories, provenance, original notices and build inputs together. A source collection does not replace platform compilers, SDKs or ordinary build utilities, and does not claim byte-identical reproduction of upstream binaries.
 

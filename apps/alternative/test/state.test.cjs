@@ -42,3 +42,11 @@ test('image preference upgrades existing profiles without changing their identit
  for(const value of [undefined,null,'other',true,{}])assert.equal(cleanState({...old,imageMode:value}).imageMode,'click');
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'tsa-images-'));try{const store=new StateStore(directory);store.save({...old,imageMode:'auto'});assert.equal(store.load().imageMode,'auto');assert.deepEqual(store.load().positions,old.positions);store.save({...store.load(),imageMode:'click'});assert.equal(store.load().imageMode,'click');}finally{fs.rmSync(directory,{recursive:true,force:true});}
 });
+
+test('HTML preview resources default on and remain independent of conversation image loading',()=>{
+  assert.equal(cleanState({}).htmlPreviewExternal,true);
+  assert.equal(cleanState({htmlPreviewExternal:false,imageMode:'auto'}).htmlPreviewExternal,false);
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'tsa-html-preview-state-'));
+  try {const store=new StateStore(root);store.save({htmlPreviewExternal:false,imageMode:'auto',pins:[{conversationKey:'kept'}],positions:{kept:12}});const saved=store.load();assert.equal(saved.htmlPreviewExternal,false);assert.equal(saved.imageMode,'auto');assert.deepEqual(saved.pins,[{conversationKey:'kept'}]);assert.deepEqual(saved.positions,{kept:12});}
+  finally{fs.rmSync(root,{recursive:true,force:true});}
+});

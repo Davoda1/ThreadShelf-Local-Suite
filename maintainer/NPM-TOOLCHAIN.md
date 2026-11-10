@@ -1,6 +1,6 @@
 # Managed npm toolchain
 
-Suite 1.4.3 builds use **Node.js 26.13.0 LTS** and an isolated, verified copy of
+Suite 1.4.4 builds use **Node.js 26.13.0 LTS** and an isolated, verified copy of
 **npm 12.2.2**. The bootstrap replaces complete upstream dependency packages:
 Undici **6.29.1**, glob **14.0.3**, minimatch **11.0.2**, path-scurry **3.0.0** and
 `@isaacs/nonrecursive-glob-match` **1.1.0**. npm still reports **12.2.2**. This

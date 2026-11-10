@@ -1,4 +1,4 @@
-import './onnx-privacy.cjs';
+import { enforceSearchPrivacy } from './search-privacy.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
@@ -89,6 +89,7 @@ function cosineBlob(vector, bytes) {
 
 class ModelWorker {
   constructor({ cacheDir, model, onProgress }) {
+    enforceSearchPrivacy();
     this.worker = new Worker(new URL('./search-worker.mjs', import.meta.url), {
       workerData: { cacheDir, model }, execArgv: process.execArgv.filter(argument => !argument.startsWith('--input-type')),
     });

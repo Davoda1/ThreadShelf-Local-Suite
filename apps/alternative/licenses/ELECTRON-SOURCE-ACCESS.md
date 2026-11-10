@@ -1,6 +1,6 @@
 # Electron runtime source access and rebuilding
 
-ThreadShelf Local Suite **1.4.3** uses **Electron 45.2.3**, **Chromium
+ThreadShelf Local Suite **1.4.4** uses **Electron 45.2.3**, **Chromium
 156.0.8078.80**, and embedded **Node.js 24.22.2**. Electron's embedded Node is
 independent of the external Node.js 26.13.0 LTS build toolchain.
 Original Electron/Chromium notices remain beside each runtime executable.
@@ -9,12 +9,12 @@ The suite license does not replace any bundled component's original terms.
 ## Matching source downloads
 
 The complete source set consists of the original **1.3.0** source collection
-**plus** the matching **1.4.3** update supplement:
+**plus** the matching **1.4.4** update supplement:
 
-- [Electron 45.2.3 source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.3/ThreadShelf-Local-Suite-1.4.3-Runtime-Source-Update.tar.gz).
+- [Electron 45.2.3 source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.4/ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz).
 - Original source ZIPs: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip), [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip), [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip), [part 04](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip), [part 05](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip), [part 06](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip).
 - [Original metadata and offline assembler](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-Metadata.zip).
-- Verify the historical files with the [1.3.0 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt) and the supplement with the [1.4.3 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.3/SHA256SUM.txt).
+- Verify the historical files with the [1.3.0 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt) and the supplement with the [1.4.4 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.4/SHA256SUM.txt).
 
 The historical ZIPs alone describe Electron 45.1.0. The supplement preserves
 all matching changed source files, full new Electron/Node archives and exact

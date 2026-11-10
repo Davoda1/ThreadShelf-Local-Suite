@@ -1,10 +1,10 @@
 # Packaging policy
 
-Version 1.4.3 produces these native packages:
+Version 1.4.4 produces these native packages:
 
-- `ThreadShelf-Local-Analytics-1.4.3-Windows-x64-Portable.zip`
-- `ThreadShelf-Local-Analytics-1.4.3-Linux-amd64.tar.gz`
-- `threadshelf-local-analytics_1.4.3_amd64.deb`
+- `ThreadShelf-Local-Analytics-1.4.4-Windows-x64-Portable.zip`
+- `ThreadShelf-Local-Analytics-1.4.4-Linux-amd64.tar.gz`
+- `threadshelf-local-analytics_1.4.4_amd64.deb`
 
 The Windows EXE is at the archive root. The Linux archive contains the real `threadshelf-local-analytics` executable and its runtime files at root. The DEB installs a native executable under `/opt/threadshelf-local-analytics` and a regular static ELF entry point in `/usr/bin`. Runtime packages contain no GUI launcher scripts.
 

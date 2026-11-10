@@ -1,6 +1,6 @@
 # Architecture and scope
 
-Version 1.4.3. Alternative is an independent desktop client within ThreadShelf Local Suite.
+Version 1.4.4. Alternative is an independent desktop client within ThreadShelf Local Suite.
 
 ## Components
 

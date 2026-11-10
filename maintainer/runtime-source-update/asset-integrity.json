@@ -1,10 +1,10 @@
 {
   "schema": "threadshelf-runtime-source-update-v1",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "electron": "45.2.3",
-  "file_name": "ThreadShelf-Local-Suite-1.4.3-Runtime-Source-Update.tar.gz",
+  "file_name": "ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz",
   "bytes": 809779558,
-  "sha256": "031167e194d6f444f7efbbfa24603f03e797d3c5a064660c2ee87adeeed3c38a",
-  "manifest_sha256": "95487fe4dbe8f77a4e3ebec7252a0a98abb0eaae036edb48f9910bb3356fe0d7",
+  "sha256": "a94be7937c9d3fc809654db955be5e46d4eeb0414658b77e5bd4c45d62364221",
+  "manifest_sha256": "3ce7ecab99e0e5778a4c52861e5ddbb7c0867ac84f2af3cb4d529ebd1af42396",
   "verified": true
 }

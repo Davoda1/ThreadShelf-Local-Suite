@@ -96,6 +96,14 @@ jobs:
           path: .verification/public-1.1.0
           sparse-checkout: apps/reader
           persist-credentials: false
+      - name: Check out the exact public Reader 1.4.3 baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: c975c92547eea0ccc04b7dff0d4afb9ce2f9d01c
+          path: .verification/public-1.4.3
+          sparse-checkout: apps/reader
+          persist-credentials: false
       - name: Reader cache storage, archive integration and public profile upgrade
         run: node tools/check-feature-regressions.mjs integration
       - name: Reader and Alternative image, cache, visibility and ONNX WASM browser regressions
@@ -160,6 +168,14 @@ jobs:
           repository: Davoda1/ThreadShelf-Local-Suite
           ref: 07ba8221176def076c394d07ef0057fac69c59d4
           path: .verification/public-1.1.0
+          sparse-checkout: apps/reader
+          persist-credentials: false
+      - name: Check out the exact public Reader 1.4.3 baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Davoda1/ThreadShelf-Local-Suite
+          ref: c975c92547eea0ccc04b7dff0d4afb9ce2f9d01c
+          path: .verification/public-1.4.3
           sparse-checkout: apps/reader
           persist-credentials: false
       - name: Reader cache storage, archive integration and public profile upgrade

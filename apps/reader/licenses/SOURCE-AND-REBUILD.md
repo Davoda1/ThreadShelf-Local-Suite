@@ -8,7 +8,7 @@ as the separate release asset
 The release `SHA256SUM.txt` verifies this download. Preserve that asset and the
 source-access link when redistributing the Reader binaries.
 
-For 1.4.3, verified reuse of this historical companion is limited to the
+For 1.4.4, verified reuse of this historical companion is limited to the
 unchanged sharp/libvips sources described here. Its Electron-specific source
 materials cover the old runtime and do not satisfy Electron 45.2.3 source
 availability. See `ELECTRON-SOURCE-ACCESS.md` for the original collection plus matching 45.2.3 source update.

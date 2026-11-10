@@ -1,4 +1,4 @@
-# ThreadShelf Local Alternative 1.4.0
+# ThreadShelf Local Alternative 1.4.4
 
 Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server. It combines a conversation shelf, full-thread reading, prompt outline, server search, pins and saved searches. The warm paper/teal visual design offers System, Light and Dark appearance modes.
 

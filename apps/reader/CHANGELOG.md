@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.4 — 2026-11-10
+
+- Render bounded, safe inline HTML formatting and VeniceAI numeric citation badges while preserving literal code/math and exact original text.
+- Add explicit Render / Code controls for complete eligible HTML5 documents in isolated native previews, with temporary sessions and a guarded public-HTTPS-only resource policy.
+- Add collection-aware duplicate cleanup with provider/model/content boundaries, Grok export-artifact handling, manual selected-record review, stale-result rejection and saved-reading preservation.
+- Preserve public image/network restrictions, speech fixes, profile identities, archive compatibility, pinned runtimes and third-party source obligations.
+
 ## 1.4.3 — 2026-11-09
 
 - Render archived Grok XML cards, citations, supported charts and media through bounded parsing, SVG icons and original-source inspection. Keep unavailable data explicit and interactive actions inert.

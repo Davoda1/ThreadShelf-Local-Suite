@@ -705,6 +705,8 @@
   max-width: 100%;
 }
 .reader-view .message-content .chatgpt-math-display mjx-container{
+  /* MathJax 4 adds display padding; retain this Reader's existing spacing. */
+  padding: 0;
   display: inline-block !important;
   max-width: none;
   margin: 0 !important;
@@ -1097,3 +1099,8 @@
 .reader-view .message-content .code-svg-preview img{display:block;max-width:100%;max-height:min(32rem,65vh);width:auto;height:auto;object-fit:contain;border-radius:0;margin:0}
 .reader-view .message-content .code-svg-preview[hidden],
 .reader-view .message-content pre.has-code-controls > code[hidden]{display:none}
+
+/* Native isolated HTML pages occupy only their code-block preview area. */
+.code-html-preview{display:flex;box-sizing:border-box;width:100%;height:280px;min-height:100px;align-items:center;justify-content:center;white-space:normal;padding:16px;background:var(--surface,#fff);color:var(--muted,#666);border:1px solid var(--border,#8885);border-radius:6px;font:13px/1.5 system-ui;overflow:hidden}
+.code-html-preview[hidden]{display:none}
+pre:has(.code-html-preview:not([hidden])){overflow:hidden}

@@ -1,14 +1,14 @@
 # ThreadShelf Local Suite
 
-## User manual · public release 1.4.0
+## User manual · public release 1.4.4
 
-ThreadShelf Local Suite provides three separate desktop applications: **Local Reader**, **Local Analytics** and **Local Alternative**, plus a search-integration patch for **ThreadShelf 1.3.0 and 1.4.1**. This manual covers the public 1.4.0 GUI builds. English control labels are used; changing an interface language does not translate archived conversations.
+ThreadShelf Local Suite provides three separate desktop applications: **Local Reader**, **Local Analytics** and **Local Alternative**, plus a search-integration patch for **ThreadShelf 1.3.0 and 1.4.1**. This manual covers the public 1.4.4 GUI builds. English control labels are used; changing an interface language does not translate archived conversations.
 
 The suite is an independent project maintained by **davoda1**. The original [ThreadShelf server](https://github.com/ChrystianSchutz/ThreadShelf) is a separate upstream project. Obtain the server source there, then follow this manual if you need the suite’s search integration. The suite is not a fork of that repository and does not distribute a configured server installation.
 
 ## What changed since the first public manual
 
-Reader and Alternative now offer per-message Text-to-Speech, bundled CPU voices, optional remote providers, streaming playback, protected credentials and audio caching. This manual also covers controlled online-image loading, Reader’s separate image resource cache, readable JSON-only responses, MathJax 4 mathematics and readable file-citation labels. Analytics retains its existing features and is versioned with the rest of the suite at **1.4.0**.
+Reader and Alternative add safe inline HTML formatting, VeniceAI citation badges and isolated temporary previews for complete HTML pages. Reader also offers automatic and manually reviewed duplicate cleanup. Both retain per-message Text-to-Speech, bundled CPU voices, optional remote providers, streaming playback, protected credentials and audio caching. This manual also covers controlled online-image loading, Reader’s separate image resource cache, readable JSON-only responses, MathJax 4 mathematics and readable file-citation labels. Analytics retains its existing features and is versioned with the rest of the suite at **1.4.4**.
 
 ## Choose a starting point
 

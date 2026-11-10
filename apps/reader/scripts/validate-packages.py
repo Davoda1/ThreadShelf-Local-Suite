@@ -492,10 +492,10 @@ def verify_readme_inputs(directory, *, portable=False):
 def verify_application_inputs(runtime):
     """Reject stale binary staging after any shipped application input changes."""
     app = runtime / 'resources/app'
-    inputs = ['package.json', 'tts', 'src/core', 'src/desktop', 'dist', 'build', 'vendor',
+    inputs = ['package.json', 'tts', 'src/core', 'src/desktop', 'src/reader/html-preview-validation.mjs', 'dist', 'build', 'vendor',
               'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md',
               'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/rich-chart-support.md',
-              'docs/Storage.md', 'docs/DATABASE-MANAGER.md', 'server-support', 'LICENSE',
+              'docs/Storage.md', 'docs/DATABASE-MANAGER.md', 'docs/Deduplication.md', 'docs/HTML-Previews.md', 'server-support', 'LICENSE',
               'THIRD-PARTY-NOTICES.md']
     compared = 0
     for name in inputs:

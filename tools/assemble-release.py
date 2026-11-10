@@ -150,6 +150,57 @@ def collect_inputs(artifacts, version, commit):
                     or type(report.get('networkRequests')) is not int or report['networkRequests'] != 0
                     or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
                 raise ValueError(f'{name}: four successful Grok/ChatGPT views without requests or page errors are required.')
+    if tuple(map(int, version.split('.'))) >= (1, 4, 4):
+        def report_for(name):
+            path = evidence.get(name)
+            return json.loads(path.read_text()) if path else {}
+
+        for app in ('reader', 'alternative'):
+            name = f'{app}-linux-inline-html.json'
+            report = report_for(name)
+            if (report.get('passed') is not True or type(report.get('checks')) is not int or report['checks'] < 4
+                    or type(report.get('networkRequests')) is not int or report['networkRequests'] != 0
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                raise ValueError(f'{name}: successful inline HTML/citation views without requests or page errors are required.')
+        for _, platform in PLATFORMS:
+            name = f'reader-{platform}-html-preview-host.json'
+            report = report_for(name)
+            required = ('passed', 'separateProcess', 'sandbox', 'chromiumSandboxEnabled', 'privateRequestsBlocked',
+                        'navigationBlocked', 'staleOpenCancelled', 'runawayIsolated', 'rendererCanRestrictNetwork')
+            if any(report.get(key) is not True for key in required) or type(report.get('checks')) is not int or report['checks'] < 11:
+                raise ValueError(f'{name}: successful native HTML preview isolation is required.')
+            name = f'reader-{platform}-html-preview-ui.json'
+            report = report_for(name)
+            if (report.get('passed') is not True or report.get('chromiumSandboxEnabled') is not True
+                    or type(report.get('checks')) is not int or report['checks'] < 4
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                raise ValueError(f'{name}: successful native HTML preview layouts are required.')
+            name = f'alternative-{platform}-html-preview.json'
+            report = report_for(name)
+            required = ('passed', 'productionApplication', 'sandbox', 'chromiumSandboxEnabled',
+                        'singleInstanceLockUnmodified', 'svgUnchanged', 'embeddedJavascript',
+                        'noApplicationBridge', 'copyUnchanged', 'codeTeardown', 'settingsTeardown',
+                        'externalDisabled', 'privateAndFileBlocked')
+            if (any(report.get(key) is not True for key in required)
+                    or type(report.get('eligibleSwitches')) is not int or report['eligibleSwitches'] < 3
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                raise ValueError(f'{name}: successful production HTML preview isolation is required.')
+        name = 'reader-linux-deduplication.json'
+        report = report_for(name)
+        if (report.get('passed') is not True or report.get('sandbox') is not True
+                or report.get('chromiumSandboxEnabled') is not True
+                or report.get('socketlessHarness') is not False or report.get('pageErrors') != []
+                or not isinstance(report.get('checks'), list) or len(report['checks']) < 4
+                or not isinstance(report.get('geometry'), list) or len(report['geometry']) < 80):
+            raise ValueError(f'{name}: successful native duplicate-cleanup and settings layouts are required.')
+        name = 'alternative-linux-privacy.json'
+        report = report_for(name)
+        if (report.get('passed') is not True or report.get('chromiumSandboxEnabled') is not True
+                or report.get('uploadToServer') is not False
+                or any(type(report.get(key)) is not int or report[key] != 0
+                       for key in ('nativeStarts', 'nativeUploadChanges'))
+                or any(report.get(key) != [] for key in ('captureRequests', 'crashFilesBefore', 'crashFilesAfter'))):
+            raise ValueError(f'{name}: successful native crash-reporting privacy checks are required.')
     return assets, evidence, summaries
 
 
@@ -157,6 +208,7 @@ def release_title(version):
     suffix = {
         '1.4.2': ' — SVG previews and upstream 1.4.1 search patch',
         '1.4.3': ' — Grok and ChatGPT rendering improvements',
+        '1.4.4': ' — Isolated HTML previews and duplicate cleanup',
     }.get(version, '')
     return f'ThreadShelf Local Suite {version}{suffix}'
 
@@ -233,15 +285,27 @@ def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     source_update = (f'- [Runtime source update]({base}/v{version}/ThreadShelf-Local-Suite-{version}-Runtime-Source-Update.tar.gz): verified changed runtime sources and an offline updater, used with all six original [v1.3.0 runtime source parts and matching metadata](https://github.com/{repository}/releases/tag/v1.3.0). Assemble the historical base without applying its old Electron patches, then follow the update instructions.\n'
                      if tuple(map(int, version.split('.'))) >= (1, 4, 3) else '')
-    return f'''Reader, Analytics and Alternative are now **{version}**.
-
-- Render Grok XML/custom elements, citation markers, saved cards, image/file/media references and artifacts as bounded archive content with SVG icons. Unknown or incomplete records retain readable, inspectable fallbacks; source URLs are resolved only from matching saved metadata.
+    manual_scope = ('The offline manual includes the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance.'
+                    if tuple(map(int, version.split('.'))) >= (1, 4, 4)
+                    else 'The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.')
+    if tuple(map(int, version.split('.'))) >= (1, 4, 4):
+        improvements = f'''- Render bounded inline HTML/CSS formatting in ordinary conversation text and theme-aware VeniceAI `^1^` citation badges. Code, math, original message copying and existing Grok/ChatGPT rendering retain their source-preserving behavior.
+- Preview eligible complete HTML5 code blocks in a separate temporary, sandboxed native view. Code is selected initially; Render permits embedded page JavaScript only inside that isolated preview, without Node.js or application APIs. Copy and download retain the original source.
+- Add a Reading preference for external HTML-preview resources, enabled by default. A guarded public-HTTPS path rejects local/private destinations and unsupported protocols. Disabling it tears down active previews and blocks further external requests. Permission requests, popups, downloads and automatic navigation remain restricted.
+- Add Reader duplicate cleanup under Database Manager, with automatic checks and a separate manual review. Matching preserves collection, provider, model, attachment and answered-branch differences; exact duplicates and supported shorter histories consolidate while saved references follow the survivor. Stale reviews cannot be applied to changed archives.
+- Handle Grok prompt-only and unanswered export variants conservatively. Prompt-only cleanup for other providers is an independent option, disabled by default and confirmed before automatic use.
+- Preserve public application identities, profile locations, image-request isolation and archive formats. Analytics is rebuilt at **{version}** without application-functionality or dependency changes; all three applications retain the existing pinned runtime and toolchain.'''
+    else:
+        improvements = f'''- Render Grok XML/custom elements, citation markers, saved cards, image/file/media references and artifacts as bounded archive content with SVG icons. Unknown or incomplete records retain readable, inspectable fallbacks; source URLs are resolved only from matching saved metadata.
 - Expand ChatGPT citation/file-citation markers, saved filenames and line ranges, entities, source lists, archived widget envelopes, nested markers and chart data adapters. Supported chart data is rendered locally as SVG.
 - Preserve original message/code copying and literal code examples. Archived tools, tasks, HTML and interactive components remain passive and never execute. Existing Markdown, math, Mermaid, SVG previews, image controls and TTS remain available.
 - Bound repeated card metadata and parser output. Reader authorizes only referenced, exactly matched Grok image metadata through its existing image loading and network policy.
 - Fix three Reader resource-exhaustion paths: oversized Ollama responses/progress, repeated backup-content expansion and forged ZIP read lengths.
-- Refresh the selected runtime, build-tool and parser dependencies recorded in the tagged manifests. Analytics is rebuilt at **{version}** with the aligned toolchain; its application functionality and persisted formats are unchanged.
-- Retain the optional [search patches for supported upstream ThreadShelf versions](https://github.com/{repository}/tree/v{version}/server-patch). The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.
+- Refresh the selected runtime, build-tool and parser dependencies recorded in the tagged manifests. Analytics is rebuilt at **{version}** with the aligned toolchain; its application functionality and persisted formats are unchanged.'''
+    return f'''Reader, Analytics and Alternative are now **{version}**.
+
+{improvements}
+- Retain the optional [search patches for supported upstream ThreadShelf versions](https://github.com/{repository}/tree/v{version}/server-patch). {manual_scope}
 - Windows portable ZIPs contain the application EXE at their root. Linux TAR.GZ packages contain a root native binary; DEB packages install a real native executable in `/usr/bin`.
 
 Choose one of the nine native packages for your application and OS. Analytics also has new **{version}** Windows and Linux packages. The Reader Preview and Alternative Demo HTML files provide offline demonstrations using synthetic data. Missing metadata or assets in an export cannot be reconstructed. Native packages include their runtime and do not require Node.js or npm.
@@ -287,6 +351,8 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
                      for s in summaries)
     update_report = (f'The attached [runtime source update](https://github.com/{repository}/releases/download/{tag}/{source_update["file_name"]}) was built from the tagged source manifest and its pinned upstream inputs. Its archive SHA-256 is `{source_update["sha256"]}`; the evidence ZIP includes its verified build receipt. Use it with all six original v1.3.0 runtime source parts and metadata, assembling that base without applying the old Electron patches. The update provides the changed runtime sources and offline update instructions.\n\n'
                      if source_update else '')
+    preview_report = ('\nNative HTML preview isolation is exercised on Windows and Linux for Reader and Alternative. Reader also runs preview-control layout checks on both hosts. Linux inline-formatting checks require four light/dark and narrow/wide views without network requests or page errors. Reader duplicate-cleanup checks use its actual native application and synthetic archive, cover confirmation and selected cleanup, and inspect at least 80 settings/review layouts across the supported locales. Alternative native Linux crash-reporting checks require no native reporter startup, upload-setting changes, captured requests or crash files. These focused native source harnesses use the same hash-verified Electron runtime as the packages; packaged GUI execution remains a separate required gate.\n'
+                      if tuple(map(int, version.split('.'))) >= (1, 4, 4) else '')
     report = f'''# ThreadShelf Local Suite {version} verification
 
 Tag: `{tag}`
@@ -302,6 +368,7 @@ This report is generated only after all six package jobs complete successfully. 
 {rows}
 
 The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation and Grok/ChatGPT compatibility browser checks before publication. The new compatibility gates require four successful layout/theme views per suite, with no unsolicited requests or page errors. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
+{preview_report}
 
 The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md).
 

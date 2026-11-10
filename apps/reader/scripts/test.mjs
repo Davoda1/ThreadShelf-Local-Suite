@@ -3,7 +3,9 @@ import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
+import { prepareTransformersPrivacy } from './transformers-privacy-patches.mjs';
 const root = fileURLToPath(new URL('..', import.meta.url));
+await prepareTransformersPrivacy();
 const tests = (await readdir(path.join(root, 'tests')))
   .filter(name => name.endsWith('.test.mjs') && !/(?:browser|electron|ui)[.-]test\.mjs$/.test(name))
   .sort().map(name => path.join('tests', name));
