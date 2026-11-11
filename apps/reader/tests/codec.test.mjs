@@ -105,3 +105,41 @@ test('file decoding requires explicit size budget and removes failed output', as
   await assert.rejects(decodeFile(packed, output, { maxBytes: 1 }), { code: 'CODEC_LIMIT' });
   assert.deepEqual(await fs.readdir(dir), ['input.7z']);
 }));
+test('disk-full process failures remain terminal for buffer and streaming codecs', async () => temporary(async dir => {
+  // Isolate native-process injection from this suite's genuine codec round trips.
+  // The streaming subprocess exits without reading stdin, reproducing the EPIPE
+  // that can otherwise hide a native disk-full error during a large encode.
+  const script = `
+    import assert from 'node:assert/strict';
+    import childProcess from 'node:child_process';
+    import { syncBuiltinESMExports } from 'node:module';
+    import fs from 'node:fs/promises';
+    import path from 'node:path';
+    const directory = ${JSON.stringify(dir)};
+    const originalSpawn = childProcess.spawn;
+    let result;
+    childProcess.spawnSync = () => result;
+    childProcess.spawn = () => originalSpawn(process.execPath, ['-e', "process.stderr.write('ERROR: errno=28 : No space left on device\\n', () => process.exit(2))"], { stdio: ['pipe', 'pipe', 'pipe'] });
+    syncBuiltinESMExports();
+    const { encodeBuffer, encodeFile } = await import(${JSON.stringify(new URL('../src/core/codec.mjs', import.meta.url).href)});
+    const nativeError = Object.assign(new Error('spawn failed'), { code: 'ENOSPC' });
+    result = { error: nativeError };
+    assert.throws(() => encodeBuffer(Buffer.from('x'), '7z', { tempDir: directory }), error => error.code === 'ENOSPC' && error.cause === nativeError);
+    const pipeError = Object.assign(new Error('broken pipe'), { code: 'EPIPE' });
+    result = { error: pipeError, stderr: 'ERROR: errno=28 : No space left on device' };
+    assert.throws(() => encodeBuffer(Buffer.from('x'), '7z', { tempDir: directory }), error => error.code === 'ENOSPC' && error.cause === pipeError);
+    for (const stderr of ['ERROR: errno=28 : No space left on device', 'System ERROR: There is not enough space on the disk.']) {
+      result = { status: 2, stderr };
+      assert.throws(() => encodeBuffer(Buffer.from('x'), '7z', { tempDir: directory }), { code: 'ENOSPC' });
+    }
+    result = { status: 2, stderr: 'ERROR: Data Error' };
+    assert.throws(() => encodeBuffer(Buffer.from('x'), '7z', { tempDir: directory }), { code: 'CODEC_INVALID' });
+    const source = path.join(directory, 'source.bin');
+    await fs.writeFile(source, Buffer.alloc(1024 ** 2));
+    await assert.rejects(encodeFile(source, path.join(directory, 'output.7z')), { code: 'ENOSPC' });
+    assert.deepEqual(await fs.readdir(directory), ['source.bin']);
+  `;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8', timeout: 30_000 });
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+}));

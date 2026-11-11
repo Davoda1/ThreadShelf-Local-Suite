@@ -26,7 +26,7 @@ _tts_spec.loader.exec_module(_tts_stage)
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCT = 'ThreadShelf Local Alternative'
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.4.4'
+PREFIX = 'ThreadShelf-Local-Alternative-1.4.5'
 ELECTRON = '45.2.3'
 HASHES = {
     'linux': 'a87fe741f6d121285117e574da6c9a2e65210d410123bbc04713b099add0263b',
@@ -69,7 +69,7 @@ def package_notices(runtime_prefix=''):
     app = runtime_prefix + 'resources/app/'
     return f'''# Distribution notices
 
-ThreadShelf Local Alternative 1.4.4 is an independent application by davoda1.
+ThreadShelf Local Alternative 1.4.5 is an independent application by davoda1.
 Original application code is MIT licensed: [application license]({runtime_prefix}APPLICATION-LICENSE).
 
 The complete component credits and terms are retained in the
@@ -230,7 +230,7 @@ def windows(args, work: Path, out: Path):
     exe = stage / f'{PRODUCT}.exe'
     subprocess.run([args.node, str(ROOT / 'scripts/rebrand-windows.mjs'), str(stage / 'electron.exe'), str(exe)], check=True)
     (stage / 'electron.exe').unlink()
-    (stage / 'version').write_text('1.4.4\n', encoding='utf-8')
+    (stage / 'version').write_text('1.4.5\n', encoding='utf-8')
     assert_runtime_tree(stage, manifest, 'Windows staging')
     if not args.stage_only:
         artifact = out / f'{PREFIX}-Windows-x64-Portable.zip'
@@ -251,7 +251,7 @@ def linux(args, work: Path, out: Path):
     (runtime_dir / SLUG).chmod(0o755)
     for name in ('chrome_crashpad_handler', 'chrome-sandbox'):
         (runtime_dir / name).chmod(0o755)
-    (runtime_dir / 'version').write_text('1.4.4\n', encoding='utf-8')
+    (runtime_dir / 'version').write_text('1.4.5\n', encoding='utf-8')
     assert_runtime_tree(runtime_dir, manifest, 'Linux staging')
     if not args.stage_only and args.target in ('all', 'linux'):
         artifact = out / f'{PREFIX}-Linux-amd64.tar.gz'
@@ -305,7 +305,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     control.mkdir()
     installed_kib = sum((app / name).stat().st_size for name in manifest) // 1024
     (control / 'control').write_text(
-        f'Package: {SLUG}\nVersion: 1.4.4\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
+        f'Package: {SLUG}\nVersion: 1.4.5\nSection: utils\nPriority: optional\nArchitecture: amd64\n'
         f'Maintainer: davoda1 <noreply@example.invalid>\nInstalled-Size: {installed_kib}\n'
         'Depends: libasound2t64 | libasound2, libatk1.0-0t64 | libatk1.0-0, libatk-bridge2.0-0t64 | libatk-bridge2.0-0, '
         'libatspi2.0-0t64 | libatspi2.0-0, libc6 (>= 2.31), libcairo2, libcups2t64 | libcups2, libdbus-1-3, '
@@ -316,7 +316,7 @@ def deb(args, work: Path, out: Path, runtime_dir: Path, manifest):
     if not args.stage_only:
         if not shutil.which('dpkg-deb'):
             raise SystemExit('dpkg-deb is required to build the Debian package. Use Linux or WSL.')
-        artifact = out / f'{SLUG}_1.4.4_amd64.deb'
+        artifact = out / f'{SLUG}_1.4.5_amd64.deb'
         expected = {f'opt/{SLUG}/' + name for name in manifest}
         expected.update({f'usr/bin/{SLUG}', f'usr/share/applications/{SLUG}.desktop', f'usr/share/icons/hicolor/512x512/apps/{SLUG}.png'})
         expected.update(f'usr/share/doc/{SLUG}/{name}' for name in ('README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md') if (ROOT / name).is_file())

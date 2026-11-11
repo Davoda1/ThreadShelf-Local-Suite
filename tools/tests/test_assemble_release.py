@@ -99,6 +99,42 @@ class ReleaseAssemblyTests(unittest.TestCase):
                 'nativeStarts': 0, 'nativeUploadChanges': 0,
                 'captureRequests': [], 'crashFilesBefore': [], 'crashFilesAfter': []})
 
+        if tuple(map(int, self.version.split('.'))) >= (1, 4, 5):
+            self.write_json(reader / 'reader-linux-deduplication-review.json', {
+                'passed': True, 'chromiumSandboxEnabled': True, 'socketlessHarness': False,
+                'pageErrors': [], 'checks': ['Synthetic cleanup review check'] * 8,
+                'geometry': [{'synthetic': True}] * 42})
+            for target, platform in release.PLATFORMS:
+                reader_reports = self.artifacts / f'reader-{target}-{self.version}/verification'
+                alternative_reports = self.artifacts / f'alternative-{target}-{self.version}/verification'
+                self.write_json(reader_reports / f'reader-{platform}-code-options.json', {
+                    'passed': True, 'checks': 4, 'optionCombinations': 4, 'pageErrors': 0,
+                    'chromiumSandboxEnabled': True, 'nativeClipboardExact': True,
+                    'blockCopyExact': True, 'messageCopyExact': True, 'wrapFits': True,
+                    'logicalLineNumbers': True, 'mermaidSourceRestored': True,
+                    'largeBlockCapped': True, 'defaultsOff': True,
+                    'renderGutterIsolation': {'html': True, 'svg': True, 'mermaid': True}})
+                self.write_json(alternative_reports / f'alternative-{platform}-code-options.json', {
+                    'passed': True, 'productionApplication': True, 'chromiumSandboxEnabled': True,
+                    'singleInstanceLockUnmodified': True, 'wrapping': True, 'lineNumbers': True,
+                    'renderGuttersAbsent': True, 'copyUnchanged': True, 'exportUnchanged': True,
+                    'persistence': True, 'defaultsOff': True, 'largeBlockLimit': True, 'combinations': 4,
+                    'pageErrors': 0})
+                self.write_json(reader_reports / f'reader-{platform}-html-margin-scope.json', {
+                    'passed': True, 'checks': 32, 'chromiumSandboxEnabled': True,
+                    'pageErrors': 0, 'htmlOnlySpacing': True})
+                self.write_json(alternative_reports / f'alternative-{platform}-html-margin-scope.json', {
+                    'passed': True, 'checks': 64, 'chromiumSandboxEnabled': True,
+                    'pageErrors': 0, 'htmlOnlySpacing': True, 'productionApplication': True,
+                    'singleInstanceLockUnmodified': True})
+                for directory, app, suffix in ((reader_reports, 'reader', 'html-preview-ui'),
+                                                (alternative_reports, 'alternative', 'html-preview')):
+                    path = directory / f'{app}-{platform}-{suffix}.json'
+                    report = json.loads(path.read_text())
+                    report.update(dict.fromkeys(('initialPlacement', 'fullWidth16by9', 'scrollContained',
+                                                  'htmlOnlySpacing', 'transparentLoading', 'errorCodeRestored'), True))
+                    self.write_json(path, report)
+
     def test_complete_six_job_collection(self):
         assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
         self.assertEqual(len(assets), 11)
@@ -299,6 +335,114 @@ class ReleaseAssemblyTests(unittest.TestCase):
                      'without application-functionality or dependency changes'):
             self.assertIn(text, notes)
         self.assertNotIn('HTML and interactive components remain passive and never execute', notes)
+
+    def use_145(self):
+        self.version = '1.4.5'
+        shutil.rmtree(self.artifacts); self.artifacts.mkdir(); self.populate()
+
+    def test_145_requires_both_native_code_reports_and_geometry_on_both_hosts(self):
+        self.use_145()
+        assets, evidence, summaries = release.collect_inputs(self.artifacts, self.version, self.commit)
+        self.assertEqual((len(assets), len(summaries)), (11, 6))
+        for app in ('reader', 'alternative'):
+            for _, platform in release.PLATFORMS:
+                name = f'{app}-{platform}-code-options.json'
+                with self.subTest(report=name):
+                    evidence[name].unlink()
+                    with self.assertRaisesRegex(ValueError, 'native code presentation is required'):
+                        release.collect_inputs(self.artifacts, self.version, self.commit)
+                    self.populate()
+
+    def test_145_rejects_missing_unsafe_or_incomplete_code_presentation(self):
+        self.use_145()
+        reader_booleans = ('passed', 'chromiumSandboxEnabled', 'nativeClipboardExact', 'blockCopyExact',
+                           'messageCopyExact', 'wrapFits', 'logicalLineNumbers', 'mermaidSourceRestored',
+                           'largeBlockCapped', 'defaultsOff')
+        alternative_booleans = ('passed', 'productionApplication', 'chromiumSandboxEnabled',
+                                'singleInstanceLockUnmodified', 'wrapping', 'lineNumbers',
+                                'renderGuttersAbsent', 'copyUnchanged', 'exportUnchanged', 'persistence',
+                                'defaultsOff', 'largeBlockLimit')
+        for app, fields in (('reader', reader_booleans), ('alternative', alternative_booleans)):
+            cases = [{field: value} for field in fields for value in (False, 1, None)]
+            cases.extend([{'pageErrors': 1}, {'pageErrors': False}, {'pageErrors': None}])
+            if app == 'alternative':
+                cases.extend([{'combinations': 3}, {'combinations': True}, {'combinations': None}])
+            if app == 'reader':
+                cases.extend([{'checks': True}, {'checks': 3}, {'optionCombinations': 3},
+                              {'optionCombinations': True}, {'renderGutterIsolation': {}},
+                              {'renderGutterIsolation': {'html': True, 'svg': True, 'mermaid': False}},
+                              {'renderGutterIsolation': {'html': True, 'svg': True, 'mermaid': 1}},
+                              {'renderGutterIsolation': {'html': True, 'svg': True, 'mermaid': True, 'extra': True}}])
+            for _, platform in release.PLATFORMS:
+                for change in cases:
+                    with self.subTest(app=app, platform=platform, change=change):
+                        path = next(self.artifacts.rglob(f'{app}-{platform}-code-options.json'))
+                        value = json.loads(path.read_text()); value.update(change); self.write_json(path, value)
+                        with self.assertRaisesRegex(ValueError, 'native code presentation is required'):
+                            release.collect_inputs(self.artifacts, self.version, self.commit)
+                        self.populate()
+
+    def test_145_rejects_stale_or_failed_html_geometry(self):
+        self.use_145()
+        fields = ('initialPlacement', 'fullWidth16by9', 'scrollContained')
+        for app, suffix in (('reader', 'html-preview-ui'), ('alternative', 'html-preview')):
+            for _, platform in release.PLATFORMS:
+                for field in fields + (('transparentLoading', 'errorCodeRestored', 'htmlOnlySpacing') if app == 'alternative' else ()):
+                    for value in (False, 1, None):
+                        with self.subTest(app=app, platform=platform, field=field, value=value):
+                            path = next(self.artifacts.rglob(f'{app}-{platform}-{suffix}.json'))
+                            report = json.loads(path.read_text()); report[field] = value; self.write_json(path, report)
+                            with self.assertRaisesRegex(ValueError, 'required'):
+                                release.collect_inputs(self.artifacts, self.version, self.commit)
+                            self.populate()
+
+    def test_145_requires_successful_paired_html_spacing_comparisons(self):
+        self.use_145()
+        for app, minimum in (('reader', 32), ('alternative', 64)):
+            for _, platform in release.PLATFORMS:
+                cases = [{'passed': False}, {'chromiumSandboxEnabled': False}, {'htmlOnlySpacing': False},
+                         {'checks': minimum - 1}, {'checks': True}, {'pageErrors': 1}, {'pageErrors': False}]
+                if app == 'alternative':
+                    cases.extend([{'productionApplication': False}, {'singleInstanceLockUnmodified': False}])
+                for change in cases:
+                    with self.subTest(app=app, platform=platform, change=change):
+                        path = next(self.artifacts.rglob(f'{app}-{platform}-html-margin-scope.json'))
+                        report = json.loads(path.read_text()); report.update(change); self.write_json(path, report)
+                        with self.assertRaisesRegex(ValueError, 'paired HTML spacing comparisons'):
+                            release.collect_inputs(self.artifacts, self.version, self.commit)
+                        self.populate()
+                path.unlink()
+                with self.assertRaisesRegex(ValueError, 'paired HTML spacing comparisons'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
+
+    def test_145_requires_full_native_cleanup_review_lifecycle_and_geometry(self):
+        self.use_145()
+        name = 'reader-linux-deduplication-review.json'
+        path = next(self.artifacts.rglob(name)); path.unlink()
+        with self.assertRaisesRegex(ValueError, 'native cleanup review lifecycle and layouts'):
+            release.collect_inputs(self.artifacts, self.version, self.commit)
+        self.populate()
+        cases = [{'passed': False}, {'passed': 1}, {'chromiumSandboxEnabled': False},
+                 {'socketlessHarness': True}, {'socketlessHarness': 0}, {'socketlessHarness': None},
+                 {'pageErrors': ['Synthetic renderer error']}, {'pageErrors': False},
+                 {'checks': ['Synthetic check'] * 7}, {'checks': 8}, {'checks': None},
+                 {'geometry': [{}] * 41}, {'geometry': 42}, {'geometry': None}]
+        for change in cases:
+            with self.subTest(change=change):
+                report = json.loads(path.read_text()); report.update(change); self.write_json(path, report)
+                with self.assertRaisesRegex(ValueError, 'native cleanup review lifecycle and layouts'):
+                    release.collect_inputs(self.artifacts, self.version, self.commit)
+                self.populate()
+
+    def test_145_notes_describe_cleanup_and_code_preview_changes(self):
+        notes = release.release_notes('1.4.5', 'example/suite')
+        for text in ('Within a collection', 'distinct IDs', 'VeniceAI', 'Grok', 'visible progress',
+                     'Wrap long code lines', 'Show code line numbers', 'display-only', '16:9',
+                     '1.4.5 cleanup, code presentation', 'without application-functionality or dependency changes'):
+            self.assertIn(text, notes)
+        self.assertIn('1.4.5', release.release_title('1.4.5'))
+        self.assertNotIn('Stale reviews', notes)
 
     def test_rejects_failed_streaming_speech(self):
         path = self.artifacts / 'reader-linux-1.4.0/verification/reader-linux-tts.json'

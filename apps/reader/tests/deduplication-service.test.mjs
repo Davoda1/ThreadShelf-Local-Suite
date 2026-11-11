@@ -26,7 +26,7 @@ test('new destructive preference defaults off, requires explicit confirmation, a
  assert.equal(validateDeduplicationPreferenceChange({deleteOtherPromptOnlyAutomatically:true,confirmed:true},{deleteOtherPromptOnlyAutomatically:false}).deleteOtherPromptOnlyAutomatically,true);
 });
 
-test('post-import dedup keeps longest history, remaps bookmarks and reading, and survives restart',async t=>{
+test('inline import merge keeps longest history and reading data across restart',async t=>{
  const f=await fixture(t),short=await input(f,{id:'short'}),long=await input(f,{id:'long',messages:turns(true)});
  await f.service.handle('import.paths',{paths:[short],collection:'Same collection'});
  const original=(await rows(f))[0],key=localReadingKey(original.id),ref={mode:'local',id:original.id,collection:original.collection,sourceFile:original.sourceFile,conversationKey:original.conversationKey};
@@ -34,7 +34,7 @@ test('post-import dedup keeps longest history, remaps bookmarks and reading, and
  const result=await f.service.handle('import.paths',{paths:[long],collection:'Same collection'});
  assert.equal(result.errors.length,0);assert.equal(result.deduplication.removed,1);
  const kept=(await rows(f))[0];assert.equal((await rows(f)).length,1);assert.equal(kept.turnCount,4);
- assert.equal(result.remap[original.id],kept.id);assert.equal(result.reading.bookmarks[0].key,localReadingKey(kept.id));
+ assert.equal(result.remap[original.id]||original.id,kept.id);assert.equal(result.reading.bookmarks[0].key,localReadingKey(kept.id));
  await f.reopen();assert.equal((await rows(f)).length,1);assert.equal(f.service.reading.snapshot().bookmarks[0].key,localReadingKey(kept.id));
 });
 
@@ -75,7 +75,7 @@ test('confirmed other-provider automatic prompt cleanup persists separately from
  const result=await f.service.handle('import.paths',{paths:[file],collection:'Opt in'});assert.equal(result.deduplication.removed,1);assert.equal((await rows(f)).length,0);
 });
 
-test('post-server-copy cleanup stays partitioned by collection and returns reading reconciliation',async t=>{
+test('inline server-copy merge stays partitioned by collection and returns reading reconciliation',async t=>{
  const {ThreadShelfClient}=await import('../src/core/server.mjs');
  const original=Object.fromEntries(['collections','allFiles','thread'].map(key=>[key,ThreadShelfClient.prototype[key]]));
  const f=await fixture(t);
@@ -98,9 +98,46 @@ test('a saved merge still returns reconciliation when its later cleanup cannot f
  const f=await fixture(t),a=await input(f,{id:'move-a'}),b=await input(f,{id:'move-b',title:'Different conversation'});
  await f.service.handle('import.paths',{paths:[a],collection:'Before'});await f.service.handle('import.paths',{paths:[b],collection:'After'});
  const status=await f.service.handle('manager.status'),from=status.collections.find(c=>c.name==='Before'),target=status.collections.find(c=>c.name==='After');
- const original=f.service.store.prepareDeduplication;f.service.store.prepareDeduplication=()=>{throw new Error('Synthetic cleanup interruption');};
+ const original=f.service.store.prepareDeduplicationAsync;f.service.store.prepareDeduplicationAsync=()=>{throw new Error('Synthetic cleanup interruption');};
  try{
   const result=await f.service.handle('manager.mutate',{operation:'merge',collectionIds:[from.id],targetId:target.id,expectedRevision:status.revision});
   assert.equal(result.deduplicationError,'Synthetic cleanup interruption');assert.ok(result.reading);assert.equal((await rows(f,'After')).length,2);
- }finally{f.service.store.prepareDeduplication=original;}
+ }finally{f.service.store.prepareDeduplicationAsync=original;}
+});
+
+test('repeated reliable-ID imports update inline, retain complete prefixes and preserve different replies with different IDs',async t=>{
+ const f=await fixture(t),progress=[];f.service.onProgress=p=>progress.push(p);
+ const first=await input(f,{id:'chat-one',provider:'openai'});
+ let result=await f.service.handle('import.paths',{paths:[first],collection:'ChatGPT'});assert.deepEqual(result.errors,[]);
+ const second=await input(f,{id:'chat-two',provider:'openai',messages:[{user:'Shared question',turn_index:0},{ai:'A different answer',model:'Example stable model',turn_index:1}]});
+ result=await f.service.handle('import.paths',{paths:[second],collection:'ChatGPT'});assert.deepEqual(result.errors,[]);
+ const full=await input(f,{id:'chat-one',provider:'openai',messages:turns(true)});
+ result=await f.service.handle('import.paths',{paths:[full],collection:'ChatGPT'});assert.deepEqual(result.errors,[]);assert.equal(result.updated,1);
+ await input(f,{id:'chat-one',provider:'openai'});
+ result=await f.service.handle('import.paths',{paths:[first],collection:'ChatGPT'});assert.deepEqual(result.errors,[]);
+ const chats=await rows(f,'ChatGPT');assert.equal(chats.length,2);
+ assert.equal(chats.find(x=>x.conversationKey.endsWith('chat-one')).turnCount,4);
+ assert.equal(chats.find(x=>x.conversationKey.endsWith('chat-two')).turnCount,2);
+ assert.ok(!progress.some(p=>p.phase==='deduplicating'),'imports must resolve identity before commit, with no final whole-archive scan');
+ assert.ok(progress.some(p=>p.phase==='importing'&&p.total===1&&p.current===1));
+ await f.reopen();assert.equal((await rows(f,'ChatGPT')).length,2);
+});
+
+test('file import and server copy resolve the same provider ID despite provenance and filename changes',async t=>{
+ const f=await fixture(t),file=await input(f,{id:'cross-source',provider:'openai'});
+ assert.deepEqual((await f.service.handle('import.paths',{paths:[file],collection:'ChatGPT'})).errors,[]);
+ const {ThreadShelfClient}=await import('../src/core/server.mjs');
+ const original=Object.fromEntries(['collections','allFiles','thread'].map(key=>[key,ThreadShelfClient.prototype[key]]));
+ const document={collection:'ChatGPT',provider:'openai',conversationKey:'cross-source',sourceFile:'/new/server/export.json',title:'Renamed conversation',turns:turns(true),
+   sourceIdentity:{kind:'threadshelf',serverUrl:'http://127.0.0.1:3000',collection:'ChatGPT',sourceFile:'/new/server/export.json',conversationKey:'cross-source'}};
+ ThreadShelfClient.prototype.collections=async()=>[{name:'ChatGPT',count:1}];
+ ThreadShelfClient.prototype.allFiles=async()=>[{...document,turnCount:4}];
+ ThreadShelfClient.prototype.thread=async()=>document;
+ try{
+  for(let n=0;n<2;n++){
+   const result=await f.service.handle('server.import',{serverUrl:'http://127.0.0.1:3000',collections:['ChatGPT']});
+   assert.deepEqual(result.errors,[]);assert.equal(result.total,1);assert.equal((await rows(f,'ChatGPT')).length,1);
+  }
+  assert.equal((await rows(f,'ChatGPT'))[0].turnCount,4);
+ }finally{for(const [key,value]of Object.entries(original))ThreadShelfClient.prototype[key]=value;}
 });

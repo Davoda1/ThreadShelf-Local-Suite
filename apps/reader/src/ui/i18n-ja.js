@@ -1,6 +1,11 @@
 // Complete Japanese application chrome. Conversation and code content remain unchanged.
 // Theme and product names intentionally retain their established names.
 export const japanese = Object.freeze({
+codeWrap:"長いコード行を折り返す",
+codeWrapHelp:"ブロックの幅に合わせてコードを表示上だけ折り返します。コピーやエクスポートされるコードは変わりません。",
+codeLineNumbers:"コードの行番号を表示",
+codeLineNumbersHelp:"コード表示でのみソースの行番号を表示します。コピーやエクスポートされる内容に行番号は含まれません。",
+
 htmlPreviewExternalResources:'HTMLプレビューの外部リソースを許可',
 htmlPreviewExternalResourcesHelp:'分離されたHTMLプレビューで公開HTTPS画像、フォント、スタイル、スクリプト、データを読み込みます。オフにするとプレビューを閉じ、外部通信を遮断します。会話の画像設定は別です。',
   "textToSpeech": "テキスト読み上げ",

@@ -91,6 +91,7 @@ export class ThreadShelfClient {
   async collections(){
     const [r,files]=await Promise.all([this.get('api/collections'),this.allFiles()]);
     if(!Array.isArray(r.collections))throw new Error('ThreadShelf returned an invalid collection list.');
+    this.collectionInventory=files; // Reuse this fresh snapshot for a server-copy operation.
     const counts=new Map();for(const f of files)if(f.turnCount>0)counts.set(f.collection,(counts.get(f.collection)||0)+1);
     return [...new Set([...r.collections,...counts.keys()])].filter(n=>typeof n==='string'&&counts.get(n)>0).map(name=>({name,count:counts.get(name)})).sort((a,b)=>a.name.localeCompare(b.name));
   }

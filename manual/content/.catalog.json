@@ -64,14 +64,14 @@
       ]
     },
     "Alternative/index.md": {
-      "title": "ThreadShelf Local Alternative 1.4.4",
+      "title": "ThreadShelf Local Alternative 1.4.5",
       "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
       "tags": [
         "Alternative"
       ]
     },
     "Alternative": {
-      "title": "ThreadShelf Local Alternative 1.4.4",
+      "title": "ThreadShelf Local Alternative 1.4.5",
       "description": "Alternative is an independent desktop workspace for browsing and reading a live ThreadShelf server, with full-thread reading, search, pins, saved searches and appearance controls.",
       "tags": [
         "Alternative"
@@ -134,14 +134,14 @@
       ]
     },
     "Analytics/index.md": {
-      "title": "ThreadShelf Local Analytics 1.4.4",
+      "title": "ThreadShelf Local Analytics 1.4.5",
       "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
       "tags": [
         "Analytics"
       ]
     },
     "Analytics": {
-      "title": "ThreadShelf Local Analytics 1.4.4",
+      "title": "ThreadShelf Local Analytics 1.4.5",
       "description": "Local Analytics examines the contents of archived AI conversations. It helps answer questions such as when activity occurred, which recorded models appear in an archive, how much retained content is code, how conversations…",
       "tags": [
         "Analytics"
@@ -394,14 +394,14 @@
     },
     "Start/installation.md": {
       "title": "Installation and first session",
-      "description": "Install the 1.4.4 Windows portable ZIP, Linux portable TAR.GZ or DEB, verify checksums, and begin with Reader, Analytics or Alternative.",
+      "description": "Install the 1.4.5 Windows portable ZIP, Linux portable TAR.GZ or DEB, verify checksums, and begin with Reader, Analytics or Alternative.",
       "tags": [
         "Start"
       ]
     },
     "index.md": {
       "title": "ThreadShelf Local Suite",
-      "description": "ThreadShelf Local Suite 1.4.4 manual: Reader, Analytics and Alternative, optional Text-to-Speech, data management and ThreadShelf 1.3.0 and 1.4.1 server search integration.",
+      "description": "ThreadShelf Local Suite 1.4.5 manual: Reader, Analytics and Alternative, optional Text-to-Speech, data management and ThreadShelf 1.3.0 and 1.4.1 server search integration.",
       "tags": [
         "Suite"
       ]

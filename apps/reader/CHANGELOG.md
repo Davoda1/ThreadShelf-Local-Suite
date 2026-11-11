@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.5 — 2026-11-11
+
+- Establish reliable conversation identity with provider plus ID within each collection; retain distinct ChatGPT IDs, use conservative VeniceAI content matching, and correct Grok unanswered and superseded export-artifact cleanup.
+- Merge during file import and server copy with bounded workers, disk-space checks, physical removal of superseded data, and consistent saved-reading/index updates.
+- Add cleanup progress and reopening of running reviews, preserve results and selections, clarify non-Grok unanswered-prompt settings, and align database/free-space metrics.
+- Correct isolated HTML preview loading, full-width 16:9 sizing, application zoom and clipping before/during scrolling; remove only the HTML Render interior spacing.
+- Add optional persistent code wrapping and UI-only logical line numbers. Preserve exact source copying/export and keep gutters out of rendered HTML, SVG, Mermaid and charts.
+- Preserve public profiles, privacy controls, speech behavior, pinned dependencies and the corrected Windows ESM and release-report handling.
+
 ## 1.4.4 — 2026-11-10
 
 - Render bounded, safe inline HTML formatting and VeniceAI numeric citation badges while preserving literal code/math and exact original text.

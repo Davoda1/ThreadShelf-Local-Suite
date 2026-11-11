@@ -1,7 +1,7 @@
 # ThreadShelf Local Suite manual
 
-The user manual covers Local Reader 1.4.4, Local Analytics 1.4.4,
-Local Alternative 1.4.4 and the optional search patch for upstream ThreadShelf
+The user manual covers Local Reader 1.4.5, Local Analytics 1.4.5,
+Local Alternative 1.4.5 and the optional search patch for upstream ThreadShelf
 1.3.0 and 1.4.1. Open `../docs/index.html` directly in a browser; no web server is required.
 The release bundle includes the same generated site under `manual/index.html`.
 
@@ -75,7 +75,7 @@ component third-party notices.
 
 The current application runtime is Electron 45.2.3. Its matching source offer
 requires the six numbered v1.3.0 Runtime-Sources ZIPs and metadata ZIP plus the
-v1.4.4 Runtime-Source-Update supplement,
+v1.4.5 Runtime-Source-Update supplement,
 with checksums and assembler instructions in each application's
 `licenses/ELECTRON-SOURCE-ACCESS.md`. Reader's ONNX Runtime 1.31.1 source companion
 is also associated with v1.3.0. The old v1.0.0 Native-Sources companion is reused

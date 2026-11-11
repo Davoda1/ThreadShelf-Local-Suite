@@ -193,7 +193,7 @@ export class CompressedStorage{
   async readSnapshot(descriptor,destination,{signal}={}){
     const file=path.join(this.snapshots,descriptor.file);await regularFile(file);
     if(await fileHash(file)!==descriptor.sha256)throw storageError('Compressed snapshot checksum does not match its committed manifest.');
-    try{await decodeFile(file,destination,{profile:descriptor.profile,maxBytes:descriptor.logicalBytes,expectedBytes:descriptor.logicalBytes,signal});await checkDatabase(destination);}catch(e){await fs.rm(destination,{force:true}).catch(()=>{});throw storageError(`Unable to read compressed Local storage: ${e.message}`,e);}
+    try{await decodeFile(file,destination,{profile:descriptor.profile,maxBytes:descriptor.logicalBytes,expectedBytes:descriptor.logicalBytes,signal});await checkDatabase(destination);}catch(e){if(e.code==='ENOSPC')throw e;await fs.rm(destination,{force:true}).catch(()=>{});throw storageError(`Unable to read compressed Local storage: ${e.message}`,e);}
   }
   async writeSnapshot(source,profile,{signal,sequence=this.sequence}={}){
     const file=path.join(this.snapshots,`${uuid()}.${profile==='7z'?'7z':'zip'}`);
@@ -237,7 +237,7 @@ export class CompressedStorage{
       await this.point('snapshot-published');this.emit('saved',{sequence:this.sequence});return this.status();
     }catch(e){if(this.pointer?.file===descriptor?.file)this.poisoned=e;throw e;}finally{await fs.rm(stage,{recursive:true,force:true});}
   }
-  async ensureVectors(){return this.enqueue(async()=>{if(this.vectorsReady)return this.vectorPath;if(this.pointer?.vectors){try{await this.readSnapshot(this.pointer.vectors,this.vectorPath);}catch(e){this.indexNotice='The saved semantic index was damaged and will be rebuilt.';await fs.rm(this.vectorPath,{force:true});}}this.vectorsReady=true;return this.vectorPath;});}
+  async ensureVectors(){return this.enqueue(async()=>{if(this.vectorsReady)return this.vectorPath;if(this.pointer?.vectors){try{await this.readSnapshot(this.pointer.vectors,this.vectorPath);}catch(e){if(e.code==='ENOSPC')throw e;this.indexNotice='The saved semantic index was damaged and will be rebuilt.';await fs.rm(this.vectorPath,{force:true});}}this.vectorsReady=true;return this.vectorPath;});}
   async status(){
     await this.assertOwnedDirectories();
     const size=async file=>file?(await fs.stat(file).catch(e=>{if(e.code==='ENOENT')return{size:0};throw e;})).size:0;

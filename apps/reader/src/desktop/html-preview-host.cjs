@@ -10,14 +10,33 @@ function bounds(input, maximum) {
   if (b.x < 0 || b.y < 0 || b.width < 1 || b.height < 1 || b.width > maximum.width || b.height > maximum.height || b.x + b.width > maximum.width + 1 || b.y + b.height > maximum.height + 1) throw new Error('Preview bounds exceed the application view.');
   return b;
 }
+function viewportBounds(input, clip) {
+  if (input == null) return { x:0, y:0, width:clip.width, height:clip.height };
+  if (!['width','height','offsetX','offsetY'].every(key => Number.isFinite(input[key]))) throw new Error('Invalid preview viewport.');
+  const value = Object.fromEntries(['width','height','offsetX','offsetY'].map(key => [key,Math.round(input[key])]));
+  if (value.width < 1 || value.height < 1 || value.width > 16384 || value.height > 16384 || value.offsetX < 0 || value.offsetY < 0
+    || value.offsetX + clip.width > value.width + 1 || value.offsetY + clip.height > value.height + 1) throw new Error('Invalid preview clipping.');
+  return { x:-value.offsetX, y:-value.offsetY, width:value.width, height:value.height };
+}
+function previewGeometry(args, maximum, zoom = 1) {
+  if (!Number.isFinite(zoom) || zoom <= 0 || zoom > 10) throw new Error('Invalid application zoom.');
+  const css = bounds(args.bounds,{width:maximum.width / zoom,height:maximum.height / zoom});
+  const surface = viewportBounds(args.viewport,css);
+  // Renderer rectangles are CSS pixels. Native views use device-independent
+  // pixels: apply page zoom once, never the operating system's device scale.
+  const x=Math.ceil(css.x*zoom),y=Math.ceil(css.y*zoom);
+  const clip=bounds({x,y,width:Math.max(1,Math.floor((css.x+css.width)*zoom)-x),height:Math.max(1,Math.floor((css.y+css.height)*zoom)-y)},maximum);
+  return {clip,viewport:{x:Math.round((css.x+surface.x)*zoom)-x,y:Math.round((css.y+surface.y)*zoom)-y,
+    width:Math.max(1,Math.round(surface.width*zoom)),height:Math.max(1,Math.round(surface.height*zoom))},zoom};
+}
 function createHtmlPreviewHost({ getWindow, getExternalEnabled = () => true, openExternal, onEvent = () => {}, electron = require('electron') }) {
   const entries = new Map(); let serial = Promise.resolve(), disposed = false, generation=0; const versions=new Map();
   const notify = (id, state, message) => onEvent({ id, state, ...(message ? { message } : {}) });
   function close(id, invalidate=true) {
     if(invalidate)versions.set(id,(versions.get(id)||0)+1);
     const entry = entries.get(id); if (!entry) return;
-    entries.delete(id); entry.abort.abort();
-    try { getWindow()?.contentView.removeChildView(entry.view); } catch {}
+    entries.delete(id);clearTimeout(entry.loadTimer);entry.abort.abort();
+    try { getWindow()?.contentView.removeChildView(entry.clipView); } catch {}
     if (!entry.view.webContents.isDestroyed()) entry.view.webContents.close({ waitForBeforeUnload: false });
     try { entry.session.protocol.unhandle('https'); } catch {}
     void entry.session.closeAllConnections().catch(() => {});
@@ -44,7 +63,7 @@ function createHtmlPreviewHost({ getWindow, getExternalEnabled = () => true, ope
     const { validHtmlPreview } = await import('../reader/html-preview-validation.mjs');
     if (!validHtmlPreview(args.source, args.language)) throw new Error('This code block is not a complete valid HTML page.');
     const owner = getWindow(); if (!owner || owner.isDestroyed()) throw new Error('The application window is unavailable.');
-    const currentBounds = bounds(args.bounds, owner.getContentBounds());
+    const placement = previewGeometry(args,owner.getContentBounds(),owner.webContents.getZoomFactor());
     if(!current())return {cancelled:true};
     close(args.id,false); if (entries.size >= 4) throw new Error('Close another HTML preview before opening this one.');
     const id = args.id, external = (await getExternalEnabled()) === true && args.external !== false;
@@ -74,8 +93,13 @@ function createHtmlPreviewHost({ getWindow, getExternalEnabled = () => true, ope
       const embedded = ['image','font','media'].includes(details.resourceType) && /^(?:data|blob):/.test(details.url);
       callback({ cancel: !(initial || embedded || external && details.resourceType !== 'mainFrame' && details.resourceType !== 'subFrame' && details.resourceType !== 'webSocket' && publicUrl(details.url)) });
     });
-    const view = new electron.WebContentsView({webPreferences:{session:ses,preload:path.join(__dirname,'html-preview-preload.cjs'),sandbox:true,contextIsolation:true,nodeIntegration:false,nodeIntegrationInWorker:false,nodeIntegrationInSubFrames:false,webSecurity:true,allowRunningInsecureContent:false,webviewTag:false,plugins:false,spellcheck:false,devTools:false,disableDialogs:true,autoplayPolicy:'user-gesture-required',navigateOnDragDrop:false,safeDialogs:true}});
-    const entry = { id, view, session:ses, abort, external, documentUrl }; entries.set(id,entry);
+    const view = new electron.WebContentsView({webPreferences:{session:ses,preload:path.join(__dirname,'html-preview-preload.cjs'),zoomFactor:placement.zoom,sandbox:true,contextIsolation:true,nodeIntegration:false,nodeIntegrationInWorker:false,nodeIntegrationInSubFrames:false,webSecurity:true,allowRunningInsecureContent:false,webviewTag:false,plugins:false,spellcheck:false,devTools:false,disableDialogs:true,autoplayPolicy:'user-gesture-required',navigateOnDragDrop:false,safeDialogs:true}});
+    // A native parent clips the independent page to its visible code-block area,
+    // while the page retains its complete responsive viewport as the reader scrolls.
+    const clipView = new electron.View();
+    clipView.setBackgroundColor('#00000000');view.setBackgroundColor('#00000000');
+    clipView.addChildView(view);clipView.setVisible(false);
+    const entry = { id, view, clipView, session:ses, abort, external, documentUrl, ready:false, visible:args.visible !== false }; entries.set(id,entry);
     const wc = view.webContents;
     wc.setWebRTCIPHandlingPolicy('disable_non_proxied_udp');
     wc.setWindowOpenHandler(() => ({action:'deny'}));
@@ -85,24 +109,45 @@ function createHtmlPreviewHost({ getWindow, getExternalEnabled = () => true, ope
     wc.on('will-prevent-unload', event => event.preventDefault());
     wc.on('unresponsive', () => { notify(id,'error','The HTML preview stopped responding and was closed.'); close(id); });
     wc.on('render-process-gone', () => { if(entries.has(id)){notify(id,'error','The HTML preview was closed.');close(id);} });
-    wc.on('did-fail-load', (_e,code) => { if(code !== -3 && entries.has(id))notify(id,'error','The HTML preview could not be loaded.'); });
-    view.setBounds(currentBounds); view.setVisible(args.visible !== false);
-    owner.contentView.addChildView(view);
-    void wc.loadURL(documentUrl).catch(() => {});
+    const failedLoad=()=>{if(entries.get(id)!==entry||entry.ready)return;notify(id,'error','The HTML preview could not be loaded.');close(id);};
+    wc.on('did-fail-load', (_e,_code,_description,_url,isMainFrame) => { if(isMainFrame !== false)failedLoad(); });
+    wc.once('dom-ready', () => { if(entries.get(id)!==entry)return;clearTimeout(entry.loadTimer);entry.ready=true;wc.setZoomFactor(owner.webContents.getZoomFactor());clipView.setVisible(entry.visible);notify(id,'ready'); });
+    clipView.setBounds(placement.clip);view.setBounds(placement.viewport);view.setVisible(true);
+    owner.contentView.addChildView(clipView);
+    entry.loadTimer=setTimeout(failedLoad,30000);entry.loadTimer.unref();
+    void wc.loadURL(documentUrl).catch(failedLoad);
     return { id, external };
+  }
+  function updateGeometry(args={}) {
+    const entry=entries.get(args.id); if(!entry)return {ok:false};
+    const owner=getWindow(); if(!owner||owner.isDestroyed())return {ok:false};
+    if(args.visible === false){entry.visible=false;entry.clipView.setVisible(false);return {ok:true};}
+    const placement=previewGeometry(args,owner.getContentBounds(),owner.webContents.getZoomFactor());
+    entry.clipView.setBounds(placement.clip);entry.view.setBounds(placement.viewport);entry.view.webContents.setZoomFactor(placement.zoom);
+    entry.visible=true;entry.clipView.setVisible(entry.ready);return {ok:true};
   }
   return {
     invoke(action,args={}) {
       if(action === 'html.preview.close'){close(args.id);return {ok:true};}
       if(action === 'html.preview.closeAll'){closeAll();return {ok:true};}
       if(action === 'html.preview.update') {
-        const entry=entries.get(args.id); if(!entry)return {ok:false};
-        const owner=getWindow(); if(!owner||owner.isDestroyed()){close(args.id);return {ok:false};}
-        if(args.visible === false){entry.view.setVisible(false);return {ok:true};}
-        entry.view.setBounds(bounds(args.bounds,owner.getContentBounds()));entry.view.setVisible(true);return {ok:true};
+        return updateGeometry(args);
       }
       if(action === 'html.preview.open'){const stamp={generation,version:(versions.get(args.id)||0)+1};versions.set(args.id,stamp.version);const task=serial.then(()=>open(args,stamp));serial=task.catch(()=>{});return task;}
       throw new Error('Unknown HTML preview action.');
+    },
+    registerGeometryIpc(channel,isTrusted) {
+      // This channel cannot open, close, or perform network/storage work. The
+      // owning application's main-frame guard runs before any geometry access.
+      const listener=(event,args)=>{
+        let result={ok:false};
+        try{if(!disposed&&isTrusted(event))result=updateGeometry(args);}catch{}
+        event.returnValue=result;
+      };
+      electron.ipcMain.on(channel,listener);
+      // Keep a fail-closed reply available during asynchronous application
+      // shutdown, until the renderer can no longer send a synchronous request.
+      getWindow()?.webContents.once('destroyed',()=>electron.ipcMain.removeListener(channel,listener));
     },
     closeAll,
     dispose(){disposed=true;closeAll();electron.ipcMain.removeListener('html-preview:link',clickedLink);},
@@ -110,4 +155,4 @@ function createHtmlPreviewHost({ getWindow, getExternalEnabled = () => true, ope
     entries,
   };
 }
-module.exports = { createHtmlPreviewHost, bounds };
+module.exports = { createHtmlPreviewHost, bounds, viewportBounds, previewGeometry };

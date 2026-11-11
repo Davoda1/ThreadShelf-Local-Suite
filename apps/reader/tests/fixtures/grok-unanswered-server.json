@@ -1,0 +1,211 @@
+{
+  "sourceFile": "fixtures/grok-export.json",
+  "conversationKey": "grok:00000000-0000-4000-8000-000000000002",
+  "title": "An unanswered synthetic question",
+  "provider": "grok",
+  "lastTurnAt": "2026-01-01T00:00:00.000Z",
+  "createdInThreadShelf": false,
+  "hasThreadShelfTurns": false,
+  "raw": {
+    "serverUrl": "https://archive.example.invalid",
+    "summary": {
+      "sourceFile": "fixtures/grok-export.json",
+      "collection": "Synthetic Grok",
+      "conversationKey": "grok:00000000-0000-4000-8000-000000000002",
+      "title": "An unanswered synthetic question",
+      "turnCount": 1,
+      "provider": "grok",
+      "lastTurnAt": "2026-01-01T00:00:00.000Z",
+      "createdInThreadShelf": false,
+      "hasThreadShelfTurns": false,
+      "id": "server:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0003"
+    },
+    "thread": {
+      "sourceFile": "fixtures/grok-export.json",
+      "collection": "Synthetic Grok",
+      "conversationKey": "grok:00000000-0000-4000-8000-000000000002",
+      "title": "An unanswered synthetic question",
+      "turnCount": 1,
+      "provider": "grok",
+      "lastTurnAt": "2026-01-01T00:00:00.000Z",
+      "createdInThreadShelf": false,
+      "hasThreadShelfTurns": false,
+      "id": "server:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0003",
+      "raw": {
+        "conversation": {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "user_id": "00000000-0000-4000-8000-000000000004",
+          "anon_user_id": null,
+          "create_time": "2026-01-01T00:00:00.000Z",
+          "modify_time": "2026-01-01T00:00:00.000Z",
+          "system_prompt_id": null,
+          "temporary": false,
+          "leaf_response_id": "00000000-0000-4000-8000-000000000005",
+          "title": "",
+          "summary": "",
+          "asset_ids": [],
+          "root_asset_id": null,
+          "x_user_id": null,
+          "starred": false,
+          "system_prompt_name": "",
+          "media_types": [],
+          "controller": null,
+          "task_result_id": null,
+          "team_id": null,
+          "organization_id": null,
+          "shared_with_team": null,
+          "shared_with_user_ids": [],
+          "workspace_id": null,
+          "kind": null,
+          "creation_source": "web"
+        },
+        "responses": [
+          {
+            "response": {
+              "_id": "00000000-0000-4000-8000-000000000006",
+              "conversation_id": "00000000-0000-4000-8000-000000000002",
+              "message": "Explain the synthetic sample project.",
+              "sender": "human",
+              "create_time": {
+                "$date": {
+                  "$numberLong": "1767225600000"
+                }
+              },
+              "parent_response_id": "00000000-0000-4000-8000-000000000007",
+              "metadata": {},
+              "model": "",
+              "children": [
+                {
+                  "response_id": "00000000-0000-4000-8000-000000000005"
+                }
+              ],
+              "path": [
+                "00000000-0000-4000-8000-000000000007"
+              ]
+            },
+            "share_link": null
+          },
+          {
+            "response": {
+              "_id": "00000000-0000-4000-8000-000000000005",
+              "conversation_id": "00000000-0000-4000-8000-000000000002",
+              "message": "",
+              "sender": "assistant",
+              "create_time": {
+                "$date": {
+                  "$numberLong": "1767225600000"
+                }
+              },
+              "parent_response_id": "00000000-0000-4000-8000-000000000006",
+              "metadata": {
+                "request_metadata": {
+                  "model": "grok-test",
+                  "resolved_model": "grok-test-resolved",
+                  "source": "web",
+                  "effort": "auto"
+                },
+                "stream_errors": [
+                  {
+                    "message": "Usage limit reached.",
+                    "severity": "error",
+                    "usageLimitReached": {}
+                  }
+                ]
+              },
+              "model": "grok-test",
+              "path": [
+                "00000000-0000-4000-8000-000000000007",
+                "00000000-0000-4000-8000-000000000006"
+              ]
+            },
+            "share_link": null
+          }
+        ]
+      },
+      "sourceIdentity": {
+        "kind": "threadshelf",
+        "serverUrl": "https://archive.example.invalid",
+        "collection": "Synthetic Grok",
+        "sourceFile": "fixtures/grok-export.json",
+        "conversationKey": "grok:00000000-0000-4000-8000-000000000002"
+      },
+      "turns": [
+        {
+          "user": "Explain the synthetic sample project.",
+          "turn_index": 0,
+          "source_message_id": "00000000-0000-4000-8000-000000000006",
+          "source_role": "human",
+          "createdAt": "2026-01-01T00:00:00.000Z",
+          "raw": {
+            "_id": "00000000-0000-4000-8000-000000000006",
+            "conversation_id": "00000000-0000-4000-8000-000000000002",
+            "message": "Explain the synthetic sample project.",
+            "sender": "human",
+            "create_time": {
+              "$date": {
+                "$numberLong": "1767225600000"
+              }
+            },
+            "parent_response_id": "00000000-0000-4000-8000-000000000007",
+            "metadata": {},
+            "model": "",
+            "children": [
+              {
+                "response_id": "00000000-0000-4000-8000-000000000005"
+              }
+            ],
+            "path": [
+              "00000000-0000-4000-8000-000000000007"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    }
+  },
+  "sourceIdentity": {
+    "kind": "threadshelf",
+    "serverUrl": "https://archive.example.invalid",
+    "collection": "Synthetic Grok",
+    "sourceFile": "fixtures/grok-export.json",
+    "conversationKey": "grok:00000000-0000-4000-8000-000000000002"
+  },
+  "turns": [
+    {
+      "user": "Explain the synthetic sample project.",
+      "turn_index": 0,
+      "source_message_id": "00000000-0000-4000-8000-000000000006",
+      "source_role": "human",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "raw": {
+        "_id": "00000000-0000-4000-8000-000000000006",
+        "conversation_id": "00000000-0000-4000-8000-000000000002",
+        "message": "Explain the synthetic sample project.",
+        "sender": "human",
+        "create_time": {
+          "$date": {
+            "$numberLong": "1767225600000"
+          }
+        },
+        "parent_response_id": "00000000-0000-4000-8000-000000000007",
+        "metadata": {},
+        "model": "",
+        "children": [
+          {
+            "response_id": "00000000-0000-4000-8000-000000000005"
+          }
+        ],
+        "path": [
+          "00000000-0000-4000-8000-000000000007"
+        ]
+      },
+      "metadata": {}
+    }
+  ],
+  "id": "local:00000000-0000-4000-8000-000000000008",
+  "collectionId": "collection:00000000-0000-4000-8000-000000000009",
+  "collection": "Synthetic Grok",
+  "turnCount": 1,
+  "importedAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}

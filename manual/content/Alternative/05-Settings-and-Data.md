@@ -9,6 +9,8 @@ Open **Settings** on the navigation rail or **Reading** in the bottom status bar
 | Reading width | Compact 640 px, Comfortable 820 px, Wide 1040 px | Sets the preferred maximum reading width within available space |
 | Images | Click to load only, Load automatically | Controls loading of available linked images within the conversation; missing images retain placeholders |
 | Show reasoning when available | On/off | Displays reasoning included in retained content |
+| Wrap long code lines | Off by default | Wraps Code view visually without changing copied or exported source |
+| Show code line numbers | Off by default | Shows source line numbers only in Code view; numbers are never copied or exported |
 
 The reading-width values are preferences, not a minimum window width. A small window constrains the actual content width. Code colors follow Light/Dark automatically; Alternative does not offer Reader’s full interface/code-theme catalogs.
 

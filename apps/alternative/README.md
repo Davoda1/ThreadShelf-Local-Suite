@@ -1,20 +1,20 @@
 # ThreadShelf Local Alternative
 
-**Version 1.4.4 · Windows x64 and GNU/Linux amd64**
+**Version 1.4.5 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
 The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for the exact supported ThreadShelf 1.3.0 and 1.4.1 sources.
 
-Version 1.4.4 adds safe inline HTML formatting, theme-aware VeniceAI citation labels, and isolated previews for complete HTML code blocks. Preview resources use a separate public-HTTPS-only setting; scripts run only inside the temporary sandbox. Original message copying and exporting remain unchanged. It retains the Grok XML and ChatGPT rich-content rendering improvements. It retains optional Text-to-Speech, with bundled CPU voices, provider profiles, playback controls and audio-cache management. It retains bundled MathJax 4.1.3 with compatibility settings that preserve the established equation appearance. Exported ChatGPT/Codex file references display as readable file cards with consistent document icons; original message copy and export remain unchanged.
+Version 1.4.5 fixes HTML preview sizing, initial placement, and clipping while scrolling. Complete HTML pages use a transparent 16:9 surface that fills the code block beneath its toolbar. Reading settings add optional wrapping and line numbers for code; line numbers appear only in Code view and never enter copied or exported source. Existing public privacy controls, isolated HTML scripts, image loading, rich-content rendering, and speech playback retain their behavior.
 
 ## Install and start
 
 | Platform | Package | Start |
 | --- | --- | --- |
-| Windows x64 | `ThreadShelf-Local-Alternative-1.4.4-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
-| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.4-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
-| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.4_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.4_amd64.deb`, then use the application menu. |
+| Windows x64 | `ThreadShelf-Local-Alternative-1.4.5-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
+| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.5-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
+| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.5_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.5_amd64.deb`, then use the application menu. |
 
 The Windows executable is unsigned. Native packages contain the application runtime; ordinary use does not require Node.js or Python. Linux needs a compatible x86-64 graphical desktop and the declared Chromium/GTK dependencies. Portable Linux requires a working user-namespace sandbox; the Debian package installs Electron's sandbox helper. The desktop entry points are regular native binaries, with no symlink or script launchers.
 
@@ -38,7 +38,7 @@ To explore without a server, select **Explore demo**. Fourteen synthetic convers
 - **Find** searches only the open conversation. The prompt outline jumps to a selected prompt.
 - **Focus mode** hides navigation for reading; the shelf can also be collapsed separately.
 - **Copy conversation** copies plain text; **Export conversation** opens an explicit Markdown save operation.
-- Code blocks use offline syntax highlighting with VS Code Light+/Dark+ palettes and separate copy controls.
+- Code blocks use offline syntax highlighting with VS Code Light+/Dark+ palettes and separate copy controls. **Reading & appearance** offers **Wrap long code lines** and **Show code line numbers**, both off by default. Numbers follow logical source lines, appear only in Code view, and are excluded from copying and export. HTML, SVG, Mermaid, and chart renderings do not show a code gutter.
 - An **SVG / Code** toggle appears for untagged, `svg` or `xml` chat code blocks containing one complete, valid SVG document. Whitespace and XML comments may surround the root. Raw SVG, strict Base64 and `data:image/svg+xml;base64,` input are supported. HTML with embedded SVG, extra content, malformed input and other language tags stay as code. The initial view is Code; Copy retains its original source in both views, including Base64 input. Previews use inert image rendering with scripts and external resources disabled.
 - Markdown tables, mathematics, supported rich cards and charts, citations, and Mermaid diagrams use bundled renderers.
 - Saved Grok XML cards become citations, media placeholders, charts or labelled archive panels with SVG icons and source inspection. ChatGPT source/file references, entities, source lists and archived widget markers resolve from saved metadata. Missing or unsupported content stays readable and inert; markers inside code stay literal and Copy/export preserves the original source.

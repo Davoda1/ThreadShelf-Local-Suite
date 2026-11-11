@@ -71,7 +71,7 @@ test('copy makes independent IDs, preserves provenance and explicitly maps optio
   assert.equal(store.upsert(document('Copies')).summary.id, copy.copies[original.id]);
 });
 
-test('merge coalesces exact provenance/content duplicates and preserves divergent histories', t => {
+test('collection merge retains independent IDs and later import repairs same-ID legacy branches', t => {
   const { store } = setup(t);
   const source = store.upsert(document('A')).summary;
   const duplicate = store.upsert(document('B', { sourceFile: '/moved.json' })).summary;
@@ -90,12 +90,14 @@ test('merge coalesces exact provenance/content duplicates and preserves divergen
   assert.equal(store.thread({ id: variant.id }).collection, 'B');
   assert.equal(store.thread({ id: otherSource.id }).conversationKey, 'native-b');
   assert.equal(store.upsert(document('B')).summary.id, duplicate.id);
-  assert.equal(store.upsert(document('B', { turns: [{ user: 'Divergent history', turn_index: 44 }] })).summary.id, variant.id);
-  const third = store.upsert(document('B', { turns: [{ ai: 'New unambiguous source version? No.' }] }));
-  assert.equal(third.status, 'imported');
-  assert.equal(third.conflict, true);
-  assert.equal(store.files().total, 4);
-  assert.equal(store.thread({ id: duplicate.id }).turns[0].user, 'Original question');
+  assert.equal(store.files().total, 2);
+  assert.equal(store.upsert(document('B', { turns: [{ user: 'Divergent history', turn_index: 44 }] })).summary.id, duplicate.id);
+  const third = store.upsert(document('B', { turns: [{ ai: 'Updated source version.' }] }));
+  assert.equal(third.status, 'updated');
+  assert.equal(third.conflict, false);
+  assert.equal(store.files().total, 2);
+  assert.equal(store.thread({ id: duplicate.id }).turns[0].ai, 'Updated source version.');
+  assert.equal(store.thread({ id: otherSource.id }).conversationKey, 'native-b');
 });
 
 test('all-matching selection is frozen, literal-filtered and independent of a display page', t => {

@@ -2,7 +2,7 @@
 
 This supplement updates the original Electron **45.1.0** source collection to
 **45.2.3**, Chromium **156.0.8078.80**, and embedded Node.js **24.22.2**.
-It is supplied as `ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz`.
+It is supplied as `ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz`.
 It requires all six original **1.3.0 Runtime-Sources ZIP parts** and their
 metadata ZIP. The historical collection alone is not matching source for the
 new runtime. The unchanged ONNX and sharp/libvips companions remain separate.
@@ -47,7 +47,7 @@ prerequisites and compilation. Do not substitute unrelated current sources.
 From a tagged suite source checkout:
 
 ```sh
-python maintainer/runtime-source-update/build-source-update.py --out /path/to/output --version 1.4.4
+python maintainer/runtime-source-update/build-source-update.py --out /path/to/output --version 1.4.5
 ```
 
 The builder verifies the committed source payloads, downloads only immutable

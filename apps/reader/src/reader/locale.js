@@ -2,6 +2,7 @@
 let language = 'en';
 let external = null;
 const rows = {
+  "Line numbers unavailable for this large block":["Ehhez a nagy kódblokkhoz nem jeleníthetők meg sorszámok", "Für diesen großen Block sind keine Zeilennummern verfügbar", "Numéros de ligne indisponibles pour ce grand bloc"],
   'Render':['Megjelenítés','Rendern','Afficher'],
   'Show isolated HTML preview':['Elkülönített HTML-előnézet megjelenítése','Isolierte HTML-Vorschau anzeigen','Afficher l’aperçu HTML isolé'],
   'HTML preview':['HTML-előnézet','HTML-Vorschau','Aperçu HTML'],
@@ -73,6 +74,7 @@ const rows = {
   'Equation rendering failed': ['Az egyenlet nem jeleníthető meg', 'Gleichung konnte nicht dargestellt werden', 'Échec du rendu de l’équation'],
 };
 const japanese = Object.freeze({
+  "Line numbers unavailable for this large block":"この大きなコードブロックには行番号を表示できません",
   'Render':'表示',
   'Show isolated HTML preview':'分離されたHTMLプレビューを表示',
   'HTML preview':'HTMLプレビュー',

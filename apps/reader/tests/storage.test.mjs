@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { spawn } from 'node:child_process';
+import childProcess, { spawn } from 'node:child_process';
+import { syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { ZipWriter, Uint8ArrayWriter, Uint8ArrayReader } from '@zip.js/zip.js';
@@ -63,6 +64,35 @@ test('missing or corrupt committed recovery record cannot silently drop changes'
 
 test('compressed snapshot corruption fails before the archive opens',async t=>{
   const f=await fixture(t);await f.open();const zip=path.join(f.storage.snapshots,f.storage.pointer.file);await f.shutdown();await fs.appendFile(zip,'corruption');await assert.rejects(new CompressedStorage({dataDir:f.dataDir,tempRoot:f.tempRoot}).init(),/checksum/);
+});
+
+test('snapshot disk-full errors remain terminal instead of becoming corruption errors',async t=>{
+  const f=await fixture(t);await f.open();
+  const diskFull=Object.assign(new Error('Injected native disk-full failure'),{code:'ENOSPC'});
+  const original=childProcess.spawnSync,target=path.join(f.storage.workingDir,'disk-full-check.sqlite');
+  childProcess.spawnSync=()=>({error:diskFull});syncBuiltinESMExports();
+  try{
+    await assert.rejects(f.storage.readSnapshot(f.storage.pointer,target),error=>error.code==='ENOSPC'&&error.cause===diskFull);
+    await assert.rejects(fs.stat(target),{code:'ENOENT'});
+    await fs.writeFile(target,'preserved destination');
+    await assert.rejects(f.storage.readSnapshot(f.storage.pointer,target),error=>error.code==='ENOSPC'&&error.cause===diskFull);
+    assert.equal(await fs.readFile(target,'utf8'),'preserved destination');
+  }
+  finally{childProcess.spawnSync=original;syncBuiltinESMExports();}
+  assert.deepEqual(f.values(),[]);
+});
+
+test('vector disk-full failure preserves the saved index and remains retryable',async t=>{
+  const f=await fixture(t);await f.open();
+  const vector=new DatabaseSync(f.storage.vectorPath);vector.exec("CREATE TABLE vectors(v TEXT);INSERT INTO vectors VALUES('preserved')");
+  await f.storage.checkpoint({archiveDb:f.db,vectorDb:vector});vector.close();
+  const before=await fs.readFile(f.storage.vectorPath),saved=f.storage.pointer.vectors.file;
+  const original=f.storage.readSnapshot,diskFull=Object.assign(new Error('Injected disk-full failure'),{code:'ENOSPC'});
+  f.storage.readSnapshot=async()=>{throw diskFull;};
+  try{await assert.rejects(f.storage.ensureVectors(),error=>error===diskFull);}
+  finally{f.storage.readSnapshot=original;}
+  assert.equal(f.storage.vectorsReady,false);assert.equal(f.storage.indexNotice,undefined);
+  assert.equal(f.storage.pointer.vectors.file,saved);assert.deepEqual(await fs.readFile(f.storage.vectorPath),before);
 });
 
 test('version 2 ignores and preserves legacy catalog and WAL files',async t=>{

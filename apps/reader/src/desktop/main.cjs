@@ -143,6 +143,7 @@ app.whenReady().then(async()=>{
   win.webContents.on('render-process-gone',()=>{htmlPreviews.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});});
   win.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame){htmlPreviews.closeAll();void tts.invoke('tts.cancel',{}).catch(()=>{});}});
   ipcMain.handle('reader:invoke',(event,action,args={})=>{if(!isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}))throw new Error('Untrusted application request.');return invoke(action,args);});
+  htmlPreviews.registerGeometryIpc('reader:html-preview-geometry',event=>isTrustedMainFrame(event,win.webContents,pageUrl,{allowFragment:true}));
   win.on('ready-to-show',()=>{if(b.maximized)win.maximize();if(b.fullscreen)win.setFullScreen(true);win.show();});
   win.on('close',()=>{saveWindow();htmlPreviews.closeAll();});
   // Use the same canonical encoding as the trust guard, including literal percent signs.

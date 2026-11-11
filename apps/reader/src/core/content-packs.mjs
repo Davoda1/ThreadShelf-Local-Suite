@@ -61,9 +61,10 @@ export function* contentObjects(ref) {
 }
 
 export class ContentStore {
-  constructor({ directory, compression = '7z', cacheBytes = DEFAULT_CONTENT_CACHE_BYTES, blockBytes = CONTENT_BLOCK_BYTES } = {}) {
+  constructor({ directory, compression = '7z', cacheBytes = DEFAULT_CONTENT_CACHE_BYTES, blockBytes = CONTENT_BLOCK_BYTES, stagingDirectory } = {}) {
     if (!directory) throw new TypeError('ContentStore requires a durable content directory.');
     this.directory = resolve(directory); this.compression = normalizeProfile(compression);
+    this.stagingDirectory = stagingDirectory ? resolve(stagingDirectory) : null;
     this.blockBytes = Math.min(CONTENT_BLOCK_BYTES, Math.max(1024, Math.trunc(Number(blockBytes)) || CONTENT_BLOCK_BYTES));
     this.budget = Math.min(1024 * 1024 * 1024, Math.max(0, Math.trunc(Number(cacheBytes)) || 0));
     this.cache = new Map(); this.cachedBytes = 0; this.peakBytes = 0; this.reads = 0; this.hits = 0; this.decodedBytes = 0;
@@ -104,13 +105,13 @@ export class ContentStore {
     if (bytes.length > this.blockBytes) throw new RangeError('Local content block exceeds the bounded object size.');
     this._directory();
     const codec = normalizeProfile(profile), sha256 = hash(bytes);
-    const encoded = encodeBuffer(bytes, codec, { maxBytes: CONTENT_BLOCK_BYTES });
+    const encoded = encodeBuffer(bytes, codec, { maxBytes: CONTENT_BLOCK_BYTES, ...(this.stagingDirectory ? { tempDir: this.stagingDirectory } : {}) });
     const packedSha256 = hash(encoded), file = `${sha256}.${packedSha256}.${codec === '7z' ? '7z' : 'zip'}`, destination = join(this.directory, file);
     const object = validateObject({ file, codec, sha256, bytes: bytes.length, packedSha256, packedBytes: encoded.length });
     // Both identities belong in the filename. Different upstream builds may
     // encode the same logical bytes differently; neither representation may
     // overwrite another generation's committed checksum.
-    const checked = decodeBuffer(encoded, codec, { maxBytes: CONTENT_BLOCK_BYTES, expectedBytes: bytes.length });
+    const checked = decodeBuffer(encoded, codec, { maxBytes: CONTENT_BLOCK_BYTES, expectedBytes: bytes.length, ...(this.stagingDirectory ? { tempDir: this.stagingDirectory } : {}) });
     if (hash(checked) !== sha256) throw new Error('New Local content object failed verification.');
     let existing;
     try { existing = lstatSync(destination); } catch (error) { if (error.code !== 'ENOENT') throw error; }
@@ -119,7 +120,7 @@ export class ContentStore {
       if (hash(readFileSync(destination)) !== packedSha256) throw new Error('An existing Local content object is corrupt; original data was preserved.');
       return object;
     }
-    const temporary = join(this.directory, `${file}.${randomUUID()}.part`);
+    const temporary = join(this.stagingDirectory || this.directory, `${file}.${randomUUID()}.part`);
     let fd;
     try {
       fd = openSync(temporary, 'wx', 0o600);
@@ -139,7 +140,7 @@ export class ContentStore {
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size !== object.packedBytes) throw new Error('Local content object is missing, unsafe, or has an unexpected size.');
     const encoded = readFileSync(filename);
     if (hash(encoded) !== object.packedSha256) throw new Error('Local compressed content checksum does not match the catalog.');
-    const decoded = decodeBuffer(encoded, object.codec, { maxBytes: CONTENT_BLOCK_BYTES, expectedBytes: object.bytes });
+    const decoded = decodeBuffer(encoded, object.codec, { maxBytes: CONTENT_BLOCK_BYTES, expectedBytes: object.bytes, ...(this.stagingDirectory ? { tempDir: this.stagingDirectory } : {}) });
     if (decoded.length !== object.bytes || hash(decoded) !== object.sha256) throw new Error('Local expanded content checksum does not match the catalog.');
     this.reads++; this.decodedBytes += decoded.length;
     if (!bypassCache) this._remember(key, decoded);

@@ -6,6 +6,7 @@ import './safe-html.css';
 import { SAFE_HTML_TAGS, renderSafeHtml, safeHtmlAttribute } from './safe-html.js';
 import { createVeniceCitationExtension } from './venice-citations.js';
 import SvgPreview from './svg-preview.cjs';
+import { applyCodeBlockPresentation } from './code-presentation.js';
 import { validHtmlPreview, HTML_PREVIEW_LANGUAGES } from './html-preview-validation.mjs';
 import { HtmlPreviewClient } from './html-preview-client.js';
 import { mountChartInteractions, dismissChartInteractions } from './rich-chart-interactions.js';
@@ -211,7 +212,7 @@ function sanitizeRenderedHtml(html) {
   return template.innerHTML;
 }
 
-function addCodeBlockControls(container, refreshLayout) {
+function addCodeBlockControls(container, refreshLayout, presentation) {
   container.querySelectorAll('pre').forEach((pre) => {
     if (pre.classList.contains('has-code-controls')) return;
     const code = Array.from(pre.children).find((child) => child.tagName?.toLowerCase() === 'code') || pre.querySelector('code');
@@ -285,10 +286,11 @@ function addCodeBlockControls(container, refreshLayout) {
     }
     pre.insertBefore(titlebar, pre.firstChild);
     pre.classList.add('has-code-controls');
+    applyCodeBlockPresentation(pre, presentation);
   });
 }
 
-function upgradeMermaidBlocks(container) {
+function upgradeMermaidBlocks(container, presentation) {
   const blocks = [];
 
   container.querySelectorAll('pre.language-mermaid').forEach((pre) => {
@@ -297,6 +299,7 @@ function upgradeMermaidBlocks(container) {
 
     const figure = document.createElement('figure');
     figure.className = 'mermaid-block';
+    figure.codePresentation = presentation;
     figure.dataset.mermaidState = 'pending';
     figure.mermaidSource = code.textContent || '';
     figure.mermaidRepairSource = '';
@@ -460,9 +463,11 @@ function showMermaidError(block, error, source = block?.mermaidSource || '', { r
 
   const code = document.createElement('code');
   code.className = 'language-mermaid';
+  code.dataset.originalCode = source;
   code.textContent = source;
 
   sourceElement.appendChild(code);
+  applyCodeBlockPresentation(sourceElement, block.codePresentation);
   diagram.replaceChildren(message, sourceElement);
   diagram.removeAttribute('aria-busy');
   block.dataset.mermaidState = repairAvailable ? 'original-error' : 'error';
@@ -568,6 +573,7 @@ export class ConversationRenderer {
     this.htmlPreviews = new HtmlPreviewClient(container);
     this.disposeChartInteractions = mountChartInteractions(container);
     this.currentQuery = '';
+    this.codePresentation = { codeWrap: false, codeLineNumbers: false };
     this.conversationKey = '';
     this.imageRenderPending = false;
     this.compactMessagesEnabled = true;
@@ -617,6 +623,10 @@ export class ConversationRenderer {
     this.imageRenderPending = true;
     this.conversationKey = nextKey;
     this.messageExpansionState.clear();
+  }
+
+  setCodePresentation({ codeWrap = false, codeLineNumbers = false } = {}) {
+    this.codePresentation = { codeWrap: codeWrap === true, codeLineNumbers: codeLineNumbers === true };
   }
 
   setCompactMessagesEnabled(enabled, { animate = true } = {}) {
@@ -684,8 +694,8 @@ export class ConversationRenderer {
     }
 
     this.contentContainer.replaceChildren(fragment);
-    const mermaidBlocks = upgradeMermaidBlocks(this.contentContainer);
-    addCodeBlockControls(this.contentContainer, () => this.refreshCollapsibleMessages({ animate: false }));
+    const mermaidBlocks = upgradeMermaidBlocks(this.contentContainer, this.codePresentation);
+    addCodeBlockControls(this.contentContainer, () => this.refreshCollapsibleMessages({ animate: false }), this.codePresentation);
     this.refreshCollapsibleMessages({ animate: false });
     this.contentContainer.querySelectorAll('.message[data-collapse-kind] .message-content').forEach((content) => {
       this.messageResizeObserver?.observe(content);

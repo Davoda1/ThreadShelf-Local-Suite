@@ -8,6 +8,7 @@ import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 const {_electron}=await import(testModuleSpecifier(process.env.THREADSHELF_PLAYWRIGHT_MODULE||'playwright'));
 import {ApplicationService} from '../src/core/service.mjs';
+import {prepareLegacyUpsert} from './helpers/legacy-archive.mjs';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const temp=await fs.mkdtemp(path.join(os.tmpdir(),'reader-dedup-ui-')),dataDir=path.join(temp,'profile');
 const evidence=process.env.READER_EVIDENCE||path.join(temp,'evidence');await fs.mkdir(evidence,{recursive:true});
@@ -15,9 +16,9 @@ const service=await new ApplicationService({dataDir}).init();
 await service.handle('settings.save',{values:{mode:'local',language:'en',theme:'light',animations:false,localCollection:'all'}});
 for(let index=0;index<30;index++)for(const long of [false,true]){
  const id=`history-${index}-${long?'long':'short'}`,title=`History ${String(index).padStart(2,'0')}`;
- await service.commitMutation(service.store.prepareUpsert({provider:'venice',collection:'Synthetic archive',conversationKey:id,sourceFile:id+'.json',title,turns:[{user:'Shared prompt '+index,turn_index:0},{ai:'Shared answer '+index,model:'Example model',turn_index:1},...(long?[{user:'Continuation '+index,turn_index:2},{ai:'The continued answer '+index,model:'Example model',turn_index:3}]:[])]}));
+ await service.commitMutation(prepareLegacyUpsert(service.store,{provider:'venice',collection:'Synthetic archive',conversationKey:id,sourceFile:id+'.json',title,turns:[{user:'Shared prompt '+index,turn_index:0},{ai:'Shared answer '+index,model:'Example model',turn_index:1},...(long?[{user:'Continuation '+index,turn_index:2},{ai:'The continued answer '+index,model:'Example model',turn_index:3}]:[])]}));
 }
-await service.commitMutation(service.store.prepareUpsert({provider:'venice',collection:'Synthetic archive',conversationKey:'single',sourceFile:'single.json',title:'Unanswered optional prompt',turns:[{user:'Keep this unless selected for cleanup',turn_index:0}]}));
+await service.commitMutation(prepareLegacyUpsert(service.store,{provider:'venice',collection:'Synthetic archive',conversationKey:'single',sourceFile:'single.json',title:'Unanswered optional prompt',turns:[{user:'Keep this unless selected for cleanup',turn_index:0}]}));
 await service.handle('shutdown');
 const harness=path.join(temp,'harness');await fs.mkdir(harness);await fs.writeFile(path.join(harness,'package.json'),JSON.stringify({name:'deduplication-browser-test',version:'1.0.0',main:'main.cjs'}));
 await fs.writeFile(path.join(harness,'main.cjs'),`const {app}=require('electron');${process.env.READER_TEST_SOCKETLESS==='1'?'app.requestSingleInstanceLock=()=>true;':''}require(${JSON.stringify(path.join(root,'src/desktop/main.cjs'))});`);

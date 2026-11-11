@@ -1,49 +1,154 @@
 (function(){
 'use strict';
-const tr=value=>value;
+const tr = value => value;
 /** Desktop-only coordinator: untrusted HTML never enters this renderer's DOM. */
 class HtmlPreviewClient {
   constructor(container) {
-    this.container=container;this.active=new Map();this.external=true;this.pending=false;this.dead=false;
-    this.schedule=()=>{if(!this.active.size)return;if(!this.pending&&!this.dead){this.pending=true;requestAnimationFrame(()=>{this.pending=false;this.update();});}};
-    window.addEventListener('resize',this.schedule);
-    document.addEventListener('scroll',this.schedule,true);
-    this.observer=new MutationObserver(this.schedule);this.observer.observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style','hidden','open']});
-    this.unsubscribe=window.alternative?.onHtmlPreviewEvent?.(event=>{const item=this.active.get(event.id);if(!item)return;if(event.state==='error'){item.notice=event.message;this.close(item.pre,event.message);}else if(event.state==='closed')this.close(item.pre);});
+    this.container = container;
+    this.active = new Map();
+    this.external = true;
+    this.pending = false;
+    this.dead = false;
+    this.schedule = () => {
+      if (!this.active.size || this.pending || this.dead) return;
+      this.pending = true;
+      requestAnimationFrame(() => {
+        this.pending = false;
+        this.update();
+        // Compositor scrolling can advance before a scroll event is delivered.
+        // Track every active frame; the geometry cache skips unchanged IPC.
+        this.schedule();
+      });
+    };
+    // Scroll events arrive before paint. Native placement must follow them now;
+    // deferring another frame leaves the separate surface over old content.
+    this.onScroll = () => this.update();
+    window.addEventListener('resize', this.schedule);
+    document.addEventListener('scroll', this.onScroll, true);
+    this.observer = new MutationObserver(this.schedule);
+    this.observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['class', 'style', 'hidden', 'open'] });
+    this.resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(this.schedule) : null;
+    this.resizeObserver?.observe(container);
+    this.unsubscribe = window.alternative?.onHtmlPreviewEvent?.(event => {
+      const item = this.active.get(event.id);
+      if (!item) return;
+      if (event.state === 'error') this.close(item.pre, event.message);
+      else if (event.state === 'closed') this.close(item.pre);
+      else if (event.state === 'ready') { item.node.textContent = ''; item.last = null; this.schedule(); }
+    });
   }
-  setExternalResources(enabled){const value=enabled!==false;if(value!==this.external){this.external=value;this.closeAll();}}
+  setExternalResources(enabled) {
+    const value = enabled !== false;
+    if (value !== this.external) { this.external = value; this.closeAll(); }
+  }
   geometry(node) {
-    let area={left:0,top:0,right:innerWidth,bottom:innerHeight};
-    for(let ancestor=node.parentElement;ancestor;ancestor=ancestor.parentElement){const style=getComputedStyle(ancestor);if(/(?:auto|scroll|hidden|clip)/.test(style.overflow+style.overflowX+style.overflowY)){const r=ancestor.getBoundingClientRect();area={left:Math.max(area.left,r.left),top:Math.max(area.top,r.top),right:Math.min(area.right,r.right),bottom:Math.min(area.bottom,r.bottom)};}}
-    const rect=node.getBoundingClientRect(),fits=rect.left>=area.left-1&&rect.top>=area.top-1&&rect.right<=area.right+1&&rect.bottom<=area.bottom+1&&rect.width>1&&rect.height>1;
-    const points=[[rect.left+3,rect.top+3],[rect.right-3,rect.top+3],[rect.left+3,rect.bottom-3],[rect.right-3,rect.bottom-3],[rect.left+rect.width/2,rect.top+rect.height/2]];
-    const uncovered=fits&&points.every(([x,y])=>{const hit=document.elementFromPoint(x,y);return hit&&(hit===node||node.contains(hit));});
-    return {bounds:{x:Math.max(0,Math.round(rect.left)),y:Math.max(0,Math.round(rect.top)),width:Math.max(1,Math.round(rect.width)),height:Math.max(1,Math.round(rect.height))},visible:uncovered,area};
+    // The document retains its complete 16:9 viewport. Only its visible part is
+    // placed above the reader, so scrolling never paints over adjacent UI.
+    const rect = node.getBoundingClientRect();
+    let area = { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+    for (let ancestor = node.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      const style = getComputedStyle(ancestor), box = ancestor.getBoundingClientRect();
+      if (/(?:auto|scroll|hidden|clip)/.test(style.overflowX || style.overflow)) {
+        const left = box.left + ancestor.clientLeft;
+        area.left = Math.max(area.left, left);
+        area.right = Math.min(area.right, left + ancestor.clientWidth);
+      }
+      if (/(?:auto|scroll|hidden|clip)/.test(style.overflowY || style.overflow)) {
+        const top = box.top + ancestor.clientTop;
+        area.top = Math.max(area.top, top);
+        area.bottom = Math.min(area.bottom, top + ancestor.clientHeight);
+      }
+    }
+    const fullX = Math.round(rect.left), fullY = Math.round(rect.top);
+    const width = Math.max(1, Math.round(rect.width)), height = Math.max(1, Math.round(rect.height));
+    const left = Math.max(0, fullX, Math.ceil(Math.max(rect.left, area.left)));
+    const top = Math.max(0, fullY, Math.ceil(Math.max(rect.top, area.top)));
+    const right = Math.min(innerWidth, fullX + width, Math.floor(Math.min(rect.right, area.right)));
+    const bottom = Math.min(innerHeight, fullY + height, Math.floor(Math.min(rect.bottom, area.bottom)));
+    const intersects = right > left && bottom > top && rect.width > 1 && rect.height > 1;
+    const insetX = Math.min(2, (right - left) / 4), insetY = Math.min(2, (bottom - top) / 4);
+    const points = [[left + insetX, top + insetY], [right - insetX, top + insetY],
+      [left + insetX, bottom - insetY], [right - insetX, bottom - insetY], [(left + right) / 2, (top + bottom) / 2]];
+    const visible = intersects && points.every(([x, y]) => {
+      const hit = document.elementFromPoint(x, y);
+      return hit && (hit === node || node.contains(hit));
+    });
+    return {
+      bounds: intersects ? { x: left, y: top, width: right - left, height: bottom - top } : { x: 0, y: 0, width: 1, height: 1 },
+      viewport: { width, height, offsetX: intersects ? left - fullX : 0, offsetY: intersects ? top - fullY : 0 },
+      visible,
+    };
   }
-  size(node){let available=Math.min(innerHeight-160,this.container.clientHeight-100);for(let ancestor=this.container.parentElement;ancestor;ancestor=ancestor.parentElement){const style=getComputedStyle(ancestor);if(/(?:auto|scroll)/.test(style.overflowY)){available=Math.min(available,ancestor.clientHeight-100);break;}}const height=Math.max(100,Math.min(320,available))+'px';if(node.style.height!==height)node.style.height=height;}
   async toggle(pre) {
-    const existing=[...this.active.values()].find(item=>item.pre===pre);if(existing){this.close(pre);return;}
-    const code=pre.querySelector('code'),node=pre.querySelector('.tsa-html-preview'),toggle=pre.querySelector('[data-toggle-html]');if(!code||!node||!toggle)return;
-    if(!window.alternative?.htmlPreview){node.hidden=false;node.textContent=tr('HTML previews are available in the desktop application.');return;}
-    const id='html-'+crypto.randomUUID(),item={id,pre,node,code,toggle};this.active.set(id,item);
-    node.textContent=tr('Scroll the preview fully into view.');node.hidden=false;code.hidden=true;code.parentElement.hidden=true;toggle.textContent=tr('Code');toggle.setAttribute('aria-pressed','true');
-    this.size(node);node.scrollIntoView({block:'center',inline:'nearest'});
+    const existing = [...this.active.values()].find(item => item.pre === pre);
+    if (existing) { this.close(pre); return; }
+    const code = pre.querySelector('code'), node = pre.querySelector('.tsa-html-preview'), toggle = pre.querySelector('[data-toggle-html]');
+    if (!code || !node || !toggle) return;
+    if (!window.alternative?.htmlPreview) { node.hidden = false; node.textContent = tr('HTML previews are available in the desktop application.'); return; }
+    const id = 'html-' + crypto.randomUUID(), item = { id, pre, node, code, toggle, opened: false };
+    this.active.set(id, item);
+    delete node.dataset.previewError;
+    node.textContent = '';
+    node.hidden = false;
+    code.hidden = true;
+    code.parentElement.hidden = true;
+    toggle.textContent = tr('Code');
+    toggle.setAttribute('aria-pressed', 'true');
+    this.resizeObserver?.observe(node);
+    pre.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     try {
-      const geometry=this.geometry(node);
-      await window.alternative.htmlPreview('html.preview.open',{id,source:code.dataset.originalCode??code.textContent??'',language:pre.dataset.htmlFence||'',external:this.external,...geometry});
-      if(!this.active.has(id)||this.dead){await window.alternative.htmlPreview('html.preview.close',{id});return;}
+      const geometry = this.geometry(node);
+      await window.alternative.htmlPreview('html.preview.open', { id, source: code.dataset.originalCode ?? code.textContent ?? '', language: pre.dataset.htmlFence || '', external: this.external, ...geometry });
+      if (!this.active.has(id) || this.dead) { await window.alternative.htmlPreview('html.preview.close', { id }); return; }
+      // Opening crosses asynchronous native work. Recompute after it completes;
+      // an earlier update must not cache geometry before the view exists.
+      item.opened = true;
+      item.last = null;
       this.schedule();
-    }catch(error){this.close(pre,String(error?.message||error));}
+    } catch (error) { this.close(pre, String(error?.message || error)); }
   }
-  update(){for(const item of this.active.values()){if(!item.pre.isConnected){this.close(item.pre);continue;}this.size(item.node);const value=this.geometry(item.node),key=JSON.stringify(value);if(item.last===key)continue;item.last=key;void window.alternative.htmlPreview('html.preview.update',{id:item.id,...value}).catch(()=>this.close(item.pre));}}
-  close(pre,message='') {
-    const item=[...this.active.values()].find(item=>item.pre===pre);if(!item)return;this.active.delete(item.id);
-    item.code.hidden=false;item.code.parentElement.hidden=false;item.node.hidden=!message;item.node.textContent=message;item.toggle.textContent=tr('Render');item.toggle.setAttribute('aria-pressed','false');
-    void window.alternative?.htmlPreview('html.preview.close',{id:item.id}).catch(()=>{});
+  update() {
+    for (const item of this.active.values()) {
+      if (!item.pre.isConnected) { this.close(item.pre); continue; }
+      if (!item.opened) continue;
+      const value = this.geometry(item.node), key = JSON.stringify(value);
+      if (item.last === key) continue;
+      item.last = key;
+      void window.alternative.htmlPreview('html.preview.update', { id: item.id, ...value }).then(result => {
+        if (result?.ok === false && this.active.get(item.id) === item) this.close(item.pre);
+      }).catch(() => this.close(item.pre));
+    }
   }
-  closeAll(){for(const item of [...this.active.values()])this.close(item.pre);void window.alternative?.htmlPreview('html.preview.closeAll').catch(()=>{});}
-  destroy(){this.dead=true;this.closeAll();this.observer.disconnect();window.removeEventListener('resize',this.schedule);document.removeEventListener('scroll',this.schedule,true);this.unsubscribe?.();}
+  close(pre, message = '') {
+    const item = [...this.active.values()].find(item => item.pre === pre);
+    if (!item) return;
+    this.active.delete(item.id);
+    this.resizeObserver?.unobserve(item.node);
+    item.code.hidden = false;
+    item.code.parentElement.hidden = false;
+    item.node.hidden = !message;
+    item.node.textContent = message;
+    item.node.style.height = '';
+    if (message) item.node.dataset.previewError = 'true';
+    else delete item.node.dataset.previewError;
+    item.toggle.textContent = tr('Render');
+    item.toggle.setAttribute('aria-pressed', 'false');
+    void window.alternative?.htmlPreview('html.preview.close', { id: item.id }).catch(() => {});
+  }
+  closeAll() {
+    for (const item of [...this.active.values()]) this.close(item.pre);
+    void window.alternative?.htmlPreview('html.preview.closeAll').catch(() => {});
+  }
+  destroy() {
+    this.dead = true;
+    this.closeAll();
+    this.observer.disconnect();
+    this.resizeObserver?.disconnect();
+    window.removeEventListener('resize', this.schedule);
+    document.removeEventListener('scroll', this.onScroll, true);
+    this.unsubscribe?.();
+  }
 }
 
-window.TSAHtmlPreviewClient=HtmlPreviewClient;
+window.TSAHtmlPreviewClient = HtmlPreviewClient;
 })();

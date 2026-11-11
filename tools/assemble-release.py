@@ -231,6 +231,59 @@ def collect_inputs(artifacts, version, commit):
                        for key in ('nativeStarts', 'nativeUploadChanges'))
                 or any(report.get(key) != [] for key in ('captureRequests', 'crashFilesBefore', 'crashFilesAfter'))):
             raise ValueError(f'{name}: successful native crash-reporting privacy checks are required.')
+    if tuple(map(int, version.split('.'))) >= (1, 4, 5):
+        name = 'reader-linux-deduplication-review.json'
+        report = all_records.get(name, {})
+        if (report.get('passed') is not True or report.get('chromiumSandboxEnabled') is not True
+                or report.get('socketlessHarness') is not False or report.get('pageErrors') != []
+                or not isinstance(report.get('checks'), list) or len(report['checks']) < 8
+                or not isinstance(report.get('geometry'), list) or len(report['geometry']) < 42):
+            raise ValueError(f'{name}: successful native cleanup review lifecycle and layouts are required.')
+        # These are native source-harness checks in addition to the independent
+        # packaged GUI, speech, privacy and isolation evidence required above.
+        for _, platform in PLATFORMS:
+            name = f'reader-{platform}-code-options.json'
+            report = all_records.get(name, {})
+            required = ('passed', 'chromiumSandboxEnabled', 'nativeClipboardExact',
+                        'blockCopyExact', 'messageCopyExact', 'wrapFits', 'logicalLineNumbers',
+                        'mermaidSourceRestored', 'largeBlockCapped', 'defaultsOff')
+            gutters = report.get('renderGutterIsolation')
+            if (any(report.get(key) is not True for key in required)
+                    or type(report.get('checks')) is not int or report['checks'] < 4
+                    or type(report.get('optionCombinations')) is not int or report['optionCombinations'] != 4
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0
+                    or not isinstance(gutters, dict) or set(gutters) != {'html', 'svg', 'mermaid'}
+                    or any(value is not True for value in gutters.values())):
+                raise ValueError(f'{name}: successful native code presentation is required.')
+            name = f'alternative-{platform}-code-options.json'
+            report = all_records.get(name, {})
+            required = ('passed', 'productionApplication', 'chromiumSandboxEnabled',
+                        'singleInstanceLockUnmodified', 'wrapping', 'lineNumbers',
+                        'renderGuttersAbsent', 'copyUnchanged', 'exportUnchanged', 'persistence',
+                        'defaultsOff', 'largeBlockLimit')
+            if (any(report.get(key) is not True for key in required)
+                    or type(report.get('combinations')) is not int or report['combinations'] != 4
+                    or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                raise ValueError(f'{name}: successful native code presentation is required.')
+            for app, suffix in (('reader', 'html-preview-ui'), ('alternative', 'html-preview')):
+                name = f'{app}-{platform}-{suffix}.json'
+                report = all_records.get(name, {})
+                if any(report.get(key) is not True for key in
+                       ('initialPlacement', 'fullWidth16by9', 'scrollContained')):
+                    raise ValueError(f'{name}: successful initial and scrolling HTML geometry is required.')
+                if app == 'alternative' and any(report.get(key) is not True for key in
+                                                ('transparentLoading', 'errorCodeRestored', 'htmlOnlySpacing')):
+                    raise ValueError(f'{name}: transparent loading and failed-preview source restoration are required.')
+            for app, minimum in (('reader', 32), ('alternative', 64)):
+                name = f'{app}-{platform}-html-margin-scope.json'
+                report = all_records.get(name, {})
+                required = ('passed', 'chromiumSandboxEnabled', 'htmlOnlySpacing')
+                if app == 'alternative':
+                    required += ('productionApplication', 'singleInstanceLockUnmodified')
+                if (any(report.get(key) is not True for key in required)
+                        or type(report.get('checks')) is not int or report['checks'] < minimum
+                        or type(report.get('pageErrors')) is not int or report['pageErrors'] != 0):
+                    raise ValueError(f'{name}: successful paired HTML spacing comparisons are required.')
     return assets, evidence, summaries
 
 
@@ -260,6 +313,7 @@ def release_title(version):
         '1.4.2': ' — SVG previews and upstream 1.4.1 search patch',
         '1.4.3': ' — Grok and ChatGPT rendering improvements',
         '1.4.4': ' — Isolated HTML previews and duplicate cleanup',
+        '1.4.5': ' — Faster archive merging and improved code previews',
     }.get(version, '')
     return f'ThreadShelf Local Suite {version}{suffix}'
 
@@ -336,10 +390,19 @@ def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     source_update = (f'- [Runtime source update]({base}/v{version}/ThreadShelf-Local-Suite-{version}-Runtime-Source-Update.tar.gz): verified changed runtime sources and an offline updater, used with all six original [v1.3.0 runtime source parts and matching metadata](https://github.com/{repository}/releases/tag/v1.3.0). Assemble the historical base without applying its old Electron patches, then follow the update instructions.\n'
                      if tuple(map(int, version.split('.'))) >= (1, 4, 3) else '')
-    manual_scope = ('The offline manual includes the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance.'
+    manual_scope = ('The offline manual includes the 1.4.5 cleanup, code presentation and preview controls; existing screenshots retain their original provenance.'
+                    if tuple(map(int, version.split('.'))) >= (1, 4, 5)
+                    else 'The offline manual includes the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance.'
                     if tuple(map(int, version.split('.'))) >= (1, 4, 4)
                     else 'The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.')
-    if tuple(map(int, version.split('.'))) >= (1, 4, 4):
+    if tuple(map(int, version.split('.'))) >= (1, 4, 5):
+        improvements = f'''- Merge and deduplicate Reader imports and server copies as they are processed, with bounded worker concurrency and visible progress. Within a collection, reliable providers match by provider and conversation ID; distinct IDs remain separate even when titles or prompts match. VeniceAI uses content-aware matching because its IDs are unreliable. Identical records and supported shorter histories consolidate into the complete survivor while saved references follow it.
+- Correct Grok single-unanswered-prompt cleanup, clarify the separate option for providers that are not Grok, and improve cleanup progress, review reopening and size alignment.
+- Keep complete HTML previews inside their code block during initial display, resizing, zooming and scrolling. The preview uses the available width at a 16:9 aspect ratio without an extra HTML frame or margin, and loading stays transparent. Failed previews restore Code mode.
+- Add optional **Wrap long code lines** and **Show code line numbers** preferences under Reading, both disabled by default. Line numbers are display-only and appear only in Code mode; HTML, SVG, Mermaid and chart rendering retain their own layout. Copying and export retain the original source.
+- Retain isolated, temporary native HTML previews with Chromium sandboxing, no Node.js or application APIs, and the existing guarded public-HTTPS resource policy. Code is selected initially; preview resources remain controlled by the existing external-resource preference.
+- Preserve public application identities, profile locations, image-request isolation and archive formats. Analytics is rebuilt at **{version}** without application-functionality or dependency changes; all three applications retain the existing pinned runtime and toolchain.'''
+    elif tuple(map(int, version.split('.'))) >= (1, 4, 4):
         improvements = f'''- Render bounded inline HTML/CSS formatting in ordinary conversation text and theme-aware VeniceAI `^1^` citation badges. Code, math, original message copying and existing Grok/ChatGPT rendering retain their source-preserving behavior.
 - Preview eligible complete HTML5 code blocks in a separate temporary, sandboxed native view. Code is selected initially; Render permits embedded page JavaScript only inside that isolated preview, without Node.js or application APIs. Copy and download retain the original source.
 - Add a Reading preference for external HTML-preview resources, enabled by default. A guarded public-HTTPS path rejects local/private destinations and unsupported protocols. Disabling it tears down active previews and blocks further external requests. Permission requests, popups, downloads and automatic navigation remain restricted.
@@ -403,6 +466,10 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
                      if source_update else '')
     preview_report = ('\nNative HTML preview isolation is exercised on Windows and Linux for Reader and Alternative. Reader also runs preview-control layout checks on both hosts. Linux inline-formatting checks require four light/dark and narrow/wide views without network requests or page errors. Reader duplicate-cleanup checks use its actual native application and synthetic archive, cover confirmation and selected cleanup, and inspect at least 80 settings/review layouts across the supported locales. Alternative native Linux crash-reporting checks require no native reporter startup, upload-setting changes, captured requests or crash files. These focused native source harnesses use the same hash-verified Electron runtime as the packages; packaged GUI execution remains a separate required gate.\n'
                       if tuple(map(int, version.split('.'))) >= (1, 4, 4) else '')
+    if tuple(map(int, version.split('.'))) >= (1, 4, 5):
+        preview_report += '\nBoth native hosts additionally require all four code-presentation preference combinations, source-only copying, logical line numbers, wrapping and absence of gutters in rendered HTML/SVG/Mermaid. Alternative also exercises production export and preference persistence across restart. Initial placement, full-width 16:9 sizing and containment while scrolling must pass for both applications. Paired spacing comparisons cover at least 32 Reader and 64 Alternative layouts per host, including code, SVG, Mermaid and charts. The Linux Reader cleanup-review lifecycle harness requires eight checks and 42 geometry observations across all five locales and both themes, covering progress, close/reopen, cancellation, size alignment and completion warnings. These source harnesses supplement the separate unchanged-package GUI and speech gates; they do not replace them.\n'
+    legacy_report = ('If the original v1.4.4 Linux host capture contains native diagnostics, only its exact reviewed hash is accepted. The evidence ZIP includes the clean report, the byte-for-byte original under `raw-output/`, and a recovery receipt binding both hashes to the tagged commit. Every application, security and package-integrity gate still applies.\n'
+                     if (version, commit) == LEGACY_HOST_CAPTURE[:2] else '')
     report = f'''# ThreadShelf Local Suite {version} verification
 
 Tag: `{tag}`
@@ -418,8 +485,7 @@ This report is generated only after all six package jobs complete successfully. 
 {rows}
 
 The evidence ZIP contains each original validator, native GUI and publication ledger JSON; Reader additionally includes its packaged-storage checks. Reader and Alternative execute their packaged CPU speech module and bundled workers for buffered and streaming inference on each native host. Package jobs run the source tests, build steps and native validators. The Linux Reader and Alternative jobs also run the focused MathJax/file-citation and Grok/ChatGPT compatibility browser checks before publication. The new compatibility gates require four successful layout/theme views per suite, with no unsolicited requests or page errors. HTML previews are generated from the tagged application sources; they are demonstrations with synthetic data, not substitutes for native tests.
-If the original v1.4.4 Linux host capture contains native diagnostics, only its exact reviewed hash is accepted. The evidence ZIP includes the clean report, the byte-for-byte original under `raw-output/`, and a recovery receipt binding both hashes to the tagged commit. Every application, security and package-integrity gate still applies.
-{preview_report}
+{legacy_report}{preview_report}
 
 The independent Checks workflow has its own status and is not asserted successful by this report. The local implementation review is [recorded at the tag](https://github.com/{repository}/blob/{tag}/maintainer/REVIEW-{version}.md).
 

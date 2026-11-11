@@ -22,6 +22,8 @@ Find acts on visible/available rendered content in the current thread; it does n
 
 Code blocks use offline syntax highlighting with VS Code Light+ or Dark+ colors following the application appearance. Each code block can be copied independently. Highlighting decorates the original text; it does not execute code or correct the program.
 
+**Settings → Reading & appearance → Wrap long code lines** and **Show code line numbers** are independent and start disabled. Wrapping fits long code to the block width; numbers identify logical source lines, including blank lines. Wrapped continuations keep the same source line number. Numbers are display-only and appear only in Code view: HTML, SVG, Mermaid and chart Render views have no gutter. Copying and export preserve the source without numbers or inserted wrapping.
+
 Supported mathematical notation renders locally with the bundled MathJax 4 assets. Mermaid diagrams render from their retained source. If a diagram has a common supported formatting defect, deterministic repair candidates may make it render. The interface identifies a repaired diagram and allows inspection of original/repaired source. Ordinary copying and Markdown export preserve the archived source; **Copy repaired** is a separate, deliberate action.
 
 Not every invalid diagram can be repaired. A readable source/error fallback is preferable to silently inventing a different diagram. Inspect the source if the display does not represent what you expected.
@@ -39,6 +41,8 @@ Useful JSON-only assistant and reasoning responses render as formatted, syntax-h
 Ordinary prompts and responses can show safe inline HTML formatting, including `<mark>` and spans with bounded text/background colors. Scripts, event handlers, URL-bearing CSS and styles that affect the application are rejected. Numeric VeniceAI markers such as `^1^` appear as small theme-aware badges; they do not invent a source URL. Code and mathematical expressions remain protected.
 
 Complete HTML5 documents in unlabelled, `unknown`, `html`, `htm` or `html5` code blocks can offer **Code / Render**. The page must include its doctype and explicit html, head and body structure. Fragments, malformed or multiple documents, escaped examples and blocks labelled as programming languages stay code. The initial view is Code. Copy and download always use the original source; standalone SVG keeps its separate image-only preview.
+
+The HTML viewport fills the code block’s interior width at a responsive 16:9 ratio, without an added frame or margin. Its native surface remains clipped to the reading pane on initial display and during zoom, resizing and scrolling. Loading is transparent against the existing block background; failures show an error and leave source inspection available. Code and other render layouts keep their own dimensions.
 
 Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
 

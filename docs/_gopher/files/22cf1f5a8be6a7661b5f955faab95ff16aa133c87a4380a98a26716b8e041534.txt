@@ -17,7 +17,7 @@ The desktop picker accepts supported JSON, HTML, ZIP archives and extracted fold
 7. Open representative conversations from each provider. Check title, turn order, code, thinking, dates and any attachment metadata you rely on.
 8. Keep the original exports and create a Local backup.
 
-Reader recognizes repeated imports instead of multiplying identical conversations. An updated source can update an existing retained conversation. Different content variants and distinct source identities should not be inferred from title alone. The report is the first place to check what actually changed.
+Reader merges and deduplicates records during import instead of adding a separate cleanup phase at the end. Matching is scoped to the destination collection and follows provider identity rules; matching titles or prompts alone do not combine reliable-provider conversations with different IDs. The completion report is the first place to check what was added, updated, unchanged or removed. See [Duplicate cleanup](../Data/collections.md#duplicate-cleanup) for provider-specific rules and the review of existing Local data.
 
 ## Choosing the starting directory
 
@@ -58,7 +58,7 @@ This operation produces Local conversations without changing the server:
 
 Changing the address after loading the list requires **Load collections** again. The app will not apply a selection taken from one address to another. This is a copy of indexed conversation records through the server API, not a byte-for-byte copy of the server's database or semantic vector store.
 
-Server copies preserve the source identity and available messages, but can have less original provider metadata than native exports. For example, absent original branch information or citation associations cannot be recreated by copying. Local Activity can use retained message dates to estimate a normalized conversation start, while the Local search age filter still requires a genuine source creation date. See [Activity](../Activity/index.md) and [Search](search.md).
+Server copies use the same integrated merging and cleanup rules while the selected records are processed. Server copies preserve the source identity and available messages, but can have less original provider metadata than native exports. For example, absent original branch information or citation associations cannot be recreated by copying. Local Activity can use retained message dates to estimate a normalized conversation start, while the Local search age filter still requires a genuine source creation date. See [Activity](../Activity/index.md) and [Search](search.md).
 
 ## Import does not delete the source
 

@@ -2,7 +2,7 @@
 
 ## Select the right package
 
-Each desktop application is released as **1.4.4** for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for your system. Source archives are for development; an HTML demonstration is not a persistent desktop installation.
+Each desktop application is released as **1.4.5** for Windows x64 and GNU/Linux amd64. The release archive contains three packages per application: Windows portable ZIP, Linux portable TAR.GZ and Debian DEB. Select one format for your system. Source archives are for development; an HTML demonstration is not a persistent desktop installation.
 
 | Application | Windows executable | Linux entry point |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ Use an ordinary desktop account with an X11 or Wayland session and the required 
 Use the graphical package manager, or install the selected package:
 
 ```sh
-sudo apt install ./threadshelf-local-reader_1.4.4_amd64.deb
+sudo apt install ./threadshelf-local-reader_1.4.5_amd64.deb
 ```
 
 Replace `reader` with `analytics` or `alternative` for the other packages. Launch the application from the desktop menu or by running the installed command. The installed command is a regular native executable in `/usr/bin`, not a symlink or launcher script. These desktop packages do not install a server or background daemon.

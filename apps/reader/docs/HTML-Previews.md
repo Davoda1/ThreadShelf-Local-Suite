@@ -1,6 +1,6 @@
 # Conversation styling and isolated HTML previews
 
-Reader and Alternative 1.4.4.
+Reader and Alternative 1.4.5.
 
 ## Conversation text
 
@@ -53,3 +53,20 @@ Switching to Code, leaving the conversation or changing preview network policy
 destroys the page. Rendering again starts fresh; temporary values and script
 state are not retained. The page's own styles remain confined to its preview;
 the surrounding controls use existing application theme tokens.
+
+## Placement and code display
+
+A rendered page fills the code block's available interior width with a 16:9
+viewport. Loading uses a transparent placeholder. Native clipping follows the
+reading pane and code block before and during scrolling, including application
+zoom and partially visible previews. Load failures return a visible explanation
+and the normal code presentation.
+
+Reading preferences can enable **Wrap long code lines** and **Show code line
+numbers**; both start disabled and persist independently of older preference files.
+Line numbers are UI only, appear only with source code, and never enter copying,
+selection text or exports. HTML and SVG Render views, successful Mermaid diagrams
+and charts have no source gutter. Returning to Code restores the chosen display.
+Very large blocks retain their complete source but cap line-number DOM expansion
+and show an explanatory note. HTML preview spacing rules do not change the code,
+SVG, Mermaid or chart layouts.

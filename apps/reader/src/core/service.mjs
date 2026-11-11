@@ -8,12 +8,15 @@ import { ArchiveStore } from './archive.mjs';
 import { SearchService } from './search.mjs';
 import { CompressedStorage } from './storage.mjs';
 import { importPaths } from './importers.mjs';
+import { orderedPrefetch } from './import-pipeline.mjs';
+import { preflightImportSpace } from './import-preflight.mjs';
 import { ThreadShelfClient, ServerSearchPager } from './server.mjs';
 import { ActivityService, activityCSV } from './activity.mjs';
 import { JsonState, DEFAULTS, INTERFACE_DEFAULTS, APPEARANCE_DEFAULTS, LAYOUT_DEFAULTS, READER_APPEARANCE_DEFAULTS, validateSettings, validateCoreSettings, validateInterfaceSettings, validateAppearanceSettings, validateLayoutSettings, validateReaderAppearanceSettings, validateReading, applyReading, normalizeServerUrl } from './state.mjs';
 import { EXTENDED_DEFAULTS, EXTENDED_PREFERENCES_FILE, extendedPreferenceDefaults, validateExtendedPreferences, mergeExtendedPreferences } from './extended-preferences.mjs';
 import { REMOTE_IMAGE_DEFAULTS, REMOTE_IMAGES_FILE, validateRemoteImageSettings } from './remote-images.mjs';
 import { localIdFor, localReadingKey, reconcileLocalReading, replaceLocalReading, localReadingOnly } from './manager-reading.mjs';
+import { CODE_PRESENTATION_DEFAULTS, CODE_PRESENTATION_SETTINGS_FILE, validateCodePresentationSettings } from './code-presentation-settings.mjs';
 import { HTML_PREVIEW_DEFAULTS, HTML_PREVIEW_SETTINGS_FILE, validateHtmlPreviewSettings } from './html-preview-settings.mjs';
 import { DEDUPLICATION_DEFAULTS, DEDUPLICATION_SETTINGS_FILE, validateDeduplicationSettings, validateDeduplicationPreferenceChange } from './deduplication-settings.mjs';
 
@@ -37,6 +40,7 @@ export class ApplicationService {
     // Keep all 3.2 preference files byte-compatible with its strict readers.
     this.readerAppearanceSettings=await new JsonState(this.dataDir,'reader-appearance.json',READER_APPEARANCE_DEFAULTS,validateReaderAppearanceSettings).init();
     this.remoteImageSettings=await new JsonState(this.dataDir,REMOTE_IMAGES_FILE,REMOTE_IMAGE_DEFAULTS,validateRemoteImageSettings).init();
+    this.codePresentationSettings=await new JsonState(this.dataDir,CODE_PRESENTATION_SETTINGS_FILE,CODE_PRESENTATION_DEFAULTS,validateCodePresentationSettings).init();
     this.htmlPreviewSettings=await new JsonState(this.dataDir,HTML_PREVIEW_SETTINGS_FILE,HTML_PREVIEW_DEFAULTS,validateHtmlPreviewSettings).init();
     this.resourceSettings=await new JsonState(this.dataDir,RESOURCE_CACHE_PREFERENCES_FILE,RESOURCE_CACHE_DEFAULTS,validateResourceCacheSettings).init();
     this.deduplicationSettings=await new JsonState(this.dataDir,DEDUPLICATION_SETTINGS_FILE,DEDUPLICATION_DEFAULTS,validateDeduplicationSettings).init();
@@ -197,7 +201,7 @@ export class ApplicationService {
       // Reading state can be newer than the compressed archive snapshot.
       // Persist the redo watermark with its effects, so an old copy operation
       // cannot recreate a bookmark the user subsequently removed.
-      if(mutation.kind==='manage'||Object.keys(result.turnRemap||{}).length){
+      if(mutation.kind==='manage'||Object.keys(result.turnRemap||{}).length||Object.keys(result.remap||{}).length||result.removedIds?.length){
         const epoch=this.storage.epoch,sequence=meta.sequence;
         const mark=this.reading.value._localRecovery;
         if(!(mark?.epoch===epoch&&Number.isSafeInteger(sequence)&&mark.sequence>=sequence))
@@ -215,7 +219,9 @@ export class ApplicationService {
   }
   async commitMutation(mutation,{copyBookmarks=false}={}) {
     if(mutation.baseRevision!==this.store.revision())throw new Error('The local archive changed before this operation could be saved. Refresh and retry.');
-    if(mutation.kind==='upsert'&&mutation.unchanged)return {status:'skipped',summary:mutation.summary};
+    if(mutation.kind==='upsert'&&mutation.unchanged)return {status:'skipped',summary:mutation.summary,changed:false,removedIds:[],remap:{},
+      ...(mutation.deduplication?{deduplication:mutation.deduplication}:{}),
+      ...(mutation.removedPromptOnly?{deduplication:{duplicates:0,promptOnly:mutation.removedPromptOnly,superseded:0,removed:mutation.removedPromptOnly}}:{})};
     const result=await this.storage.commit({kind:'archive',mutation,copyBookmarks},(record,meta)=>this.applyRecord(record,meta));
     this.activity?.invalidate();
     this.lastDurableRevision=this.store.revision();this.sinceCheckpoint++;
@@ -229,8 +235,9 @@ export class ApplicationService {
     const legacyVectors=this.storage.migrationNeeded && await fs.stat(this.storage.vectorPath).catch(()=>null);
     const vectorDb=this.searcher?._db || (legacyVectors?this.storage.vectorPath:undefined);
     const options={archiveDb:this.store.db,vectorDb,reading:localReadingOnly(this.reading.snapshot()),reclaimLegacy};
-    await (compact?this.storage.compact(options):this.storage.checkpoint(options));
+    const result=await (compact?this.storage.compact(options):this.storage.checkpoint(options));
     this.sinceCheckpoint=0;this.lastDurableRevision=this.store.revision();
+    return result;
   }
   async finishClearPurge(){
     await this.closeActivity({discard:true});
@@ -264,13 +271,13 @@ export class ApplicationService {
     this.shutdownTask=(async()=>{
       await Promise.allSettled([...this.inFlight]);await this.mutationQueue;
       this.serverSearch.clear();this.resourceContexts.clear();await this.resourceCache?.close();
-      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.htmlPreviewSettings.queue,this.resourceSettings.queue,this.deduplicationSettings.queue,this.reading.queue]);
+      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.htmlPreviewSettings.queue,this.codePresentationSettings.queue,this.resourceSettings.queue,this.deduplicationSettings.queue,this.reading.queue]);
       // Direct ArchiveStore callers (test/embedding integrations) also receive a
       // durable close. Normal GUI mutations have already been committed.
       try{
         if(this.store&&!this.storage.poisoned&&this.store.revision()!==this.lastDurableRevision)await this.checkpoint(false);
       }finally{try{try{await this.closeActivity();}finally{await this.searcher?.close();}}finally{
-        try{this.store?.close();}finally{
+        try{await this.store?.close();}finally{
           await this.pendingRestore?.dispose?.();await this.storage?.close();
         }
       }}
@@ -284,7 +291,7 @@ export class ApplicationService {
     switch(action) {
       case 'bootstrap': {
         const searchStatus=await this.localStatus();
-        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.4',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.htmlPreviewSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
+        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.5',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.htmlPreviewSettings.notice,this.codePresentationSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
       }
       case 'settings.save': {
         const values=validateSettings(args.values),core=validateCoreSettings(values);
@@ -294,6 +301,7 @@ export class ApplicationService {
         const readerAppearance=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)));
         const extended=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(EXTENDED_DEFAULTS,key)));
         const remoteImages=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(REMOTE_IMAGE_DEFAULTS,key)));
+        const codePresentation=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(CODE_PRESENTATION_DEFAULTS,key)));
         const htmlPreview=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(HTML_PREVIEW_DEFAULTS,key)));
         if(Object.keys(extended).length)await this.extendedSettings.update(s=>mergeExtendedPreferences(s,extended));
         if(Object.keys(core).length)await this.settings.update(s=>({...s,...core}));
@@ -302,8 +310,9 @@ export class ApplicationService {
         if(Object.keys(layout).length)await this.layoutSettings.update(s=>({...s,...layout}));
         if(Object.keys(readerAppearance).length)await this.readerAppearanceSettings.update(s=>({...s,...readerAppearance}));
         if(Object.keys(remoteImages).length)await this.remoteImageSettings.update(s=>({...s,...remoteImages}));
+        if(Object.keys(codePresentation).length)await this.codePresentationSettings.update(s=>({...s,...codePresentation}));
         if(Object.keys(htmlPreview).length)await this.htmlPreviewSettings.update(s=>({...s,...htmlPreview}));
-        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot()};
+        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot()};
       }
       case 'collections':
         if(args.mode==='server')return {collections:await this.client(args).collections()};
@@ -412,7 +421,7 @@ export class ApplicationService {
           signal.throwIfAborted();
           await this.pendingRestore?.dispose?.();this.pendingRestore=null;
           await this.closeActivity({discard:true});
-          await this.searcher?.close();this.store?.close();this.searcher=null;this.store=null;
+          await this.searcher?.close();await this.store?.close();this.searcher=null;this.store=null;
           const result=await this.storage.convert(profile,{signal,reading:localReadingOnly(this.reading.snapshot())});
           this.store=new ArchiveStore(this.archiveOptions(this.storage)).init();
           this.searcher=new SearchService({store:this.store,dataDir:this.dataDir,databasePath:this.storage.vectorPath,objectsDir:this.storage.objectsDir,tempRoot:path.join(this.storage.workingDir,'search-work'),compressionProfile:()=>this.storage.profile,lazy:true,onProgress:p=>this.progress(p)});
@@ -421,7 +430,7 @@ export class ApplicationService {
         } catch(error) {
           // Publication is authoritative even when adoption/cleanup fails. A
           // fresh mount resolves it and replays the surviving committed journal.
-          await this.searcher?.close().catch(()=>{});try{this.store?.close();}catch{}
+          await this.searcher?.close().catch(()=>{});try{await this.store?.close();}catch{}
           await this.storage?.close().catch(()=>{});
           this.searcher=null;this.store=null;this.storage=null;
           this.storageError=error.name==='AbortError'?'':error.message;
@@ -487,20 +496,50 @@ export class ApplicationService {
   async previewDeduplication(args,signal) {
     const options=this.deduplicationArgs(args);await this.ensureLocal();
     return this.serialized(async()=>{
-      signal.throwIfAborted();this.progress({phase:'deduplicating',message:'Reviewing conversations'});
-      return this.store.previewDeduplication(options);
+      signal.throwIfAborted();
+      const space=await this.importSpace(signal,{rewriteExisting:true});
+      const result=await this.store.previewDeduplicationAsync(options,{signal,onProgress:p=>this.progress(p)});
+      return {...result,space};
     });
   }
   async commitDeduplication(args,signal) {
     signal.throwIfAborted();
-    const mutation=this.store.prepareDeduplication(args);
+    const mutation=await this.store.prepareDeduplicationAsync(args,{signal,onProgress:p=>this.progress(p)});
     signal.throwIfAborted();
-    if(!mutation.ids.length)return {...mutation.preview,operation:'deduplicate',removedIds:[],remap:{},turnRemap:{},changed:false,revision:this.store.revision()};
-    return this.commitMutation(mutation);
+    if(!mutation.ids.length&&!mutation.replacements?.length)return {...mutation.preview,operation:'deduplicate',removedIds:[],remap:{},turnRemap:{},changed:false,revision:this.store.revision()};
+    this.progress({phase:'saving',current:0,total:1,message:'Saving conversation cleanup',cancellable:false});
+    const result=await this.commitMutation(mutation);
+    await this.reclaimCommittedCleanup(result);
+    return result;
+  }
+  async reclaimCommittedCleanup(result) {
+    // The row mutation is already durable. Publish a verified current catalog
+    // before retiring old snapshots, journals and unreferenced source objects.
+    // This inventories references; it does not rescan or decompress conversations.
+    if(!result.changed)return result;
+    let pending=false,error='';
+    this.progress({phase:'saving',current:0,total:1,message:'Saving merged conversations and reclaiming superseded copies',cancellable:false});
+    try {
+      if(this.storage.poisoned)throw this.storage.poisoned;
+      const status=this.sinceCheckpoint>0||this.storage.cleanupPending?await this.checkpoint(true):null;
+      pending=Boolean(status?.cleanupPending||this.storage.cleanupPending);
+      error=status?.cleanupError||this.storage.cleanupError||'';
+    }catch(cause){
+      pending=true;error=cause.message||String(cause);
+      this.storage.cleanupPending=true;this.storage.cleanupError=error;
+    }
+    result.cleanupPending=pending;result.cleanupError=pending?error:'';
+    if(pending){
+      result.warning='Conversation changes were saved, but superseded storage files could not all be removed: '+(error||'Retry storage cleanup.');
+      if(Array.isArray(result.errors))result.errors.push({error:result.warning});
+    }
+    this.progress({phase:'saving',current:1,total:1,message:pending?'Conversation changes saved; storage cleanup remains pending':'Conversation changes saved and superseded copies removed',cancellable:false});
+    return result;
   }
   async applyDeduplication(args,signal) {
     const options=this.deduplicationArgs(args,{apply:true});await this.ensureLocal();await this.quiesceSearches();
     return this.serialized(async()=>{
+      await this.importSpace(signal,{rewriteExisting:true});
       const result=await this.commitDeduplication(options,signal);
       return {...result,reading:this.reading.snapshot(),localCollection:this.settings.value.localCollection,revision:this.store.revision()};
     });
@@ -513,27 +552,80 @@ export class ApplicationService {
       remap[id]=target;
     }
     return {...result,changed:result.changed||cleanup.changed,remap,
+      ...(cleanup.cleanupPending!==undefined?{cleanupPending:cleanup.cleanupPending,cleanupError:cleanup.cleanupError||'',...(cleanup.warning?{warning:cleanup.warning}:{})}:{}),
       removedIds:[...new Set([...(result.removedIds||[]),...(cleanup.removedIds||[])])],
       deduplication:{duplicates:cleanup.duplicates||0,promptOnly:cleanup.promptOnly||0,superseded:cleanup.superseded||0,
         removed:(cleanup.removedIds||[]).length}};
   }
-  async finishImportDeduplication(result,collectionNames,signal) {
-    if(signal.aborted||this.storage.poisoned)return result;
-    await this.quiesceSearches();
-    try {
-      return await this.serialized(async()=>{
-        const selected=new Set(collectionNames),collectionIds=this.store.collections({includeEmpty:true}).filter(c=>selected.has(c.name)).map(c=>c.id);
-        if(!collectionIds.length)return result;
-        this.progress({phase:'deduplicating',message:'Cleaning up imported conversations'});
-        const cleanup=await this.commitDeduplication({collectionIds,automatic:true,
-          deletePromptOnly:this.deduplicationSettings.value.deleteOtherPromptOnlyAutomatically},signal);
-        return {...this.combineDeduplicationResult(result,cleanup),reading:this.reading.snapshot()};
-      });
-    }catch(error){
-      if(signal.aborted||error.name==='AbortError')result.cancelled=true;
-      else result.errors.push({error:'The import was saved, but automatic cleanup could not finish: '+error.message});
-      return result;
+  async vectorCatalogBytes() {
+    const snapshotBytes=this.storage?.pointer?.vectors?.logicalBytes||0;
+    if(this.searcher?._db) {
+      const db=this.searcher._db;
+      return Math.max(snapshotBytes,db.prepare('PRAGMA page_count').get().page_count*db.prepare('PRAGMA page_size').get().page_size);
     }
+    if(!this.storage?.vectorPath)return snapshotBytes;
+    const size=async file=>(await fs.stat(file).catch(error=>{if(error.code==='ENOENT')return {size:0};throw error;})).size;
+    const [databaseBytes,walBytes]=await Promise.all([size(this.storage.vectorPath),size(`${this.storage.vectorPath}-wal`)]);
+    // Closed legacy catalogs may still have a WAL. Its full length is a safe
+    // allowance without opening the index or expanding the saved snapshot.
+    return Math.max(snapshotBytes,databaseBytes+walBytes);
+  }
+  async importSpace(signal,options={}) {
+    this.progress({phase:'checking-space',current:0,total:1,message:'Checking disk space and database size',cancellable:true});
+    const additionalCatalogBytes=await this.vectorCatalogBytes();
+    const space=await preflightImportSpace({store:this.store,dataDir:this.dataDir,workingDir:this.storage.workingDir,codecDir:this.store.contentDir,additionalCatalogBytes,signal,...options});
+    if(this.operation)this.operation.space=space;
+    const mib=value=>(value/1024**2).toLocaleString('en',{maximumFractionDigits:1});
+    this.progress({phase:'checking-space',current:1,total:1,
+      message:`Conversation database: ${mib(space.expandedDatabaseBytes)} MiB expanded · ${mib(Math.min(...space.checks.map(c=>c.freeBytes)))} MiB free`,cancellable:true});
+    return space;
+  }
+  importResult() {
+    return {imported:0,updated:0,skipped:0,processed:0,errors:[],cancelled:false,changed:false,
+      removedIds:[],remap:{},turnRemap:{},deduplication:{duplicates:0,promptOnly:0,superseded:0,removed:0}};
+  }
+  async checkImportWriteSpace(expandedBytes,signal) {
+    const previous=this.operation?.space;
+    const catalogSize=db=>db.prepare('PRAGMA page_count').get().page_count*db.prepare('PRAGMA page_size').get().page_size;
+    // Keep the content inventory cached, but refresh growing SQLite catalogs.
+    // Never spend the initial search/checkpoint allowance on incoming content.
+    const catalogBytes=catalogSize(this.store.db);
+    const additionalCatalogBytes=Math.max(previous?.additionalCatalogBytes||0,await this.vectorCatalogBytes());
+    const footprint=previous?{...previous,catalogBytes,expandedDatabaseBytes:catalogBytes+previous.uniqueExpandedContentBytes}:undefined;
+    return preflightImportSpace({store:this.store,dataDir:this.dataDir,workingDir:this.storage.workingDir,codecDir:this.store.contentDir,
+      footprint,additionalCatalogBytes,incomingBytes:expandedBytes,incomingSize:'estimate',signal});
+  }
+  async saveImportedConversation(conversation,signal) {
+    return this.serialized(async()=>{
+      signal.throwIfAborted();
+      const mutation=await this.store.prepareUpsertAsync(conversation,{
+        signal,deletePromptOnly:this.deduplicationSettings.value.deleteOtherPromptOnlyAutomatically,
+        beforeWrite:({expandedBytes})=>this.checkImportWriteSpace(expandedBytes,signal)});
+      signal.throwIfAborted();
+      return this.commitMutation(mutation);
+    });
+  }
+  recordImportResult(result,saved) {
+    result[saved.status]=(result[saved.status]||0)+1;
+    result.changed ||= saved.changed===true;
+    Object.assign(result.remap,saved.remap||{});
+    Object.assign(result.turnRemap,saved.turnRemap||{});
+    if(saved.removedIds?.length)result.removedIds.push(...saved.removedIds);
+    for(const key of ['duplicates','promptOnly','superseded','removed'])result.deduplication[key]+=Number(saved.deduplication?.[key]||0);
+  }
+  async finishImport(result) {
+    result.removedIds=[...new Set(result.removedIds)];
+    for(const id of Object.keys(result.remap)){
+      const seen=new Set([id]);let target=result.remap[id];
+      while(result.remap[target]&&!seen.has(target)){seen.add(target);target=result.remap[target];}
+      result.remap[id]=target;
+    }
+    return this.serialized(async()=>{
+      // Matching/merging already happened per conversation. Only final durable
+      // publication and physical reclamation remain, including partial imports.
+      if(result.changed&&(result.updated>0||result.removedIds.length||result.deduplication.removed>0))await this.reclaimCommittedCleanup(result);
+      return {...result,reading:this.reading.snapshot(),collections:this.store.collections({includeEmpty:true})};
+    });
   }
   async maintenance({operation},signal) {
     await this.ensureLocal();await this.quiesceSearches();signal.throwIfAborted();
@@ -598,7 +690,7 @@ export class ApplicationService {
         await this.reading.update(async current=>{
           validateReading(replaceLocalReading(current,prepared.reading,()=>null));
           await this.closeActivity({discard:true});
-          await this.searcher?.close();this.searcher?.textIndex.discard();this.store?.close();this.searcher=null;this.store=null;
+          await this.searcher?.close();this.searcher?.textIndex.discard();await this.store?.close();this.searcher=null;this.store=null;
           await this.storage.installRestore(prepared);
           this.store=new ArchiveStore(this.archiveOptions(this.storage)).init();
           this.searcher=new SearchService({store:this.store,dataDir:this.dataDir,databasePath:this.storage.vectorPath,objectsDir:this.storage.objectsDir,tempRoot:path.join(this.storage.workingDir,'search-work'),compressionProfile:()=>this.storage.profile,lazy:true,onProgress:p=>this.progress(p)});
@@ -613,7 +705,7 @@ export class ApplicationService {
       } catch(error) {
         // Installation may fail before or after its durable publication. Release
         // this session so the next open can recover whichever state was committed.
-        await this.searcher?.close().catch(()=>{});try{this.store?.close();}catch{}
+        await this.searcher?.close().catch(()=>{});try{await this.store?.close();}catch{}
         await this.storage?.close().catch(()=>{});
         this.searcher=null;this.store=null;this.storage=null;this.storageError=error.message;
         throw error;
@@ -642,42 +734,72 @@ export class ApplicationService {
   async importLocal({paths,collection},signal) {
     if(!Array.isArray(paths)||!paths.length||paths.length>10000||paths.some(p=>typeof p!=='string'||!path.isAbsolute(p)))throw new Error('Select files or a folder using Import.');
     collection=String(collection||'Imported').trim();if(!collection||collection.length>160||collection==='all'||collection.includes('\0'))throw new Error('Choose a collection name up to 160 characters (other than “all”).');
-    await this.ensureLocal();const result={imported:0,updated:0,skipped:0,errors:[],cancelled:false};
+    await this.ensureLocal();await this.quiesceSearches();
+    const result=this.importResult();
+    result.space=await this.importSpace(signal);
+    let sourceTotal=0,sourceProcessed=0,lastSource='';
+    const progress=p=>{
+      if(p.sourceFile&&p.sourceFile!==lastSource){lastSource=p.sourceFile;sourceProcessed=0;sourceTotal=0;}
+      if(p.unit==='conversations'&&Number.isSafeInteger(p.total))sourceTotal=p.total;
+      // Never retain the previous phase's denominator (e.g. one input file)
+      // while reporting thousands of conversations being committed.
+      const current=p.bytes??p.current??0,total=p.totalBytes??p.total??0;
+      const {operation,...details}=p;this.progress({...details,current,total,cancellable:true});
+    };
     try {
-      for await(const conversation of importPaths(paths,{signal,onProgress:p=>this.progress(p)})) {
+      for await(const conversation of importPaths(paths,{signal,onProgress:progress})) {
         signal.throwIfAborted();
         if(conversation.error){result.errors.push({sourceFile:conversation.sourceFile,error:String(conversation.error)});continue;}
         try {
-          const saved=await this.serialized(()=>this.commitMutation(this.store.prepareUpsert({...conversation,collection})));
-          result[saved.status]=(result[saved.status]||0)+1;
-        }catch(error){result.errors.push({sourceFile:conversation.sourceFile,error:error.message});if(this.storage.poisoned)throw error;}
-        this.progress({phase:'importing',current:result.imported+result.updated+result.skipped,message:conversation.title||''});
+          const saved=await this.saveImportedConversation({...conversation,collection},signal);
+          this.recordImportResult(result,saved);
+        }catch(error){
+          if(signal.aborted||error.name==='AbortError'||error.code==='ENOSPC'||this.storage.poisoned)throw error;
+          result.errors.push({sourceFile:conversation.sourceFile,error:error.message});
+        }
+        result.processed++;sourceProcessed++;
+        this.progress({phase:'importing',current:sourceProcessed,total:sourceTotal||0,
+          message:`${conversation.title||'Conversation'} · ${result.processed} processed`,cancellable:true});
       }
     }catch(error){if(signal.aborted||error.name==='AbortError')result.cancelled=true;else result.errors.push({error:error.message});}
-    return this.finishImportDeduplication(result,[collection],signal);
+    return this.finishImport(result);
   }
   async importServer({serverUrl,collections},signal) {
     if(!Array.isArray(collections)||!collections.length||collections.length>1000||collections.some(c=>typeof c!=='string'||!c||c==='all'))throw new Error('Select at least one non-empty collection.');
-    await this.ensureLocal();const client=new ThreadShelfClient(serverUrl||this.settings.value.serverUrl,{signal});
-    const result={imported:0,updated:0,skipped:0,errors:[],cancelled:false},touchedCollections=new Set();
+    await this.ensureLocal();await this.quiesceSearches();
+    const controller=new AbortController(),copySignal=AbortSignal.any([signal,controller.signal]);
+    const client=new ThreadShelfClient(serverUrl||this.settings.value.serverUrl,{signal:copySignal});
+    const result=this.importResult();
+    result.space=await this.importSpace(signal);
     try {
+      this.progress({phase:'listing',current:0,total:1,message:'Reading server conversation counts',cancellable:true});
       const available=await client.collections(),names=new Set(available.map(c=>c.name)),selected=[...new Set(collections)];
       if(selected.some(c=>!names.has(c)))throw new Error('A selected collection is empty or no longer available. Refresh the collection list.');
-      // Process one selected collection at a time; server source remains read-only.
-      for(const collection of selected) {
-        const summaries=(await client.allFiles(collection)).filter(f=>f.turnCount>0);
-        for(let i=0;i<summaries.length;i++) {
-          signal.throwIfAborted();const item=summaries[i];this.progress({phase:'copying',current:i,total:summaries.length,message:item.title});
-          try {
-            const thread=await client.thread(item);signal.throwIfAborted();
-            const saved=await this.serialized(()=>this.commitMutation(this.store.prepareUpsert({...thread,provider:thread.provider||'unknown',raw:{serverUrl:normalizeServerUrl(client.url),summary:item,thread},sourceIdentity:thread.sourceIdentity})));
-            result[saved.status]=(result[saved.status]||0)+1;
-            if(saved.summary?.collection)touchedCollections.add(saved.summary.collection);
-          }catch(error){if(signal.aborted||this.storage.poisoned)throw error;result.errors.push({sourceFile:item.sourceFile,collection:item.collection,error:error.message});}
-        }
+      const summaries=[];
+      for(const collection of selected){
+        signal.throwIfAborted();
+        const files=client.collectionInventory?client.collectionInventory.filter(f=>f.collection===collection):await client.allFiles(collection);
+        summaries.push(...files.filter(f=>f.turnCount>0));
       }
-      this.progress({phase:'copied',current:result.imported+result.updated+result.skipped});
+      result.total=summaries.length;
+      this.progress({phase:'copying',current:0,total:result.total,message:'Copying and merging conversations',cancellable:true});
+      for await(const {item, value:thread, error} of orderedPrefetch(summaries,item=>client.thread(item),{concurrency:3,signal:copySignal})) {
+        signal.throwIfAborted();
+        try {
+          if(error)throw error;
+          const saved=await this.saveImportedConversation({...thread,provider:thread.provider||'unknown',
+            raw:{serverUrl:normalizeServerUrl(client.url),summary:item,thread},sourceIdentity:thread.sourceIdentity},signal);
+          this.recordImportResult(result,saved);
+        }catch(error){
+          if(signal.aborted||error.name==='AbortError'||error.code==='ENOSPC'||this.storage.poisoned){controller.abort(error);throw error;}
+          result.errors.push({sourceFile:item.sourceFile,collection:item.collection,error:error.message});
+        }
+        result.processed++;
+        this.progress({phase:'copying',current:result.processed,total:result.total,
+          message:`${item.collection} · ${item.title||'Conversation'}`,cancellable:true});
+      }
     }catch(error){if(signal.aborted||error.name==='AbortError')result.cancelled=true;else result.errors.push({error:error.message});}
-    return this.finishImportDeduplication(result,[...touchedCollections],signal);
+    finally{controller.abort();}
+    return this.finishImport(result);
   }
 }

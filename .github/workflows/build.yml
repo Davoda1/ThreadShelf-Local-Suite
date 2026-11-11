@@ -115,6 +115,8 @@ jobs:
         run: |
           xvfb-run -a node apps/reader/tests/deduplication.browser.mjs
           cp .verification/deduplication/deduplication-ui-results.json release/verification/reader-linux-deduplication.json
+          xvfb-run -a node apps/reader/tests/deduplication-review.browser.mjs
+          cp .verification/deduplication/deduplication-review-results.json release/verification/reader-linux-deduplication-review.json
       - name: Verify Alternative citations and Grok/ChatGPT rendering
         if: runner.os == 'Linux' && matrix.app == 'alternative'
         timeout-minutes: 10
@@ -138,9 +140,13 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then native_display=(xvfb-run -a); else native_display=(); fi
           if [[ "${{ matrix.app }}" == "reader" ]]; then
             HTML_PREVIEW_HOST_REPORT="release/verification/reader-${{ matrix.platform }}-html-preview-host.json" "${native_display[@]}" "$READER_ELECTRON" apps/reader/tests/html-preview-host.electron.cjs
-            "${native_display[@]}" node apps/reader/tests/html-preview-ui.browser.mjs > release/verification/reader-${{ matrix.platform }}-html-preview-ui.json
+            HTML_PREVIEW_UI_REPORT="release/verification/reader-${{ matrix.platform }}-html-preview-ui.json" "${native_display[@]}" node apps/reader/tests/html-preview-ui.browser.mjs
+            CODE_OPTIONS_REPORT="release/verification/reader-${{ matrix.platform }}-code-options.json" "${native_display[@]}" node apps/reader/tests/code-presentation.browser.mjs
+            HTML_MARGIN_SCOPE_REPORT="release/verification/reader-${{ matrix.platform }}-html-margin-scope.json" "${native_display[@]}" node apps/reader/tests/html-margin-scope.browser.mjs
           else
-            "${native_display[@]}" node apps/alternative/test/html-preview.electron.cjs > release/verification/alternative-${{ matrix.platform }}-html-preview.json
+            HTML_PREVIEW_REPORT="release/verification/alternative-${{ matrix.platform }}-html-preview.json" "${native_display[@]}" node apps/alternative/test/html-preview.electron.cjs
+            CODE_OPTIONS_REPORT="release/verification/alternative-${{ matrix.platform }}-code-options.json" "${native_display[@]}" node apps/alternative/test/code-options.electron.cjs
+            HTML_MARGIN_SCOPE_REPORT="release/verification/alternative-${{ matrix.platform }}-html-margin-scope.json" "${native_display[@]}" node apps/alternative/test/html-margin-scope.browser.cjs
             if [[ "$RUNNER_OS" == "Linux" ]]; then
               "${native_display[@]}" node apps/alternative/test/privacy-policy.electron.cjs > release/verification/alternative-linux-privacy.json
             fi

@@ -1,4 +1,4 @@
-/* ThreadShelf Local Alternative 1.4.4 — isolated archive rendering. */
+/* ThreadShelf Local Alternative 1.4.5 — isolated archive rendering. */
 (function () {
   'use strict';
   const rich = window.TSARich;
@@ -309,6 +309,106 @@
     for(const element of template.content.querySelectorAll('*'))for(const attr of [...element.attributes])if(/^on/i.test(attr.name)||(/^(href|xlink:href)$/i.test(attr.name)&&!attr.value.startsWith('#')))element.removeAttribute(attr.name);
     return template.innerHTML;
   }
+
+  // Keep syntax-highlighted source separate from presentation-only line numbers.
+  // Splitting a multiline token clones its element ancestry rather than flattening
+  // HTML or re-highlighting lines independently (which loses multiline grammars).
+
+  const MAX_NUMBERED_CODE_LINES = 10_000;
+
+  function exceedsLineLimit(source) {
+    let lines = 1;
+    let offset = source.indexOf('\n');
+    while (offset !== -1) {
+      if (++lines > MAX_NUMBERED_CODE_LINES) return true;
+      offset = source.indexOf('\n', offset + 1);
+    }
+    return false;
+  }
+
+  function highlightedLines(code) {
+    const doc = code.ownerDocument;
+    const lines = [doc.createDocumentFragment()];
+    const ancestors = [];
+    let copies = [];
+    const parent = () => copies.at(-1) || lines.at(-1);
+    const nextLine = () => {
+      lines.push(doc.createDocumentFragment());
+      copies = [];
+      for (const ancestor of ancestors) {
+        const clone = ancestor.cloneNode(false);
+        parent().append(clone);
+        copies.push(clone);
+      }
+    };
+    const visit = node => {
+      if (node.nodeType === 3) {
+        const pieces = (node.nodeValue || '').split('\n');
+        pieces.forEach((piece, index) => {
+          if (index) nextLine();
+          if (piece) parent().append(doc.createTextNode(piece));
+        });
+      } else if (node.nodeType === 1) {
+        const clone = node.cloneNode(false);
+        parent().append(clone);
+        ancestors.push(node);
+        copies.push(clone);
+        for (const child of node.childNodes) visit(child);
+        ancestors.pop();
+        copies.pop();
+      }
+    };
+    for (const child of code.childNodes) visit(child);
+    return lines;
+  }
+
+  function applyCodeBlockPresentation(pre, { codeWrap = false, codeLineNumbers = false } = {}) {
+    pre.classList.toggle('code-wrap', codeWrap === true);
+    const code = pre.querySelector('code');
+    if (code && code.dataset.originalCode === undefined) code.dataset.originalCode = code.textContent || '';
+    if (!code || codeLineNumbers !== true || pre.classList.contains('code-line-numbers') || pre.dataset.lineNumbersLimited === 'true') return;
+    // Do not turn a generated file with hundreds of thousands of lines into
+    // hundreds of thousands of extra DOM elements. Source remains complete.
+    if (exceedsLineLimit(code.dataset.originalCode ?? code.textContent ?? '')) {
+      const note = code.ownerDocument.createElement('span');
+      note.className = 'code-block-note';
+      note.textContent = 'Line numbers unavailable for this large block';
+      pre.prepend(note);
+      pre.dataset.lineNumbersLimited = 'true';
+      return;
+    }
+    const lines = highlightedLines(code);
+    const fragment = code.ownerDocument.createDocumentFragment();
+    lines.forEach((content, index) => {
+      const line = code.ownerDocument.createElement('span');
+      line.className = 'code-line';
+      const number = code.ownerDocument.createElement('span');
+      number.className = 'code-line-number';
+      number.setAttribute('aria-hidden', 'true');
+      number.setAttribute('role', 'presentation');
+      // The numeral is CSS generated content on an empty, unselectable element.
+      // It cannot enter textContent, clipboard source, or conversation exports.
+      number.dataset.lineNumber = String(index + 1);
+      const source = code.ownerDocument.createElement('span');
+      source.className = 'code-line-source';
+      source.append(content);
+      // A visually empty block is omitted by native browser text selection. An
+      // explicit break retains an internal empty source line without adding text
+      // (or a placeholder character) to the canonical code. The final empty row
+      // already represents the preceding newline and must not add a second one.
+      if (!source.textContent && index < lines.length - 1) {
+        source.append(code.ownerDocument.createElement('br'));
+      }
+      line.append(number, source);
+      fragment.append(line);
+      if (index < lines.length - 1) fragment.append(code.ownerDocument.createTextNode('\n'));
+    });
+    code.replaceChildren(fragment);
+    pre.classList.add('code-line-numbers');
+    pre.style.setProperty('--code-line-digits', String(String(lines.length).length));
+  }
+
+  const codePresentationOptions = new WeakMap();
   const mermaidStates = new WeakMap();
   function diagramTheme() {
     const theme = document.documentElement.dataset.theme;
@@ -331,7 +431,7 @@
     if (mermaidStates.has(block)) return mermaidStates.get(block);
     const code = block.querySelector('pre code'), pre = code?.closest('pre');
     if (!code || !pre) return null;
-    const state = {original:code.textContent || '', repaired:'', mode:'original', originalError:'', theme:'', attempts:0, initialized:false};
+    const state = {original:code.dataset.originalCode ?? code.textContent ?? '', repaired:'', mode:'original', originalError:'', theme:'', attempts:0, initialized:false};
     const view = document.createElement('div'); view.className = 'tsa-mermaid'; view.hidden = true;
     view.setAttribute('role','img'); view.setAttribute('aria-label','Mermaid diagram');
     const note = document.createElement('p'); note.className = 'tsa-diagram-note'; note.hidden = true;
@@ -359,7 +459,15 @@
     state.toggle.setAttribute('aria-pressed',String(state.mode === 'repaired'));
     state.toggle.setAttribute('aria-label',state.mode === 'repaired' ? 'Show original Mermaid source and render error' : 'Show repaired Mermaid preview');
     if (repaired) {
-      state.repairCode.textContent = state.repaired;
+      const repairPre = state.repairCode.parentElement;
+      if (state.repairCode.dataset.originalCode !== state.repaired) {
+        state.repairCode.textContent = state.repaired;
+        state.repairCode.dataset.originalCode = state.repaired;
+        repairPre.classList.remove('code-line-numbers');
+        delete repairPre.dataset.lineNumbersLimited;
+        repairPre.querySelector('.code-block-note')?.remove();
+        applyCodeBlockPresentation(repairPre,codePresentationOptions.get(block));
+      }
       const copy = block.querySelector('[data-copy-code]');
       if (copy) { copy.textContent = 'Copy original'; copy.setAttribute('aria-label','Copy original Mermaid source'); }
     }
@@ -514,7 +622,7 @@
     const pre=block.querySelector('pre'),code=pre?.querySelector('code');
     const toolbar=block.querySelector('.tsa-code-toolbar');
     if(!code||!toolbar)return null;
-    const dataUrl=window.ThreadShelfSvgPreview?.parse(code.textContent||'',block.dataset.svgFence);
+    const dataUrl=window.ThreadShelfSvgPreview?.parse(code.dataset.originalCode??code.textContent??'',block.dataset.svgFence);
     if(!dataUrl)return null;
     const doc=block.ownerDocument;
     const toggle=doc.createElement('button');toggle.type='button';toggle.className='tsa-svg-toggle';toggle.dataset.svgToggle='1';
@@ -538,7 +646,7 @@
   }
   function mountHtmlPreview(block,client,signal) {
     const code=block.querySelector('pre code'),toolbar=block.querySelector('.tsa-code-toolbar');
-    if(!code||!toolbar||!window.TSHTMLPreviewValidation?.validHtmlPreview(code.textContent||'',block.dataset.htmlFence))return null;
+    if(!code||!toolbar||!window.TSHTMLPreviewValidation?.validHtmlPreview(code.dataset.originalCode??code.textContent??'',block.dataset.htmlFence))return null;
     const toggle=document.createElement('button');toggle.type='button';toggle.dataset.toggleHtml='1';toggle.className='tsa-html-toggle';toggle.textContent='Render';toggle.title='Render isolated HTML preview';toggle.setAttribute('aria-pressed','false');
     const node=document.createElement('div');node.className='tsa-html-preview';node.hidden=true;node.setAttribute('role','region');node.setAttribute('aria-label','Isolated HTML preview');
     block.append(node);toolbar.insertBefore(toggle,toolbar.querySelector('[data-copy-code]'));
@@ -555,6 +663,10 @@
     const localSources=new Map();container.querySelectorAll('[data-source-key]').forEach(element=>{const key=element.dataset.sourceKey;if(sources.has(key))localSources.set(key,sources.get(key));});
     const disposeCharts=rich?.Interactions?.mountChartInteractions(container);
     unlinkImages(container);
+    container.querySelectorAll('.tsa-code-block').forEach(block=>{
+      codePresentationOptions.set(block,{codeWrap:options.codeWrap===true,codeLineNumbers:options.codeLineNumbers===true});
+      block.querySelectorAll('pre').forEach(pre=>applyCodeBlockPresentation(pre,codePresentationOptions.get(block)));
+    });
     const mountedImages=[...container.querySelectorAll('.tsa-image-slot')].map(mountImage).filter(Boolean);
     const mountedSvg=[...container.querySelectorAll('.tsa-code-block[data-svg-fence]')].map(block=>mountSvgPreview(block,controller.signal)).filter(Boolean);
     const mountedHtml=htmlPreviews?[...container.querySelectorAll('.tsa-code-block[data-html-fence]')].map(block=>mountHtmlPreview(block,htmlPreviews,controller.signal)).filter(Boolean):[];
@@ -579,7 +691,7 @@
       const copy=target.closest('[data-copy-code],[data-copy-message],[data-copy-repaired]');
       if(copy&&container.contains(copy)){
         event.preventDefault();const block=copy.closest('.tsa-code-block'),state=mermaidStates.get(block);
-        const text=copy.hasAttribute('data-copy-repaired')?state?.repaired||'':copy.hasAttribute('data-copy-code')?state?.original??block?.querySelector('code')?.textContent??'':localSources.get(copy.closest('[data-source-key]')?.dataset.sourceKey)||'';
+        const text=copy.hasAttribute('data-copy-repaired')?state?.repaired||'':copy.hasAttribute('data-copy-code')?state?.original??block?.querySelector('code')?.dataset.originalCode??block?.querySelector('code')?.textContent??'':localSources.get(copy.closest('[data-source-key]')?.dataset.sourceKey)||'';
         try{await clipboard(text,options.copy);status(copy,'Copied');}catch{status(copy,'Copy failed');}return;
       }
       const link=target.closest('a[href]');if(link&&container.contains(link)){const url=safeUrl(link.getAttribute('href'));event.preventDefault();if(!url)return;if(options.openExternal){try{await options.openExternal(url);}catch{link.title='Could not open this link';}}else window.open(url,'_blank','noopener,noreferrer');}

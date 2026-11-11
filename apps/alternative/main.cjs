@@ -83,6 +83,7 @@ async function start(){
   handle('save-state',state=>{const previous=store.load().htmlPreviewExternal;const saved=store.save(state);if(previous!==saved.htmlPreviewExternal)htmlPreviews?.closeAll();applyWindowAppearance(saved.theme);return saved;});
   const htmlPreviewActions=new Set(['html.preview.open','html.preview.update','html.preview.close','html.preview.closeAll']);
   handle('html-preview',(action,args)=>{if(!htmlPreviewActions.has(action))throw new Error('Unknown HTML preview action.');return htmlPreviews.invoke(action,args);});
+  htmlPreviews.registerGeometryIpc('alternative:html-preview-geometry',trustedSender);
   handle('connect',async url=>{const epoch=++connectionEpoch;const next=new ServerClient(url);try{const collections=await next.collections();if(epoch!==connectionEpoch){next.dispose();throw new Error('A newer connection request replaced this one.');}client?.dispose();client=next;return collections;}catch(e){next.dispose();throw e;}});
   handle('request',async(method,args)=>{if(!methods.has(method))throw new Error('Unsupported server operation.');if(!client)throw new Error('Connect to a ThreadShelf server first.');return client[method](args||{});});
   handle('open-external',external);

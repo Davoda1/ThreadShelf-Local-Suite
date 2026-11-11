@@ -402,16 +402,16 @@ const needsWholeArray = value => object(value) &&
 async function* streamedJSON(factory, size, filename, options) {
   const limits = { ...options.limits, recordBytes: Math.min(options.limits.fileBytes, options.limits.recordBytes) };
   const parseOptions = { ...options, limits }, metadata = Object.create(null);
-  let kind, wrapped = false, count = 0, metadataBytes = 0, whole = false, lastProgress = 0;
+  let kind, wrapped = false, count = 0, metadataBytes = 0, whole = false, lastProgress = 0, validationBytes = 0;
   const progressSource = async function* (phase) {
     let bytes = 0, last = 0;
     for await (const chunk of factory()) {
-      bytes += chunk.byteLength;
+      bytes += chunk.byteLength; if(phase==='validating')validationBytes=bytes;
       if (bytes - last >= 32 * 1024 ** 2) { last = bytes; emit(options, { phase, sourceFile: filename, bytes, totalBytes: size, message: `${phase === 'validating' ? 'Validating' : 'Reading'} ${Math.round(bytes / 1024 ** 2)} MiB of ${Math.round(size / 1024 ** 2)} MiB.` }); }
       yield chunk;
     }
   };
-  emit(options, { phase: 'validating', sourceFile: filename, message: 'Validating JSON and archive integrity before importing.' });
+  emit(options, { phase: 'validating', sourceFile: filename, bytes:0,totalBytes:size,unit:'bytes', message: 'Validating JSON and archive integrity before importing.' });
   for await (const event of jsonEvents(progressSource('validating'), parseOptions)) {
     abort(options.signal);
     if (event.type === 'start') kind = event.kind;
@@ -420,7 +420,7 @@ async function* streamedJSON(factory, size, filename, options) {
       if (++count > limits.records) throw new Error('JSON container contains too many conversation records.');
       if (needsWholeArray(event.value)) whole = true;
       safeTree(event.value, limits);
-      if (count - lastProgress >= 100) { lastProgress = count; emit(options, { phase: 'validating', sourceFile: filename, current: count, message: `Validated ${count} records.` }); await tick(); }
+      if (count - lastProgress >= 100) { lastProgress = count; emit(options, { phase: 'validating', sourceFile: filename, current:count,bytes:validationBytes,totalBytes:size,unit:'bytes', message: `Validated ${count} records.` }); await tick(); }
     }
     if (event.type === 'field') {
       safeTree(event.value, limits);
@@ -433,18 +433,22 @@ async function* streamedJSON(factory, size, filename, options) {
   whole ||= kind !== 'array' && !wrapped;
   whole ||= metadata.venice_conversion != null || metadata.format === 'venice-chat-history' || Array.isArray(metadata.owners) || Array.isArray(metadata.label_values);
   if (kind === 'object' && !wrapped) {
-    for (const record of normalizeDocument(metadata, filename, options)) if (record.turns.length) yield record;
+    const records=normalizeDocument(metadata,filename,options).filter(record=>record.turns.length);
+    emit(options,{phase:'parsing',sourceFile:filename,current:0,total:records.length,unit:'conversations',message:'Importing and merging conversations.'});
+    for(const record of records)yield record;
     return;
   }
   if (whole || metadataBytes > limits.metadataBytes) {
     if (size > limits.fileBytes) throw new Error(`This JSON adapter requires whole-document processing and is limited to ${Math.round(limits.fileBytes / 1024 ** 2)} MiB. Export separate conversations or use a supported conversation-array JSON format.`);
     const chunks = []; let total = 0;
     for await (const chunk of factory()) { abort(options.signal); total += chunk.byteLength; if (total > limits.fileBytes) throw new Error('JSON exceeds the whole-document safety limit.'); chunks.push(Buffer.from(chunk)); }
-    for (const record of parseBytes(Buffer.concat(chunks), filename, options)) if (record.turns.length) yield record;
+    const records=parseBytes(Buffer.concat(chunks),filename,options).filter(record=>record.turns.length);
+    emit(options,{phase:'parsing',sourceFile:filename,current:0,total:records.length,unit:'conversations',message:'Importing and merging conversations.'});
+    for(const record of records)yield record;
     return;
   }
   // Release large non-streaming metadata before opening the second input stream.
-  emit(options, { phase: 'parsing', sourceFile: filename, total: count, message: 'Importing validated conversations.' });
+  emit(options, { phase: 'parsing', sourceFile: filename, current: 0, total: count, unit: 'conversations', message: 'Importing and merging validated conversations.' });
   for await (const event of jsonEvents(progressSource('parsing'), parseOptions)) {
     if (event.type !== 'record') continue;
     abort(options.signal);
@@ -462,7 +466,9 @@ async function* streamedJSON(factory, size, filename, options) {
 
 async function* parseSource(factory, size, filename, options, readSmall) {
   if (size <= Math.min(options.limits.streamingThreshold, options.limits.fileBytes)) {
-    for (const record of parseBytes(await readSmall(), filename, options)) if (record.turns.length) yield record;
+    const records=parseBytes(await readSmall(), filename, options).filter(record=>record.turns.length);
+    emit(options,{phase:'parsing',sourceFile:filename,current:0,total:records.length,unit:'conversations',message:'Importing and merging conversations.'});
+    for (const record of records) yield record;
     return;
   }
   let prefix = Buffer.alloc(0);
@@ -472,7 +478,9 @@ async function* parseSource(factory, size, filename, options, readSmall) {
   if (/\.html?$/i.test(filename) || head.startsWith('<') || !utf8 || (!head && size <= prefix.length) || (head && !/^[\[{]/.test(head))) {
     const limit = /\.html?$/i.test(filename) || head.startsWith('<') ? options.limits.htmlBytes : options.limits.fileBytes;
     if (size > limit) throw new Error(`HTML, non-UTF-8 JSON and unsupported containers retain the ${Math.round(limit / 1024 ** 2)} MiB whole-document safety limit. Use UTF-8 conversation-array JSON for larger exports.`);
-    for (const record of parseBytes(await readSmall(), filename, options)) if (record.turns.length) yield record;
+    const records=parseBytes(await readSmall(),filename,options).filter(record=>record.turns.length);
+    emit(options,{phase:'parsing',sourceFile:filename,current:0,total:records.length,unit:'conversations',message:'Importing and merging conversations.'});
+    for(const record of records)yield record;
   } else yield* streamedJSON(factory, size, filename, options);
 }
 

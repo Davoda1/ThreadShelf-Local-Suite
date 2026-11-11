@@ -154,6 +154,7 @@ export class ReaderView {
     this.renderer.animationsEnabled = this.settings.animations !== false;
     this.renderer.setPromptExpandStyle(this.settings.promptExpandStyle);
     this.renderer.setRemoteImages(this.settings.remoteImages);
+    this.renderer.setCodePresentation(this.settings);
     this.renderer.htmlPreviews.setExternalResources(this.settings.htmlPreviewExternalResources);
     this.waveBackground.setSettings(this.settings);
     this.renderer.setCompactMessagesEnabled(this.settings.compact !== false, {animate: false});
@@ -162,7 +163,7 @@ export class ReaderView {
     this.byId('navigatorTrigger').title = tr('Conversation navigator');
     this.byId('navigatorPanel').setAttribute('aria-label', tr('Prompts and responses'));
     this.container.querySelector('.navigator-heading').textContent = tr('Conversation outline');
-    if (this.currentMessages.length && old.language !== this.settings.language) {
+    if (this.currentMessages.length && (old.language !== this.settings.language || old.codeWrap !== this.settings.codeWrap || old.codeLineNumbers !== this.settings.codeLineNumbers)) {
       this.renderer.renderMessages(this.currentMessages); this.addBookmarks(); this.buildNavigator(); this.refreshSearchMarks(); this.position.refreshNodes();
     } else if (this.currentMessages.length && (old.theme !== this.settings.theme || old.highContrast !== this.settings.highContrast || previousVisualTheme !== this.visualTheme)) this.renderer.rerenderMermaidDiagrams();
   }

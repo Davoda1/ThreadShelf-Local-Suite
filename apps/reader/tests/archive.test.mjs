@@ -90,7 +90,7 @@ test('failure during catalog publication rolls back conversation content referen
   assert.equal(store.revision(), 2);
 });
 
-test('providers, local collection namespaces, and server provenance do not collide', t => {
+test('provider and local collection define identity while server provenance remains metadata', t => {
   const { store } = setup(t);
   const entries = [
     fixture(),
@@ -102,8 +102,9 @@ test('providers, local collection namespaces, and server provenance do not colli
     fixture({ sourceIdentity: { kind: 'threadshelf', serverUrl: 'http://localhost:3000/', collection: 'A', sourceFile: 'other/path.json', conversationKey: 'same' } }),
   ];
   const ids = entries.map(entry => store.upsert(entry).summary.id);
-  assert.equal(new Set(ids).size, entries.length);
-  assert.equal(store.files().total, 7);
+  assert.equal(new Set(ids).size, 3);
+  assert.equal(store.files().total, 3);
+  assert.ok(ids.slice(3).every(id => id === ids[0]), 'server copies update the same provider conversation ID');
   assert.equal(store.files({ provider: 'anthropic' }).total, 1);
   assert.equal(store.files({ collection: 'Separate import' }).total, 1);
   const canonical = structuredClone(entries[3]);
@@ -112,7 +113,7 @@ test('providers, local collection namespaces, and server provenance do not colli
   const copy = structuredClone(entries[3]);
   copy.collection = 'Second snapshot';
   assert.notEqual(store.upsert(copy).summary.id, ids[3]);
-  assert.deepEqual(store.thread({ id: ids[4] }).sourceIdentity, entries[4].sourceIdentity);
+  assert.deepEqual(store.thread({ id: ids[0] }).sourceIdentity, canonical.sourceIdentity);
 });
 
 test('empty text and multiple role parts retain exact original turn indexes', t => {

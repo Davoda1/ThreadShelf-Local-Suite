@@ -68,7 +68,9 @@ test('Reader and Transformers resolve one exact stable ONNX family with no neste
   for (const name of ['onnxruntime-node', 'onnxruntime-web', 'onnxruntime-common']) {
     installed[name] = await installedPackage(consumer.resolve(name), name);
     assert.equal(installed[name].manifest.version, version, name);
-    assert.equal(installed[name].root, path.join(root, 'node_modules', name));
+    // Node resolves package paths through symlinks and Windows junctions.
+    // Compare their canonical directories while still requiring one root copy.
+    assert.equal(await fs.realpath(installed[name].root), await fs.realpath(path.join(root, 'node_modules', name)));
     assert.equal(require.resolve(name), consumer.resolve(name));
     const locked = Object.entries(lock.packages).filter(([key]) => key.endsWith('/' + name));
     assert.deepEqual(locked.map(([key, value]) => [key, value.version]), [['node_modules/' + name, version]]);

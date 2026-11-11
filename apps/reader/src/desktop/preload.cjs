@@ -12,6 +12,12 @@ contextBridge.exposeInMainWorld('desktop',Object.freeze({
   capabilities:Object.freeze({clipboardWrite:true}),
   invoke(action,args={}){
     if(!allowed.has(action))return Promise.reject(new Error('Unknown action.'));
+    // Geometry must reach the native view before this renderer paints its next
+    // scroll frame. Opening and all other operations remain asynchronous.
+    if(action==='html.preview.update'){
+      try{return Promise.resolve(ipcRenderer.sendSync('reader:html-preview-geometry',args));}
+      catch(error){return Promise.reject(error);}
+    }
     if(action.startsWith('resources.')){
       if(!args||typeof args!=='object'||Array.isArray(args)||Object.keys(args).length>6)return Promise.reject(new Error('Invalid resource request.'));
       let size=0;for(const value of Object.values(args)){if(!['string','boolean','undefined'].includes(typeof value))return Promise.reject(new Error('Invalid resource request.'));if(typeof value==='string'){size+=value.length;if(size>32768)return Promise.reject(new Error('Invalid resource request.'));}}

@@ -50,3 +50,17 @@ test('HTML preview resources default on and remain independent of conversation i
   try {const store=new StateStore(root);store.save({htmlPreviewExternal:false,imageMode:'auto',pins:[{conversationKey:'kept'}],positions:{kept:12}});const saved=store.load();assert.equal(saved.htmlPreviewExternal,false);assert.equal(saved.imageMode,'auto');assert.deepEqual(saved.pins,[{conversationKey:'kept'}]);assert.deepEqual(saved.positions,{kept:12});}
   finally{fs.rmSync(root,{recursive:true,force:true});}
 });
+
+
+test('Code presentation defaults off and persists independently without altering saved reading data',()=>{
+  for(const previous of [{},{codeWrap:'true',codeLineNumbers:1},{codeWrap:null,codeLineNumbers:'false'}]){
+    const state=cleanState(previous);assert.equal(state.codeWrap,false);assert.equal(state.codeLineNumbers,false);
+  }
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'tsa-code-state-'));
+  const reading={pins:[{conversationKey:'kept'}],savedSearches:[{q:'retained'}],positions:{kept:{top:125}},imageMode:'auto',htmlPreviewExternal:false};
+  try {const store=new StateStore(root);for(const codeWrap of [false,true])for(const codeLineNumbers of [false,true]){
+    store.save({...reading,codeWrap,codeLineNumbers});const saved=new StateStore(root).load();
+    assert.equal(saved.codeWrap,codeWrap);assert.equal(saved.codeLineNumbers,codeLineNumbers);
+    for(const [key,value] of Object.entries(reading))assert.deepEqual(saved[key],value);
+  }}finally{fs.rmSync(root,{recursive:true,force:true});}
+});

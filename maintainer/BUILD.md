@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds **1.4.4 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Reader and Alternative add safe inline HTML formatting, VeniceAI citations and isolated HTML previews; Reader also adds duplicate cleanup. Analytics functionality and all dependency/runtime pins are unchanged. Dependency and runtime pins are recorded below. The server patch is unchanged. The manual and application READMEs describe the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance. No GitHub release is implied by building this tree.
+The current tree builds **1.4.5 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Reader fixes collection-scoped identity matching, integrated import merging and Grok unanswered-prompt cleanup. Reader and Alternative improve native HTML preview geometry and add optional code wrapping and display-only line numbers. Analytics functionality and all dependency/runtime pins are unchanged. Dependency and runtime pins are recorded below. The server patch is unchanged. The manual and application READMEs describe the 1.4.5 controls and safety boundaries; existing screenshots retain their original provenance. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
@@ -98,7 +98,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [1.4.4 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.4) supplies the exact tagged application source and `ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz`. This supplement updates the original Electron 45.1.0 source collection to Electron 45.2.3. Matching runtime source requires **both** the supplement and the six original Runtime-Sources ZIP parts plus their metadata from [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0). Both ONNX-Sources ZIP parts and their metadata remain unchanged there. The v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips sources.
+The [1.4.5 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.5) supplies the exact tagged application source and `ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz`. This supplement updates the original Electron 45.1.0 source collection to Electron 45.2.3. Matching runtime source requires **both** the supplement and the six original Runtime-Sources ZIP parts plus their metadata from [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0). Both ONNX-Sources ZIP parts and their metadata remain unchanged there. The v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips sources.
 
 Verify files against their original release's `SHA256SUM.txt`. Keep the numbered ZIPs intact and extract only their metadata ZIPs. Assemble the original runtime sources **without `--apply-patches`**, then apply the update supplement:
 

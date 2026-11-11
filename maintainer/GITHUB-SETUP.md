@@ -18,8 +18,8 @@ For an existing checkout, confirm that the working tree is clean before updating
 The published source archive is also available for inspection and builds. Its root directory includes the version and `-Source` suffix:
 
 ```text
-tar -xzf ThreadShelf-Local-Suite-1.4.4-Source.tar.gz
-cd ThreadShelf-Local-Suite-1.4.4-Source
+tar -xzf ThreadShelf-Local-Suite-1.4.5-Source.tar.gz
+cd ThreadShelf-Local-Suite-1.4.5-Source
 ```
 
 The source archive has no `.git` history. Make repository updates in a clone; do not initialize a replacement repository or force-push over the existing history.
@@ -63,7 +63,7 @@ The published `v1.4.0` tag must remain unchanged. Its release contains nine nati
 
 Use **Publish validated release** from `master` when the tagged build's six package jobs succeeded but publication failed. Supply:
 
-- `tag`: the existing stable release tag, such as `v1.4.4`.
+- `tag`: the existing stable release tag, such as `v1.4.5`.
 - `source_run`: the numeric ID of that completed **tag-push** package workflow run.
 
 The recovery workflow checks the repository, tag, commit and all six successful package jobs, then downloads their existing artifacts. A manually dispatched package build is not an accepted recovery source. Corrected publisher code comes from `master`; application sources and documentation are archived from the original tag.
@@ -95,4 +95,4 @@ The hosted manual URL remains the same across application releases. No Pages sit
 - [Configuring a Pages publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [Managing releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
 
-These instructions describe the workflows and repository layout used for 1.4.4. Review the checked-in workflow definitions when changing the release process.
+These instructions describe the workflows and repository layout used for 1.4.5. Review the checked-in workflow definitions when changing the release process.

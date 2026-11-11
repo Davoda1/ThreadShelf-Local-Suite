@@ -1,55 +1,62 @@
 # Reader duplicate cleanup
 
-Open Settings → Database Manager → Deduplication. This is the fifth manager
-section and uses the existing application controls, themes and spacing. Manual
-cleanup opens a separate in-app review surface, outside the settings panel.
+Open **Settings → Database Manager → Deduplication**. **Review conversation cleanup**
+opens a separate in-app view for existing records. Import and server copy use the
+same rules while processing incoming records; they do not require a separate
+cleanup operation after the transfer.
 
-## Collection and provider boundaries
+## Identity and collection boundaries
 
-Separate collections always retain independent copies, even when every message
-matches. Only an explicit merge brings those records together for comparison.
-Within a collection, provider identity takes precedence: a VeniceAI conversation
-using a Grok model is still VeniceAI and does not receive Grok export cleanup.
+Comparisons remain inside one collection. Separate collections retain independent
+copies, even when all messages match. Provider identity is normalized independently
+of the selected model: VeniceAI using a Grok model is still VeniceAI.
 
-The new matching pass expands existing import/merge behavior. It matches title
-and actual model identity, then compares the ordered conversation contents.
-Export-specific IDs and bookkeeping do not establish a meaningful difference.
-Different model variants, substantive reasoning, attachments, message order and
-answered branches remain meaningful. Missing model data is not proof of a match.
+For ChatGPT, Anthropic, Meta and other providers with reliable IDs, provider plus
+conversation ID establishes identity. Two different IDs are kept even if titles
+and user prompts are identical. Repeated identical snapshots retain one record;
+when a shorter snapshot is a complete prefix of a fuller snapshot, the fuller
+record survives. Other snapshots with the same reliable ID resolve to the newest
+record. Message order, attachments and structured content are compared from source,
+not rendered HTML or similarity scores.
 
-Identical conversations retain one entry. If the complete shorter history is an
-exact prefix of the longer history, the longer entry survives. Different answered
-histories remain separate. The comparison is of saved contents, not screenshots,
-rendered HTML or a similarity score.
+VeniceAI IDs are unreliable. Its records instead need matching provider, title,
+actual model and compatible complete source history. Missing model information or
+divergent answered histories are not proof of a match. Content matching preserves
+meaningful attachments, reasoning and other structured data.
 
 ## Grok/xAI export artifacts
 
-These rules depend on the provider, not the selected AI model:
+Grok rules depend on the provider, never merely the selected model:
 
-- A conversation containing only one user prompt and no substantive AI response
-  is eligible for automatic prompt-only cleanup, subject to attachment/content
-  preservation checks.
-- Where two matching conversations have the same preceding history, but one ends
-  in one or more unanswered user prompts and the other continues with an AI
-  response, the unanswered variant can be superseded. The trailing user prompts
-  may be the same or edited. The answered continuation survives.
-- Divergent answered histories are not discarded under this rule.
+- A text-only conversation with one user prompt and no substantive response,
+  reasoning, tool output, attachment or other content is automatically deleted.
+  Repeated source wrappers and empty-response diagnostics do not constitute an
+  answer, but unknown substantive fields remain protected.
+- Matching conversations with an answered shared history can contain an unanswered
+  trailing variant and an answered continuation. The answered continuation survives;
+  the superseded variant is deleted, even when its trailing user prompt was edited.
+- Different answered branches are preserved by this cross-ID content rule.
 
-## Automatic and manual operation
+## Processing and review
 
-Automatic checks run after successful import/server-copy batches and applicable
-collection operations. Existing records can be rechecked manually. The review
-shows the affected collection, survivor/removal relationship and reason before
-confirmation. If the archive changes after review, a stale result must be reviewed
-again rather than applied to different data.
+Imports and server copies merge and deduplicate during processing with bounded
+parallel workers. Existing archives can be reviewed manually. The review shows
+progress, affected collections, reasons and survivor/removal relationships. It also
+shows expanded conversation database size and the lowest free-space value among
+checked volumes; separate search indexes and audio caches are excluded from that
+expanded size. Mutations check available disk space before writing.
 
-Prompt-only cleanup for other providers is an independent optional setting,
-disabled by default. Enabling its automatic mode requires explicit confirmation.
-Manual review can include that category without changing the automatic preference.
-Text-only single-user records with no substantive response/tool/reasoning content
-qualify; attachments are not silently discarded by this convenience rule.
+The review can be closed and reopened while scanning or applying changes. Progress,
+completed results and selections remain available. A changed archive invalidates
+stale selections and requires a new scan. Only selected review entries are applied.
 
-Bookmarks, saved reading references and relevant retained source information
-follow the surviving conversation. The current conversation/list and derived
-indexes are refreshed after cleanup. Explicit prompt-only deletion has no survivor.
-Regular archive backups remain available through Storage & backup.
+**Automatically delete single unanswered prompts from providers that are not Grok**
+is an independent setting, disabled by default. Enabling it requires confirmation.
+Review can include those providers without enabling their automatic deletion.
+
+Superseded records are deleted rather than retained as hidden copies. Cleanup also
+removes obsolete embedded copies from older archives while retaining the current
+conversation. Saved reading and bookmarks follow a survivor; prompt-only deletion
+has no survivor. Archive storage, derived indexes and the displayed conversation
+are refreshed. A storage reclamation failure is reported separately from saved
+conversation changes. Regular backups remain available through Storage & backup.

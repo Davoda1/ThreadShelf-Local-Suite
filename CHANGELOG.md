@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.5 — 2026-11-11
+
+- Correct Reader conversation identity matching within each collection. Reliable providers use provider plus conversation ID: identical snapshots keep one copy, an exact longer continuation supersedes its shorter prefix, and other same-ID snapshots resolve to the newest record. Distinct reliable IDs remain separate. VeniceAI uses content-based matching because its export IDs are not stable; its preservation checks and Grok’s cross-ID cleanup rules retain divergent answered branches.
+- Merge and deduplicate while imports and server copies are processed. Improve cleanup throughput and progress reporting, allow an active review to be reopened from settings, and align size summaries within the review.
+- Automatically remove qualifying Grok/xAI single unanswered prompts and superseded unanswered endings. Clarify that the optional, default-off unanswered-prompt setting applies to providers other than Grok/xAI. Superseded copies are deleted rather than retained as hidden conversation history.
+- Correct HTML preview sizing, initial placement, zoom and clipping during scrolling in Reader and Alternative. Use the full code-block interior with a responsive 16:9 viewport, transparent loading and no additional HTML frame or margin; preserve Code and other render layouts.
+- Add default-off **Wrap long code lines** and **Show code line numbers** reading preferences to Reader and Alternative. Numbers are display-only and appear only in Code view; copying and exports preserve source text.
+- Align Reader, Analytics and Alternative at 1.4.5 and retain the full release set. Analytics functionality, public privacy controls, profile/archive formats, runtime pins and dependency versions remain unchanged. Preserve the Windows ESM-path and dedicated native-report fixes from the preceding release.
+
 ## 1.4.4 — 2026-11-10
 
 - Render bounded safe inline HTML formatting and CSS colors in ordinary user and response text. Preserve code, math, source copying and existing SVG behavior.

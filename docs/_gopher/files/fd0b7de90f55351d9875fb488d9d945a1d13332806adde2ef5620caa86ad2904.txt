@@ -44,6 +44,8 @@ If the app reports that reading progress could not be saved, it retains the fail
 
 A code block's **Copy** button copies that block's code. The language label is used for syntax highlighting when a bundled grammar is available; an unrecognized label still leaves readable plain text. Copying code does not execute it. Check copied commands before running them in a terminal.
 
+**Settings → Reading → Wrap long code lines** and **Show code line numbers** are independent, default-off display preferences. Wrapping fits long source lines to the block width. Numbers identify logical source lines, including blank lines; wrapped continuations do not become new source lines. Numbers appear only in Code view and are never added to copied text or exports. HTML, SVG, Mermaid and chart Render views have no line-number gutter. Returning to Code restores the selected presentation.
+
 ## Markdown, mathematics and diagrams
 
 The renderer supports Markdown text, headings, lists, tables, code and mathematics with bundled rendering assets, including MathJax 4. Large tables and code use contained scroll regions. Mermaid diagrams render locally where the retained source can be interpreted. The renderer can apply bounded repairs as a reading aid.
@@ -86,6 +88,8 @@ Automation suggestions, maps, dynamic components and unsupported markup remain p
 Ordinary prompts and responses can show safe inline HTML formatting, including `<mark>` and spans with bounded text/background colors. Scripts, event handlers, URL-bearing CSS and styles that affect the application are rejected. Numeric VeniceAI markers such as `^1^` appear as small theme-aware badges; they do not invent a source URL. Code and mathematical expressions remain protected.
 
 Complete HTML5 documents in unlabelled, `unknown`, `html`, `htm` or `html5` code blocks can offer **Code / Render**. The page must include its doctype and explicit html, head and body structure. Fragments, malformed or multiple documents, escaped examples and blocks labelled as programming languages stay code. The initial view is Code. Copy and download always use the original source; standalone SVG keeps its separate image-only preview.
+
+The HTML viewport uses the code block’s full interior width and a responsive 16:9 ratio, without an extra frame or surrounding margin. It stays clipped inside the reading pane during initial display, application zoom, resizing and scrolling. The loading surface is transparent against the code-block background; a failed preview shows an error with its source available. These HTML-specific dimensions do not change Code, SVG, Mermaid or chart layouts.
 
 Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
 

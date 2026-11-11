@@ -2,7 +2,12 @@ const { app, BrowserWindow }=require('electron');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const os=require('node:os');
 const { createHtmlPreviewHost }=require('../src/desktop/html-preview-host.cjs');
+// The zoom regression must not inherit a prior Electron run's saved data-URL zoom.
+const profile=fs.mkdtempSync(path.join(os.tmpdir(),'threadshelf-html-host-'));
+app.setPath('userData',profile);
+const cleanup=()=>{try{fs.rmSync(profile,{recursive:true,force:true});}catch{/* Chromium may retain profile locks until process exit on Windows. */}};
 app.commandLine.appendSwitch('disable-gpu');
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const reportFile=process.env.HTML_PREVIEW_HOST_REPORT ? path.resolve(process.env.HTML_PREVIEW_HOST_REPORT) : null;
@@ -39,10 +44,21 @@ await host.invoke('html.preview.closeAll');await host.invoke('html.preview.open'
 dns.lookup=originalLookup;https.request=originalRequest;
 await host.invoke('html.preview.closeAll');await host.invoke('html.preview.open',{id:'runaway',source:page('<script>while(true){}</script>'),language:'html',bounds:{x:20,y:90,width:620,height:300}});await delay(200);
 assert.equal(await owner.webContents.executeJavaScript('1+1'),2);const runaway=host.entries.get('runaway').view.webContents;await host.invoke('html.preview.close',{id:'runaway'});await delay(200);assert.equal(runaway.isDestroyed(),true);
+// Preserve a complete responsive canvas viewport inside the visible rectangle.
+// This also exercises page zoom separately from the operating-system scale.
+owner.webContents.setZoomFactor(1.25);
+const canvasSource=page('<style>html,body{margin:0;background:#182735}canvas{display:block;width:100vw;height:100vh}</style><canvas></canvas><script>const c=document.querySelector("canvas"),g=c.getContext("2d");let frames=0;function draw(){c.width=innerWidth;c.height=innerHeight;g.fillStyle="#182735";g.fillRect(0,0,c.width,c.height);g.fillStyle="#72eaff";g.fillRect(40+(frames%100),40,20,20);document.body.dataset.frames=++frames;requestAnimationFrame(draw)}draw()</script>');
+await host.invoke('html.preview.open',{id:'clipped-canvas',source:canvasSource,external:false,language:'html',bounds:{x:20,y:50,width:400,height:220},viewport:{width:640,height:360,offsetX:100,offsetY:60}});await delay(350);
+entry=host.entries.get('clipped-canvas');assert.ok(entry.ready);assert.equal(entry.clipView.getVisible(),true);
+assert.deepEqual(entry.clipView.getBounds(),{x:25,y:63,width:500,height:274});assert.deepEqual(entry.view.getBounds(),{x:-125,y:-75,width:800,height:450});
+const canvas=await entry.view.webContents.executeJavaScript('({width:innerWidth,height:innerHeight,frames:Number(document.body.dataset.frames),node:typeof require,bridge:typeof window.desktop})');
+assert.equal(canvas.width,640);assert.equal(canvas.height,360);assert.ok(canvas.frames>1);assert.equal(canvas.node,'undefined');assert.equal(canvas.bridge,'undefined');
+await host.invoke('html.preview.update',{id:'clipped-canvas',visible:false});assert.equal(entry.clipView.getVisible(),false);
+await host.invoke('html.preview.update',{id:'clipped-canvas',visible:true,bounds:{x:20,y:50,width:400,height:220},viewport:{width:640,height:360,offsetX:100,offsetY:60}});assert.equal(entry.clipView.getVisible(),true);
 const shot=await owner.webContents.capturePage();const folder=process.env.HTML_PREVIEW_EVIDENCE;if(folder){fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(folder,'host-680x540.png'),shot.toPNG());}
-const report={passed:true,checks:11,chromiumSandboxEnabled:true,isolation:result,separateProcess:true,sandbox:true,privateRequestsBlocked:true,navigationBlocked:true,staleOpenCancelled:true,publicTransportFixture:online,runawayIsolated:true,rendererCanRestrictNetwork:true,events};
-// Chromium diagnostics may use stdout. Keep machine-readable evidence separate.
+const report={passed:true,checks:12,chromiumSandboxEnabled:true,isolation:result,separateProcess:true,sandbox:true,privateRequestsBlocked:true,navigationBlocked:true,staleOpenCancelled:true,publicTransportFixture:online,runawayIsolated:true,rendererCanRestrictNetwork:true,clippedCanvas:true,applicationZoom:true,canvas,events};
+// Native diagnostics must not enter the machine-readable verification record.
 if(reportFile){fs.mkdirSync(path.dirname(reportFile),{recursive:true});fs.writeFileSync(reportFile,JSON.stringify(report,null,2)+'\n',{flag:'wx'});}else console.log(JSON.stringify(report));
-host.dispose();owner.destroy();app.exit(0);
-})().catch(error=>{console.error(error);host?.dispose();owner?.destroy();app.exit(1);});
-setTimeout(()=>{console.error('HTML preview host test timed out');host?.dispose();owner?.destroy();app.exit(1);},25000).unref();
+host.dispose();owner.destroy();cleanup();app.exit(0);
+})().catch(error=>{console.error(error);host?.dispose();owner?.destroy();cleanup();app.exit(1);});
+setTimeout(()=>{console.error('HTML preview host test timed out');host?.dispose();owner?.destroy();cleanup();app.exit(1);},25000).unref();

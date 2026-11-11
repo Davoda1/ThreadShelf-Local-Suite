@@ -4,7 +4,7 @@ The suite source archive is an editable repository tree. Extract it and read the
 
 ## Build documentation
 
-Follow the root maintainer instructions for the pinned Node.js 26.13.0/managed npm 12.2.2 toolchain, dependency installation, native packaging and release checks. All three public 1.4.4 applications use Electron **45.2.3** with Chromium **156.0.8078.80**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
+Follow the root maintainer instructions for the pinned Node.js 26.13.0/managed npm 12.2.2 toolchain, dependency installation, native packaging and release checks. All three public 1.4.5 applications use Electron **45.2.3** with Chromium **156.0.8078.80**. The runtime’s embedded Node.js is separate from the development Node.js toolchain. Use the component’s own build guide when working on one application. Keep source code, dependency lockfiles and license notices together.
 
 The source uses build scripts for development; the delivered Windows/Linux GUI packages launch native executables. A build script is not a portable-app launcher.
 
@@ -25,8 +25,8 @@ This release preserves the pinned runtime and existing native dependencies. Thei
 
 | Source material | Matching offer and scope |
 | --- | --- |
-| Application source | The 1.4.4 suite Source archive, including the speech service and its preparation/build instructions |
-| Electron 45.2.3 / Chromium 156.0.8078.80 | All six numbered `ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip` through `-06.zip`, plus the Runtime-Sources-Metadata ZIP, in the [v1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0), **plus** the [v1.4.4 runtime source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.4/ThreadShelf-Local-Suite-1.4.4-Runtime-Source-Update.tar.gz) |
+| Application source | The 1.4.5 suite Source archive, including the speech service and its preparation/build instructions |
+| Electron 45.2.3 / Chromium 156.0.8078.80 | All six numbered `ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip` through `-06.zip`, plus the Runtime-Sources-Metadata ZIP, in the [v1.3.0 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0), **plus** the [v1.4.5 runtime source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.5/ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz) |
 | Reader ONNX Runtime 1.31.1 | The source/provenance companion identified by Reader's `licenses/ONNX-SOURCE-ACCESS.md`, associated with v1.3.0 |
 | Unchanged Reader sharp/libvips dependencies | The [v1.0.0 Native-Sources companion](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.0.0/ThreadShelf-Local-Suite-1.0.0-Native-Sources.tar.gz), reused only for its verified unchanged sharp/libvips scope |
 | Speech engines, model assets and their runtime dependencies | The TTS preparation instructions, pinned asset inventory and third-party notices in each speech-enabled application's source/package |

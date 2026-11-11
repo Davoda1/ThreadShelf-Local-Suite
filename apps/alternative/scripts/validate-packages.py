@@ -17,7 +17,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 SLUG = 'threadshelf-local-alternative'
-PREFIX = 'ThreadShelf-Local-Alternative-1.4.4'
+PREFIX = 'ThreadShelf-Local-Alternative-1.4.5'
 APP_ROOTS = ('core', 'renderer', 'assets', 'vendor', 'licenses')
 
 def build_module():
@@ -192,9 +192,9 @@ def main():
                         runtime_seen.add(relative)
                 assert runtime_seen == set(hashes), 'Missing Linux runtime hash coverage'
             report['checks'].append({'package': linux.name, 'native_root_elf': True, 'no_launcher_scripts': True, 'source_parity': True})
-        deb = args.directory / f'{SLUG}_1.4.4_amd64.deb'
+        deb = args.directory / f'{SLUG}_1.4.5_amd64.deb'
         metadata = subprocess.check_output(['dpkg-deb', '-f', str(deb)], text=True)
-        assert 'Package: ' + SLUG in metadata and 'Version: 1.4.4' in metadata and 'Architecture: amd64' in metadata
+        assert 'Package: ' + SLUG in metadata and 'Version: 1.4.5' in metadata and 'Architecture: amd64' in metadata
         # Stream the archive to avoid loading the 400+ MB runtime in memory.
         process = subprocess.Popen(['dpkg-deb', '--fsys-tarfile', str(deb)], stdout=subprocess.PIPE)
         checks = {'entrypoint': False, 'elf': False, 'sandbox': False, 'desktop': False, 'readme': False}

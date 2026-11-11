@@ -224,5 +224,18 @@
 
 /* Native isolated HTML previews occupy the existing code-block surface. */
 .tsa-code-toolbar .tsa-html-toggle{margin-left:auto}
-.tsa-html-preview{display:block;box-sizing:border-box;width:100%;height:280px;min-height:100px;max-height:320px;overflow:hidden;white-space:normal;background:var(--bg-primary);color:var(--text-secondary);font:inherit;line-height:1.5;padding:0;border:0}
+.tsa-html-preview{display:flex;box-sizing:border-box;width:100%;height:auto;aspect-ratio:16/9;min-width:0;margin:0;align-items:center;justify-content:center;overflow:hidden;white-space:normal;background:transparent;color:var(--text-secondary);font:inherit;line-height:1.5;padding:0;border:0}
+.tsa-html-preview[data-preview-error]{height:auto;aspect-ratio:auto;min-height:0}
 .tsa-html-preview[hidden]{display:none}
+.tsa-code-block:has(>.tsa-html-preview:not([hidden]):not([data-preview-error])){border-bottom-left-radius:0;border-bottom-right-radius:0}
+
+/* Source presentation stays within pre, so rendered previews have no gutters. */
+.message-content .tsa-code-block pre > code{display:block;width:max-content;min-width:100%;box-sizing:border-box;white-space:pre}
+.message-content .tsa-code-block pre.code-wrap > code{width:100%;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}
+.message-content .tsa-code-block pre.code-line-numbers > code{white-space:normal}
+.message-content .tsa-code-block .code-line{display:block;position:relative;min-height:1.65em;padding-inline-start:calc(var(--code-line-digits,1) * 1ch + 1.5em)}
+.message-content .tsa-code-block .code-line-source{display:block;min-height:1.65em;white-space:pre}
+.message-content .tsa-code-block .code-wrap .code-line-source{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal}
+.message-content .tsa-code-block .code-line-number{position:absolute;inset-block:0;inset-inline-start:0;width:calc(var(--code-line-digits,1) * 1ch + .75em + 1px);box-sizing:border-box;padding-inline-end:.75em;border-inline-end:1px solid var(--border-color);text-align:end;color:var(--text-secondary);white-space:pre;overflow-wrap:normal;word-break:normal;user-select:none;-webkit-user-select:none;pointer-events:none}
+.message-content .tsa-code-block .code-line-number::before{content:attr(data-line-number)}
+.message-content .tsa-code-block .code-block-note{display:block;color:var(--text-secondary);font-size:.85em;white-space:normal;user-select:none;-webkit-user-select:none}

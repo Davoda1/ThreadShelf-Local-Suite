@@ -1,3 +1,15 @@
+# Current documentation validation — 1.4.5
+
+The 1.4.5 manual rebuild passes Gopher HTTP 3.0.0 strict validation with 97 source
+nodes and zero warnings. It generates 111 HTML pages and retains 86 original
+content/image assets. The local-link check verifies 2,709 links/assets/fragments
+with no missing targets or fragments. Instructions cover the current code display
+preferences, HTML preview geometry and Reader collection-scoped cleanup. Existing
+screenshots and browser-capture evidence retain their historical 1.4.0 provenance;
+this rebuild does not claim new application screenshots or a new browser capture.
+
+The following record describes that historical capture separately.
+
 # Manual validation
 
 The public 1.4.0 manual was rebuilt and checked on 2026-11-01 using the supplied

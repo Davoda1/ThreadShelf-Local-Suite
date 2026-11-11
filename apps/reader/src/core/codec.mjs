@@ -60,13 +60,18 @@ function encodeArgs(output, profile) {
 }
 const listArgs = (input, profile) => ['l', type(profile), '-slt', '-ba', '-sccUTF-8', '-bd', '-bsp0', input];
 const decodeArgs = (input, profile) => ['x', type(profile), '-so', '-bd', '-bb0', '-bsp0', '-y', '-mmt=2', input, MEMBER];
+// 7-Zip reports native filesystem failures through stderr rather than an errno
+// on the child process. Keep only the known Unix/Windows disk-full diagnostics
+// terminal so an import cannot mistake them for one recoverable bad record.
+const diskFullDiagnostic = detail => /\bNo space left on device\b|\bThere is not enough space on the disk\b/i.test(detail);
 function processFailure(result, action) {
+  if (result.error?.code === 'ENOSPC' || (result.error?.code === 'EPIPE' && diskFullDiagnostic(result.stderr || ''))) throw codecError(`${action} failed: not enough disk space. Free disk space and retry.`, 'ENOSPC', result.error);
   if (result.error?.code === 'ENOBUFS') throw codecError(`${action} exceeded its output size limit.`, 'CODEC_LIMIT', result.error);
   if (result.error?.code === 'ETIMEDOUT') throw codecError(`${action} exceeded its time limit.`, 'CODEC_TIMEOUT', result.error);
   if (result.error) throw codecError(`${action} failed: ${result.error.message}`, 'CODEC_PROCESS', result.error);
   if (result.status !== 0) {
     const detail = String(result.stderr || '').trim().slice(0, 1000);
-    throw codecError(`${action} failed${detail ? `: ${detail}` : ` (exit ${result.status ?? result.signal})`}.`);
+    throw codecError(`${action} failed${detail ? `: ${detail}` : ` (exit ${result.status ?? result.signal})`}.`, diskFullDiagnostic(result.stderr || '') ? 'ENOSPC' : 'CODEC_INVALID');
   }
 }
 function runSync(args, options = {}, input, maxBuffer = MAX_METADATA_BYTES) {
@@ -227,6 +232,9 @@ async function runStream(args, { input, output, maxBytes, signal, timeoutMs }) {
   }
   try {
     const results = await Promise.allSettled(pending);
+    // A native encoder that runs out of space may close stdin first. Preserve
+    // its real disk-full cause instead of allowing the resulting EPIPE to hide it.
+    if (failure?.code === 'EPIPE' && diskFullDiagnostic(stderr)) throw codecError('Storage compression failed: not enough disk space. Free disk space and retry.', 'ENOSPC', failure);
     if (failure) throw failure;
     const rejected = results.find(result => result.status === 'rejected');
     if (rejected) throw rejected.reason;

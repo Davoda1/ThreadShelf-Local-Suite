@@ -32,10 +32,10 @@ Upstream project: [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
 ## Electron runtime source access
 
-Suite 1.4.4 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+Suite 1.4.5 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
 embedded Node.js **24.22.2**. Original runtime notices remain intact.
 Matching runtime source is the historical 1.3.0 original source collection
-plus the 1.4.4 runtime source update; both are required. Historical source
+plus the 1.4.5 runtime source update; both are required. Historical source
 verification records remain specific to Electron 45.1.0. See
 [Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
 offline update instructions and upstream build/replacement guidance.

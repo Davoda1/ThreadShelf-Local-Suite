@@ -3,7 +3,9 @@ import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, chmodSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { ContentStore, contentObjects, validateContentRef } from './content-packs.mjs';
-import { describeDeduplication, compareDeduplication, planDeduplication, retainDeduplicationSources, deduplicationTurnMap } from './deduplication.mjs';
+import { describeDeduplication, planDeduplication, stripDeduplicationHistory, hasDeduplicationHistory, deduplicationTurnMap } from './deduplication.mjs';
+import { canonicalProvider, reliableConversationIdentity } from './conversation-identity.mjs';
+import { ArchiveWorkPool } from './archive-work-pool.mjs';
 
 const SCHEMA_VERSION = 3;
 const APPLICATION_ID = 0x54534c52;
@@ -92,7 +94,7 @@ function normalize(input) {
   }
   // Clone before any write: circular/BigInt values fail without changing the DB.
   // Importers stringify unsafe integer IDs losslessly before reaching this layer.
-  const document = JSON.parse(JSON.stringify(input));
+  const document = stripDeduplicationHistory(JSON.parse(JSON.stringify(input)));
   document.collection = scalar(document.collection, DEFAULT_COLLECTION).trim() || DEFAULT_COLLECTION;
   document.provider = scalar(document.provider).trim().toLowerCase();
   document.sourceFile = scalar(document.sourceFile);
@@ -161,6 +163,8 @@ export class ArchiveStore {
     this.db = null;
     this.contentDir = resolve(options?.contentDir ?? join(this.dataDir, 'objects'));
     this.content = new ContentStore({ directory: this.contentDir, compression: options?.compression ?? '7z', cacheBytes: options?.cacheBytes, blockBytes: options?.blockBytes });
+    this.cleanupPlan = null;
+    this.workers = null;
   }
 
   init() {
@@ -210,6 +214,19 @@ export class ArchiveStore {
       // Scope derived indexes to this archive lineage as well as its content
       // revision. A restored different archive can have the same numeric count.
       db.prepare("INSERT OR IGNORE INTO metadata(key,value) VALUES ('archiveIdentity',?)").run(randomUUID());
+      // Additive migration preserves the existing catalogue and journal format.
+      // Provider IDs are indexed independently of a file path or server URL.
+      const columns = new Set(db.prepare('PRAGMA table_info(conversations)').all().map(row => row.name));
+      if (!columns.has('native_identity')) {
+        db.exec("BEGIN IMMEDIATE; ALTER TABLE conversations ADD COLUMN native_identity TEXT; ALTER TABLE conversations ADD COLUMN canonical_provider TEXT NOT NULL DEFAULT ''; ALTER TABLE conversations ADD COLUMN cleanup_version INTEGER NOT NULL DEFAULT 0;");
+        try {
+          const update = db.prepare('UPDATE conversations SET native_identity=?,canonical_provider=? WHERE id=?');
+          for (const row of db.prepare('SELECT id,provider,conversation_key FROM conversations').all())
+            update.run(reliableConversationIdentity({ provider: row.provider, conversationKey: row.conversation_key }), canonicalProvider(row.provider), row.id);
+          db.exec('COMMIT');
+        } catch (error) { db.exec('ROLLBACK'); throw error; }
+      }
+      db.exec('CREATE INDEX IF NOT EXISTS conversations_native_identity ON conversations(collection_id,native_identity); CREATE INDEX IF NOT EXISTS conversations_cleanup_group ON conversations(collection_id,canonical_provider,trim(title));');
       this.db = db;
       return this;
     } catch (error) {
@@ -232,7 +249,7 @@ export class ArchiveStore {
 
   _contentHash(document) {
     const fingerprint = { ...document };
-    for (const key of ['collection', 'collectionId', 'sourceFile', 'id', 'turnCount', 'importedAt', 'updatedAt']) delete fingerprint[key];
+    for (const key of ['collection', 'collectionId', 'sourceFile', 'id', 'turnCount', 'importedAt', 'updatedAt', 'deduplicationHistory']) delete fingerprint[key];
     return sha256(stableJSON(fingerprint));
   }
 
@@ -258,56 +275,124 @@ export class ArchiveStore {
     return { version: 1, kind, opId: randomUUID(), baseRevision: revision, at: new Date().toISOString() };
   }
 
-  prepareUpsert(input) {
-    let document = normalize(input);
-    const record = this._record('upsert');
+  _workPool() {
+    return this.workers ||= new ArchiveWorkPool(this.contentDir, { compression: this.content.compression, blockBytes: this.content.blockBytes });
+  }
+
+  _upsertContext(input, options = {}) {
+    const document = normalize(input), record = this._record('upsert');
     let collection = input.collectionId ? this._collection(input.collectionId) : this._collection(document.collection, false, true);
     if (!collection) collection = { id: `collection:${randomUUID()}`, name: this._name(document.collection), create: true };
     document.collection = collection.name;
-    const sourceIdentity = conversationIdentity(document);
-    let contentHash = this._contentHash(document);
-    const candidates = this._open().prepare(`SELECT ${SUMMARY_COLUMNS},content_hash,content_ref FROM conversations WHERE collection_id=? AND source_identity_json=? ORDER BY id`).all(collection.id, sourceIdentity);
-    const exact = candidates.find(row => row.content_hash === contentHash);
-    // A merged source may have divergent histories. Only replace a single
-    // unambiguous history; retain additional versions rather than guessing.
-    let previous = exact || (candidates.length === 1 ? candidates[0] : null), preserveConflict = false;
-    if (exact) return { ...record, collection, sourceIdentity, contentHash, id: exact.id, previousId: exact.id, unchanged: true, summary: summary(exact) };
-    // Keep a newer complete snapshot when an older export with the same native
-    // identity arrives later. Other established source-ID update rules remain
-    // unchanged. Different identities are handled by the post-import pass.
-    if (previous) {
-      const older = { ...this.content.readDocument(JSON.parse(previous.content_ref)), ...summary(previous) };
-      const a = describeDeduplication(older, { ...summary(previous), collectionId: collection.id });
-      const b = describeDeduplication(document, { id: '__incoming__', collectionId: collection.id, importedAt: record.at });
-      // A stable native identity is stronger evidence than missing model
-      // metadata. Protect its exact prefix snapshots without widening the
-      // unknown-model rule for otherwise unrelated conversation identities.
-      if (!a.model && !b.model && a.provider === b.provider && a.title === b.title) a.key = b.key = '__same_native_identity__';
-      let match = compareDeduplication(a, b);
-      if (match?.reason === 'identical') match = { ...match, keep: b, remove: a };
-      if (match) {
-        record.turnRemap = { [previous.id]: deduplicationTurnMap(a, match.keep) };
-        document = normalize(retainDeduplicationSources(match.keep.id === previous.id ? older : document, [match.remove.id === previous.id ? older : document]));
-        contentHash = this._contentHash(document);
-      } else if (a.model && b.model && a.key && a.key === b.key) {
-        // Same-ID edited answered branches or changed attachments are distinct
-        // histories, not source bookkeeping updates. Keep both visible.
-        previous = null; preserveConflict = true;
-      } else {
-        // Preserve original native-ID update semantics, but retain the entire
-        // prior source so an exporter metadata/model change cannot erase it.
-        document = normalize(retainDeduplicationSources(document, [older]));
-        contentHash = this._contentHash(document);
-      }
+    const provider = canonicalProvider(document.provider), nativeIdentity = reliableConversationIdentity(document);
+    const sourceIdentity = conversationIdentity(document), contentHash = this._contentHash(document), rows = new Map();
+    const columns = `${SUMMARY_COLUMNS},native_identity,cleanup_version,content_hash,content_ref,source_identity_json`;
+    if (nativeIdentity) for (const row of this._open().prepare(`SELECT ${columns} FROM conversations WHERE collection_id=? AND native_identity=? ORDER BY created_at,id`).all(collection.id, nativeIdentity)) rows.set(row.id, row);
+    // Provenance is only a fallback when a provider supplies no usable native ID.
+    if (!nativeIdentity && provider !== 'venice') for (const row of this._open().prepare(`SELECT ${columns} FROM conversations WHERE collection_id=? AND source_identity_json=? ORDER BY created_at,id`).all(collection.id, sourceIdentity)) rows.set(row.id, row);
+    if (provider === 'venice' || provider === 'grok') for (const row of this._open().prepare(`SELECT ${columns} FROM conversations WHERE collection_id=? AND canonical_provider=? AND trim(title)=? ORDER BY created_at,id`).all(collection.id, provider, document.title.trim())) rows.set(row.id, row);
+    const candidates = [...rows.values()];
+    const exact = candidates.length === 1 && candidates[0].content_hash === contentHash && candidates[0].cleanup_version === 1 && provider !== 'grok' && !options.deletePromptOnly ? candidates[0] : null;
+    return { document, record, collection, provider, nativeIdentity, sourceIdentity, contentHash, candidates, options,
+      immediate: exact ? { ...record, collection, sourceIdentity, contentHash, id: exact.id, previousId: exact.id, unchanged: true, summary: summary(exact), deduplication: { duplicates: 0, promptOnly: 0, superseded: 0, removed: 0 } } : null };
+  }
+
+  _upsertSelection(context, descriptions) {
+    const { document, record, collection, nativeIdentity, sourceIdentity, provider, candidates, options } = context;
+    const incoming = descriptions.at(-1);
+    // Legacy records without a provider ID retain R12's exact source identity
+    // update behavior. Venice deliberately never takes that fallback.
+    if (!nativeIdentity && provider !== 'venice') {
+      incoming.identity = `source:${sourceIdentity}`;
+      for (let i = 0; i < candidates.length; i++) if (candidates[i].source_identity_json === sourceIdentity && !descriptions[i].identity)
+        descriptions[i].identity = incoming.identity;
     }
-    const contentRef = this.content.writeDocument(document);
+    const plan = planDeduplication(descriptions, { deletePromptOnly: options.deletePromptOnly === true });
+    const incomingRemoval = plan.find(entry => entry.remove.id === incoming.id);
+    const winner = incomingRemoval ? incomingRemoval.keep : incoming;
+    const related = plan.filter(entry => entry.remove.id !== incoming.id && (!entry.keep || winner && entry.keep.id === winner.id));
+    const winnerRow = winner && candidates.find(row => row.id === winner.id);
+    const previous = winnerRow || (winner ? candidates.find(row => nativeIdentity && row.native_identity === nativeIdentity)
+      || candidates.find(row => related.some(entry => entry.keep && entry.remove.id === row.id)) : null);
+    const survivorId = winner ? previous?.id || `local:${randomUUID()}` : null;
+    const removeIds = related.map(entry => entry.remove.id).filter(id => id !== survivorId);
+    const remap = {}, turnRemap = {};
+    for (const entry of related) if (entry.keep && survivorId) {
+      if (entry.remove.id !== survivorId) remap[entry.remove.id] = survivorId;
+      turnRemap[entry.remove.id] = deduplicationTurnMap(entry.remove, winner);
+    }
+    if (previous && winner) {
+      const before = descriptions.find(item => item.id === previous.id);
+      turnRemap[previous.id] = deduplicationTurnMap(before, winner);
+    }
+    const discarded = incomingRemoval ? 1 : 0;
+    const promptOnly = related.filter(entry => !entry.keep).length + (incomingRemoval && !winner ? 1 : 0);
+    const superseded = related.filter(entry => entry.reason === 'grok-superseded').length + (incomingRemoval?.reason === 'grok-superseded' ? 1 : 0);
+    const duplicates = related.filter(entry => entry.keep).length + (incomingRemoval?.keep ? 1 : 0);
+    // Updating the retained local row also removes its superseded payload; it
+    // must be counted even though keeping that row ID preserves bookmarks.
+    const deduplication = { duplicates, promptOnly, superseded, removed: related.length + discarded, discarded };
+    return { ...context, winner, winnerRow, previous, survivorId, removeIds, remap, turnRemap, deduplication,
+      skip: !winner, description: incoming,
+      mutation: { ...record, collection, id: survivorId, previousId: previous?.id || null, removeIds, remap, turnRemap, deduplication, conflict: false } };
+  }
+
+  _finishUpsert(selection, document, contentRef) {
+    const { mutation, previous, removeIds } = selection;
+    if (!document) return { ...mutation, skip: true, unchanged: !removeIds.length, summary: null };
+    document = normalize(document); document.collection = selection.collection.name;
+    const contentHash = this._contentHash(document);
     let passageCount = 0; for (const ignored of passageRows(document, 'count')) passageCount++;
     const metadata = { provider: document.provider, sourceFile: document.sourceFile, conversationKey: document.conversationKey,
-      title: document.title, turnCount: document.turns.length, lastTurnAt: document.lastTurnAt,
-      sortTime: latestTime(document), passageCount };
-    return { ...record, collection, document: metadata, contentRef, sourceIdentity, contentHash,
-      id: previous?.id ?? `local:${randomUUID()}`, previousId: previous?.id ?? null,
-      conflict: preserveConflict || candidates.length > 1, unchanged: false };
+      title: document.title, turnCount: document.turns.length, lastTurnAt: document.lastTurnAt, sortTime: latestTime(document), passageCount };
+    return { ...mutation, document: metadata, contentRef, sourceIdentity: conversationIdentity(document), contentHash,
+      nativeIdentity: reliableConversationIdentity(document), unchanged: previous?.content_hash === contentHash && previous.cleanup_version === 1 && !removeIds.length,
+      summary: previous ? summary(previous) : null };
+  }
+
+  prepareUpsert(input, options = {}) {
+    const context = this._upsertContext(input, options); if (context.immediate) return context.immediate;
+    const documents = context.candidates.map(row => this.content.readDocument(JSON.parse(row.content_ref)));
+    const descriptions = documents.map((doc, index) => describeDeduplication(doc, summary(context.candidates[index])));
+    descriptions.push(describeDeduplication(context.document, { id: '__incoming__', collectionId: context.collection.id, importedAt: context.record.at, updatedAt: context.record.at }));
+    const selection = this._upsertSelection(context, descriptions);
+    if (selection.skip) return this._finishUpsert(selection, null, null);
+    const document = normalize(selection.winner.id === '__incoming__' ? context.document : documents[context.candidates.findIndex(row => row.id === selection.winner.id)]);
+    const hash = this._contentHash(document);
+    const contentRef = selection.previous?.content_hash === hash && selection.previous.cleanup_version === 1
+      ? JSON.parse(selection.previous.content_ref) : this.content.writeDocument(document);
+    return this._finishUpsert(selection, document, contentRef);
+  }
+
+  async prepareUpsertAsync(input, options = {}) {
+    options.signal?.throwIfAborted();
+    const context = this._upsertContext(input, options); if (context.immediate) return context.immediate;
+    const pool = this._workPool();
+    const descriptions = [];
+    // Each worker handles at most one bounded document at a time. Queue no raw
+    // archive bodies: existing records are passed as immutable references.
+    for (let start = 0; start < context.candidates.length; start += pool.concurrency) {
+      const batch = context.candidates.slice(start, start + pool.concurrency);
+      const values = await Promise.all(batch.map(row => pool.run({ kind: 'describe', contentRef: JSON.parse(row.content_ref), row: summary(row) }, options)));
+      descriptions.push(...values.map(value => value.description));
+    }
+    descriptions.push((await pool.run({ kind: 'describe', document: context.document,
+      row: { id: '__incoming__', collectionId: context.collection.id, importedAt: context.record.at, updatedAt: context.record.at } }, options)).description);
+    const selection = this._upsertSelection(context, descriptions);
+    if (selection.skip) return this._finishUpsert(selection, null, null);
+    const document = normalize(selection.winner.id === '__incoming__' ? context.document
+      : await pool.run({ kind: 'read', contentRef: JSON.parse(selection.winnerRow.content_ref) }, options));
+    const hash = this._contentHash(document);
+    let contentRef;
+    if (selection.previous?.content_hash === hash && selection.previous.cleanup_version === 1) contentRef = JSON.parse(selection.previous.content_ref);
+    else {
+      const expandedBytes = Buffer.byteLength(JSON.stringify(document));
+      await options.beforeWrite?.({ expandedBytes, sourceFile: document.sourceFile });
+      contentRef = await pool.run({ kind: 'write', document, estimatedBytes: expandedBytes }, options);
+    }
+    options.signal?.throwIfAborted();
+    if (this.revision() !== context.record.baseRevision) throw new Error('The local archive changed during import. Retry the operation.');
+    return this._finishUpsert(selection, document, contentRef);
   }
 
   _selection(args) {
@@ -437,74 +522,169 @@ export class ArchiveStore {
     return this.applyMutation(args.kind === 'manage' && args.opId ? args : (args.action ?? args.operation) === 'deduplicate' ? this.prepareDeduplication(args) : this.prepareMutation(args));
   }
 
-  _deduplicationPlan(args = {}) {
-    this._record('manage', args); // Validate the review revision before scanning.
+  _cleanupScope(args = {}) {
+    this._record('manage', args);
     let collections;
     if (args.collectionIds !== undefined) {
       if (!Array.isArray(args.collectionIds) || args.collectionIds.length > 100000 || args.collectionIds.some(id => typeof id !== 'string')) throw new TypeError('Deduplication needs valid collection IDs.');
-      collections = new Set(args.collectionIds.map(id => this._collection(id).id));
-    } else if (args.collectionId || args.collection && args.collection !== 'all') collections = new Set([this._collection(args.collectionId || args.collection).id]);
-    const entries = [];
-    let group = [], key, scanned = 0;
-    const flush = () => { if (group.length) entries.push(...planDeduplication(group, { deletePromptOnly: args.deletePromptOnly === true })); group = []; };
-    const rows = this._open().prepare(`SELECT ${SUMMARY_COLUMNS},content_ref FROM conversations ORDER BY collection_id,CASE WHEN provider IN ('grok','xai','x.ai') THEN 'grok' ELSE provider END,trim(title),id`).iterate();
-    for (const row of rows) {
-      if (collections && !collections.has(row.collection_id)) continue;
-      const groupKey = stableJSON([row.collection_id, row.provider === 'xai' || row.provider === 'x.ai' ? 'grok' : row.provider, row.title.trim()]);
-      if (key !== groupKey) { flush(); key = groupKey; }
-      const document = this.content.readDocument(JSON.parse(row.content_ref));
-      group.push(describeDeduplication(document, summary(row))); scanned++;
+      collections = [...new Set(args.collectionIds.map(id => this._collection(id).id))].sort();
+    } else if (args.collectionId || args.collection && args.collection !== 'all') collections = [this._collection(args.collectionId || args.collection).id];
+    const key = stableJSON({ collections: collections ?? null, deletePromptOnly: args.deletePromptOnly === true });
+    const revision = this.revision();
+    if (this.cleanupPlan?.revision === revision && this.cleanupPlan.key === key) return { cached: this.cleanupPlan };
+    const clauses = collections?.length && collections.length < 900 ? ` WHERE collection_id IN (${collections.map(() => '?').join(',')})` : '';
+    const selected = collections ? new Set(collections) : null;
+    const rows = collections && !collections.length ? [] : this._open().prepare(`SELECT ${SUMMARY_COLUMNS},native_identity,canonical_provider,cleanup_version,source_identity_json,content_ref FROM conversations${clauses} ORDER BY collection_id,id`).all(...(clauses ? collections : []))
+      .filter(row => !selected || selected.has(row.collection_id));
+    // Only connected identity/content groups can interact. Unique, already
+    // repaired stable-ID conversations do not need body decompression again.
+    const parent = rows.map((_, i) => i), identities = new Map(), contentGroups = new Map(), unresolved = new Map();
+    const find = value => { while (parent[value] !== value) { parent[value] = parent[parent[value]]; value = parent[value]; } return value; };
+    const unite = (map, key, index) => { if (map.has(key)) parent[find(index)] = find(map.get(key)); else map.set(key, index); };
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i], provider = row.canonical_provider || canonicalProvider(row.provider);
+      const identity = row.native_identity || (provider !== 'venice' ? `source:${row.source_identity_json}` : null);
+      if (identity) unite(identities, stableJSON([row.collection_id, identity]), i);
+      if (!row.native_identity && provider !== 'venice') unite(unresolved, stableJSON([row.collection_id, provider]), i);
+      if (provider === 'venice' || provider === 'grok') unite(contentGroups, stableJSON([row.collection_id, provider, row.title.trim()]), i);
     }
-    flush();
-    if (args.ids !== undefined) {
-      if (!Array.isArray(args.ids) || args.ids.length > 1000000 || args.ids.some(id => typeof id !== 'string')) throw new TypeError('Select valid cleanup candidates.');
-      const selected = new Set(args.ids), eligible = new Set(entries.map(entry => entry.remove.id));
-      if ([...selected].some(id => !eligible.has(id))) throw new Error('A selected cleanup candidate changed. Review the list again.');
-      return { scanned, entries: entries.filter(entry => selected.has(entry.remove.id)) };
+    const components = new Map();
+    rows.forEach((row, index) => { const key = find(index); if (!components.has(key)) components.set(key, []); components.get(key).push(row); });
+    const groups = [...components.values()].filter(group => group.length > 1 || group.some(row => row.cleanup_version !== 1 || canonicalProvider(row.provider) === 'grok') || args.deletePromptOnly === true);
+    return { key, revision, scanned: rows.length, groups, inspectCount: groups.reduce((n, group) => n + group.length, 0) };
+  }
+
+  _selectCleanupPlan(plan, args) {
+    if (args.ids === undefined) return plan;
+    if (!Array.isArray(args.ids) || args.ids.length > 1000000 || args.ids.some(id => typeof id !== 'string')) throw new TypeError('Select valid cleanup candidates.');
+    const selected = new Set(args.ids), eligible = new Set([...plan.entries.map(entry => entry.remove.id), ...plan.historyEntries.map(entry => entry.id)]);
+    if ([...selected].some(id => !eligible.has(id))) throw new Error('A selected cleanup candidate changed. Review the list again.');
+    return { ...plan, entries: plan.entries.filter(entry => selected.has(entry.remove.id)), historyEntries: plan.historyEntries.filter(entry => selected.has(entry.id)) };
+  }
+
+  _finishCleanupPlan(scope, entries, histories, inspectedIds) {
+    const removed = new Set(entries.map(entry => entry.remove.id));
+    const plan = { key: scope.key, revision: scope.revision, scanned: scope.scanned, entries,
+      historyEntries: histories.filter(item => !removed.has(item.id)), historyBearingIds: histories.map(item => item.id), inspectedIds };
+    this.cleanupPlan = plan; return plan;
+  }
+
+  _deduplicationPlan(args = {}) {
+    const scope = this._cleanupScope(args); if (scope.cached) return this._selectCleanupPlan(scope.cached, args);
+    const entries = [], histories = [], inspectedIds = [];
+    for (const group of scope.groups) {
+      const descriptions = group.map(row => {
+        const document = this.content.readDocument(JSON.parse(row.content_ref)), description = describeDeduplication(document, summary(row));
+        if (!description.identity && canonicalProvider(row.provider) !== 'venice') description.identity = `source:${row.source_identity_json}`;
+        if (hasDeduplicationHistory(document)) histories.push(description);
+        inspectedIds.push(row.id); return description;
+      });
+      entries.push(...planDeduplication(descriptions, { deletePromptOnly: args.deletePromptOnly === true }));
     }
-    return { scanned, entries };
+    return this._selectCleanupPlan(this._finishCleanupPlan(scope, entries, histories, inspectedIds), args);
+  }
+
+  async _deduplicationPlanAsync(args = {}, options = {}) {
+    options.signal?.throwIfAborted();
+    const scope = this._cleanupScope(args);
+    if (scope.cached) { options.onProgress?.({ phase: 'deduplicating', current: scope.cached.scanned, total: scope.cached.scanned, message: 'Review ready' }); return this._selectCleanupPlan(scope.cached, args); }
+    const pool = this._workPool(), entries = [], histories = [], inspectedIds = [];
+    let current = scope.scanned - scope.inspectCount, next = 0;
+    const progress = () => options.onProgress?.({ phase: 'deduplicating', current, total: scope.scanned, message: 'Reviewing conversations' });
+    progress();
+    const consume = async () => {
+      while (next < scope.groups.length) {
+        const group = scope.groups[next++], descriptions = [];
+        for (let start = 0; start < group.length; start += pool.concurrency) {
+          options.signal?.throwIfAborted();
+          const batch = group.slice(start, start + pool.concurrency);
+          const values = await Promise.all(batch.map(row => pool.run({ kind: 'describe', contentRef: JSON.parse(row.content_ref), row: summary(row) }, options)));
+          for (let i = 0; i < batch.length; i++) {
+            const row = batch[i], value = values[i];
+            if (!value.description.identity && canonicalProvider(row.provider) !== 'venice') value.description.identity = `source:${row.source_identity_json}`;
+            descriptions.push(value.description);
+            if (value.hasHistory) histories.push(value.description);
+            inspectedIds.push(row.id); current++; progress();
+          }
+        }
+        entries.push(...planDeduplication(descriptions, { deletePromptOnly: args.deletePromptOnly === true }));
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(pool.concurrency, scope.groups.length) }, consume));
+    options.signal?.throwIfAborted();
+    if (this.revision() !== scope.revision) throw new Error('The local archive changed during review. Review the collection again.');
+    progress();
+    return this._selectCleanupPlan(this._finishCleanupPlan(scope, entries, histories, inspectedIds), args);
   }
 
   _deduplicationPreview(plan) {
-    const entries = plan.entries.map(({ remove, keep, reason }) => ({
+    const describe = (remove, keep, reason, historyOnly = false) => ({
       id: remove.id, title: remove.title, provider: remove.provider, model: remove.model, collection: remove.collection, collectionId: remove.collectionId,
       sourceFile: remove.sourceFile, importedAt: remove.importedAt, turnCount: remove.events.length,
-      snippet: remove.events.at(-1)?.text.slice(0, 260) || '', reason,
+      snippet: remove.events.at(-1)?.text.slice(0, 260) || '', reason, ...(historyOnly ? { historyOnly: true } : {}),
       keepId: keep?.id || null, keepTitle: keep?.title || '', keepTurnCount: keep?.events.length || 0,
       keepSnippet: keep?.events.at(-1)?.text.slice(0, 260) || '', keepSourceFile: keep?.sourceFile || '',
-    }));
-    return { action: 'deduplicate', revision: this.revision(), scanned: plan.scanned, count: entries.length,
-      duplicates: entries.filter(entry => entry.keepId).length,
-      superseded: entries.filter(entry => entry.reason === 'grok-superseded').length,
-      promptOnly: entries.filter(entry => !entry.keepId).length, entries, truncated: false };
+    });
+    const entries = plan.entries.map(({ remove, keep, reason }) => describe(remove, keep, reason));
+    entries.push(...plan.historyEntries.map(item => describe(item, item, 'stored-history', true)));
+    return { action: 'deduplicate', revision: plan.revision, scanned: plan.scanned, count: entries.length,
+      duplicates: plan.entries.filter(entry => entry.keep).length,
+      superseded: plan.entries.filter(entry => entry.reason === 'grok-superseded').length,
+      promptOnly: plan.entries.filter(entry => !entry.keep).length, historyRecords: plan.historyEntries.length, entries, truncated: false };
   }
 
   previewDeduplication(args = {}) { return this._deduplicationPreview(this._deduplicationPlan(args)); }
+  async previewDeduplicationAsync(args = {}, options = {}) { return this._deduplicationPreview(await this._deduplicationPlanAsync(args, options)); }
+
+  _cleanupMutation(args, plan) {
+    const record = this._record('manage', args), preview = this._deduplicationPreview(plan), remap = {}, turnRemap = {};
+    for (const entry of plan.entries) if (entry.keep) {
+      remap[entry.remove.id] = entry.keep.id; turnRemap[entry.remove.id] = deduplicationTurnMap(entry.remove, entry.keep);
+    }
+    // Reuse the reviewed plan. No loser body is read or copied into a winner.
+    const historyIds = new Set(plan.historyEntries.map(item => item.id));
+    const allHistories = new Set((this.cleanupPlan?.historyEntries || []).map(item => item.id));
+    for (const entry of plan.entries) if (entry.keep && allHistories.has(entry.keep.id)) historyIds.add(entry.keep.id);
+    const removedIds = plan.entries.map(entry => entry.remove.id), removed = new Set(removedIds);
+    const pendingHistory = new Set(plan.historyBearingIds.filter(id => !historyIds.has(id) && !removed.has(id)));
+    return { ...record, action: 'deduplicate', ids: removedIds, historyIds: [...historyIds], inspectedIds: plan.inspectedIds.filter(id => !pendingHistory.has(id)),
+      replacements: [], remap, turnRemap, removedCollections: [], preview };
+  }
+
+  _cleanupReplacement(id, document, contentRef) {
+    const previous = this._open().prepare('SELECT * FROM conversations WHERE id=?').get(id);
+    if (!previous) throw new Error('A retained conversation changed. Review cleanup again.');
+    let passageCount = 0; for (const ignored of passageRows(document, id)) passageCount++;
+    return { id, collection: this._collection(previous.collection_id), sourceIdentity: previous.source_identity_json,
+      nativeIdentity: reliableConversationIdentity(document), contentHash: this._contentHash(document), contentRef,
+      document: { provider: document.provider, sourceFile: document.sourceFile, conversationKey: document.conversationKey,
+        title: document.title, turnCount: document.turns.length, lastTurnAt: document.lastTurnAt, sortTime: latestTime(document), passageCount } };
+  }
 
   prepareDeduplication(args = {}) {
-    const record = this._record('manage', args), plan = this._deduplicationPlan(args);
-    const preview = this._deduplicationPreview(plan);
-    const byWinner = new Map(), remap = {}, turnRemap = {};
-    for (const entry of plan.entries) {
-      if (!entry.keep) continue;
-      if (!byWinner.has(entry.keep.id)) byWinner.set(entry.keep.id, []);
-      byWinner.get(entry.keep.id).push(entry.remove.id);
-      remap[entry.remove.id] = entry.keep.id;
-      turnRemap[entry.remove.id] = deduplicationTurnMap(entry.remove, entry.keep);
+    const record = this._cleanupMutation(args, this._deduplicationPlan(args));
+    for (const id of record.historyIds) {
+      const document = normalize(this.thread({ id }));
+      record.replacements.push(this._cleanupReplacement(id, document, this.content.writeDocument(document)));
     }
-    const replacements = [];
-    for (const [id, loserIds] of byWinner) {
-      const previous = this._open().prepare('SELECT * FROM conversations WHERE id=?').get(id);
-      const document = normalize(retainDeduplicationSources(this.thread({ id }), loserIds.map(loserId => this.thread({ id: loserId }))));
-      const contentRef = this.content.writeDocument(document);
-      let passageCount = 0; for (const ignored of passageRows(document, id)) passageCount++;
-      replacements.push({ id, collection: this._collection(previous.collection_id), sourceIdentity: previous.source_identity_json,
-        contentHash: this._contentHash(document), contentRef,
-        document: { provider: document.provider, sourceFile: document.sourceFile, conversationKey: document.conversationKey,
-          title: document.title, turnCount: document.turns.length, lastTurnAt: document.lastTurnAt, sortTime: latestTime(document), passageCount } });
+    return record;
+  }
+
+  async prepareDeduplicationAsync(args = {}, options = {}) {
+    const plan = await this._deduplicationPlanAsync(args, options), record = this._cleanupMutation(args, plan), pool = this._workPool();
+    for (let index = 0; index < record.historyIds.length; index++) {
+      options.signal?.throwIfAborted(); const id = record.historyIds[index];
+      const row = this._open().prepare('SELECT content_ref FROM conversations WHERE id=?').get(id);
+      const document = normalize(await pool.run({ kind: 'read', contentRef: JSON.parse(row.content_ref) }, options));
+      const expandedBytes = Buffer.byteLength(JSON.stringify(document));
+      await options.beforeWrite?.({ expandedBytes, sourceFile: document.sourceFile });
+      const contentRef = await pool.run({ kind: 'write', document, estimatedBytes: expandedBytes }, options);
+      record.replacements.push(this._cleanupReplacement(id, document, contentRef));
+      options.onProgress?.({ phase: 'deduplicating', current: index + 1, total: record.historyIds.length, message: 'Removing stored superseded copies' });
     }
-    return { ...record, action: 'deduplicate', ids: plan.entries.map(entry => entry.remove.id), replacements,
-      remap, turnRemap, removedCollections: [], preview };
+    options.signal?.throwIfAborted();
+    if (this.revision() !== record.baseRevision) throw new Error('The local archive changed after the review. Review cleanup again.');
+    return record;
   }
 
   applyMutation(record) {
@@ -531,35 +711,47 @@ export class ArchiveStore {
     if (collection.create) this._open().prepare('INSERT INTO collections VALUES (?,?,?,?)').run(collection.id, collection.name, at, at);
   }
 
-  _insertDocument({ id, collection, document, contentRef, sourceIdentity, contentHash, at, previous }) {
+  _insertDocument({ id, collection, document, contentRef, sourceIdentity, contentHash, nativeIdentity, at, previous }) {
     const db = this._open();
     validateContentRef(contentRef);
     this.content.assertPresent(contentRef);
     if (document.turnCount !== contentRef.turnCount) throw new Error('Mutation metadata and content turn counts differ.');
     db.prepare(`INSERT INTO conversations
-      (id,identity_json,collection_id,source_identity_json,collection,provider,source_file,conversation_key,title,turn_count,passage_count,last_turn_at,sort_time,content_hash,content_ref,created_at,updated_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      (id,identity_json,collection_id,source_identity_json,collection,provider,source_file,conversation_key,title,turn_count,passage_count,last_turn_at,sort_time,content_hash,content_ref,created_at,updated_at,native_identity,canonical_provider,cleanup_version)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET
         collection_id=excluded.collection_id,source_identity_json=excluded.source_identity_json,
         collection=excluded.collection,provider=excluded.provider,source_file=excluded.source_file,
         conversation_key=excluded.conversation_key,title=excluded.title,turn_count=excluded.turn_count,
         passage_count=excluded.passage_count,last_turn_at=excluded.last_turn_at,sort_time=excluded.sort_time,content_hash=excluded.content_hash,
-        content_ref=excluded.content_ref,updated_at=excluded.updated_at
+        content_ref=excluded.content_ref,updated_at=excluded.updated_at,native_identity=excluded.native_identity,
+        canonical_provider=excluded.canonical_provider,cleanup_version=excluded.cleanup_version
     `).run(id, previous?.identity_json ?? stableJSON({ localId: id }), collection.id, sourceIdentity,
       collection.name, document.provider, document.sourceFile, document.conversationKey, document.title,
       document.turnCount, document.passageCount, document.lastTurnAt === undefined ? null : JSON.stringify(document.lastTurnAt),
-      document.sortTime, contentHash, JSON.stringify(contentRef), previous?.created_at ?? at, at);
+      document.sortTime, contentHash, JSON.stringify(contentRef), previous?.created_at ?? at, at,
+      nativeIdentity ?? reliableConversationIdentity(document), canonicalProvider(document.provider), 1);
   }
 
   _applyUpsert(record) {
     const db = this._open();
     const previous = db.prepare('SELECT * FROM conversations WHERE id=?').get(record.id);
-    if (previous?.content_hash === record.contentHash) return { status: 'skipped', summary: summary(previous), changed: false, removedIds: [], remap: {} };
-    this._ensureCollection(record.collection, record.at);
-    this._insertDocument({ ...record, previous });
-    return { status: previous ? 'updated' : 'imported', conflict: record.conflict,
-      summary: summary(db.prepare(`SELECT ${SUMMARY_COLUMNS} FROM conversations WHERE id=?`).get(record.id)),
-      changed: true, removedIds: [], remap: {}, ...(record.turnRemap ? { turnRemap: record.turnRemap } : {}) };
+    const same = previous?.content_hash === record.contentHash && previous?.cleanup_version === 1;
+    if (!record.skip && !same) {
+      this._ensureCollection(record.collection, record.at);
+      this._insertDocument({ ...record, previous });
+    }
+    const removedIds = [];
+    for (const id of record.removeIds || []) {
+      if (id === record.id) throw new Error('Cleanup cannot delete its retained conversation.');
+      const row = db.prepare('SELECT collection_id FROM conversations WHERE id=?').get(id);
+      if (!row || row.collection_id !== record.collection.id) throw new Error('An imported cleanup candidate changed collection.');
+      db.prepare('DELETE FROM conversations WHERE id=?').run(id); removedIds.push(id);
+    }
+    return { status: record.skip || same && !removedIds.length ? 'skipped' : previous ? 'updated' : 'imported', conflict: false,
+      summary: record.skip ? null : summary(db.prepare(`SELECT ${SUMMARY_COLUMNS} FROM conversations WHERE id=?`).get(record.id)),
+      changed: !record.skip && !same || removedIds.length > 0, removedIds, remap: record.remap || {}, turnRemap: record.turnRemap || {},
+      deduplication: record.deduplication || { duplicates: 0, promptOnly: 0, superseded: 0, removed: 0 } };
   }
 
   _setCollection(id, target, at) {
@@ -597,8 +789,12 @@ export class ArchiveStore {
         }
         db.prepare('DELETE FROM conversations WHERE id=?').run(id);
       }
+      const inspected = db.prepare('UPDATE conversations SET cleanup_version=1 WHERE id=?');
+      for (const id of record.inspectedIds || []) inspected.run(id);
       return { ...result, ...record.preview, operation: 'deduplicate', removedIds: [...record.ids],
-        remap: record.remap || {}, turnRemap: record.turnRemap || {}, changed: record.ids.length > 0 };
+        remap: record.remap || {}, turnRemap: record.turnRemap || {}, recordsChanged: record.ids.length + (record.replacements || []).length,
+        historyCleaned: (record.replacements || []).length,
+        changed: record.ids.length > 0 || (record.replacements || []).length > 0 };
     }
     if (record.action === 'create') {
       this._ensureCollection({ id: record.collectionId, name: record.name, create: true }, record.at);
@@ -788,12 +984,14 @@ export class ArchiveStore {
   }
 
   close() {
+    const closing = this.workers?.close(); this.workers = null; this.cleanupPlan = null;
     this.content.clearCache();
-    if (!this.db) return;
+    if (!this.db) return closing;
     const db = this.db;
     db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
     db.close();
     this.db = null;
+    return closing;
   }
 }
 
