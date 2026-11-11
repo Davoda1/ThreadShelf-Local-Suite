@@ -24,8 +24,8 @@ The versioned runtime source supplement was rebuilt from its pinned inputs and r
 
 ## Local validation
 
-- Reader source and speech suite: 938 tests, 934 passed, zero failures and four existing optional/fixture-dependent skips. Production renderer build and ten Linux/Windows entry-path regressions pass.
-- Alternative source suite: 223 passed, zero failures or skips. Its self-contained Demo builds successfully. Analytics: 316 passed, zero failures or skips; renderer and calculation worker build successfully.
+- Reader source and speech suite: 940 tests, 936 passed, zero failures and four existing optional/fixture-dependent skips. Production renderer build and ten Linux/Windows entry-path regressions pass.
+- Alternative source suite: 225 passed, zero failures or skips. Its self-contained Demo builds successfully. Analytics: 316 passed, zero failures or skips; renderer and calculation worker build successfully.
 - Native Linux HTML host checks retain sandboxing and verify separate preview processes, bounded geometry, zoom, clipping, navigation/resource restrictions and teardown. Reader layout checks cover six size/theme cases and 198 scroll checkpoints. Alternative covers initial placement at 125% zoom and 33 scrolling checkpoints.
 - Native code-option checks cover all four preference combinations, default-off behavior, logical line numbers, wrapping, clipboard/source preservation, persistence and render-mode gutter exclusion. Paired layout checks cover 32 Reader and 64 Alternative comparisons, including Code, SVG, Mermaid and charts.
 - Public archive integration passes both 7z and ZIP6 Reader–Analytics workflows, nine cache/storage checks and five upgrade/rollback checks for each exact public 1.0.0, 1.1.0 and 1.4.3 baseline. The upgrade harness reads the candidate version from its manifest rather than requiring a previous product version.
@@ -34,6 +34,14 @@ The versioned runtime source supplement was rebuilt from its pinned inputs and r
 - Changed-source review found no detected credentials, private profile data or machine-specific paths. Public-tree, version/lock consistency and whitespace checks pass. This review does not claim exhaustive secret detection.
 
 Local native UI tests retain the Chromium sandbox. The environment cannot provide the application's Unix-domain single-instance socket, so production-application tests use an explicitly recorded test-only lock accommodation. Hosted publication gates reject accommodated evidence and require ordinary native execution. No local native Windows execution is claimed.
+
+## Cross-platform test fixtures
+
+The first Windows source run rejected a synthetic POSIX-only file URL used as the trusted application entry in the geometry IPC test. Windows file-URL parsing requires a native absolute drive or UNC path; the production trust guard correctly rejected the invalid fixture. Reader contained the same test assumption.
+
+Both host-unit suites now derive their native fixture URL with `pathToFileURL` and repeat the complete geometry IPC assertions with explicit Windows and POSIX parsing on every host. These cases cover owning main-frame identity, bounded updates, rejected untrusted callers and invalid geometry, fixed channel behavior, closed previews and owner teardown. Production trust and sandbox rules are unchanged.
+
+Disk-space preflight fixtures also use native temporary paths and separator-aware containment when classifying the mocked data, temporary and compression filesystems. Their existing low-space, separate-volume, combined-reservation and nearest-existing-ancestor assertions remain in place.
 
 ## Validation limits and publication
 

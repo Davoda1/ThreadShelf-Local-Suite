@@ -1,8 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import os from 'node:os';
 import { inspectArchiveFootprint, preflightImportSpace } from '../src/core/import-preflight.mjs';
 
 const MIB = 1024 * 1024;
+// Use native absolute paths because the production preflight resolves them
+// before consulting the mocked filesystem, including drive letters on Windows.
+const fixtureRoot = path.join(os.tmpdir(), 'ThreadShelf space ~ 100%');
+const dataRoot = path.join(fixtureRoot, 'data');
+const tempRoot = path.join(fixtureRoot, 'temp');
+const codecRoot = path.join(fixtureRoot, 'codec');
+const dataDir = path.join(dataRoot, 'profile');
+const within = (filename, directory) => {
+  const relative = path.relative(directory, filename);
+  return relative === '' || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith('..' + path.sep));
+};
 const block = (digit, bytes = 10, packedBytes = 8) => ({
   sha256: digit.repeat(64), packedSha256: 'f'.repeat(64), codec: '7z', bytes, packedBytes,
   file: `${digit.repeat(64)}.${'f'.repeat(64)}.7z`,
@@ -10,17 +23,17 @@ const block = (digit, bytes = 10, packedBytes = 8) => ({
 const blob = object => ({ bytes: object.bytes, blocks: [object] });
 const ref = (header, turns) => ({ format: 'threadshelf-content-v2', version: 1, turnCount: 1,
   header: blob(header), groups: [{ first: 0, count: 1, blob: blob(turns) }] });
-const store = refs => ({ dataDir: '/data/profile', path: '/temp/archive.sqlite',
+const store = refs => ({ dataDir, path: path.join(tempRoot, 'archive.sqlite'),
   *contentReferences() { yield* refs; },
   db: { prepare(sql) { return { get: () => sql.includes('page_count') ? { page_count: 10 } : { page_size: 4096 } }; } },
 });
 const footprint = { catalogBytes: MIB, uniqueExpandedContentBytes: 1000 * MIB,
   logicalContentBytes: 2000 * MIB, uniqueCompressedContentBytes: 100 * MIB, conversationCount: 2, objectCount: 3 };
 const mockFS = ({ free = 1000 * MIB, separate = false, tempFree = free } = {}) => ({
-  stat: async filename => ({ dev: separate && filename.startsWith('/temp') ? 2n : 1n }),
-  statfs: async filename => ({ bsize: 1n, bavail: BigInt(filename.startsWith('/temp') ? tempFree : free) }),
+  stat: async filename => ({ dev: separate && within(filename, tempRoot) ? 2n : 1n }),
+  statfs: async filename => ({ bsize: 1n, bavail: BigInt(within(filename, tempRoot) ? tempFree : free) }),
 });
-const options = { dataDir: '/data/profile', workingDir: '/temp/reader', codecDir: '/temp/reader', footprint, incomingBytes: 0, incomingSize: 'exact', workers: 2 };
+const options = { dataDir, workingDir: path.join(tempRoot, 'reader'), codecDir: path.join(tempRoot, 'reader'), footprint, incomingBytes: 0, incomingSize: 'exact', workers: 2 };
 
 test('footprint uses references and logical SQLite pages without decompressing content', async () => {
   const a = block('a', 10, 8), b = block('b', 20, 12), c = block('c', 30, 18);
@@ -81,19 +94,19 @@ test('missing target directory checks the nearest existing ancestor', async () =
   const checked = [], fsAPI = mockFS();
   fsAPI.stat = async filename => {
     checked.push(filename);
-    if (filename === '/data/profile') throw Object.assign(new Error('missing'), { code: 'ENOENT' });
+    if (filename === dataDir) throw Object.assign(new Error('missing'), { code: 'ENOENT' });
     return { dev: 1n };
   };
   await preflightImportSpace(options, fsAPI);
-  assert.ok(checked.includes('/data'));
+  assert.ok(checked.includes(dataRoot));
 });
 
 test('custom storage temp root and system codec temp space are checked separately', async () => {
   const fsAPI = {
-    stat: async filename => ({ dev: filename.startsWith('/codec') ? 3n : filename.startsWith('/temp') ? 2n : 1n }),
-    statfs: async filename => ({ bsize: 1n, bavail: BigInt(filename.startsWith('/codec') ? 40 * MIB : 1000 * MIB) }),
+    stat: async filename => ({ dev: within(filename, codecRoot) ? 3n : within(filename, tempRoot) ? 2n : 1n }),
+    statfs: async filename => ({ bsize: 1n, bavail: BigInt(within(filename, codecRoot) ? 40 * MIB : 1000 * MIB) }),
   };
-  await assert.rejects(preflightImportSpace({ ...options, codecDir: '/codec/system' }, fsAPI),
+  await assert.rejects(preflightImportSpace({ ...options, codecDir: path.join(codecRoot, 'system') }, fsAPI),
     error => error.code === 'ENOSPC' && /compression working space/.test(error.message) && error.preflight.checks.length === 3);
 });
 

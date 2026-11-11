@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
 import {createRequire} from 'node:module';
+import path from 'node:path';
+import os from 'node:os';
+import {pathToFileURL} from 'node:url';
 const require=createRequire(import.meta.url);
 const {createHtmlPreviewHost,viewportBounds,previewGeometry}=require('../src/desktop/html-preview-host.cjs');
 const source='<!doctype html><html><head><title>Isolated preview</title></head><body><p>Preview</p></body></html>';
@@ -95,10 +98,17 @@ test('late load rejection from an explicitly closed or replaced preview cannot c
 
 const {isTrustedMainFrame}=require('../src/desktop/trusted-entry.cjs');
 
-test('synchronous geometry IPC accepts only the owning trusted main frame and fixed bounded updates',async()=>{
-  const f=fixture(),url='file:///threadshelf/index.html',channel='test:geometry';
+// The native fixture must include a drive on Windows. Exercise both explicit
+// parser modes on every host so a POSIX-only URL cannot hide this regression.
+const entryCases=[
+  {name:'native platform',url:pathToFileURL(path.join(os.tmpdir(),'ThreadShelf geometry ~ 100%','dist','index.html')).href},
+  {name:'Windows',url:pathToFileURL(path.win32.join('C:/','Users','Runner A~1','100%','dist','index.html'),{windows:true}).href,options:{windows:true}},
+  {name:'POSIX',url:pathToFileURL(path.posix.join('/','tmp','ThreadShelf geometry ~ 100%','dist','index.html'),{windows:false}).href,options:{windows:false}},
+];
+for(const {name,url,options} of entryCases)test(`synchronous geometry IPC accepts only the owning trusted main frame and fixed bounded updates (${name})`,async()=>{
+  const f=fixture(),channel='test:geometry';
   f.owner.webContents.mainFrame={url};
-  f.host.registerGeometryIpc(channel,event=>isTrustedMainFrame(event,f.owner.webContents,url));
+  f.host.registerGeometryIpc(channel,event=>isTrustedMainFrame(event,f.owner.webContents,url,options));
   const send=(args,event={sender:f.owner.webContents,senderFrame:f.owner.webContents.mainFrame})=>{f.ipcMain.emit(channel,event,args);return event.returnValue;};
   const geometry={id:'preview',visible:true,bounds:{x:40,y:50,width:400,height:225}};
   try{
