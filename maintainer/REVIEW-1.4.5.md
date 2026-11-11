@@ -24,13 +24,13 @@ The versioned runtime source supplement was rebuilt from its pinned inputs and r
 
 ## Local validation
 
-- Reader source and speech suite: 940 tests, 936 passed, zero failures and four existing optional/fixture-dependent skips. Production renderer build and ten Linux/Windows entry-path regressions pass.
-- Alternative source suite: 225 passed, zero failures or skips. Its self-contained Demo builds successfully. Analytics: 316 passed, zero failures or skips; renderer and calculation worker build successfully.
+- Reader source and speech suite: 943 tests, 939 passed, zero failures and four existing optional/fixture-dependent skips. Production renderer build and ten Linux/Windows entry-path regressions pass.
+- Alternative source suite: 232 passed, zero failures or skips. Its self-contained Demo builds successfully. Analytics: 316 passed, zero failures or skips; renderer and calculation worker build successfully.
 - Native Linux HTML host checks retain sandboxing and verify separate preview processes, bounded geometry, zoom, clipping, navigation/resource restrictions and teardown. Reader layout checks cover six size/theme cases and 198 scroll checkpoints. Alternative covers initial placement at 125% zoom and 33 scrolling checkpoints.
 - Native code-option checks cover all four preference combinations, default-off behavior, logical line numbers, wrapping, clipboard/source preservation, persistence and render-mode gutter exclusion. Paired layout checks cover 32 Reader and 64 Alternative comparisons, including Code, SVG, Mermaid and charts.
 - Public archive integration passes both 7z and ZIP6 Reader–Analytics workflows, nine cache/storage checks and five upgrade/rollback checks for each exact public 1.0.0, 1.1.0 and 1.4.3 baseline. The upgrade harness reads the candidate version from its manifest rather than requiring a previous product version.
 - All 15 browser feature suites pass without skipped feature checks, including the 380-case cache layout matrix, 80-image queue, image/visibility/ONNX WASM behavior, SVG/JSON source preservation and Grok/ChatGPT/inline-formatting compatibility.
-- Sixty release evidence, publisher, run-provenance and speech-gate regressions and six native-path ESM regressions pass. They preserve the Windows native-path ESM and dedicated JSON-output fixes. New release gates reject missing, malformed or failed code-option, geometry and spacing evidence on either native host.
+- Sixty-five release evidence, publisher, run-provenance and speech-gate regressions and six native-path ESM regressions pass. They preserve the Windows native-path ESM and dedicated JSON-output fixes. New release gates reject missing, malformed or failed code-option, geometry and spacing evidence on either native host.
 - Changed-source review found no detected credentials, private profile data or machine-specific paths. Public-tree, version/lock consistency and whitespace checks pass. This review does not claim exhaustive secret detection.
 
 Local native UI tests retain the Chromium sandbox. The environment cannot provide the application's Unix-domain single-instance socket, so production-application tests use an explicitly recorded test-only lock accommodation. Hosted publication gates reject accommodated evidence and require ordinary native execution. No local native Windows execution is claimed.
@@ -42,6 +42,16 @@ The first Windows source run rejected a synthetic POSIX-only file URL used as th
 Both host-unit suites now derive their native fixture URL with `pathToFileURL` and repeat the complete geometry IPC assertions with explicit Windows and POSIX parsing on every host. These cases cover owning main-frame identity, bounded updates, rejected untrusted callers and invalid geometry, fixed channel behavior, closed previews and owner teardown. Production trust and sandbox rules are unchanged.
 
 Disk-space preflight fixtures also use native temporary paths and separator-aware containment when classifying the mocked data, temporary and compression filesystems. Their existing low-space, separate-volume, combined-reservation and nearest-existing-ancestor assertions remain in place.
+
+## Native harness and publication retry contracts
+
+The native code-copy harness advertises the same desktop clipboard capability as the application preload and records each original IPC payload before clipboard transport. A new write and exact source bytes are required for every Copy assertion; native Windows line-ending transport is checked separately. Source regressions reject changed payload whitespace, Unicode, line numbers and wrapping newlines.
+
+Alternative native harnesses wait for completed renderer startup, saved preference writes and the actual native preview document. The spacing matrix uses the real BrowserWindow client size before matching its browser viewport, rather than comparing a preview error placeholder or an emulated viewport outside native bounds. The 64 paired layout comparisons remain required.
+
+Focused native checks run in individually named workflow steps. The runner removes stale report files, keeps process diagnostics separate from JSON, and rejects failed child processes and missing, malformed, linked, oversized or unsuccessful reports. Sixteen orchestration regressions cover these failure modes. Later focused checks still execute after a focused failure for complete diagnostics, while recording, artifact upload and publication remain success-gated.
+
+Publication evidence ZIP entries have fixed timestamps and permissions, so identical tagged inputs reproduce the same full 18-asset ledger across downloads and retries. Publication resolves annotated and lightweight remote tags to the exact tested commit before any write and again before publishing a verified draft. Regressions cover interrupted 18-asset upload, resume, publication, identical published retries, changed tags, cyclic tag chains and mismatched assets. Existing draft-ID lookup, immutable published releases and the narrowly scoped historical JSON recovery remain enforced.
 
 ## Validation limits and publication
 

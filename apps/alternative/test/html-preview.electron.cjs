@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
 const playwright=require(process.env.PLAYWRIGHT_PATH||'../../../tools/mermaid-bundle/node_modules/playwright-core');
 const root=path.resolve(process.env.TSA_APP_PATH||path.join(__dirname,'..'));
+const {waitForWorkspace}=require('./helpers/native-workspace.cjs');
 const html='<!doctype html><html><head><title>Preview test</title><style>body{font:16px sans-serif;padding:12px}button{padding:8px}</style></head><body><p id="value">Ready</p><button id="step" onclick="document.getElementById(\'value\').textContent=\'Clicked\'">Change</button><script>document.getElementById("value").textContent="JavaScript ran";window.boundary={require:typeof require,process:typeof process,alternative:typeof alternative,desktop:typeof desktop};fetch("https://127.0.0.1/").then(()=>window.privateResult="BAD",()=>window.privateResult="blocked");</script></body></html>';
 (async()=>{
  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'tsa-html-preview-full-'));
@@ -12,7 +13,7 @@ const html='<!doctype html><html><head><title>Preview test</title><style>body{fo
  try{
   application=await playwright._electron.launch({executablePath:process.env.ELECTRON_PATH,args:[entry],chromiumSandbox:!restrictedSandbox,env:{...process.env},timeout:45000});
   const switches=await application.evaluate(({app})=>({disabled:app.commandLine.hasSwitch('no-sandbox')}));assert.equal(switches.disabled,restrictedSandbox);
-  const page=await application.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+  const page=await application.firstWindow(),errors=[];page.on('pageerror',error=>errors.push(error.message));await waitForWorkspace(page);
   await application.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.setZoomFactor(1.25));
   await page.locator('#welcome-demo').click();await page.locator('#thread-view:not([hidden])').waitFor();
   const fixtures=[['html',html],['unknown',html],['',html],['python',html],['text',html],['xml',html],['html','<mark>fragment</mark>'],['html',html+html],['svg','<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><circle r="10" cx="15" cy="15"/></svg>']];

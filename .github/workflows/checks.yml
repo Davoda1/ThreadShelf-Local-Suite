@@ -1,4 +1,5 @@
 name: Checks
+run-name: ThreadShelf Local Suite — Source and compatibility checks
 on:
   push:
     branches: [master]
@@ -25,6 +26,8 @@ jobs:
         run: python3 tools/check-public-tree.py
       - name: Release assembly and native speech gate regressions
         run: python3 -m unittest discover -s tools/tests -p 'test_*release*.py'
+      - name: Native check orchestration regressions
+        run: python3 tools/tests/test_native_check_runner.py
       - name: Source companion integrity and assembly regressions
         run: |
           python3 maintainer/test-verify-release-sources.py

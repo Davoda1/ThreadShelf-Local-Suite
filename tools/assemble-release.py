@@ -245,7 +245,8 @@ def collect_inputs(artifacts, version, commit):
             name = f'reader-{platform}-code-options.json'
             report = all_records.get(name, {})
             required = ('passed', 'chromiumSandboxEnabled', 'nativeClipboardExact',
-                        'blockCopyExact', 'messageCopyExact', 'wrapFits', 'logicalLineNumbers',
+                        'blockCopyExact', 'messageCopyExact', 'copyPayloadExact', 'desktopCopyBridge',
+                        'wrapFits', 'logicalLineNumbers',
                         'mermaidSourceRestored', 'largeBlockCapped', 'defaultsOff')
             gutters = report.get('renderGutterIsolation')
             if (any(report.get(key) is not True for key in required)
@@ -287,6 +288,15 @@ def collect_inputs(artifacts, version, commit):
     return assets, evidence, summaries
 
 
+def write_evidence_member(archive, name, content):
+    """Keep release evidence identical across downloads and publication retries."""
+    member = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+    member.create_system = 3
+    member.external_attr = 0o100644 << 16
+    member.compress_type = zipfile.ZIP_DEFLATED
+    archive.writestr(member, content)
+
+
 def write_verification_evidence(archive, evidence, version, commit):
     for name, path in sorted(evidence.items()):
         raw = path.read_bytes()
@@ -296,16 +306,16 @@ def write_verification_evidence(archive, evidence, version, commit):
             report = read_verification_report(path, release_identity=(version, commit))
             canonical = (json.dumps(report, indent=2) + '\n').encode('utf-8')
             original_name = 'raw-output/' + name.removesuffix('.json') + '.log'
-            archive.writestr(original_name, raw)
-            archive.writestr('verification/' + name, canonical)
-            archive.writestr('verification/host-report-recovery.json', json.dumps({
+            write_evidence_member(archive, original_name, raw)
+            write_evidence_member(archive, 'verification/' + name, canonical)
+            write_evidence_member(archive, 'verification/host-report-recovery.json', json.dumps({
                 'version': version, 'commit': commit, 'report': name,
                 'original_capture': original_name, 'original_sha256': hashlib.sha256(raw).hexdigest(),
                 'report_sha256': hashlib.sha256(canonical).hexdigest(),
                 'reason': 'Separate ten native diagnostic lines from the original successful JSON result; '
                           'all release validation requirements remain enforced.'}, indent=2) + '\n')
         else:
-            archive.write(path, 'verification/' + name)
+            write_evidence_member(archive, 'verification/' + name, raw)
 
 
 def release_title(version):
@@ -459,7 +469,7 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
     with zipfile.ZipFile(output / (stem + '-Verification-Evidence.zip'), 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         write_verification_evidence(archive, evidence, version, commit)
         if source_update:
-            archive.writestr('verification/runtime-source-update.json', json.dumps(source_update, indent=2) + '\n')
+            write_evidence_member(archive, 'verification/runtime-source-update.json', json.dumps(source_update, indent=2) + '\n')
     rows = '\n'.join(f'| {s["application"].title()} | {s["platform"]} | PASS | Executed |'
                      for s in summaries)
     update_report = (f'The attached [runtime source update](https://github.com/{repository}/releases/download/{tag}/{source_update["file_name"]}) was built from the tagged source manifest and its pinned upstream inputs. Its archive SHA-256 is `{source_update["sha256"]}`; the evidence ZIP includes its verified build receipt. Use it with all six original v1.3.0 runtime source parts and metadata, assembling that base without applying the old Electron patches. The update provides the changed runtime sources and offline update instructions.\n\n'
@@ -565,6 +575,31 @@ def publication_event_allowed(tag, environment=os.environ):
     return pushed_tag or verified_recovery
 
 
+def verify_remote_tag(repository, tag, commit):
+    """Bind publication to the tested commit, including annotated tag chains."""
+    if not isinstance(commit, str) or not re.fullmatch(r'[0-9a-f]{40}', commit):
+        raise ValueError('The full tested commit is required before publication.')
+    reference = json.loads(run('gh', 'api', f'repos/{repository}/git/ref/tags/{tag}'))
+    if not isinstance(reference, dict) or reference.get('ref') != 'refs/tags/' + tag:
+        raise ValueError('The release tag must already exist in the remote repository.')
+    target, seen = reference.get('object'), set()
+    for _ in range(8):
+        if (not isinstance(target, dict) or target.get('type') not in ('tag', 'commit')
+                or not isinstance(target.get('sha'), str)
+                or not re.fullmatch(r'[0-9a-f]{40}', target['sha'])):
+            raise ValueError('The remote release tag has an invalid Git object.')
+        if target['type'] == 'commit':
+            if target['sha'] != commit:
+                raise ValueError('The remote release tag changed from the tested commit; refusing publication.')
+            return
+        if target['sha'] in seen:
+            break
+        seen.add(target['sha'])
+        annotated = json.loads(run('gh', 'api', f'repos/{repository}/git/tags/{target["sha"]}'))
+        target = annotated.get('object') if isinstance(annotated, dict) else None
+    raise ValueError('The remote release tag contains a cyclic or excessive annotated-tag chain.')
+
+
 def create_draft(repository, tag, version, notes):
     reference = json.loads(run('gh', 'api', f'repos/{repository}/git/ref/tags/{tag}'))
     if reference.get('ref') != 'refs/tags/' + tag:
@@ -609,9 +644,10 @@ def upload_assets(output, repository, current, ledger):
         verify_uploaded({'tag_name': current['tag_name'], 'assets': [uploaded]}, current['tag_name'], [asset])
 
 
-def publish(output, tag, repository, version, ledger):
+def publish(output, tag, repository, version, ledger, *, commit):
     if not publication_event_allowed(tag):
         raise ValueError('Publication requires a tag push or the verified master release-recovery workflow.')
+    verify_remote_tag(repository, tag, commit)
     notes = output.parent / f'{tag}-release-notes.md'
     notes.write_text(release_notes(version, repository), encoding='utf-8')
     current = resolve_release(repository, tag)
@@ -626,6 +662,9 @@ def publish(output, tag, repository, version, ledger):
     upload_assets(output, repository, current, ledger)
     remote = read_release(repository, release_id, tag)
     verify_uploaded(remote, tag, ledger)
+    # A tag can move while multi-gigabyte draft assets are uploading. Never
+    # publish their tested commit under a different current tag target.
+    verify_remote_tag(repository, tag, commit)
     update = output.parent / f'{tag}-release-update.json'
     update.write_text(json.dumps({'draft': False, 'make_latest': 'true',
         'name': release_title(version), 'body': notes.read_text(encoding='utf-8')}), encoding='utf-8')
@@ -660,7 +699,8 @@ def main():
     version, ledger = assemble(args.artifacts.resolve(), args.out.resolve(), args.tag, args.repository,
                                args.run_url, args.source_root.resolve())
     if args.publish:
-        publish(args.out.resolve(), args.tag, args.repository, version, ledger)
+        commit = run('git', 'rev-parse', 'HEAD', cwd=args.source_root.resolve())
+        publish(args.out.resolve(), args.tag, args.repository, version, ledger, commit=commit)
     print(f'Assembled {len(ledger)} assets for {args.tag}; all six native validation records passed.')
 
 

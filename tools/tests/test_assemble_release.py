@@ -2,6 +2,7 @@
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -110,7 +111,8 @@ class ReleaseAssemblyTests(unittest.TestCase):
                 self.write_json(reader_reports / f'reader-{platform}-code-options.json', {
                     'passed': True, 'checks': 4, 'optionCombinations': 4, 'pageErrors': 0,
                     'chromiumSandboxEnabled': True, 'nativeClipboardExact': True,
-                    'blockCopyExact': True, 'messageCopyExact': True, 'wrapFits': True,
+                    'blockCopyExact': True, 'messageCopyExact': True,
+                    'copyPayloadExact': True, 'desktopCopyBridge': True, 'wrapFits': True,
                     'logicalLineNumbers': True, 'mermaidSourceRestored': True,
                     'largeBlockCapped': True, 'defaultsOff': True,
                     'renderGutterIsolation': {'html': True, 'svg': True, 'mermaid': True}})
@@ -177,6 +179,32 @@ class ReleaseAssemblyTests(unittest.TestCase):
         with zipfile.ZipFile(self.root / 'evidence.zip', 'w') as archive:
             with self.assertRaisesRegex(ValueError, 'overwrite original evidence'):
                 release.write_verification_evidence(archive, evidence, self.version, self.commit)
+
+    def test_evidence_zip_is_independent_of_download_times_order_and_file_modes(self):
+        self.use_145()
+        _, evidence, _ = release.collect_inputs(self.artifacts, self.version, self.commit)
+        receipt = {'version': self.version, 'sha256': 'f' * 64, 'verified': True}
+        outputs = []
+        for index, timestamp in enumerate((946684800, 1735689600)):
+            for path in evidence.values():
+                os.utime(path, (timestamp, timestamp))
+                path.chmod(0o600 if index else 0o644)
+            output = self.root / f'evidence-{index}.zip'
+            with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+                release.write_verification_evidence(archive, dict(reversed(list(evidence.items())))
+                    if index else evidence, self.version, self.commit)
+                release.write_evidence_member(archive, 'verification/runtime-source-update.json',
+                                              json.dumps(receipt, indent=2) + '\n')
+            outputs.append(output)
+        self.assertEqual(outputs[0].read_bytes(), outputs[1].read_bytes())
+        with zipfile.ZipFile(outputs[0]) as archive:
+            for member in archive.infolist():
+                self.assertEqual(member.date_time, (1980, 1, 1, 0, 0, 0))
+                self.assertEqual(member.external_attr >> 16, 0o100644)
+                if member.filename.endswith('runtime-source-update.json'):
+                    self.assertEqual(json.loads(archive.read(member)), receipt)
+                else:
+                    self.assertEqual(archive.read(member), evidence[Path(member.filename).name].read_bytes())
 
     def test_legacy_recovery_rejects_changed_identity_or_any_changed_bytes(self):
         path, original = self.legacy_host_capture()
@@ -356,7 +384,8 @@ class ReleaseAssemblyTests(unittest.TestCase):
     def test_145_rejects_missing_unsafe_or_incomplete_code_presentation(self):
         self.use_145()
         reader_booleans = ('passed', 'chromiumSandboxEnabled', 'nativeClipboardExact', 'blockCopyExact',
-                           'messageCopyExact', 'wrapFits', 'logicalLineNumbers', 'mermaidSourceRestored',
+                           'messageCopyExact', 'copyPayloadExact', 'desktopCopyBridge',
+                           'wrapFits', 'logicalLineNumbers', 'mermaidSourceRestored',
                            'largeBlockCapped', 'defaultsOff')
         alternative_booleans = ('passed', 'productionApplication', 'chromiumSandboxEnabled',
                                 'singleInstanceLockUnmodified', 'wrapping', 'lineNumbers',
@@ -533,6 +562,22 @@ class ReleaseAssemblyTests(unittest.TestCase):
             receipt = json.loads(archive.read('verification/runtime-source-update.json'))
             self.assertEqual(receipt['sha256'], release.digest(output / fixture.name))
         self.assertIn(fixture.name, (output / 'ThreadShelf-Local-Suite-1.4.3-Verification.md').read_text())
+        # A later download can give the identical reports entirely different
+        # filesystem metadata. The real source builder is deterministic; reuse
+        # this fixture's already verified source archive for the retry.
+        for path in self.artifacts.rglob('*'):
+            if path.is_file():
+                os.utime(path, (946684800, 946684800))
+        def retry_run(*args, **kwargs):
+            if str(args[0]) == release.sys.executable:
+                shutil.copyfile(output / fixture.name, Path(args[3]) / fixture.name)
+                return json.dumps(receipt)
+            return original_run(*args, **kwargs)
+        with patch.object(release, 'run', side_effect=retry_run):
+            retry_version, retry_ledger = release.assemble(self.artifacts, self.root / 'retry',
+                'v1.4.3', 'example/suite', 'https://example.invalid/run', repository)
+        self.assertEqual(retry_version, version)
+        self.assertEqual(retry_ledger, ledger)
 
 
 class RuntimeSourceFixture:
@@ -657,6 +702,7 @@ class ReleasePublicationTests(unittest.TestCase):
         (self.output / 'fixture.zip').write_bytes(b'fixture')
         self.ledger = [{'name': 'fixture.zip', 'bytes': 7, 'sha256': release.digest(self.output / 'fixture.zip')}]
         self.environment = {'GITHUB_EVENT_NAME': 'push', 'GITHUB_REF': 'refs/tags/v1.4.0'}
+        self.commit = 'a' * 40
 
     def remote(self, draft, complete=True):
         asset = self.ledger[0]
@@ -683,7 +729,9 @@ class ReleasePublicationTests(unittest.TestCase):
             if args == ('gh', 'api', 'repos/example/suite/releases/42'):
                 return json.dumps(remote)
             if args == ('gh', 'api', 'repos/example/suite/git/ref/tags/v1.4.0'):
-                return json.dumps({'ref': remote_tag, 'object': {'type': 'tag', 'sha': 'a' * 40}})
+                return json.dumps({'ref': remote_tag, 'object': {'type': 'tag', 'sha': 'b' * 40}})
+            if args == ('gh', 'api', 'repos/example/suite/git/tags/' + 'b' * 40):
+                return json.dumps({'object': {'type': 'commit', 'sha': self.commit}})
             if args[:5] == ('gh', 'api', '--method', 'POST', 'repos/example/suite/releases'):
                 self.assertIn('Content-Type: application/json', args)
                 body = json.loads(Path(args[args.index('--input') + 1]).read_text())
@@ -732,7 +780,7 @@ class ReleasePublicationTests(unittest.TestCase):
 
     def invoke_publisher(self, fake_run):
         with patch.object(release, 'run', side_effect=fake_run), patch.dict(release.os.environ, self.environment, clear=True):
-            release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
+            release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger, commit=self.commit)
 
     def test_existing_draft_uses_id_when_tag_endpoint_is_unavailable(self):
         calls, fake_run = self.publisher_fixture()
@@ -830,27 +878,104 @@ class ReleasePublicationTests(unittest.TestCase):
                 self.assertEqual(len(self.mutation_calls(calls, 'PATCH')), 1)
 
     def test_existing_public_release_is_identical_noop(self):
-        responses = [json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}]), json.dumps(self.remote(False))]
+        responses = [json.dumps({'ref': 'refs/tags/v1.4.0', 'object': {'type': 'commit', 'sha': self.commit}}), json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}]), json.dumps(self.remote(False))]
         with patch.object(release, 'run', side_effect=responses) as command, patch.dict(release.os.environ, self.environment, clear=True):
-            release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
-        self.assertEqual(command.call_count, 2)
+            release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger, commit=self.commit)
+        self.assertEqual(command.call_count, 3)
         self.assertTrue(all(call.args[:2] == ('gh', 'api') for call in command.call_args_list))
 
     def test_changed_public_release_is_refused_before_mutation(self):
         previous = self.remote(False)
         previous['assets'][0]['digest'] = 'sha256:' + 'b' * 64
-        responses = [json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}]), json.dumps(previous)]
+        responses = [json.dumps({'ref': 'refs/tags/v1.4.0', 'object': {'type': 'commit', 'sha': self.commit}}), json.dumps([{'id': 42, 'tag_name': 'v1.4.0'}]), json.dumps(previous)]
         with patch.object(release, 'run', side_effect=responses) as command, patch.dict(release.os.environ, self.environment, clear=True):
             with self.assertRaisesRegex(ValueError, 'size/digest'):
-                release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
-        self.assertEqual(command.call_count, 2)
+                release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger, commit=self.commit)
+        self.assertEqual(command.call_count, 3)
 
     def test_api_error_does_not_create_a_missing_release(self):
         failure = subprocess.CalledProcessError(1, ['gh', 'api'], stderr='HTTP 403')
         with patch.object(release, 'run', side_effect=failure) as command, patch.dict(release.os.environ, self.environment, clear=True):
             with self.assertRaises(subprocess.CalledProcessError):
-                release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger)
+                release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0', self.ledger, commit=self.commit)
         self.assertEqual(command.call_count, 1)
+
+    def test_remote_tag_must_match_tested_commit_before_any_mutation(self):
+        for target in ({'type': 'commit', 'sha': 'c' * 40},
+                       {'type': 'commit', 'sha': 'invalid'},
+                       {'type': 'tree', 'sha': self.commit}, None):
+            with self.subTest(target=target):
+                response = json.dumps({'ref': 'refs/tags/v1.4.0', 'object': target})
+                with patch.object(release, 'run', return_value=response) as command, \
+                     patch.dict(release.os.environ, self.environment, clear=True):
+                    with self.assertRaises(ValueError):
+                        release.publish(self.output, 'v1.4.0', 'example/suite', '1.4.0',
+                                        self.ledger, commit=self.commit)
+                self.assertEqual(command.call_count, 1)
+                self.assertEqual(self.mutation_calls([tuple(map(str, c.args))
+                                                       for c in command.call_args_list]), [])
+
+    def test_remote_annotated_tags_are_peeled_with_cycle_and_depth_bounds(self):
+        ref = {'ref': 'refs/tags/v1.4.0', 'object': {'type': 'tag', 'sha': 'b' * 40}}
+        chain = [json.dumps(ref), json.dumps({'object': {'type': 'tag', 'sha': 'c' * 40}}),
+                 json.dumps({'object': {'type': 'commit', 'sha': self.commit}})]
+        with patch.object(release, 'run', side_effect=chain) as command:
+            release.verify_remote_tag('example/suite', 'v1.4.0', self.commit)
+        self.assertEqual(command.call_count, 3)
+        with patch.object(release, 'run', side_effect=[json.dumps(ref),
+                          json.dumps({'object': ref['object']})]) as command:
+            with self.assertRaisesRegex(ValueError, 'cyclic or excessive'):
+                release.verify_remote_tag('example/suite', 'v1.4.0', self.commit)
+        self.assertEqual(command.call_count, 2)
+        chain = [json.dumps(ref)] + [json.dumps({'object': {'type': 'tag', 'sha': f'{i:040x}'}})
+                                    for i in range(8)]
+        with patch.object(release, 'run', side_effect=chain) as command:
+            with self.assertRaisesRegex(ValueError, 'cyclic or excessive'):
+                release.verify_remote_tag('example/suite', 'v1.4.0', self.commit)
+        self.assertLessEqual(command.call_count, 9)
+
+    def test_retag_during_draft_upload_prevents_publication(self):
+        calls, fake_run = self.publisher_fixture()
+        reads = 0
+        def run(*args, **kwargs):
+            nonlocal reads
+            if tuple(map(str, args)) == ('gh', 'api', 'repos/example/suite/git/tags/' + 'b' * 40):
+                reads += 1
+                if reads == 2:
+                    return json.dumps({'object': {'type': 'commit', 'sha': 'c' * 40}})
+            return fake_run(*args, **kwargs)
+        with self.assertRaisesRegex(ValueError, 'changed from the tested commit'):
+            self.invoke_publisher(run)
+        self.assertEqual(len(self.mutation_calls(calls, 'POST')), 1)
+        self.assertEqual(self.mutation_calls(calls, 'PATCH'), [])
+
+    def test_full_eighteen_asset_transaction_resumes_partial_upload_and_repeats_as_noop(self):
+        self.ledger.clear()
+        for index in range(18):
+            name = f'synthetic-release-asset-{index:02}.zip'
+            path = self.output / name
+            path.write_bytes((name + '\n').encode())
+            self.ledger.append({'name': name, 'bytes': path.stat().st_size, 'sha256': release.digest(path)})
+        calls, fake_run = self.publisher_fixture()
+        uploads = 0
+        def interrupted(*args, **kwargs):
+            nonlocal uploads
+            command = tuple(map(str, args))
+            if command[:4] == ('gh', 'api', '--method', 'POST') and command[4].startswith('https://uploads.github.com/'):
+                uploads += 1
+                if uploads == 10:
+                    raise subprocess.CalledProcessError(1, command, stderr='HTTP 502')
+            return fake_run(*args, **kwargs)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.invoke_publisher(interrupted)
+        self.assertEqual(self.mutation_calls(calls, 'PATCH'), [])
+        self.invoke_publisher(fake_run)
+        self.assertEqual(len(self.mutation_calls(calls, 'POST')), 18)
+        self.assertEqual(len(self.mutation_calls(calls, 'PATCH')), 1)
+        self.assertEqual(self.mutation_calls(calls, 'DELETE'), [])
+        before = list(self.mutation_calls(calls))
+        self.invoke_publisher(fake_run)
+        self.assertEqual(self.mutation_calls(calls), before)
 
     def test_dispatch_guard_accepts_only_verified_master_recovery(self):
         valid = {'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/master',

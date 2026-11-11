@@ -1,4 +1,5 @@
 name: Build desktop packages
+run-name: ThreadShelf Local Suite ${{ github.ref_name }} — Desktop packages
 on:
   push:
     tags: ['v*']
@@ -57,6 +58,8 @@ jobs:
       - name: Install pinned native GUI test driver
         working-directory: tools/mermaid-bundle
         run: node "${{ github.workspace }}/tools/npm.mjs" -- ci --ignore-scripts
+      - name: Native check orchestration regressions
+        run: python tools/tests/test_native_check_runner.py
       - name: Check native test-driver imports before packaging
         env:
           THREADSHELF_PLAYWRIGHT_MODULE: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core/index.mjs
@@ -128,29 +131,58 @@ jobs:
           node apps/alternative/test/file-citations.browser.cjs
           node apps/alternative/test/compat-rendering.cjs > release/verification/alternative-linux-compat.json
           node apps/alternative/test/inline-html.browser.cjs > release/verification/alternative-linux-inline-html.json
-      - name: Verify isolated HTML previews on the native platform
+      - name: Prepare verified runtime for focused native checks
         if: matrix.app == 'reader' || matrix.app == 'alternative'
+        id: native_runtime
+        run: python tools/run-native-check.py --prepare-runtime --platform ${{ matrix.platform }}
+      - name: Verify Reader native HTML isolation
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'reader' }}
         timeout-minutes: 10
         env:
-          THREADSHELF_PLAYWRIGHT_MODULE: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core/index.mjs
-          PLAYWRIGHT_PATH: ${{ github.workspace }}/tools/mermaid-bundle/node_modules/playwright-core
-        run: |
-          export READER_ELECTRON="$(python tools/prepare-test-electron.py --platform ${{ matrix.platform }})"
-          export ELECTRON_PATH="$READER_ELECTRON"
-          if [[ "$RUNNER_OS" == "Linux" ]]; then native_display=(xvfb-run -a); else native_display=(); fi
-          if [[ "${{ matrix.app }}" == "reader" ]]; then
-            HTML_PREVIEW_HOST_REPORT="release/verification/reader-${{ matrix.platform }}-html-preview-host.json" "${native_display[@]}" "$READER_ELECTRON" apps/reader/tests/html-preview-host.electron.cjs
-            HTML_PREVIEW_UI_REPORT="release/verification/reader-${{ matrix.platform }}-html-preview-ui.json" "${native_display[@]}" node apps/reader/tests/html-preview-ui.browser.mjs
-            CODE_OPTIONS_REPORT="release/verification/reader-${{ matrix.platform }}-code-options.json" "${native_display[@]}" node apps/reader/tests/code-presentation.browser.mjs
-            HTML_MARGIN_SCOPE_REPORT="release/verification/reader-${{ matrix.platform }}-html-margin-scope.json" "${native_display[@]}" node apps/reader/tests/html-margin-scope.browser.mjs
-          else
-            HTML_PREVIEW_REPORT="release/verification/alternative-${{ matrix.platform }}-html-preview.json" "${native_display[@]}" node apps/alternative/test/html-preview.electron.cjs
-            CODE_OPTIONS_REPORT="release/verification/alternative-${{ matrix.platform }}-code-options.json" "${native_display[@]}" node apps/alternative/test/code-options.electron.cjs
-            HTML_MARGIN_SCOPE_REPORT="release/verification/alternative-${{ matrix.platform }}-html-margin-scope.json" "${native_display[@]}" node apps/alternative/test/html-margin-scope.browser.cjs
-            if [[ "$RUNNER_OS" == "Linux" ]]; then
-              "${native_display[@]}" node apps/alternative/test/privacy-policy.electron.cjs > release/verification/alternative-linux-privacy.json
-            fi
-          fi
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app reader --check html-preview-host --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Reader HTML placement and scrolling
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'reader' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app reader --check html-preview-ui --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Reader native code wrapping, line numbers and copying
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'reader' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app reader --check code-options --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Reader HTML-only spacing comparisons
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'reader' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app reader --check html-margin-scope --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Alternative native HTML isolation and geometry
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'alternative' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app alternative --check html-preview --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Alternative native code options and copying
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'alternative' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app alternative --check code-options --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Alternative HTML-only spacing comparisons
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && matrix.app == 'alternative' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app alternative --check html-margin-scope --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
+      - name: Verify Alternative native crash-report privacy
+        if: ${{ !cancelled() && steps.native_runtime.outcome == 'success' && runner.os == 'Linux' && matrix.app == 'alternative' }}
+        timeout-minutes: 10
+        env:
+          NATIVE_CHECK_ELECTRON: ${{ steps.native_runtime.outputs.executable }}
+        run: python tools/run-native-check.py --app alternative --check privacy --platform ${{ matrix.platform }} --electron "$NATIVE_CHECK_ELECTRON"
       - name: Record exact publication inputs
         run: python tools/assemble-release.py --record-inputs release --app ${{ matrix.app }} --platform ${{ matrix.platform }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

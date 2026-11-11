@@ -1,6 +1,7 @@
 import { testModuleSpecifier } from './esm-module-specifier.mjs';
 // Synthetic renderer regressions; requires Electron and Playwright, no server/archive.
 import assert from 'node:assert/strict';
+import { assertCopyPayloadAndClipboard, nativeClipboardText } from './clipboard-contract.mjs';
 import {mkdtemp,writeFile,copyFile,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -13,13 +14,14 @@ let app;
 try {
   await build({stdin:{contents:`import {ConversationRenderer} from './src/reader/renderer.js';import {applyCodeBlockPresentation} from './src/reader/code-presentation.js';import './src/reader/reader.css';window.ConversationRenderer=ConversationRenderer;window.applyCodeBlockPresentation=applyCodeBlockPresentation;`,resolveDir:root},outfile:path.join(temp,'app.js'),bundle:true,format:'iife',platform:'browser',logLevel:'silent'});
   await copyFile(path.join(root,'public/mermaid.min.js'),path.join(temp,'mermaid.min.js'));
-  await writeFile(path.join(temp,'preload.cjs'),`const{contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('desktop',{invoke:(a,b)=>ipcRenderer.invoke('test:invoke',a,b)});`);
+  await writeFile(path.join(temp,'preload.cjs'),`const{contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('desktop',{capabilities:{clipboardWrite:true},invoke:(a,b)=>ipcRenderer.invoke('test:invoke',a,b)});`);
   await writeFile(path.join(temp,'index.html'),`<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="app.css"><style>html,body{margin:0;height:100%;overflow:hidden}body{font:14px Arial;--text-primary:#eee;--text-secondary:#aaa;--bg-primary:#161b22;--bg-secondary:#252b33;--bg-tertiary:#323a44;--border-color:#586574;--code-bg:#11151b;--code-header-bg:#252b33;--code-label-text:#ddd;background:#161b22}#host{height:100%;overflow:auto;box-sizing:border-box;padding:16px}.message-content{min-width:0}.message{max-width:100%;min-width:0}</style></head><body><div id="host" class="reader-view conversation-content"></div><script src="mermaid.min.js"></script><script src="app.js"></script></body></html>`);
-  await writeFile(path.join(temp,'main.cjs'),`const{app,BrowserWindow,ipcMain,clipboard}=require('electron');app.setPath('userData',${JSON.stringify(path.join(temp,'profile'))});app.whenReady().then(async()=>{global.owner=new BrowserWindow({show:true,width:680,height:540,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,preload:${JSON.stringify(path.join(temp,'preload.cjs'))}}});ipcMain.handle('test:invoke',(e,a,b)=>{if(a==='clipboard.write'){clipboard.writeText(b.text);return{ok:true}}if(a==='html.preview.open'){global.htmlSource=b.source;if(global.failHtml)throw Error('Synthetic preview failure');}return{ok:true}});await global.owner.loadFile(${JSON.stringify(path.join(temp,'index.html'))});});`);
+  await writeFile(path.join(temp,'main.cjs'),`const{app,BrowserWindow,ipcMain,clipboard}=require('electron');app.setPath('userData',${JSON.stringify(path.join(temp,'profile'))});app.whenReady().then(async()=>{global.clipboardWrites=[];global.owner=new BrowserWindow({show:true,width:680,height:540,webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false,preload:${JSON.stringify(path.join(temp,'preload.cjs'))}}});ipcMain.handle('test:invoke',(e,a,b)=>{if(a==='clipboard.write'){global.clipboardWrites.push(b.text);clipboard.writeText(b.text);return{ok:true}}if(a==='html.preview.open'){global.htmlSource=b.source;if(global.failHtml)throw Error('Synthetic preview failure');}return{ok:true}});await global.owner.loadFile(${JSON.stringify(path.join(temp,'index.html'))});});`);
   const env={...process.env}; delete env.ELECTRON_RUN_AS_NODE;
   app=await _electron.launch({executablePath:process.env.READER_ELECTRON,args:[path.join(temp,'main.cjs')],env,chromiumSandbox:true,timeout:45000});
   assert.equal(app.process().spawnargs.includes('--no-sandbox'),false);
   const page=await app.firstWindow(); await page.waitForFunction(()=>window.ConversationRenderer);
+  assert.equal(await page.evaluate(()=>window.desktop?.capabilities?.clipboardWrite),true,'Desktop Copy must use the production IPC capability');
   const errors=[]; page.on('pageerror',e=>errors.push(e.message));
   const render=async(source,language='javascript',options={})=>page.evaluate(({source,language,options})=>{
     window.renderer?.destroy();
@@ -29,10 +31,23 @@ try {
     renderer.renderMessages([{role:'assistant',message_id:'synthetic-code',content:window.markdown}]);
   },{source,language,options});
   const clipboard=()=>app.evaluate(({clipboard})=>clipboard.readText());
-  const assertClipboard=async(expected,label)=>{for(let i=0;i<50;i++){if(await clipboard()===expected)return;await page.waitForTimeout(20);}assert.equal(await clipboard(),expected,label);};
-  // Chromium's native Windows selection clipboard uses CRLF. Only that OS
-  // transport is normalized here; application Copy controls remain byte-exact.
-  const assertNativeClipboard=async(expected,label)=>{const text=async()=>{const value=await clipboard();return process.platform==='win32'?value.replace(/\r\n/g,'\n'):value;};for(let i=0;i<50;i++){if(await text()===expected)return;await page.waitForTimeout(20);}assert.equal(await text(),expected,label);};
+  let acceptedWriteCount=0;
+  const assertClipboard=async(expected,label)=>{
+    let lastError;
+    for(let i=0;i<50;i++){
+      const value=await app.evaluate(async({clipboard})=>({count:global.clipboardWrites.length,payload:global.clipboardWrites.at(-1),nativeText:await clipboard.readText()}));
+      try{
+        assert.ok(value.count>acceptedWriteCount,label+' must publish a new application Copy payload');
+        assertCopyPayloadAndClipboard(expected,value.payload,value.nativeText,{label});
+        acceptedWriteCount=value.count;return;
+      }catch(error){lastError=error;}
+      await page.waitForTimeout(20);
+    }
+    throw lastError;
+  };
+  // Windows normalizes line endings in both selection and Electron clipboard
+  // transport. The application IPC payload above is always checked byte-exact.
+  const assertNativeClipboard=async(expected,label)=>{const text=async()=>nativeClipboardText(await clipboard());const expectedText=nativeClipboardText(expected);for(let i=0;i<50;i++){if(await text()===expectedText)return;await page.waitForTimeout(20);}assert.equal(await text(),expectedText,label);};
   const source=['/* multi-line token','  Árvíztűrő 🧪 日本語','*/','','\tconst value = "'+('long unbroken content '.repeat(20))+'";','','  console.log(value);'].join('\n');
   for(const codeWrap of [false,true])for(const codeLineNumbers of [false,true]){
     await render(source,'javascript',{codeWrap,codeLineNumbers});
@@ -104,6 +119,6 @@ try {
   await page.locator('[data-toggle-html]').click();assert.equal(await page.locator('.code-block-note').isVisible(),true);
   await render(source);assert.equal(await page.locator('.code-line-number').count(),0);assert.equal(await page.locator('pre').evaluate(el=>el.classList.contains('code-wrap')),false);
   assert.deepEqual(errors,[]);
-  const report={passed:true,checks:4,chromiumSandboxEnabled:true,pageErrors:0,optionCombinations:4,nativeClipboardExact:true,blockCopyExact:true,messageCopyExact:true,wrapFits:true,logicalLineNumbers:true,renderGutterIsolation:{html:true,svg:true,mermaid:true},mermaidSourceRestored:true,largeBlockCapped:true,defaultsOff:true};
+  const report={passed:true,checks:4,chromiumSandboxEnabled:true,pageErrors:0,optionCombinations:4,nativeClipboardExact:true,blockCopyExact:true,messageCopyExact:true,copyPayloadExact:true,desktopCopyBridge:true,wrapFits:true,logicalLineNumbers:true,renderGutterIsolation:{html:true,svg:true,mermaid:true},mermaidSourceRestored:true,largeBlockCapped:true,defaultsOff:true};
   if(process.env.CODE_OPTIONS_REPORT){await writeFile(process.env.CODE_OPTIONS_REPORT,JSON.stringify(report,null,2)+'\n');}else console.log(JSON.stringify(report));
 } finally { await app?.close(); await rm(temp,{recursive:true,force:true}); }
