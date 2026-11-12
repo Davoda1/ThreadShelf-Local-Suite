@@ -22,8 +22,8 @@ The frozen implementation passed these local checks. Existing test assertions an
 
 | Check | Executed result |
 | --- | --- |
-| Analytics, Node 26.13.1 | 439/439 passed; no failures or skips |
-| Analytics, Electron 45.3.0 / embedded Node 24.22.2 | 439/439 passed; no failures or skips |
+| Analytics, Node 26.13.1 | 445/445 passed; no failures or skips |
+| Analytics, Electron 45.3.0 / embedded Node 24.22.2 | 445/445 passed; no failures or skips |
 | Reader, Node 26.13.1 | 940 passed, zero failed, four optional released-baseline/export/model cases skipped (944 total) |
 | Alternative source suite | 233/233 passed |
 | Release assembly/publisher regressions | 68/68 passed |
@@ -58,6 +58,14 @@ The first GitHub run exposed two concrete problems. Seven new owned-row storage 
 The unchanged speech expiry test also exposed an early timer notification. The shared Reader/Alternative scheduler now rechecks the actual expiry deadline and reschedules an early callback before emitting availability changes. The original assertion remains strict. One additive deterministic regression per app covers a callback one millisecond early, a backwards clock adjustment, rescheduling, exact-deadline emission, expired availability and an empty RAM audio cache. Both complete speech suites pass 114/114 under Node and embedded Electron; Alternative's full CI command passes 233/233.
 
 The table above records the repaired final local runs. Original unsuccessful-run logs were retained privately before their GitHub run records were deleted at the owner's request. A subsequent title-only workflow edit contradicted the existing native-orchestration title contract and caused both workflows to fail before packaging. The workflow run names are restored byte-for-byte to the successful 1.4.5 naming convention: the package title includes the tag, and the checks title describes source and compatibility checks. The existing contract test remains unchanged. After restoring the titles, all 84 release/native-orchestration regressions and all six ESM harness regressions passed locally. Fresh workflow runs retain the full native/security/publication gates and start from the corrected unpublished 1.4.6 tag. No CI pass is claimed here.
+
+## Public storage metadata contract
+
+The Windows native GUI check launched the unchanged sandboxed application and completed its boot and visible language/theme checks. It then correctly rejected storage usage that reported `rollbackBaselinePreserved: false`. The public storage implementation continued preserving the baseline bytes, but four summary/cleanup responses incorrectly described that behavior and also advertised a global statistics-only/no-text store.
+
+Storage usage, history listing, history removal and unreferenced collection now restore the established public response contract: `rollbackBaselinePreserved: true`, without unsupported global `statisticsOnly` or `textRetained` claims. Capture-specific text availability remains authoritative. The storage operations and native harness remain unchanged.
+
+Two new regression cases, including four API subtests, reproduce the original failures before the correction. They exercise the native service's fresh bootstrap/storage response and exact legacy marker/settings/state/snapshot bytes through migration, history removal and collection. Original historical text and the complete current body remain readable, and all legacy baseline bytes remain unchanged. Cleanup closes owned SQLite readers/storage before removing temporary directories.
 
 ## Publication
 
