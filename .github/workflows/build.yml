@@ -1,5 +1,5 @@
 name: Build desktop packages
-run-name: ThreadShelf Local Suite 1.4.6 — Reliable Reader imports and bounded Analytics — Desktop packages
+run-name: ThreadShelf Local Suite ${{ github.ref_name }} — Desktop packages
 on:
   push:
     tags: ['v*']
