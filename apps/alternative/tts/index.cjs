@@ -27,7 +27,7 @@ function createTtsService({profileDir,assetsDir,onEvent=()=>{},dependencies={}})
  function scheduleExpiry(){
   clearTimeout(expiryTimer);expiryTimer=null;const settings=availabilitySettings;if(disposed||!settings?.enabled||!settings.cacheEnabled||!settings.cacheMaxAgeDays)return;
   const now=Date.now();let next=Infinity;for(const entry of cache.entries.values()){const deadline=Date.parse(entry.createdAt)+settings.cacheMaxAgeDays*86400000;if(entry.complete===true&&!entry.pinned&&deadline>now)next=Math.min(next,deadline);}
-  if(Number.isFinite(next)){expiryTimer=setTimeout(()=>{expiryTimer=null;availabilityChanged();},Math.min(2147483647,Math.max(1,next-now)));expiryTimer.unref?.();}
+  if(Number.isFinite(next)){expiryTimer=setTimeout(()=>{expiryTimer=null;if(Date.now()<next){scheduleExpiry();return;}availabilityChanged();},Math.min(2147483647,Math.max(1,next-now)));expiryTimer.unref?.();}
  }
  function availabilityChanged(){if(disposed)return;availabilityRevision++;emit({state:'availability-changed',revision:availabilityRevision});scheduleExpiry();}
  // One read-only policy drives both indicators and playback.

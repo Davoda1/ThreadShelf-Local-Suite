@@ -1,5 +1,5 @@
 name: Checks
-run-name: ThreadShelf Local Suite — Source and compatibility checks
+run-name: ThreadShelf Local Suite 1.4.6 — Reliable Reader imports and bounded Analytics — Checks
 on:
   push:
     branches: [master]

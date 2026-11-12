@@ -22,10 +22,10 @@ The frozen implementation passed these local checks. Existing test assertions an
 
 | Check | Executed result |
 | --- | --- |
-| Analytics, Node 26.13.1 | 438/438 passed; no failures or skips |
-| Analytics, Electron 45.3.0 / embedded Node 24.22.2 | 438/438 passed; no failures or skips |
-| Reader, Node 26.13.1 | 939 passed, zero failed, four optional released-baseline/export/model cases skipped (943 total) |
-| Alternative source suite | 232/232 passed |
+| Analytics, Node 26.13.1 | 439/439 passed; no failures or skips |
+| Analytics, Electron 45.3.0 / embedded Node 24.22.2 | 439/439 passed; no failures or skips |
+| Reader, Node 26.13.1 | 940 passed, zero failed, four optional released-baseline/export/model cases skipped (944 total) |
+| Alternative source suite | 233/233 passed |
 | Release assembly/publisher regressions | 68/68 passed |
 | Native-check orchestration | 16/16 passed |
 | Reader / Analytics / Alternative package regressions | 71 / 54 / 5 passed |
@@ -50,6 +50,14 @@ Process RSS includes same-process workers and native allocations. Sampled main-t
 The matching runtime source supplement was built twice with identical bytes: **824,382,913 bytes**, SHA-256 `c29e59031d5d86a18cce02d88c529a48f6af078101700109e5adb4dcaced861c`. Its manifest SHA-256 is `f28fc65fb1a7c937bbfd7701783325450efe26ec53e9b0804ed30ee29499b8c5`. Qualification covers 945 source deltas, 12 Gitlink transitions, all three pinned optimization profiles, the V8 GN filename, all 352 current ordered patches and an actual updater extracted from the built artifact. It verifies 1,091 original paths and 115 initial absences using official source identities. This is source/update preservation, not a full historical source reassembly or runtime build.
 
 All three application dependency audits reported zero vulnerabilities at verification time. Existing marked/Playwright minor pins were retained; no unrelated parser or test-tool update was introduced.
+
+## Cross-platform lifecycle corrections before publication
+
+The first GitHub run exposed two concrete problems. Seven new owned-row storage cases and six new disk-parity cases completed their substantive checks but attempted to delete temporary SQLite files before their separately registered close hooks. Linux permits this; Windows returned `EBUSY`. The fixtures now use one ordered teardown that closes all owned readers, writers, databases and leases before removing directories. All semantic assertions remain. A deletion guard reproduced the six original parity failures and verified all 14 corrected removals with zero open handles; the new storage lifecycle regression verifies closure immediately before removal. No production Analytics change, skip, retry or suppressed filesystem error was introduced.
+
+The unchanged speech expiry test also exposed an early timer notification. The shared Reader/Alternative scheduler now rechecks the actual expiry deadline and reschedules an early callback before emitting availability changes. The original assertion remains strict. One additive deterministic regression per app covers a callback one millisecond early, a backwards clock adjustment, rescheduling, exact-deadline emission, expired availability and an empty RAM audio cache. Both complete speech suites pass 114/114 under Node and embedded Electron; Alternative's full CI command passes 233/233.
+
+The table above records the repaired final local runs. Original unsuccessful-run logs were retained privately before their GitHub run records were deleted at the owner's request. Fresh workflow runs use the release title, retain the full native/security/publication gates and start from the corrected unpublished 1.4.6 tag. No CI pass is claimed here.
 
 ## Publication
 

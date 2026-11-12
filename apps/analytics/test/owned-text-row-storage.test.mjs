@@ -15,14 +15,28 @@ const sourceId='d'.repeat(64),source={id:sourceId,kind:'files',paths:['/unavaila
 const metadata={version:2,normalizedSchemaVersion:2,adapterVersion:'2.0.0',contentVersion:'1.0.0',producer:{applicationVersion:'1.4.5',adapterVersion:'2.0.0',contentVersion:'1.0.0'},extensionCapture:{keep:'exact'},source,diagnostics:[]};
 const document=text=>({provider:'openai',conversationKey:'kept',title:'Retained public conversation',turns:[{source_message_id:'p',user:text,createdAt:'2026-01-01'},{source_message_id:'a',ai:'Retained response'}]});
 const normalized=text=>normalizeConversations(document(text),{sourceId,collectionId:'original-collection'}).conversations;
-async function temporary(t){const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-public-rows-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));const storage=await new OwnedStorage(root).init({writer:true});t.after(()=>storage.close());return{root,storage};}
+async function temporary(t){
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-public-rows-')),writers=new Set();let storage;
+ const cleanup=async beforeRemove=>{
+  for(const writer of writers)await writer.abort();writers.clear();
+  await storage?.close();
+  await beforeRemove?.();
+  await fs.rm(root,{recursive:true,force:true});
+ };
+ // after hooks run in registration order. Windows requires all SQLite handles
+ // to be closed before removal; Linux permits unlinking an open database.
+ t.after(()=>cleanup());storage=await new OwnedStorage(root).init({writer:true});
+ const beginSnapshot=storage.beginSnapshot.bind(storage);
+ storage.beginSnapshot=async(...args)=>{const writer=await beginSnapshot(...args);writers.add(writer);return writer;};
+ return{root,storage,cleanup};
+}
 async function capture(storage,conversations,extra={}){const writer=await storage.beginSnapshot(sourceId);try{for(const c of conversations)await writer.addConversation(c,{reconcile:false});return await writer.publish({...metadata,...extra});}catch(error){await writer.abort();throw error;}}
 
 test('public legacy full-text gzip migrates offline without resetting identities, settings or baseline bytes',async t=>{
- const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-public-legacy-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-public-legacy-'));let storage;t.after(async()=>{await storage?.close();await fs.rm(root,{recursive:true,force:true});});
  const text='😀'.repeat(4500)+' original-only-after-excerpt \ud800\n```rust\nfn preserved() {}\n```',conversations=normalized(text),settings={language:'hu',extensionSetting:{keep:17}},state={sources:[source],annotations:{aliases:{[conversations[0].id]:'Alias'},groups:{kept:[conversations[0].id]}},extensionState:{keep:23}};
  const packed=gzipSync(JSON.stringify({...metadata,adapterVersion:'1.0.0',conversations}));await fs.mkdir(path.join(root,'snapshots'));await fs.writeFile(path.join(root,'analytics-owner.json'),JSON.stringify({owner:'threadshelf-local-analytics:1',version:1}));await fs.writeFile(path.join(root,'settings.json'),JSON.stringify(settings));await fs.writeFile(path.join(root,'state.json'),JSON.stringify(state));const filename=path.join(root,'snapshots',sourceId+'.json.gz');await fs.writeFile(filename,packed);
- const storage=await new OwnedStorage(root).init({writer:true,recover:true});t.after(()=>storage.close());const previous=await storage.pointer(sourceId),reader=await storage.openSnapshot(sourceId);const c=[...reader.iterateConversations({includeBodies:true})][0];
+ storage=await new OwnedStorage(root).init({writer:true,recover:true});const previous=await storage.pointer(sourceId),reader=await storage.openSnapshot(sourceId);const c=[...reader.iterateConversations({includeBodies:true})][0];
  assert.equal(c.id,conversations[0].id);assert.equal(c.records[0].id,conversations[0].records[0].id);assert.equal(c.records[0].text,text);assert.equal(reader.bodyText(c.id,c.records[0].id),text);assert.equal(reader.descriptor().textRetained,true);assert.equal(reader.reference.id,previous.active.id);assert.deepEqual(reader.metadata.producer,metadata.producer);assert.deepEqual(reader.metadata.extensionCapture,metadata.extensionCapture);assert.equal([...reader.iterateConversations()][0].records[0].text,undefined);reader.close();
  assert.deepEqual(await storage.readJSON('settings.json'),settings);assert.deepEqual(await storage.readJSON('state.json'),state);assert.deepEqual(await fs.readFile(filename),packed);assert.equal(await fs.stat(path.join(root,'analytics-v2/statistics-storage.json')).then(()=>true,()=>false),false);
 });
@@ -61,4 +75,11 @@ test('damaged migrated SQL automatically recovers exact public bodies from the v
 
 test('offline row rebuild repairs stale measurements while redacted records need no body',async t=>{
  const{storage}=await temporary(t),conversations=normalized('Observed original wording'),c=conversations[0],redacted={...c.records[0],id:c.records[0].id+':redacted',category:'redacted',observed:false};delete redacted.text;c.records.push(redacted);const writer=await storage.beginSnapshot(sourceId);await writer.addConversation(c,{reconcile:false});const row=writer.db.prepare('SELECT json FROM records WHERE conversation_id=? AND ordinal=0').get(c.id),damaged=parseRecordPayload(row.json);damaged.explorerAnalysis={...damaged.explorerAnalysis,version:'obsolete-measurement',characters:1};writer.db.prepare('UPDATE records SET json=? WHERE conversation_id=? AND ordinal=0').run(encodeRecordPayload(damaged),c.id);await writer.publish(metadata);const result=await indexedOwnedDescriptor(storage,sourceId,{rebuild:true});assert.equal(result.indexManifest.fullOwnedText,true);const reader=await storage.openSnapshot(sourceId);t.after(()=>reader.close());const restored=reader.conversation(c.id);assert.notEqual(restored.records[0].explorerAnalysis.version,'obsolete-measurement');assert.equal(restored.records[0].explorerAnalysis.characters,'Observed original wording'.length);assert.equal(reader.bodyText(c.id,redacted.id),null);assert.equal(reader.metadata.textRetained,true);assert.equal(reader.counts.missingObservedBodies,0);
+});
+
+
+test('fixture cleanup closes live readers and unpublished writers before removing their files',async t=>{
+ const{root,storage,cleanup}=await temporary(t);await capture(storage,normalized('Published body'));const reader=await storage.openSnapshot(sourceId),writer=await storage.beginSnapshot(sourceId);await writer.addConversation(normalized('Unpublished body')[0]);
+ await cleanup(()=>{assert.equal(reader.closed,true);assert.equal(writer.closed,true);assert.equal(writer.db,null);assert.equal(storage.captureReaders.size,0);assert.equal(storage.writerLease,null);});
+ await assert.rejects(fs.stat(root),{code:'ENOENT'});
 });

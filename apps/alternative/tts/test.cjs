@@ -307,6 +307,17 @@ test('expiry emits a revision event and removes persistent availability without 
  assert.equal((await availability(next)).items[0].available,true);let timeout;const event=await Promise.race([changed,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('Expiry event timeout')),2000);})]);clearTimeout(timeout);assert(event.revision>0);assert.equal((await availability(next)).items[0].available,false);assert.equal((await next.invoke('tts.cache.list')).session.count,0);
 });
 
+test('expiry timer rechecks the exact deadline after an early callback or clock rollback',async t=>{
+ const {app,dir}=await service(t);await app.invoke('tts.settings.save',{settings:{enabled:true,cacheEnabled:true}});await app.invoke('tts.synthesize',request());await app.dispose();
+ let now=Date.now();const deadline=now+300,indexPath=path.join(dir,'tts-cache/index-v1.json'),index=JSON.parse(await fs.readFile(indexPath,'utf8'));index.entries[0].createdAt=new Date(deadline-86400000).toISOString();await fs.writeFile(indexPath,JSON.stringify(index));await new SettingsStore(dir).save({cacheMaxAgeDays:1});
+ const timers=[],events=[];t.mock.method(Date,'now',()=>now);t.mock.method(globalThis,'setTimeout',(callback,delay)=>{const timer={callback,delay,unref(){}};timers.push(timer);return timer;});t.mock.method(globalThis,'clearTimeout',()=>{});
+ const next=createTtsService({profileDir:dir,assetsDir:path.join(dir,'assets'),onEvent:e=>events.push(e)});t.after(()=>next.dispose());
+ const before=await availability(next);assert.equal(before.items[0].available,true);assert.equal(timers.at(-1).delay,300);
+ now=deadline-1;timers.at(-1).callback();assert.equal(events.length,0);assert.equal(timers.at(-1).delay,1);assert.equal((await availability(next)).items[0].available,true);
+ now-=60000;timers.at(-1).callback();assert.equal(events.length,0);assert.equal(timers.at(-1).delay,60001);assert.equal((await availability(next)).items[0].available,true);
+ now=deadline;timers.at(-1).callback();assert.equal(events.length,1);assert.equal(events[0].state,'availability-changed');assert(events[0].revision>before.revision);assert.equal((await availability(next)).items[0].available,false);assert.equal((await next.invoke('tts.cache.list')).session.count,0);
+});
+
 // A rejected response must not retain an unbounded body after its deadline ends.
 test('rejected speech responses promptly close unfinished error and redirect bodies', async t=>{
  const serve=async status=>{
