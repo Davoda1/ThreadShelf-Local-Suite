@@ -1,6 +1,6 @@
-# Local Analytics 1.4.0 — screenshot guide
+# Local Analytics 1.4.5 — screenshot guide
 
-These new images show the exact compiled 1.4.0 application renderer with the built-in synthetic demo bridge, captured in UTC. The preview banner labels the demonstration. They are unaltered browser screenshots of the actual interface, not generated illustrations. Native file dialogs, imported profiles and operating-system packaging are not tested by these images. Analytics retains its existing functionality in 1.4.0; it has no Text-to-Speech settings.
+These screenshots show the public **Local Analytics 1.4.5** native Linux interface using an Analytics-owned snapshot of the bundled 43-conversation synthetic fixture. The actual backend and analysis workers produce the displayed reports. Twelve images are 1600 × 1000; the compact example is 680 × 540, all at 100% zoom. Analytics has no Text-to-Speech settings.
 
 ## Overview: scope before interpretation
 

@@ -1,13 +1,13 @@
 # Build and package
 
-Application version: **1.4.4**. This is an independent product.
+Application version: **1.4.6**. This is an independent product.
 
 ## Requirements
 
 - Python 3.11.8 or newer for preparing the bundled CPU speech assets. The packaging script itself supports Python 3.10 or newer.
-- Node.js 26.13.0 LTS and npm 12.2.2 for Windows executable branding and the development tests.
+- Node.js 26.13.1 LTS and npm 12.2.2 for Windows executable branding and the development tests.
 - Debian/Ubuntu tooling (`dpkg-deb`) on Linux or WSL for the `.deb`.
-- The two official Electron 45.2.3 x64 runtime ZIPs. The packaging script verifies
+- The two official Electron 45.3.0 x64 runtime ZIPs. The packaging script verifies
   their pinned SHA-256 hashes before extraction. It never executes a downloaded
   Windows executable during the build.
 
@@ -59,8 +59,8 @@ python3 scripts/build.py --target all --runtime-cache /path/to/electron-cache --
 That cache must contain:
 
 ```text
-electron-v45.2.3-linux-x64.zip
-electron-v45.2.3-win32-x64.zip
+electron-v45.3.0-linux-x64.zip
+electron-v45.3.0-win32-x64.zip
 ```
 
 ## Windows
@@ -109,7 +109,7 @@ Distribution README and notice files use paths valid at their packaged locations
 notices remain under `resources/app/`. The validator resolves local links in each
 generated distribution document and checks the distinct application-license bytes.
 
-The Windows EXE is rebranded with this project's icon, name and 1.4.4.0 resource
+The Windows EXE is rebranded with this project's icon, name and 1.4.6.0 resource
 version. The original upstream signature cannot remain valid after resource
 editing; the generated application EXE is explicitly unsigned.
 

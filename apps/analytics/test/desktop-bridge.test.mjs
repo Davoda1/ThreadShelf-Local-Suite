@@ -11,26 +11,32 @@ import {EventEmitter} from 'node:events';
 import {AnalyticsService} from '../src/core/application-service.mjs';
 import {OwnedStorage} from '../src/core/owned-storage.mjs';
 import {renderSafeMarkdown} from '../src/core/safe-markdown.mjs';
+import transfer from '../src/desktop/serialized-transfer.cjs';
 
 const preloadCode=await fs.readFile(new URL('../src/desktop/preload.cjs',import.meta.url),'utf8');
 const mainCode=await fs.readFile(new URL('../src/desktop/main.cjs',import.meta.url),'utf8');
 const start=mainCode.indexOf('  const senderOK=event=>'),end=mainCode.indexOf("  window.on('ready-to-show'",start);
 assert(start>=0&&end>start,'Actual main-process handler boundaries');
 const mainHandlerCode=mainCode.slice(start,end);
+const updateStart=mainCode.indexOf('const transferFailure='),updateEnd=mainCode.indexOf('if(!app.requestSingleInstanceLock()',updateStart);
+assert(updateStart>=0&&updateEnd>updateStart,'Actual serialized update helper boundaries');
+const mainUpdateCode=mainCode.slice(updateStart,updateEnd);
 
 function bridgeHarness(service,{sourcePath,reportPath}={}) {
-  const frame={url:'analytics://app/index.html'},contents={mainFrame:frame},window={webContents:contents,isDestroyed:()=>false};
+  const frame={url:'analytics://app/index.html'},contents={mainFrame:frame,send:(channel,data)=>events.emit(channel,{},data)},window={webContents:contents,isDestroyed:()=>false};
   const invoked=[],external=[],events=new EventEmitter();let handler,api;
-  const context=vm.createContext({window,service,boot:{ready:async()=>service,state:{phase:'ready'}},updateRevision:0,path,URL,
+  const serializedTransfers=transfer.createTransferStore();
+  const context=vm.createContext({window,service,boot:{ready:async()=>service,state:{phase:'ready'}},updateRevision:0,path,URL,serializedTransfers,
     ipcMain:{handle:(channel,callback)=>{assert.equal(channel,'analytics:invoke');handler=callback;}},
     dialog:{showOpenDialog:async()=>({canceled:!sourcePath,filePaths:sourcePath?[sourcePath]:[]}),showSaveDialog:async()=>({canceled:!reportPath,filePath:reportPath})},
     app:{getPath:()=>path.dirname(reportPath||sourcePath||os.tmpdir())},shell:{openExternal:async url=>{external.push(url);}}
   });
+  vm.runInContext(mainUpdateCode,context,{filename:'actual-main-update-helper.cjs'});
   vm.runInContext(mainHandlerCode,context,{filename:'actual-main-ipc-handler.cjs'});
   const event={sender:contents,senderFrame:frame};
   const ipcRenderer={invoke:async(channel,request)=>{assert.equal(channel,'analytics:invoke');const copy=structuredClone(request);invoked.push(copy);return structuredClone(await handler(event,copy));},on:events.on.bind(events),removeListener:events.removeListener.bind(events)};
   vm.runInNewContext(preloadCode,{require:name=>{assert.equal(name,'electron');return{contextBridge:{exposeInMainWorld:(name,value)=>{assert.equal(name,'analytics');api=value;}},ipcRenderer};}},{filename:'actual-preload.cjs'});
-  return{api,invoked,external,events,raw:(request,sender=event)=>handler(sender,request),contents,frame};
+  return{api,invoked,external,events,serializedTransfers,sendUpdate:vm.runInContext('sendUpdate',context),raw:(request,sender=event)=>handler(sender,request),contents,frame};
 }
 function document(version=1) {
   const mapping={
@@ -129,4 +135,77 @@ test('retained evidence IPC resolves removed older records after original discon
   for(const badQuery of [{limit:101},{limit:0},{offset:-1},{offset:1.5},{ids:'not-an-array'},{ids:['']},{ids:[removed.id],recordIds:[removed.id]},{path:sourcePath},{category:'unsupported-category'},{ids:Array(10001).fill(removed.id)}])await assert.rejects(api.captureEvidence(sourceId,olderId,badQuery,filters),error=>error.code==='INVALID_CAPTURE_EVIDENCE');
   await assert.rejects(api.captureEvidence(sourceId,'../../outside',{},filters),error=>error.code==='INVALID_CAPTURE_EVIDENCE');await assert.rejects(api.captureEvidence('0'.repeat(64),olderId,{},filters),error=>error.code==='INVALID_CAPTURE_EVIDENCE');await assert.rejects(api.captureEvidence(sourceId,'0'.repeat(64),{},filters),/not retained/);await assert.rejects(api.captureEvidence(sourceId,olderId,{}, {future:'x'.repeat(256*1024)}),error=>error.code==='INVALID_CAPTURE_EVIDENCE');
   await api.removeCaptureHistory(sourceId,olderId);await assert.rejects(api.captureEvidence(sourceId,olderId,{},filters),/not retained/);assert.equal((await api.captureEvidence(sourceId,currentId,{},filters)).total,2);assert.equal(await fs.readFile(sourcePath+'.disconnected','utf8'),currentBytes);
+});
+
+test('serialized bootstrap and update bridge retain exact data without duplicate string encoding',async()=>{
+ const app={payload:()=>({settings:{language:'en'},conversations:[{id:'exact-data'}]})},harness=bridgeHarness(app);
+ const object=await harness.api.bootstrap(),serialized=await harness.api.bootstrapSerialized();assert.deepEqual(JSON.parse(serialized),object);assert.equal(harness.invoked.at(-1).operation,'bootstrapSerialized');
+ const payload={conversations:[{id:'new-data'}],__updateRevision:7},objectMessages=[],serializedMessages=[];
+ const stopObject=harness.api.onUpdate(value=>objectMessages.push(value)),stopSerialized=harness.api.onSerializedUpdate(value=>serializedMessages.push(value));
+ harness.events.emit('analytics:update',{},JSON.stringify(payload));assert.deepEqual(JSON.parse(JSON.stringify(objectMessages)),[payload]);assert.deepEqual(serializedMessages,[JSON.stringify(payload)]);stopObject();stopSerialized();
+});
+
+test('native analysis routes retain sender guards, bounded responses and exact serialized views',async()=>{
+ const requests=[],app={payload:()=>({backendAnalysis:true,dataset:{revision:'descriptor',conversationCount:2000,recordCount:9000}}),calculate:async value=>{requests.push(value);return{reportId:'synthetic-report',report:{summary:{records:9000},boundedView:'S'.repeat(1024*1024+1)}};},tablePage:async value=>({rows:[{rowId:'row',count:9}],total:9000,offset:value.offset,limit:value.limit,nextOffset:value.offset+1})};
+ const h=bridgeHarness(app),bootstrap=JSON.parse(await h.api.bootstrapSerialized());assert.equal(bootstrap.backendAnalysis,true);assert.equal(Object.hasOwn(bootstrap,'conversations'),false);
+ const view=await h.api.calculate({requestId:1,filters:{branch:'selected'}});assert.equal(view.report.summary.records,9000);assert.equal(view.report.boundedView.length,1024*1024+1);assert.equal(h.serializedTransfers.stats().transfers,0);assert.equal(Object.hasOwn(requests[0],'conversations'),false);
+ const page=await h.api.tablePage({reportId:view.reportId,table:'conversations',offset:100,limit:100});assert.equal(page.total,9000);assert.equal(page.nextOffset,101);
+ const rejected=await h.raw({operation:'calculate',value:{requestId:2}},{sender:{},senderFrame:h.frame});assert.equal(rejected.ok,false);assert.equal(requests.length,1);
+ app.tablePage=async()=>({rows:[{rowId:'oversized',label:'X'.repeat(1024*1024+1)}]});await assert.rejects(h.api.tablePage({reportId:view.reportId,table:'conversations',offset:0,limit:1}),error=>error.code==='ANALYSIS_RESPONSE_TOO_LARGE');
+ app.calculate=async()=>{throw Object.assign(new Error('Synthetic numeric limit'),{code:'ANALYTICAL_JSON_NODE_LIMIT',limit:{kind:'nodes',observed:40000001,maximum:40000000,scope:'document',documentIndex:2,body:'SYNTHETIC-PRIVATE'}});};await assert.rejects(h.api.calculate({requestId:2}),error=>{assert.deepEqual(JSON.parse(JSON.stringify(error.limit)),{kind:'nodes',observed:40000001,maximum:40000000,scope:'document',documentIndex:2});return error.code==='ANALYTICAL_JSON_NODE_LIMIT';});
+ app.payload=()=>({backendAnalysis:true,conversations:[{records:[{id:'never-transfer'}]}]});await assert.rejects(h.api.bootstrap(),error=>error.code==='NATIVE_DATASET_PROTOCOL');await assert.rejects(h.api.bootstrapSerialized(),error=>error.code==='NATIVE_DATASET_PROTOCOL');
+});
+
+test('retained evidence and comparison IPC enforce page budgets and decode large bounded comparisons',async()=>{
+ const app={payload:()=>({}),captureEvidence:async()=>({evidence:[{id:'bounded-record'}],total:1,offset:0}),compareCaptureHistory:async()=>({summary:{changed:1},metadata:'S'.repeat(1024*1024+1)})},h=bridgeHarness(app);
+ const evidence=await h.api.captureEvidence({sourceId:'source',captureId:'capture',query:{limit:1}});assert.equal(evidence.evidence[0].id,'bounded-record');
+ const diff=await h.api.compareCaptureHistory({sourceId:'source',leftId:'left',rightId:'right'});assert.equal(diff.summary.changed,1);assert.equal(diff.metadata.length,1024*1024+1);assert.equal(h.serializedTransfers.stats().transfers,0);
+ app.captureEvidence=async()=>({evidence:[{id:'oversized',metadata:'X'.repeat(1024*1024+1)}]});await assert.rejects(h.api.captureEvidence({sourceId:'source',captureId:'capture'}),error=>error.code==='ANALYSIS_RESPONSE_TOO_LARGE');
+ app.compareCaptureHistory=async()=>({metadata:'X'.repeat(8*1024*1024+1)});await assert.rejects(h.api.compareCaptureHistory({sourceId:'source',leftId:'left',rightId:'right'}),error=>error.code==='ANALYSIS_RESPONSE_TOO_LARGE');
+});
+
+test('large serialized bootstrap and shared update subscribers pull bounded chunks and release their snapshot',async()=>{
+ const payload={settings:{language:'en'},sources:[{id:'synthetic'}],conversations:[{id:'large-statistical-fixture',measurements:'測定😀'.repeat(1_750_000)}],__updateRevision:7},serialized=JSON.stringify(payload);
+ const harness=bridgeHarness({payload:()=>payload});
+ const boot=await harness.api.bootstrapSerialized();assert.deepEqual(JSON.parse(boot).conversations,payload.conversations);
+ const bootstrapReads=harness.invoked.filter(value=>value.operation==='readTransfer');assert(bootstrapReads.length>1);assert.equal(harness.serializedTransfers.stats().transfers,0);
+ const descriptor=harness.serializedTransfers.encode(serialized,{revision:7,isData:true});
+ const before=harness.invoked.length;let objectResolve,serializedResolve;
+ const objectResult=new Promise(resolve=>{objectResolve=resolve;}),serializedResult=new Promise(resolve=>{serializedResolve=resolve;});
+ const stopObject=harness.api.onUpdate(objectResolve),stopSerialized=harness.api.onSerializedUpdate(serializedResolve);
+ harness.events.emit('analytics:update',{},descriptor);
+ const resync=harness.api.bootstrapSerialized();
+ const [objectUpdate,serializedUpdate,resynced]=await Promise.all([objectResult,serializedResult,resync]);
+ assert.equal(serializedUpdate,serialized);assert.equal(resynced,serialized);assert.deepEqual(JSON.parse(JSON.stringify(objectUpdate)),payload);
+ const requests=harness.invoked.slice(before);assert.equal(requests.filter(value=>value.operation==='readTransfer').length,descriptor.count);assert.equal(requests.filter(value=>value.operation==='releaseTransfer').length,1);assert.equal(requests.filter(value=>value.operation==='bootstrapSerialized').length,0);assert.equal(harness.serializedTransfers.stats().transfers,0);
+ stopObject();stopSerialized();assert.equal(harness.events.listenerCount('analytics:update'),0);
+});
+
+test('chunk IPC retains sender checks and expired update transfers become visible errors',async()=>{
+ const harness=bridgeHarness({payload:()=>({})}),descriptor=harness.serializedTransfers.encode('x'.repeat(1024*1024+1),{isData:true});
+ const untrusted=await harness.raw({operation:'readTransfer',value:{id:descriptor.id,index:0}},{sender:{},senderFrame:harness.frame});assert.equal(untrusted.ok,false);assert.match(untrusted.error.message,/Untrusted IPC/);
+ const outOfOrder=await harness.raw({operation:'readTransfer',value:{id:descriptor.id,index:1}});assert.equal(outOfOrder.ok,false);assert.equal(outOfOrder.error.code,'TRANSFER_ORDER_INVALID');
+ const first=await harness.raw({operation:'readTransfer',value:{id:descriptor.id,index:0}});assert.equal(first.ok,true);assert(first.value.length<=1024*1024);
+ harness.serializedTransfers.release({id:descriptor.id});
+ let resolve;const received=new Promise(done=>{resolve=done;}),stop=harness.api.onSerializedUpdate(resolve);harness.events.emit('analytics:update',{},descriptor);
+ const error=JSON.parse(await received);assert.equal(error.error,true);assert.equal(error.transportError.code,'DATA_TRANSFER_FAILED');stop();assert.equal(harness.serializedTransfers.stats().transfers,0);
+});
+
+test('serialization failures cannot escape the service update listener and bootstrap can retry safely',async()=>{
+ let payload={conversations:[]};const service=new EventEmitter();service.payload=()=>payload;
+ const harness=bridgeHarness(service),messages=[],stop=harness.api.onSerializedUpdate(value=>messages.push(JSON.parse(value)));
+ service.on('update',harness.sendUpdate);
+ const broken={toJSON(){throw new RangeError('Synthetic JSON capacity failure; source details stay private');}};
+ assert.doesNotThrow(()=>service.emit('update',{conversations:[broken]}));assert.equal(messages.length,1);assert.equal(messages[0].__updateRevision,1);assert.equal(messages[0].error,true);assert.equal(messages[0].transportError.code,'DATA_TRANSFER_FAILED');assert.equal(Object.hasOwn(messages[0],'conversations'),false);assert(!JSON.stringify(messages[0]).includes('source details'));assert.deepEqual(harness.serializedTransfers.stats(),{transfers:0,characters:0});
+ payload={conversations:[broken]};await assert.rejects(harness.api.bootstrapSerialized(),error=>error.code==='DATA_TRANSFER_FAILED');
+ payload={conversations:[{id:'retained-statistics',records:[]}]};const retry=JSON.parse(await harness.api.bootstrapSerialized());assert.deepEqual(retry.conversations,payload.conversations);
+ assert.doesNotThrow(()=>service.emit('update',payload));assert.equal(messages.at(-1).__updateRevision,2);assert.deepEqual(messages.at(-1).conversations,payload.conversations);
+ harness.contents.send=()=>{throw new Error('Synthetic renderer closed during both delivery attempts');};assert.doesNotThrow(()=>service.emit('update',{conversations:[broken]}));stop();
+});
+
+test('source validation errors retain diagnostic context before a Reader can be registered',async t=>{
+ const root=await fs.mkdtemp(path.join(os.tmpdir(),'analytics-invalid-reader-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));
+ const sourcePath=path.join(root,'Not a Reader profile');await fs.mkdir(sourcePath);const app=await new AnalyticsService(path.join(root,'Analytics')).init();t.after(()=>app.close());
+ const {api}=bridgeHarness(app,{sourcePath});await assert.rejects(api.chooseSource('reader'),error=>{assert.equal(error.context.phase,'source-validation');assert.equal(error.context.sourceKind,'reader');assert.equal(error.context.sourcePath,sourcePath);assert.equal(typeof error.context.failedAt,'string');return true;});
+ assert.equal(app.state.sources.length,0);
 });

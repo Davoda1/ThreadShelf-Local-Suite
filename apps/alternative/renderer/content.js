@@ -1,4 +1,4 @@
-/* ThreadShelf Local Alternative 1.4.5 — isolated archive rendering. */
+/* ThreadShelf Local Alternative 1.4.6 — isolated archive rendering. */
 (function () {
   'use strict';
   const rich = window.TSARich;

@@ -1,7 +1,9 @@
+import {STATISTICS_CAPTURE_VERSION} from './compact-capture.mjs';
+import {EXPLORER_TEXT_ALGORITHM_VERSION} from './explorer-a.mjs';
 /** Rebuild new calculations only from complete owned snapshots; producer fields are immutable. */
 import {createHash} from 'node:crypto';
 import {analyzeText} from './metrics.mjs';
-import {TEXT_INDEX_SCHEMA_VERSION,supportedCapture,PRODUCT_VERSION} from './storage-versions.mjs';
+import {TEXT_INDEX_SCHEMA_VERSION,supportedCapture,PRODUCT_VERSION,SUPPORTED_CAPTURE_VERSIONS} from './storage-versions.mjs';
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const promptKey=text=>createHash('sha256').update(text.normalize('NFC').replace(/\s+/gu,' ').trim()).digest('hex');
 export async function indexedOwnedCapture(storage,sourceId,{rebuild=false,signal,onProgress}={}){
@@ -24,4 +26,32 @@ export async function indexedOwnedCapture(storage,sourceId,{rebuild=false,signal
  }
  if(rebuilt){signal?.throwIfAborted();index={schemaVersion:TEXT_INDEX_SCHEMA_VERSION,algorithmVersion:EXPLORER_TEXT_ALGORITHM_VERSION,baseSnapshotFingerprint,sourceId,records:entries,builtAt:new Date().toISOString(),producerVersion:PRODUCT_VERSION,sourceProducer:data.producer||{adapterVersion:data.adapterVersion,contentVersion:data.contentVersion},fullOwnedText:true};try{await storage.saveIndex(sourceId,index);}catch(error){if(signal?.aborted)throw error;persistenceError=error.message;}}
  return{...data,indexManifest:{schemaVersion:index.schemaVersion,algorithmVersion:index.algorithmVersion,baseSnapshotFingerprint,builtAt:index.builtAt,status:'Ready',persisted:!persistenceError,persistence:persistenceError?'Rebuild needed':'Ready',persistenceReason:persistenceError,fullOwnedText:true,producerVersion:PRODUCT_VERSION},compatibility:{legacyCapture:data.adapterVersion==='1.0.0',sourceRecaptureRequired:false,producerPreserved:true},indexRebuilt:rebuilt};
+}
+
+/** Production path: validate the immutable row store and expose metadata only. */
+export async function indexedOwnedDescriptor(storage,sourceId,{rebuild=false,signal,onProgress}={}){
+ const reader=await storage.openSnapshot(sourceId,{signal,onProgress});if(!reader)return null;
+ if(rebuild){try{return await rebuildOwnedRows(storage,sourceId,reader,{signal,onProgress});}finally{reader.close();}}
+ try{
+  const data=reader.descriptor();if(!SUPPORTED_DESCRIPTOR(data))throw Object.assign(new Error('This saved statistical format is unsupported. Refresh its source.'),{code:'CAPTURE_UNSUPPORTED'});
+  return{...data,indexManifest:{schemaVersion:TEXT_INDEX_SCHEMA_VERSION,algorithmVersion:EXPLORER_TEXT_ALGORITHM_VERSION,baseSnapshotFingerprint:reader.reference.fingerprint,builtAt:data.source?.capturedAt,status:'Ready',persisted:true,persistence:'Ready',fullOwnedText:data.textRetained===true,statisticsOnly:data.textRetained!==true,producerVersion:PRODUCT_VERSION},compatibility:{legacyCapture:data.adapterVersion==='1.0.0',sourceRecaptureRequired:data.textRetained!==true,originalTextAvailable:data.textRetained===true,producerPreserved:true},indexRebuilt:rebuild};
+ }finally{reader.close();}
+}
+function SUPPORTED_DESCRIPTOR(data){return data?.diskBacked===true&&SUPPORTED_CAPTURE_VERSIONS.adapter.has(data.adapterVersion)&&SUPPORTED_CAPTURE_VERSIONS.content.has(data.contentVersion)&&data.statisticsCaptureVersion===STATISTICS_CAPTURE_VERSION&&typeof data.source?.id==='string'&&Number.isSafeInteger(data.counts?.conversations)&&Number.isSafeInteger(data.counts?.records);}
+
+/** Rebuild derived measurements from retained bodies without opening the source. */
+async function rebuildOwnedRows(storage,sourceId,reader,{signal,onProgress}){
+ if(!reader.metadata.textRetained&&!reader.metadata.bodyStorageEnabled)throw Object.assign(new Error('This capture does not retain complete original text. Refresh its source to rebuild these measurements.'),{code:'CAPTURE_RECAPTURE_REQUIRED'});
+ const writer=await storage.beginSnapshot(sourceId,{signal,retainText:true});let completed=0;
+ try{
+  for(const conversation of reader.iterateConversations({includeBodies:true})){
+   for(const record of conversation.records){if(record.observed!==false&&record.category!=='redacted'&&typeof record.text!=='string')throw Object.assign(new Error('An observed record does not retain its original text. Refresh its source to rebuild these measurements.'),{code:'CAPTURE_RECAPTURE_REQUIRED'});delete record.contentAnalysis;delete record.explorerAnalysis;delete record.promptMatchKey;if(typeof record.text!=='string')delete record.textRetained;}
+   await writer.addConversation(conversation,{reconcile:false,diagnostics:false});completed++;
+   if(completed%16===0){onProgress?.({phase:'index',completed,total:reader.counts.conversations,ownedCaptureOnly:true});await new Promise(resolve=>setImmediate(resolve));}
+  }
+  for(const row of reader.database.prepare('SELECT json,scope,conversation_id FROM diagnostics ORDER BY seq').iterate())writer.addDiagnostics([JSON.parse(row.json)],{scope:row.scope,conversationId:row.conversation_id});
+  for(const row of reader.database.prepare('SELECT namespace,key,json FROM auxiliary ORDER BY namespace,key').iterate())writer.addAuxiliary(row.namespace,row.key,JSON.parse(row.json));
+  await writer.publish({...reader.metadata,derivedIndexRebuiltAt:new Date().toISOString()},{replaceReference:reader.reference});
+ }catch(error){await writer.abort().catch(()=>{});throw error;}
+ return {...await indexedOwnedDescriptor(storage,sourceId,{signal,onProgress}),indexRebuilt:true};
 }

@@ -17,7 +17,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.13.0
+          node-version: 26.13.1
       - name: Native-path ESM test-harness regressions
         run: node --test apps/reader/tests/esm-module-specifier.test.mjs
       - name: Prepare and verify private npm toolchain
@@ -129,7 +129,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.13.0
+          node-version: 26.13.1
       - name: Native-path ESM test-harness regressions
         run: node --test apps/reader/tests/esm-module-specifier.test.mjs
       - name: Prepare and verify private npm toolchain
@@ -206,7 +206,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.13.0
+          node-version: 26.13.1
       - name: Prepare and verify private npm toolchain
         run: node "${{ github.workspace }}/tools/npm.mjs" --report
       - name: Check out the exact supported upstream server

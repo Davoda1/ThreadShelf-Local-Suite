@@ -1,6 +1,6 @@
 # Reproducible build toolchain
 
-The public application version is **1.4.4**. Release tools are pinned to Node.js **26.13.0 LTS**, Electron **45.2.3**, and an isolated managed copy of npm **12.2.2** with verified upstream dependency fixes (Undici **6.29.1**, glob **14.0.3**, minimatch **11.0.2** and their pinned dependencies). This is a documented local toolchain modification, not a new official npm release. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
+The public application version is **1.4.6**. Release tools are pinned to Node.js **26.13.1 LTS**, Electron **45.3.0**, and an isolated managed copy of npm **12.2.2** with verified upstream dependency fixes (Undici **6.29.1**, glob **14.0.3**, minimatch **11.0.2** and their pinned dependencies). This is a documented local toolchain modification, not a new official npm release. Electron's embedded Node and Chromium are part of that Electron runtime and are distinct from external build tools.
 
 The source helper verifies all six upstream toolchain archives against pinned SHA-512 integrity values, checks the resulting file manifest and verifies the Undici actually resolved by npm's node-gyp consumer. It does not modify global npm or fall back to an unverified system copy. npm still reports 12.2.2; the managed profile records Undici 6.29.1 separately.
 

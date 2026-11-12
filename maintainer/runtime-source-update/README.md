@@ -1,8 +1,8 @@
-# Electron 45.2.3 source update
+# Electron 45.3.0 source update
 
 This supplement updates the original Electron **45.1.0** source collection to
-**45.2.3**, Chromium **156.0.8078.80**, and embedded Node.js **24.22.2**.
-It is supplied as `ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz`.
+**45.3.0**, Chromium **156.0.8078.96**, and embedded Node.js **24.22.2**.
+It is supplied as `ThreadShelf-Local-Suite-1.4.6-Runtime-Source-Update.tar.gz`.
 It requires all six original **1.3.0 Runtime-Sources ZIP parts** and their
 metadata ZIP. The historical collection alone is not matching source for the
 new runtime. The unchanged ONNX and sharp/libvips companions remain separate.
@@ -10,7 +10,7 @@ new runtime. The unchanged ONNX and sharp/libvips companions remain separate.
 The supplement supplies full current Electron and embedded Node source
 archives, exact replacement bytes and original/current SHA-256 values for
 changed files in eleven other checkouts, the three exact release optimization
-profiles, the original upstream diff records, the recursive DEPS comparison,
+profiles (including the fixed V8 builtins profile filename used by GN), the original upstream diff records, the recursive DEPS comparison,
 and offline application/verification tools. Original copyright and license
 notices are retained in their source files. External compilers, SDKs and system
 build utilities remain prerequisites of the upstream build instructions.
@@ -47,7 +47,7 @@ prerequisites and compilation. Do not substitute unrelated current sources.
 From a tagged suite source checkout:
 
 ```sh
-python maintainer/runtime-source-update/build-source-update.py --out /path/to/output --version 1.4.5
+python maintainer/runtime-source-update/build-source-update.py --out /path/to/output --version 1.4.6
 ```
 
 The builder verifies the committed source payloads, downloads only immutable

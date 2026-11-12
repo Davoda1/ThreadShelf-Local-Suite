@@ -65,4 +65,3 @@ Server copies use the same integrated merging and cleanup rules while the select
 Deleting imported Local content later does not delete the file you imported and does not remove a conversation from a server. Conversely, deleting an original export from your Downloads folder does not make an existing Local record into a complete backup of every unimported attachment or metadata field. Keep original exports independently.
 
 Related: [Database Manager](../Data/collections.md), [Storage](../Data/storage.md), [Troubleshooting](../Reference/troubleshooting.md).
-

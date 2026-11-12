@@ -1,7 +1,7 @@
 {
   "name": "threadshelf-local-reader",
   "productName": "ThreadShelf Local Reader",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Independent desktop archive and full-featured reader for AI exports, with optional ThreadShelf server access",
   "author": "davoda1",
   "homepage": "https://github.com/Davoda1/ThreadShelf-Local-Suite",
@@ -9,7 +9,7 @@
   "type": "module",
   "main": "src/desktop/main.cjs",
   "engines": {
-    "node": "26.13.0",
+    "node": "26.13.1",
     "npm": "12.2.2"
   },
   "scripts": {
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@electron/asar": "4.3.1",
     "@electron/get": "5.1.0",
-    "electron": "45.2.3",
+    "electron": "45.3.0",
     "esbuild": "0.28.2",
     "resedit": "3.1.0"
   },

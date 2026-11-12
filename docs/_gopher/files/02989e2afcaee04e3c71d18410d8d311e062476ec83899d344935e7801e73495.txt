@@ -80,4 +80,3 @@ An unsupported archive or backup schema needs matching software or a supported e
 Replacing or removing program files does not automatically delete the user profile. Conversely, clearing Local data in Database Manager is an explicit data operation even though the executable remains installed. Downloaded models, original exports, external backups and Analytics captures have distinct lifecycles. Decide which object you intend to remove before using a cleanup control.
 
 Related: [Storage](storage.md), [Database Manager](collections.md), [Troubleshooting](../Reference/troubleshooting.md).
-

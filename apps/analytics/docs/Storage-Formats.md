@@ -1,6 +1,14 @@
 # Storage formats and legacy compatibility
 
-The public application release is 1.0.0 and uses storage format 2. References to legacy 1.0 and current 2.0 below describe historical storage producers, not the public product version. The root `analytics-owner.json` identity remains `threadshelf-local-analytics:1`. Product, storage, normalized-schema, adapter, text-index and report versions have separate identities. The explicit supported capture readers accept adapter/content producer versions `1.0.0` and `2.0.0`; unfamiliar formats are preserved and reported unsupported rather than relabelled or deleted.
+The public application release is 1.4.6 and uses storage format 2. References to legacy 1.0 and current 2.0 below describe historical storage producers, not the public product version. The root `analytics-owner.json` identity remains `threadshelf-local-analytics:1`. Product, storage, normalized-schema, adapter, text-index and report versions have separate identities. The explicit supported capture readers accept adapter/content producer versions `1.0.0` and `2.0.0`; unfamiliar formats are preserved and reported unsupported rather than relabelled or deleted.
+
+## Incremental captures in 1.4.6
+
+New native captures use immutable `analytics-owned-sqlite:1` databases in the existing owned namespace. Measurements and typed indexes are separated from losslessly encoded original body rows. Beneficial per-record compression reduces repeated payload storage. Original full text is retained for public search, evidence, explicit exports and offline reindexing; native dataset descriptors and analysis facts do not transport a full text corpus to the renderer.
+
+Compatible gzip captures migrate one conversation at a time without re-normalizing identities or reopening their original sources. Producer tags, capture IDs, history, settings and annotations remain. Verified original gzip/rollback references stay protected while required for recovery. Unknown captures are preserved and reported, and recognized statistics-only captures remain usable without inventing missing text; explicit Refresh can recapture unavailable bodies.
+
+A complete staged database is committed, closed and synchronized before publication. Per-source savepoints and coherent-reader retries discard provisional rows after failure. Analysis sessions pin their source captures until release, so refresh and history eviction do not invalidate displayed evidence. Temporary analysis/sort storage and retained bodies consume disk; the worker heap ceiling remains 2 GiB.
 
 ## Namespace and rollback
 

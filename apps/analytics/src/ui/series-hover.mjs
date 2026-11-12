@@ -32,8 +32,8 @@ const safeID = value => {
 export function buildSeriesChartModel(input={}) {
   const data=Array.isArray(input.rows)?input.rows:[],field=String(input.field||'model');
   const maxDates=boundedInteger(input.maxDates,45,45),maxSeries=boundedInteger(input.maxSeries,8,8);
-  const series=[...new Set(data.map(row=>String(row?.[field]??'')))].slice(0,maxSeries);
-  const days=[...new Set(data.map(row=>row?.date).filter(date=>typeof date==='string'&&date.length>0))].sort().slice(-maxDates);
+  const series=[...new Set((Array.isArray(input.selectedSeries)?input.selectedSeries:data.map(row=>row?.[field])).map(value=>String(value??'')))].slice(0,maxSeries);
+  const days=[...new Set((Array.isArray(input.selectedDates)?input.selectedDates:data.map(row=>row?.date)).filter(date=>typeof date==='string'&&date.length>0))].sort().slice(-maxDates);
   const lookup=new Map();
   for(let rowIndex=0;rowIndex<data.length;rowIndex++){
     const row=data[rowIndex];if(!row||typeof row.date!=='string'||!row.date)continue;

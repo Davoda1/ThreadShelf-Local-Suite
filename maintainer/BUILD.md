@@ -1,21 +1,21 @@
 # Build the public desktop releases
 
-The current tree builds **1.4.5 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Reader fixes collection-scoped identity matching, integrated import merging and Grok unanswered-prompt cleanup. Reader and Alternative improve native HTML preview geometry and add optional code wrapping and display-only line numbers. Analytics functionality and all dependency/runtime pins are unchanged. Dependency and runtime pins are recorded below. The server patch is unchanged. The manual and application READMEs describe the 1.4.5 controls and safety boundaries; existing screenshots retain their original provenance. No GitHub release is implied by building this tree.
+The current tree builds **1.4.6 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Analytics adds coherent current-Reader capture, incremental owned SQLite storage, exact disk-based analysis and bounded native pages while preserving public text evidence, search and compatible completed captures. Reader and Alternative retain their 1.4.5 application features. Node and Electron pins are refreshed below; the managed npm security profile remains separately verified. The server patch is unchanged. The embedded illustrated manual is synchronized with the current manual website and retains content version 1.4.5. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 
 | Tool | Version / requirement |
 | --- | --- |
-| Node.js | **26.13.0**, LTS development toolchain |
+| Node.js | **26.13.1**, LTS development toolchain |
 | npm | **12.2.2**, managed copy with verified upstream security dependency pins |
-| Electron (all three applications) | **45.2.3** |
+| Electron (all three applications) | **45.3.0** |
 | Python | 3.11.8 or newer for CPU speech asset preparation |
 | Debian packaging | GNU/Linux with `dpkg-deb`, `tar`, `gzip`, and `cc` with static libc development files (for example `build-essential` on Debian/Ubuntu) |
 | Manual build | PHP CLI with ctype; see `manual/README.md` |
 
 Electron's embedded Node.js belongs to the Electron runtime and can differ from the Node.js used to build the application. Electron uses supported stable release lines; the term LTS above applies to the development Node.js toolchain.
 
-Install Node from [the official 26.13.0 distribution](https://nodejs.org/dist/v26.13.0/), checking the published checksums, or use a trusted version manager. Select the pinned version before building and check `node --version`. From the repository root, run `node tools/npm.mjs --report` to prepare and verify the managed npm profile. Its upstream npm version remains 12.2.2; the separately recorded dependency replacements update bundled glob/minimatch and preserve the verified Undici 6.29.1 fix. [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md) records the exact inputs, verification and commands.
+Install Node from [the official 26.13.1 distribution](https://nodejs.org/dist/v26.13.1/), checking the published checksums, or use a trusted version manager. Select the pinned version before building and check `node --version`. From the repository root, run `node tools/npm.mjs --report` to prepare and verify the managed npm profile. Its upstream npm version remains 12.2.2; the separately recorded dependency replacements update bundled glob/minimatch and preserve the verified Undici 6.29.1 fix. [NPM-TOOLCHAIN.md](NPM-TOOLCHAIN.md) records the exact inputs, verification and commands.
 
 The suite helper and Reader/Analytics source run.sh/run.ps1 helpers use this managed npm profile. It does not modify a global npm installation or fall back to an unverified system copy. CI selects Node with setup-node and invokes the same managed entrypoint. Do not install npm globally for these builds or update application lockfiles merely to reproduce a release.
 
@@ -98,7 +98,7 @@ The Python command may be named `python3` on GNU/Linux. The build script's `--ru
 
 ## Dependency and runtime source companions
 
-The [1.4.5 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.5) supplies the exact tagged application source and `ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz`. This supplement updates the original Electron 45.1.0 source collection to Electron 45.2.3. Matching runtime source requires **both** the supplement and the six original Runtime-Sources ZIP parts plus their metadata from [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0). Both ONNX-Sources ZIP parts and their metadata remain unchanged there. The v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips sources.
+The [1.4.6 release](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.4.6) supplies the exact tagged application source and `ThreadShelf-Local-Suite-1.4.6-Runtime-Source-Update.tar.gz`. This supplement updates the original Electron 45.1.0 source collection to Electron 45.3.0. Matching runtime source requires **both** the supplement and the six original Runtime-Sources ZIP parts plus their metadata from [release 1.3.0](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/tag/v1.3.0). Both ONNX-Sources ZIP parts and their metadata remain unchanged there. The v1.0.0 Native-Sources companion is reused only for unchanged sharp/libvips sources.
 
 Verify files against their original release's `SHA256SUM.txt`. Keep the numbered ZIPs intact and extract only their metadata ZIPs. Assemble the original runtime sources **without `--apply-patches`**, then apply the update supplement:
 
@@ -115,7 +115,7 @@ The unchanged ONNX collection is independently assembled with:
 python source-publication/onnx/assemble-onnx-sources.py --manifest source-publication/onnx/ONNX-COLLECTION-MANIFEST.json --parts-dir /path/to/parts --destination /path/to/new-onnx-tree
 ```
 
-The ordinary app packagers use official pinned binaries. Rebuilding native dependencies requires the documented upstream compiler/SDK prerequisites. The original source-verification records retain their historical versions; they are not evidence that the old runtime sources alone cover Electron 45.2.3.
+The ordinary app packagers use official pinned binaries. Rebuilding native dependencies requires the documented upstream compiler/SDK prerequisites. The original source-verification records retain their historical versions; they are not evidence that the old runtime sources alone cover Electron 45.3.0.
 
 ## What to preserve
 

@@ -140,3 +140,8 @@ test('Chart titles, series names, keys, and formatting cannot inject HTML or eve
   assert.ok(html.includes('&lt;img'), 'Untrusted labels remain escaped text');
   assert.ok(!html.includes('<script>'));
 });
+
+test('native sparse views retain the selected full-data series and date grid',()=>{
+ const value=buildSeriesChartModel({field:'model',rows:[{date:'2026-01-02',model:'present',count:7}],selectedSeries:['absent','present'],selectedDates:['2026-01-01','2026-01-02']});
+ assert.deepEqual(value.series,['absent','present']);assert.deepEqual(value.days,['2026-01-01','2026-01-02']);assert.equal(value.cells[0][0].kind,'none');assert.equal(value.cells[0][1].kind,'none');assert.equal(value.cells[1][0].kind,'none');assert.equal(value.cells[1][1].count,7);assert.equal(value.cells[1][1].rowIndex,0);
+});

@@ -1,6 +1,6 @@
 # Third-party notices
 
-ThreadShelf Local Alternative 1.4.5 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
+ThreadShelf Local Alternative 1.4.6 is a separate desktop application by davoda1, distributed under MIT. It is not an upstream ThreadShelf release.
 
 The server protocol is derived from inspection of Chrystian Schutz's ThreadShelf 1.3.0 and the suite's Reader pagination extension. ThreadShelf is MIT licensed; the notice is retained in `licenses/ThreadShelf-MIT.txt`. The server is independently installed and is not included in this application.
 
@@ -10,16 +10,16 @@ Browser rendering components and their licenses are listed in `vendor/RENDERER-N
 
 The shared Mermaid 12.2.0 bundle uses DOMPurify 3.4.17 and KaTeX 0.19.1. `vendor/licenses/Mermaid-BUNDLE-NOTICES.txt` preserves notices for every incorporated component; the adjacent `Mermaid-BUNDLE-MANIFEST.json` records exact versions and hashes. The reproducible recipe and npm lockfile are in `tools/mermaid-bundle/` at the suite repository root.
 
-The desktop packages include Electron 45.2.3. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v45.2.3 and https://www.electronjs.org/.
+The desktop packages include Electron 45.3.0. Electron's original `LICENSE`, `LICENSES.chromium.html`, and other supplied runtime notices are retained at the native runtime level. Electron and Chromium components retain their respective terms. See https://github.com/electron/electron/tree/v45.3.0 and https://www.electronjs.org/.
 
 Windows executable branding produces an unsigned application executable. The package does not claim a publisher signature.
 
 ## Electron runtime source access
 
-Suite 1.4.5 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+Suite 1.4.6 uses Electron **45.3.0**, Chromium **156.0.8078.96** and
 embedded Node.js **24.22.2**. Original runtime notices remain intact.
 Matching runtime source is the historical 1.3.0 original source collection
-plus the 1.4.5 runtime source update; both are required. Historical source
+plus the 1.4.6 runtime source update; both are required. Historical source
 verification records remain specific to Electron 45.1.0. See
 [Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
 offline update instructions and upstream build/replacement guidance.

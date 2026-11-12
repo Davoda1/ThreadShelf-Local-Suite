@@ -7,7 +7,7 @@ ThreadShelf Local Analytics application code is MIT licensed, Copyright (c) 2026
 | Selected Reader 3.1.0 parsers, themes, highlighting, storage descriptions, and packaging utilities | MIT; davoda1. Analytics is an independent application and never initializes Reader storage. |
 | ThreadShelf-derived algorithms and synthetic fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. Retained in `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
 | AI Export Converter parser adaptations | MIT; davoda1. Original notice remains in `src/core/parsers/AI-Export-Converter-LICENSE.txt`. |
-| Electron 45.2.3 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Official runtime `LICENSE` remains beside the executable. |
+| Electron 45.3.0 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Official runtime `LICENSE` remains beside the executable. |
 | Chromium and bundled runtime components | Multiple licenses. Official runtime `LICENSES.chromium.html` remains beside the executable. |
 | highlight.js 11.12.0 | BSD-3-Clause; Copyright (c) 2006 Ivan Sagalaev. `licenses/highlight.js-LICENSE.txt`. |
 | marked 18.1.3 | MIT; Copyright (c) 2018+ MarkedJS and 2011–2018 Christopher Jeffrey. Includes original Markdown notice, Copyright (c) 2004 John Gruber. `licenses/marked-LICENSE.md`. |
@@ -32,10 +32,10 @@ Upstream project: [ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf).
 
 ## Electron runtime source access
 
-Suite 1.4.5 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+Suite 1.4.6 uses Electron **45.3.0**, Chromium **156.0.8078.96** and
 embedded Node.js **24.22.2**. Original runtime notices remain intact.
 Matching runtime source is the historical 1.3.0 original source collection
-plus the 1.4.5 runtime source update; both are required. Historical source
+plus the 1.4.6 runtime source update; both are required. Historical source
 verification records remain specific to Electron 45.1.0. See
 [Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
 offline update instructions and upstream build/replacement guidance.

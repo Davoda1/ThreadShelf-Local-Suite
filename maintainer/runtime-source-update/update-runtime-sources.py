@@ -4,7 +4,7 @@ Copyright (c) 2026 davoda1. MIT. Python 3.10+; Git for --apply-patches.
 No downloads, upstream hooks or compilation are performed by this tool.
 """
 from __future__ import annotations
-import argparse, hashlib, importlib.util, json, os, shutil, tarfile, tempfile
+import argparse, hashlib, importlib.util, json, os, re, shutil, tarfile, tempfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('base_sources', ROOT/'assemble-base-sources.py')
@@ -13,7 +13,7 @@ base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 def sha(path): return base.digest_file(path)
 def load():
     m=json.loads((ROOT/'manifest.json').read_text())
-    if m.get('schema_version')!=1 or m.get('electron_version')!='45.2.3': raise ValueError('Unsupported update manifest')
+    if m.get('schema_version')!=1 or m.get('electron_version')!='45.3.0': raise ValueError('Unsupported update manifest')
     for row in m['payloads']:
         p=base.safe_target(ROOT, row['file'])
         if not p.is_file() or p.stat().st_size!=row['size'] or sha(p)!=row['sha256']: raise ValueError('Changed update payload: '+row['file'])
@@ -39,6 +39,17 @@ def verify_inputs(m):
     for row in m['downloads']:
         p=base.safe_target(ROOT, 'inputs/'+row['file'])
         if not p.is_file() or p.stat().st_size!=row['size'] or sha(p)!=row['sha256']: raise ValueError('Missing/changed source input: '+row['file'])
+
+def profile_targets(row):
+    name=base.filename(row['file'])
+    # Electron's release GN recipe consumes the V8 builtins profile at this fixed name.
+    return (name,'electron-v8-builtins.profile') if re.fullmatch(r'electron-v8-x64-[A-Za-z0-9-]+\.profile',name) else (name,)
+
+def install_profile(row,root):
+    for name in profile_targets(row):
+        dst=base.safe_target(root,'src/electron/build/pgo_profiles/'+name)
+        dst.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(ROOT/'inputs'/row['file'],dst)
 
 def apply_changes(m, root, blobs):
     # Check every expected original and every new/renamed target before any write.
@@ -82,8 +93,7 @@ def run(root, apply_patches=False):
         for name in (row['path'],row['before_path']):
             if any(name==prefix or name.startswith(prefix+'/') for prefix in replacements): raise ValueError('Source delta overlaps replacement archive')
     for row in m['profiles']:
-        base.filename(row['file'])
-        base.safe_target(root,'src/electron/build/pgo_profiles/'+row['file'])
+        for name in profile_targets(row):base.safe_target(root,'src/electron/build/pgo_profiles/'+name)
     with tempfile.TemporaryDirectory(prefix='threadshelf-source-update-') as work:
         inv=base.Inventory(Path(work)/'inventory.sqlite')
         try:
@@ -99,8 +109,7 @@ def run(root, apply_patches=False):
             for path,target in inv.db.execute("SELECT path,link FROM entries WHERE kind='symlink' ORDER BY path").fetchall():
                 out=base.safe_target(root,path);out.parent.mkdir(parents=True,exist_ok=True);out.symlink_to(target)
             for row in m['profiles']:
-                dst=base.safe_target(root,'src/electron/build/pgo_profiles/'+row['file'])
-                shutil.copyfile(ROOT/'inputs'/row['file'],dst)
+                install_profile(row,root)
             patches=base.apply_patches(root,inv) if apply_patches else []
         finally:inv.close()
     result={'schema_version':1,'electron_version':m['electron_version'],'chromium_version':m['chromium_version'],'embedded_node_version':m['embedded_node_version'],'update_manifest_sha256':sha(ROOT/'manifest.json'),'changed_files':len(m['changes']),'replacement_archives':len(m['replacement_archives']),'patches':patches,'source_update_complete':True,'runtime_rebuilt':False}

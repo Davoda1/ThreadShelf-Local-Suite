@@ -1,3 +1,94 @@
+diff --git a/include/platform/autogen/FeaturesGL_autogen.h b/include/platform/autogen/FeaturesGL_autogen.h
+index 572c11c..3372903 100644
+--- a/include/platform/autogen/FeaturesGL_autogen.h
++++ b/include/platform/autogen/FeaturesGL_autogen.h
+@@ -800,6 +800,11 @@
+         &members,
+     };
+ 
++    FeatureInfo finishBeforeSameTextureCopy = {
++        "finishBeforeSameTextureCopy",
++        FeatureCategory::OpenGLWorkarounds,
++        &members,
++    };
+ };
+ 
+ inline FeaturesGL::FeaturesGL()  = default;
+diff --git a/include/platform/gl_features.json b/include/platform/gl_features.json
+index 6557442..4a0c15e 100644
+--- a/include/platform/gl_features.json
++++ b/include/platform/gl_features.json
+@@ -1054,6 +1054,15 @@
+                 "For non-power-of-two textures, upload via TexSubImage2D instead of TexImage2D when uploading client-side data."
+             ],
+             "issue": "http://crbug.com/553172761"
++        },
++        {
++            "name": "finish_before_same_texture_copy",
++            "category": "Workarounds",
++            "description": [
++                "Force a finish before copying from a framebuffer whose read attachment is the ",
++                "destination texture to work around driver bugs."
++            ],
++            "issue": "https://crbug.com/552672183"
+         }
+     ]
+ }
+diff --git a/src/libANGLE/renderer/gl/TextureGL.cpp b/src/libANGLE/renderer/gl/TextureGL.cpp
+index 0ae680b..c2338d6 100644
+--- a/src/libANGLE/renderer/gl/TextureGL.cpp
++++ b/src/libANGLE/renderer/gl/TextureGL.cpp
+@@ -1117,6 +1117,12 @@
+         TextureGL *sourceTexture = GetImplAs<TextureGL>(readBuffer->getTexture());
+         if (sourceTexture && sourceTexture->mTextureID == mTextureID)
+         {
++            if (features.finishBeforeSameTextureCopy.enabled)
++            {
++                // Force a finish before copying from a framebuffer that has the destination texture
++                // attached. Avoids an IMG driver bug if the source still has pending rendering.
++                ANGLE_GL_TRY(context, functions->finish());
++            }
+             GLuint attachedTextureLevel = readBuffer->mipLevel();
+             if (attachedTextureLevel != mState.getEffectiveBaseLevel())
+             {
+@@ -1293,6 +1299,21 @@
+                              destOffset.y + clippedArea.y - sourceArea.y, destOffset.z);
+ 
+     stateManager->bindTexture(getType(), mTextureID);
++    if (features.finishBeforeSameTextureCopy.enabled)
++    {
++        const gl::FramebufferAttachment *readBuffer = source->getReadColorAttachment();
++        if (readBuffer && readBuffer->type() == GL_TEXTURE)
++        {
++            const TextureGL *sourceTexture = GetImplAs<TextureGL>(readBuffer->getTexture());
++            if (sourceTexture && sourceTexture->mTextureID == mTextureID)
++            {
++                // Force a finish before copying from a framebuffer that has the destination texture
++                // attached. Avoids an IMG driver bug if the source still has pending rendering.
++                ANGLE_GL_TRY(context, functions->finish());
++            }
++        }
++    }
++
+     GLenum framebufferTarget =
+         stateManager->getHasSeparateFramebufferBindings() ? GL_READ_FRAMEBUFFER : GL_FRAMEBUFFER;
+     stateManager->bindFramebuffer(framebufferTarget, sourceFramebufferGL->getFramebufferID());
+diff --git a/src/libANGLE/renderer/gl/renderergl_utils.cpp b/src/libANGLE/renderer/gl/renderergl_utils.cpp
+index 488c6d7..fa32e5c 100644
+--- a/src/libANGLE/renderer/gl/renderergl_utils.cpp
++++ b/src/libANGLE/renderer/gl/renderergl_utils.cpp
+@@ -2791,6 +2791,11 @@
+     // Mac Intel drivers are unable to allocate buffers larger than ~1gb
+     ANGLE_FEATURE_CONDITION(features, limitMaxBufferSizeTo1gb, isApple && isIntel);
+ 
++    // Force a finish before copying from a framebuffer that has the destination texture attached.
++    // Avoids an IMG driver bug if the source still has pending rendering.
++    // https://crbug.com/552672183
++    ANGLE_FEATURE_CONDITION(features, finishBeforeSameTextureCopy, IsPowerVR(vendor));
++
+     // Default to state validation disabled. It is extremely costly and should only be enabled
+     // explicitly when debugging.
+     ANGLE_FEATURE_CONDITION(features, validateState, false);
 diff --git a/src/libANGLE/renderer/metal/BufferMtl.mm b/src/libANGLE/renderer/metal/BufferMtl.mm
 index aec1ca8..435890d 100644
 --- a/src/libANGLE/renderer/metal/BufferMtl.mm
@@ -211,6 +302,901 @@ index 1dd725d..04a52b9 100644
  // CommandQueue implementation
  void CommandQueue::reset()
  {
+diff --git a/src/libANGLE/renderer/vulkan/FramebufferVk.cpp b/src/libANGLE/renderer/vulkan/FramebufferVk.cpp
+index f05b358..e3e5e5d 100644
+--- a/src/libANGLE/renderer/vulkan/FramebufferVk.cpp
++++ b/src/libANGLE/renderer/vulkan/FramebufferVk.cpp
+@@ -2252,27 +2252,8 @@
+     // Shouldn't try to issue deferred clears if invalidating sub framebuffer.
+     ASSERT(mDeferredClears.empty() || !isSubInvalidate);
+ 
+-    if (contextVk->getFeatures().dropDepthStencilClearOnInvalidate.enabled)
+-    {
+-        // Remove deferred clears for the invalidated attachments.
+-        if (invalidateDepthBuffer)
+-        {
+-            mDeferredClears.reset(vk::kUnpackedDepthIndex);
+-        }
+-        if (invalidateStencilBuffer)
+-        {
+-            mDeferredClears.reset(vk::kUnpackedStencilIndex);
+-        }
+-    }
+     // Limit invalidateColorBuffers to enabled draw buffers
+     invalidateColorBuffers &= mState.getEnabledDrawBuffers();
+-    for (size_t colorIndexGL : invalidateColorBuffers)
+-    {
+-        mDeferredClears.reset(colorIndexGL);
+-    }
+-
+-    // If there are still deferred clears, restage them. See relevant comment in invalidateSub.
+-    restageDeferredClears(contextVk);
+ 
+     const auto &colorRenderTargets           = mRenderTargetCache.getColors();
+     RenderTargetVk *depthStencilRenderTarget = mRenderTargetCache.getDepthStencil();
+@@ -2292,22 +2273,28 @@
+             RenderTargetVk *colorRenderTarget = colorRenderTargets[colorIndexGL];
+             ASSERT(colorRenderTarget);
+ 
++            // All pending deferred clears on this attachment are dropped, unless it is preferred
++            // that its content remain defined, in which case the invalidation is skipped instead.
+             bool preferToKeepContentsDefined = false;
+             colorRenderTarget->invalidateEntireContent(contextVk, &preferToKeepContentsDefined);
+             if (preferToKeepContentsDefined)
+             {
+                 invalidateColorBuffers.reset(colorIndexGL);
+             }
+-            else if (isRobustResourceInitEnabled)
++            else
+             {
+-                gl::OwnerImageIndex imageIndex = colorRenderTarget->getImageIndexForClear(
+-                    mCurrentFramebufferDesc.getLayerCount());
+-                colorRenderTarget->getImageForWrite().stageRobustResourceClear(
+-                    imageIndex, VK_IMAGE_ASPECT_COLOR_BIT);
++                mDeferredClears.reset(colorIndexGL);
++
++                if (isRobustResourceInitEnabled)
++                {
++                    gl::OwnerImageIndex imageIndex = colorRenderTarget->getImageIndexForClear(
++                        mCurrentFramebufferDesc.getLayerCount());
++                    colorRenderTarget->getImageForWrite().stageRobustResourceClear(
++                        imageIndex, VK_IMAGE_ASPECT_COLOR_BIT);
++                }
+             }
+         }
+ 
+-        // If we have a depth / stencil render target, invalidate its aspects.
+         if (depthStencilRenderTarget)
+         {
+             if (invalidateDepthBuffer)
+@@ -2319,6 +2306,10 @@
+                 {
+                     invalidateDepthBuffer = false;
+                 }
++                else if (contextVk->getFeatures().dropDepthStencilClearOnInvalidate.enabled)
++                {
++                    mDeferredClears.reset(vk::kUnpackedDepthIndex);
++                }
+             }
+             if (invalidateStencilBuffer)
+             {
+@@ -2329,8 +2320,21 @@
+                 {
+                     invalidateStencilBuffer = false;
+                 }
++                else if (contextVk->getFeatures().dropDepthStencilClearOnInvalidate.enabled)
++                {
++                    mDeferredClears.reset(vk::kUnpackedStencilIndex);
++                }
+             }
++        }
+ 
++        // If there are still deferred clears, restage them. See relevant comment in invalidateSub.
++        // This must be called before depth/stencil robust clearing below, so that any pending D/S
++        // clears are not restaged on top of the robust clear.
++        restageDeferredClears(contextVk);
++
++        // If we have a D/S render target, stage robust clear for its invalidated aspects.
++        if (depthStencilRenderTarget)
++        {
+             if (isRobustResourceInitEnabled)
+             {
+                 VkImageAspectFlags dsAspectFlags = 0;
+@@ -2353,6 +2357,7 @@
+             }
+         }
+     }
++    ASSERT(mDeferredClears.empty());
+ 
+     // To ensure we invalidate the right renderpass we require that the current framebuffer be the
+     // same as the current renderpass' framebuffer. E.g. prevent sequence like:
+diff --git a/src/libANGLE/renderer/vulkan/VertexArrayVk.cpp b/src/libANGLE/renderer/vulkan/VertexArrayVk.cpp
+index 1a238eb..f96ae25 100644
+--- a/src/libANGLE/renderer/vulkan/VertexArrayVk.cpp
++++ b/src/libANGLE/renderer/vulkan/VertexArrayVk.cpp
+@@ -939,8 +939,7 @@
+ {
+     gl::VertexArray::DirtyBits dirtyBits;
+ 
+-    const std::vector<gl::VertexAttribute> &attribs = mState.getVertexAttributes();
+-    const std::vector<gl::VertexBinding> &bindings  = mState.getVertexBindings();
++    const std::vector<gl::VertexBinding> &bindings = mState.getVertexBindings();
+ 
+     // Element buffer is not in bindings yet, has to handle separately.
+     dirtyBits.set(gl::VertexArray::DIRTY_BIT_ELEMENT_ARRAY_BUFFER);
+@@ -952,11 +951,14 @@
+     {
+         const gl::Buffer *bufferGL    = getVertexArrayBuffer(bindingIndex);
+         vk::BufferSerial bufferSerial = vk::GetImpl(bufferGL)->getBufferSerial();
+-        gl::AttributesMask enabledAttributeMask =
+-            bindings[bindingIndex].getBoundAttributesMask() & mState.getEnabledAttributesMask();
+-        for (size_t attribIndex : enabledAttributeMask)
++
++        // If the buffer for a disabled attribute is respecified when the VAO is unbound and then it
++        // gets re-enabled, the enable-attribute dirty bit is cleared. Without checking the disabled
++        // attributes here, a stale buffer may be bound and used for the next draw in such cases.
++        const gl::AttributesMask boundAttributeMask =
++            bindings[bindingIndex].getBoundAttributesMask();
++        for (size_t attribIndex : boundAttributeMask)
+         {
+-            ASSERT(attribs[attribIndex].enabled);
+             if (!bufferSerial.valid() || bufferSerial != mCurrentArrayBufferSerial[attribIndex])
+             {
+                 dirtyBits.set(gl::VertexArray::DIRTY_BIT_BINDING_0 + bindingIndex);
+@@ -1115,11 +1117,8 @@
+            prevEnabledNowDisabledAttribBits);
+     if (prevEnabledNowDisabledAttribBits.any())
+     {
+-        // disabled attributes maybe active or inactive. We only need to set to empty buffer for
+-        // inactive ones.
+-        const gl::AttributesMask disabledInactiveAttribBits =
+-            prevEnabledNowDisabledAttribBits & ~context->getActiveDefaultAttribsMask();
+-        syncDirtyDisabledAttribs(contextVk, disabledInactiveAttribBits);
++        // Sync the disabled attributes, active or inactive.
++        syncDirtyDisabledAttribs(contextVk, prevEnabledNowDisabledAttribBits);
+ 
+         // default attributes handler will update active attributes.
+         const gl::AttributesMask defaultAttribBits =
+diff --git a/src/tests/angle_end2end_tests_expectations.txt b/src/tests/angle_end2end_tests_expectations.txt
+index 30defb8..b07d815 100644
+--- a/src/tests/angle_end2end_tests_expectations.txt
++++ b/src/tests/angle_end2end_tests_expectations.txt
+@@ -325,6 +325,8 @@
+ 42267037 LINUX NVIDIA VULKAN : ParallelShaderCompileTestES31.LinkAndDispatchManyPrograms/ES3_1_Vulkan_EnableParallelCompileAndLink_VaryingsRequireMatchingPrecisionInSpirv = SKIP
+ 42267037 WIN NVIDIA GLES : TextureCubeTestES3.SpecifyAndSampleFromBaseLevel1/* = SKIP
+ 42267037 WIN NVIDIA OPENGL : TextureCubeTestES3.SpecifyAndSampleFromBaseLevel1/* = SKIP
++580979613 WIN NVIDIA VULKAN : RobustResourceInitTestES3.ClearThenRedirtyThenInvalidateThenReadBackStencilOnly/ES3_Vulkan_AllocateNonZeroMemory = SKIP
++580979613 WIN NVIDIA VULKAN : RobustResourceInitTestES3.InvalidateUndefinedThenReadBackStencilOnly/ES3_Vulkan_AllocateNonZeroMemory = SKIP
+ 
+ // Intel/windows does not ignore gl_Layer for non-layered framebuffers
+ 374790899 WIN INTEL OPENGL : GeometryShaderTest.GLLayerIneffectiveWithoutLayeredFramebuffer/* = SKIP
+@@ -857,6 +859,7 @@
+ 546627192 PIXEL4ORXL GLES : GLSLTest_ES3.VaryingAnonymousStructAssignment/* = SKIP
+ 546627192 PIXEL4ORXL GLES : GLSLTest_ES3.VaryingAnonymousStructTernary/* = SKIP
+ 563868441 PIXEL4ORXL GLES : ComputeShaderTest.DispatchDrawBlend/* = SKIP
++580018577 PIXEL4ORXL GLES : RobustResourceInitTestES3.InvalidateUndefinedThenReadBackDepthOnly/* = SKIP
+ 
+ 42267082 PIXEL4ORXL GLES : BlobCacheTest.FragmentOutputLocationKey/* = SKIP
+ 42267082 PIXEL4ORXL GLES : EGLBlobCacheTest.FragmentOutputLocationKey/* = SKIP
+@@ -3015,6 +3018,11 @@
+ 526706312 PIXEL10 VULKAN : MSRTTES3Test.FramebufferFetchSampleID/* = SKIP
+ 526706312 SWIFTSHADER : MSRTTES3Test.FramebufferFetchSampleID/* = SKIP
+ 
++// Zero-count multidraw test fails with GL on some backends
++579043433 PIXEL4ORXL GLES : MultiDrawTest.StaleSlotAfterDisableZeroCountMultiDrawProgramSwitchWithSameLocations/*_AlwaysEnableEmulatedMultidrawExtensions* = SKIP
++579043433 LINUX INTEL OPENGL : MultiDrawTest.StaleSlotAfterDisableZeroCountMultiDrawProgramSwitchWithSameLocations/*_AlwaysEnableEmulatedMultidrawExtensions* = SKIP
++579043433 WIN INTEL OPENGL : MultiDrawTest.StaleSlotAfterDisableZeroCountMultiDrawProgramSwitchWithSameLocations/*_AlwaysEnableEmulatedMultidrawExtensions* = SKIP
++
+ // Timeout on Intel/Vulkan
+ 517981272 WIN INTEL VULKAN : EGLMultiContextTest.RepeatedEglInitAndTerminate/* = SKIP
+ 
+diff --git a/src/tests/gl_tests/CopyTexImageTest.cpp b/src/tests/gl_tests/CopyTexImageTest.cpp
+index bfe6b9e..635eb52 100644
+--- a/src/tests/gl_tests/CopyTexImageTest.cpp
++++ b/src/tests/gl_tests/CopyTexImageTest.cpp
+@@ -2359,6 +2359,190 @@
+     EXPECT_PIXEL_RECT_EQ(0, 1, kSize, kSize - 1, GLColor::green);
+ }
+ 
++// Verify that copying from level 0 of a texture to level 1 of the same texture while level 0 has
++// pending rendering copies the entire level without corruption on IMG GPUs.
++// Regression test for http://crbug.com/552672183.
++TEST_P(CopyTexImageTestES3, SameTextureCrossLevelFeedbackCopy)
++{
++    constexpr GLsizei kL0Size = 4096;
++    constexpr GLsizei kL1Size = 2048;
++
++    std::vector<GLColor> greenData(kL1Size * kL1Size, GLColor::green);
++    ANGLE_GL_PROGRAM(redProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Red());
++
++    for (int iter = 0; iter < 5; ++iter)
++    {
++        GLTexture tex;
++        glBindTexture(GL_TEXTURE_2D, tex);
++        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kL0Size, kL0Size, 0, GL_RGBA, GL_UNSIGNED_BYTE,
++                     nullptr);
++        glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, kL1Size, kL1Size, 0, GL_RGBA, GL_UNSIGNED_BYTE,
++                     greenData.data());
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++        ASSERT_GL_NO_ERROR();
++
++        // Make the mip chain resident with one mipmap-filtered draw to the default framebuffer.
++        glBindFramebuffer(GL_FRAMEBUFFER, 0);
++        glViewport(0, 0, getWindowWidth(), getWindowHeight());
++        draw2DTexturedQuad(0.5f, 1.0f, true);
++        ASSERT_GL_NO_ERROR();
++
++        // Attach L0 to a framebuffer and draw full-screen red.
++        GLFramebuffer fbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++        glViewport(0, 0, kL0Size, kL0Size);
++        drawQuad(redProgram, essl1_shaders::PositionAttrib(), 0.5f);
++        ASSERT_GL_NO_ERROR();
++
++        // Perform a same-texture cross-level feedback copy from L0 (attached to fbo) into L1.
++        glBindTexture(GL_TEXTURE_2D, tex);
++        glCopyTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, 0, 0, kL1Size, kL1Size, 0);
++        ASSERT_GL_NO_ERROR();
++
++        // Read back L1 and verify all pixels are red (no residual green from aborted transfer).
++        GLFramebuffer readFbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, readFbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 1);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++        EXPECT_PIXEL_RECT_EQ(0, 0, kL1Size, kL1Size, GLColor::red);
++        ASSERT_GL_NO_ERROR();
++    }
++}
++
++// Verify that glCopyTexSubImage2D from level 0 of a texture to level 1 of the same texture while
++// level 0 has pending rendering copies the entire level without corruption on IMG GPUs.
++// Regression test for http://crbug.com/552672183.
++TEST_P(CopyTexImageTestES3, SameTextureCrossLevelFeedbackCopySubImage)
++{
++    constexpr GLsizei kL0Size = 4096;
++    constexpr GLsizei kL1Size = 2048;
++
++    std::vector<GLColor> greenData(kL1Size * kL1Size, GLColor::green);
++    ANGLE_GL_PROGRAM(redProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Red());
++
++    for (int iter = 0; iter < 5; ++iter)
++    {
++        GLTexture tex;
++        glBindTexture(GL_TEXTURE_2D, tex);
++        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, kL0Size, kL0Size, 0, GL_RGBA, GL_UNSIGNED_BYTE,
++                     nullptr);
++        glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA, kL1Size, kL1Size, 0, GL_RGBA, GL_UNSIGNED_BYTE,
++                     greenData.data());
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++        ASSERT_GL_NO_ERROR();
++
++        // Make the mip chain resident with one mipmap-filtered draw to the default framebuffer.
++        glBindFramebuffer(GL_FRAMEBUFFER, 0);
++        glViewport(0, 0, getWindowWidth(), getWindowHeight());
++        draw2DTexturedQuad(0.5f, 1.0f, true);
++        ASSERT_GL_NO_ERROR();
++
++        // Attach L0 to a framebuffer and draw full-screen red.
++        GLFramebuffer fbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++        glViewport(0, 0, kL0Size, kL0Size);
++        drawQuad(redProgram, essl1_shaders::PositionAttrib(), 0.5f);
++        ASSERT_GL_NO_ERROR();
++
++        // Perform a same-texture cross-level feedback copy via glCopyTexSubImage2D from L0 into L1.
++        glBindTexture(GL_TEXTURE_2D, tex);
++        glCopyTexSubImage2D(GL_TEXTURE_2D, 1, 0, 0, 0, 0, kL1Size, kL1Size);
++        ASSERT_GL_NO_ERROR();
++
++        // Read back L1 and verify all pixels are red.
++        GLFramebuffer readFbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, readFbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 1);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++        EXPECT_PIXEL_RECT_EQ(0, 0, kL1Size, kL1Size, GLColor::red);
++        ASSERT_GL_NO_ERROR();
++    }
++}
++
++// Verify that copying from one cube map face to another face of the same texture while the source
++// face has pending rendering copies the entire face without corruption on IMG GPUs.
++// Regression test for http://crbug.com/552672183.
++TEST_P(CopyTexImageTestES3, SameTextureCrossCubeFaceFeedbackCopy)
++{
++    constexpr GLsizei kSize = 2048;
++
++    std::vector<GLColor> greenData(kSize * kSize, GLColor::green);
++
++    constexpr char kCubeSampleFS[] = R"(#version 300 es
++precision mediump float;
++uniform mediump samplerCube texCube;
++out vec4 fragColor;
++void main() {
++    fragColor = texture(texCube, vec3(-1.0, 0.0, 0.0));
++})";
++    ANGLE_GL_PROGRAM(cubeProgram, essl3_shaders::vs::Simple(), kCubeSampleFS);
++    ANGLE_GL_PROGRAM(redProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Red());
++
++    for (int iter = 0; iter < 5; ++iter)
++    {
++        GLTexture cubemap;
++        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
++        for (GLenum face = GL_TEXTURE_CUBE_MAP_POSITIVE_X; face <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
++             ++face)
++        {
++            const void *initData =
++                (face == GL_TEXTURE_CUBE_MAP_NEGATIVE_X) ? greenData.data() : nullptr;
++            glTexImage2D(face, 0, GL_RGBA, kSize, kSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, initData);
++        }
++        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
++        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
++        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
++        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
++        ASSERT_GL_NO_ERROR();
++
++        // Make the cubemap resident with one draw to the default framebuffer.
++        glBindFramebuffer(GL_FRAMEBUFFER, 0);
++        glViewport(0, 0, getWindowWidth(), getWindowHeight());
++        glUseProgram(cubeProgram);
++        glUniform1i(glGetUniformLocation(cubeProgram, "texCube"), 0);
++        drawQuad(cubeProgram, essl3_shaders::PositionAttrib(), 0.0f);
++        ASSERT_GL_NO_ERROR();
++
++        // Attach +X face to a framebuffer and draw full-screen red.
++        GLFramebuffer fbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X,
++                               cubemap, 0);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++        glViewport(0, 0, kSize, kSize);
++        drawQuad(redProgram, essl1_shaders::PositionAttrib(), 0.5f);
++        ASSERT_GL_NO_ERROR();
++
++        // Perform a same-texture cross-face feedback copy from +X (attached to fbo) into -X.
++        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
++        glCopyTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, 0, 0, kSize, kSize, 0);
++        ASSERT_GL_NO_ERROR();
++
++        // Read back -X face and verify all pixels are red (no residual green from aborted
++        // transfer).
++        GLFramebuffer readFbo;
++        glBindFramebuffer(GL_FRAMEBUFFER, readFbo);
++        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
++                               cubemap, 0);
++        ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++        EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::red);
++        ASSERT_GL_NO_ERROR();
++    }
++}
++
+ ANGLE_INSTANTIATE_TEST_ES2_AND_ES3_AND(
+     CopyTexImageTest,
+     ES2_D3D11_PRESENT_PATH_FAST(),
+diff --git a/src/tests/gl_tests/MultiDrawTest.cpp b/src/tests/gl_tests/MultiDrawTest.cpp
+index 4cdbd31..1d384ec 100644
+--- a/src/tests/gl_tests/MultiDrawTest.cpp
++++ b/src/tests/gl_tests/MultiDrawTest.cpp
+@@ -849,6 +849,203 @@
+     checkDrawResult(DrawIDOptionOverride::NoDrawID);
+ }
+ 
++// Tests that disabling a vertex attribute after drawing, issuing a zero-count multi-draw, and then
++// switching to another similar program with similar attribute locations and drawing does not crash.
++TEST_P(MultiDrawTest, StaleSlotAfterDisableZeroCountMultiDrawProgramSwitchWithSameLocations)
++{
++    ANGLE_SKIP_TEST_IF(!requestMultiDrawExtension());
++
++    constexpr char kVS1[] = R"(
++attribute vec2 a;
++varying vec2 v;
++void main()
++{
++    v = a;
++    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
++    gl_PointSize = 1.0;
++})";
++    constexpr char kVS2[] = R"(
++attribute vec2 b;
++varying vec2 v;
++void main()
++{
++    v = b;
++    gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
++    gl_PointSize = 1.0;
++})";
++    constexpr char kFS[]  = R"(
++precision mediump float;
++uniform vec4 u_color;
++varying vec4 v;
++void main()
++{
++    gl_FragColor = u_color;
++})";
++
++    // Use CompileProgram with callbacks to bind attribute locations before linking. If bound after
++    // linking, it might mask the bug by assigning locations intended to be inactive, such as Slot 0
++    // in Program 2, to active attributes and not trigger the bug.
++    GLuint program1 = CompileProgram(kVS1, kFS, [](GLuint p) {
++        glBindAttribLocation(p, 0, "a");
++        glBindAttribLocation(p, 1, "b");
++    });
++    ASSERT_NE(program1, 0u);
++
++    GLuint program2 = CompileProgram(kVS2, kFS, [](GLuint p) {
++        glBindAttribLocation(p, 0, "a");
++        glBindAttribLocation(p, 1, "b");
++    });
++    ASSERT_NE(program2, 0u);
++
++    // Set up the vertex attribute buffer for attribute 0.
++    std::vector<GLfloat> unusedData(1024, 0.0f);
++    GLBuffer buf;
++    glBindBuffer(GL_ARRAY_BUFFER, buf);
++    glBufferData(GL_ARRAY_BUFFER, unusedData.size() * sizeof(GLfloat), unusedData.data(),
++                 GL_STATIC_DRAW);
++    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
++    glEnableVertexAttribArray(0);
++
++    glBindBuffer(GL_ARRAY_BUFFER, 0);
++
++    // Use the first program to draw red.
++    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
++    glClear(GL_COLOR_BUFFER_BIT);
++    glViewport(0, 0, 1, 1);
++
++    glUseProgram(program1);
++    GLint colorLoc = glGetUniformLocation(program1, "u_color");
++    ASSERT_NE(colorLoc, -1);
++    glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
++    glDrawArrays(GL_POINTS, 0, 1);
++    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::red);
++    ASSERT_GL_NO_ERROR();
++
++    // Disable attribute 0 while it is still active in Program 1, and multi-draw with a zero count.
++    const GLint first   = 0;
++    const GLsizei count = 0;
++    glDisableVertexAttribArray(0);
++    glMultiDrawArraysANGLE(GL_TRIANGLES, &first, &count, 1);
++    ASSERT_GL_NO_ERROR();
++
++    // Switch to the second program in which location 0 is inactive, and delete the buffer.
++    glUseProgram(program2);
++    buf.reset();
++    ASSERT_GL_NO_ERROR();
++
++    // Use the second program to draw green.
++    colorLoc = glGetUniformLocation(program2, "u_color");
++    ASSERT_NE(colorLoc, -1);
++    glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
++
++    glDrawArrays(GL_POINTS, 0, 1);
++    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::green);
++    ASSERT_GL_NO_ERROR();
++
++    glDeleteProgram(program1);
++    glDeleteProgram(program2);
++}
++
++// Tests that disabling a vertex attribute after drawing, issuing a zero-count multi-draw, and then
++// switching to another similar program with different attribute locations and drawing does not
++// crash.
++TEST_P(MultiDrawTest, StaleSlotAfterDisableZeroCountMultiDrawProgramSwitchWithDifferentLocations)
++{
++    ANGLE_SKIP_TEST_IF(!requestMultiDrawExtension());
++
++    constexpr char kVS1[] = R"(
++attribute vec2 a;
++attribute vec2 b;
++void main()
++{
++    gl_Position = vec4(a + b, 0.0, 1.0);
++})";
++    constexpr char kVS2[] = R"(
++attribute vec2 a;
++attribute vec2 c;
++void main()
++{
++    gl_Position = vec4(a + c, 0.0, 1.0);
++})";
++    constexpr char kFS[]  = R"(
++precision mediump float;
++uniform vec4 u_color;
++void main()
++{
++    gl_FragColor = u_color;
++})";
++
++    // Use CompileProgram with callbacks to bind attribute locations before linking. If bound after
++    // linking, it might mask the bug by assigning locations intended to be inactive, such as Slot 1
++    // in Program 2, to active attributes and not trigger the bug.
++    GLuint program1 = CompileProgram(kVS1, kFS, [](GLuint p) {
++        glBindAttribLocation(p, 0, "a");
++        glBindAttribLocation(p, 1, "b");
++    });
++    ASSERT_NE(program1, 0u);
++
++    GLuint program2 = CompileProgram(kVS2, kFS, [](GLuint p) {
++        glBindAttribLocation(p, 0, "a");
++        glBindAttribLocation(p, 2, "c");
++    });
++    ASSERT_NE(program2, 0u);
++
++    // Set up vertex attribute buffers with the same data.
++    std::vector<GLfloat> posData = {-0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,
++                                    -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f};
++    GLBuffer buf1;
++    glBindBuffer(GL_ARRAY_BUFFER, buf1);
++    glBufferData(GL_ARRAY_BUFFER, posData.size() * sizeof(GLfloat), posData.data(), GL_STATIC_DRAW);
++    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
++    glEnableVertexAttribArray(0);
++
++    GLBuffer buf2;
++    glBindBuffer(GL_ARRAY_BUFFER, buf2);
++    glBufferData(GL_ARRAY_BUFFER, posData.size() * sizeof(GLfloat), posData.data(), GL_STATIC_DRAW);
++    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
++    glEnableVertexAttribArray(1);
++
++    glBindBuffer(GL_ARRAY_BUFFER, 0);
++
++    // Use the first program to draw red to the screen.
++    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
++    glClear(GL_COLOR_BUFFER_BIT);
++
++    glUseProgram(program1);
++    GLint colorLoc = glGetUniformLocation(program1, "u_color");
++    ASSERT_NE(colorLoc, -1);
++    glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
++    glDrawArrays(GL_TRIANGLES, 0, 6);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kWidth, kHeight, GLColor::red);
++    ASSERT_GL_NO_ERROR();
++
++    // Disable attribute 1 while it is still active in Program 1, and multi-draw with a zero count.
++    const GLint first   = 0;
++    const GLsizei count = 0;
++    glDisableVertexAttribArray(1);
++    glMultiDrawArraysANGLE(GL_TRIANGLES, &first, &count, 1);
++    ASSERT_GL_NO_ERROR();
++
++    // Switch to the second program in which location 1 is inactive, and delete the buffer for the
++    // disabled attribute.
++    glUseProgram(program2);
++    buf2.reset();
++    ASSERT_GL_NO_ERROR();
++
++    // Use the second program to draw green to the center of the screen. The disabled vec2 attribute
++    // should be interpreted as 0 in the shader.
++    colorLoc = glGetUniformLocation(program2, "u_color");
++    ASSERT_NE(colorLoc, -1);
++    glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
++
++    glDrawArrays(GL_TRIANGLES, 0, 6);
++    EXPECT_PIXEL_RECT_EQ(kWidth / 4, kHeight / 4, kWidth / 2, kHeight / 2, GLColor::green);
++    ASSERT_GL_NO_ERROR();
++
++    glDeleteProgram(program1);
++    glDeleteProgram(program2);
++}
++
+ // Tests basic functionality of glMultiDrawArraysIndirectEXT
+ TEST_P(MultiDrawIndirectTest, MultiDrawArraysIndirect)
+ {
+diff --git a/src/tests/gl_tests/RobustResourceInitTest.cpp b/src/tests/gl_tests/RobustResourceInitTest.cpp
+index c35f062..1765ba2 100644
+--- a/src/tests/gl_tests/RobustResourceInitTest.cpp
++++ b/src/tests/gl_tests/RobustResourceInitTest.cpp
+@@ -1071,6 +1071,299 @@
+     }
+ }
+ 
++// Calling invalidate on uninitialized texture should produce black (the init color for RGB).
++TEST_P(RobustResourceInitTestES3, InvalidateUndefinedThenReadBack)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    // Initialize a framebuffer bound to an RGB8 texture.
++    constexpr size_t kSize = 16;
++    GLTexture tex;
++    glBindTexture(GL_TEXTURE_2D, tex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    // Invalidate the color attachment immediately.
++    GLenum attachmentToInvalidate = GL_COLOR_ATTACHMENT0;
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // The robust clear should still have been applied to the FBO.
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::black);
++}
++
++// Calling invalidate on an uninitialized RGB8 texture followed by blending using the destination
++// alpha should produce the correct color from the shader.
++TEST_P(RobustResourceInitTestES3, InvalidateUndefinedThenBlend)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    // Initialize a framebuffer bound to an RGB8 texture.
++    constexpr size_t kSize = 16;
++    GLTexture tex;
++    glBindTexture(GL_TEXTURE_2D, tex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    // Invalidate the color attachment immediately.
++    GLenum attachmentToInvalidate = GL_COLOR_ATTACHMENT0;
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // Enable blend and draw with green to make sure the alpha component is correctly set to 1.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_BLEND);
++    glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 0.5f);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::green);
++}
++
++// Calling invalidate on uninitialized depth-only renderbuffer should produce 1.0 (the robust init
++// depth).
++TEST_P(RobustResourceInitTestES3, InvalidateUndefinedThenReadBackDepthOnly)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    constexpr size_t kSize = 16;
++    GLTexture colorTex;
++    glBindTexture(GL_TEXTURE_2D, colorTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, kSize, kSize);
++
++    GLRenderbuffer rbDepth;
++    glBindRenderbuffer(GL_RENDERBUFFER, rbDepth);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbDepth);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    GLenum attachmentToInvalidate = GL_DEPTH_ATTACHMENT;
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // The robust clear should still have been applied to the FBO.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_DEPTH_TEST);
++    glDepthFunc(GL_EQUAL);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 1.0f);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::green);
++}
++
++// Calling invalidate on uninitialized stencil-only renderbuffer should produce 0 (the robust init
++// stencil).
++TEST_P(RobustResourceInitTestES3, InvalidateUndefinedThenReadBackStencilOnly)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    constexpr size_t kSize = 16;
++    GLTexture colorTex;
++    glBindTexture(GL_TEXTURE_2D, colorTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, kSize, kSize);
++
++    GLRenderbuffer rbStencil;
++    glBindRenderbuffer(GL_RENDERBUFFER, rbStencil);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbStencil);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    GLenum attachmentToInvalidate = GL_STENCIL_ATTACHMENT;
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // The robust clear should still have been applied to the FBO.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_STENCIL_TEST);
++    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
++    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 0.5f);
++    EXPECT_PIXEL_RECT_EQ(0, 0, kSize, kSize, GLColor::green);
++}
++
++// Calling invalidate after clear and re-dirtying should either produce the color of the clear call
++// (invalidate didn't happen) or black (the init color for RGB).
++TEST_P(RobustResourceInitTestES3, ClearThenRedirtyThenInvalidateThenReadBack)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    // Initialize a framebuffer bound to an RGB8 texture and clear it to red.
++    constexpr size_t kSize = 16;
++    GLTexture tex;
++    glBindTexture(GL_TEXTURE_2D, tex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
++    glClear(GL_COLOR_BUFFER_BIT);
++
++    // Re-dirty the attachment, and invalidate it immediately.
++    GLenum attachmentToInvalidate = GL_COLOR_ATTACHMENT0;
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // Either the clear above has been applied to the FBO, or the robust clear is applied when its
++    // color attachment is invalidated.
++    std::vector<GLColor> outputColors(kSize * kSize);
++    glReadPixels(0, 0, kSize, kSize, GL_RGBA, GL_UNSIGNED_BYTE, outputColors.data());
++
++    bool allPixelsRed   = true;
++    bool allPixelsBlack = true;
++    for (GLColor &color : outputColors)
++    {
++        if (color != GLColor::red)
++        {
++            allPixelsRed = false;
++        }
++        if (color != GLColor::black)
++        {
++            allPixelsBlack = false;
++        }
++        if (!allPixelsRed && !allPixelsBlack)
++        {
++            EXPECT_TRUE(allPixelsRed || allPixelsBlack) << "Actual color found: " << color;
++            break;
++        }
++    }
++    EXPECT_TRUE(allPixelsRed != allPixelsBlack) << "All pixels should be either red or black";
++}
++
++// Calling invalidate after clear and re-dirtying depth should either produce the depth of the clear
++// call (invalidate didn't happen) or 1.0 (the robust init depth).
++TEST_P(RobustResourceInitTestES3, ClearThenRedirtyThenInvalidateThenReadBackDS)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    // Initialize a framebuffer bound to an RGB8 and a D/S texture.
++    constexpr size_t kSize = 16;
++    GLTexture colorTex;
++    glBindTexture(GL_TEXTURE_2D, colorTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, kSize, kSize);
++
++    GLTexture dsTex;
++    glBindTexture(GL_TEXTURE_2D, dsTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, dsTex, 0);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
++    glClearDepthf(1.0f);
++    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
++
++    // Re-dirty the attachment, and invalidate it immediately.
++    std::array<GLenum, 2> attachmentsToInvalidate = {GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, dsTex, 0);
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachmentsToInvalidate.data());
++
++    // Either the clear above has been applied to the FBO, or the robust clear is applied when its
++    // depth attachment is invalidated, both resulting in a depth of 1.0.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_DEPTH_TEST);
++    glDepthFunc(GL_EQUAL);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 1.0f);
++    EXPECT_GL_NO_ERROR();
++}
++
++// Calling invalidate after clear and re-dirtying depth on a depth-only renderbuffer should either
++// produce the depth of the clear call (invalidate didn't happen) or 1.0 (the robust init depth).
++TEST_P(RobustResourceInitTestES3, ClearThenRedirtyThenInvalidateThenReadBackDepthOnly)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    constexpr size_t kSize = 16;
++    GLTexture colorTex;
++    glBindTexture(GL_TEXTURE_2D, colorTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, kSize, kSize);
++
++    GLRenderbuffer rbDepth;
++    glBindRenderbuffer(GL_RENDERBUFFER, rbDepth);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbDepth);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
++    glClearDepthf(1.0f);
++    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
++
++    GLenum attachmentToInvalidate = GL_DEPTH_ATTACHMENT;
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbDepth);
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // Either the clear above has been applied to the FBO, or the robust clear is applied when its
++    // depth attachment is invalidated, both resulting in a depth of 1.0.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_DEPTH_TEST);
++    glDepthFunc(GL_EQUAL);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 1.0f);
++    EXPECT_GL_NO_ERROR();
++}
++
++// Calling invalidate after clear and re-dirtying stencil on a stencil-only renderbuffer should
++// either produce the stencil of the clear call (invalidate didn't happen) or 0 (the robust init
++// stencil).
++TEST_P(RobustResourceInitTestES3, ClearThenRedirtyThenInvalidateThenReadBackStencilOnly)
++{
++    ANGLE_SKIP_TEST_IF(!hasGLExtension());
++
++    constexpr size_t kSize = 16;
++    GLTexture colorTex;
++    glBindTexture(GL_TEXTURE_2D, colorTex);
++    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, kSize, kSize);
++
++    GLRenderbuffer rbStencil;
++    glBindRenderbuffer(GL_RENDERBUFFER, rbStencil);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, kSize, kSize);
++
++    GLFramebuffer fbo;
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbStencil);
++    ASSERT_GL_FRAMEBUFFER_COMPLETE(GL_FRAMEBUFFER);
++
++    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
++    glClearStencil(0x00);
++    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
++
++    GLenum attachmentToInvalidate = GL_STENCIL_ATTACHMENT;
++    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbStencil);
++    glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, &attachmentToInvalidate);
++
++    // Either the clear above has been applied to the FBO, or the robust clear is applied when its
++    // stencil attachment is invalidated, both resulting in a stencil of 0.
++    ANGLE_GL_PROGRAM(greenProgram, essl1_shaders::vs::Simple(), essl1_shaders::fs::Green());
++    glViewport(0, 0, kSize, kSize);
++    glEnable(GL_STENCIL_TEST);
++    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
++    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
++    drawQuad(greenProgram, essl1_shaders::PositionAttrib(), 0.5f);
++    EXPECT_GL_NO_ERROR();
++}
++
+ // Calling invalidate after draw should either read back the result of the draw call (invalidate
+ // didn't happen) or the init depth/stencil values.
+ TEST_P(RobustResourceInitTestES3, DrawThenInvalidateThenReadBackDepthStencil)
 diff --git a/src/tests/gl_tests/TextureTest.cpp b/src/tests/gl_tests/TextureTest.cpp
 index da2ff61..cf6f9c8 100644
 --- a/src/tests/gl_tests/TextureTest.cpp
@@ -268,3 +1254,140 @@ index da2ff61..cf6f9c8 100644
  // Create a 2D array texture, use it, then redefine one level without changing dimensions.
  TEST_P(Texture2DArrayTestES3, RedefineLevelData)
  {
+diff --git a/src/tests/gl_tests/VertexAttributeTest.cpp b/src/tests/gl_tests/VertexAttributeTest.cpp
+index 62ddc2b..0f739fd 100644
+--- a/src/tests/gl_tests/VertexAttributeTest.cpp
++++ b/src/tests/gl_tests/VertexAttributeTest.cpp
+@@ -1062,6 +1062,108 @@
+     EXPECT_PIXEL_COLOR_EQ(64, 64, GLColor::green);
+ }
+ 
++// Test that disabling an attribute, unbinding VAO, reallocating buffer, rebinding VAO and enabling
++// attribute works.
++TEST_P(VertexAttributeTest, RedrawAfterDisableUnbindReallocRebindEnable)
++{
++    ANGLE_SKIP_TEST_IF(getClientMajorVersion() < 3 &&
++                       !IsGLExtensionEnabled("GL_OES_vertex_array_object"));
++
++    constexpr char kVS[] = R"(attribute vec3 posIn;
++void main()
++{
++    gl_Position = vec4(posIn, 1.0);
++    gl_PointSize = 1.0;
++})";
++    constexpr char kFS[] = R"(precision mediump float;
++void main()
++{
++    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
++})";
++
++    ANGLE_GL_PROGRAM(program, kVS, kFS);
++    glUseProgram(program);
++
++    // Create and bind a vertex array.
++    GLuint vao;
++    if (getClientMajorVersion() >= 3)
++    {
++        glGenVertexArrays(1, &vao);
++        glBindVertexArray(vao);
++    }
++    else
++    {
++        glGenVertexArraysOES(1, &vao);
++        glBindVertexArrayOES(vao);
++    }
++
++    // Define a large buffer to be used for the attribute.
++    const GLsizeiptr kLargeBufferSize = 16 * 1024 * 1024;
++    GLBuffer buffer;
++    glBindBuffer(GL_ARRAY_BUFFER, buffer);
++    glBufferData(GL_ARRAY_BUFFER, kLargeBufferSize, nullptr, GL_STATIC_DRAW);
++
++    std::vector<GLfloat> zeroData(16, 0.0f);
++    glBufferSubData(GL_ARRAY_BUFFER, 0, zeroData.size() * sizeof(GLfloat), zeroData.data());
++
++    // Define and enable the vertex attribute in the program.
++    GLint attribLocation = glGetAttribLocation(program, "posIn");
++    ASSERT_NE(-1, attribLocation);
++
++    glEnableVertexAttribArray(attribLocation);
++    glVertexAttribPointer(attribLocation, 3, GL_FLOAT, GL_FALSE, 0, 0);
++
++    // Clear and draw a pixel in a one-pixel viewport.
++    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
++    glClear(GL_COLOR_BUFFER_BIT);
++    glViewport(0, 0, 1, 1);
++    glDrawArrays(GL_POINTS, 0, 1);
++    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
++    EXPECT_GL_NO_ERROR();
++
++    // Disable the attribute and unbind the VAO.
++    glDisableVertexAttribArray(attribLocation);
++    if (getClientMajorVersion() >= 3)
++    {
++        glBindVertexArray(0);
++    }
++    else
++    {
++        glBindVertexArrayOES(0);
++    }
++
++    // Redefine the large buffer with a different usage.
++    glBindBuffer(GL_ARRAY_BUFFER, buffer);
++    glBufferData(GL_ARRAY_BUFFER, kLargeBufferSize, nullptr, GL_DYNAMIC_DRAW);
++    glBufferSubData(GL_ARRAY_BUFFER, 0, zeroData.size() * sizeof(GLfloat), zeroData.data());
++
++    // Rebind the VAO and re-enable the attribute.
++    if (getClientMajorVersion() >= 3)
++    {
++        glBindVertexArray(vao);
++    }
++    else
++    {
++        glBindVertexArrayOES(vao);
++    }
++    glEnableVertexAttribArray(attribLocation);
++
++    // Clear and draw another pixel.
++    glClear(GL_COLOR_BUFFER_BIT);
++    glDrawArrays(GL_POINTS, 0, 1);
++    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
++    EXPECT_GL_NO_ERROR();
++
++    if (getClientMajorVersion() >= 3)
++    {
++        glDeleteVertexArrays(1, &vao);
++    }
++    else
++    {
++        glDeleteVertexArraysOES(1, &vao);
++    }
++}
++
+ class VertexAttributeTestES3 : public VertexAttributeTest
+ {
+   protected:
+diff --git a/util/autogen/angle_features_autogen.cpp b/util/autogen/angle_features_autogen.cpp
+index 20700bf..c97d895 100644
+--- a/util/autogen/angle_features_autogen.cpp
++++ b/util/autogen/angle_features_autogen.cpp
+@@ -187,6 +187,7 @@
+     {Feature::ExposeNonConformantExtensionsAndVersions, "exposeNonConformantExtensionsAndVersions"},
+     {Feature::ExternallySynchronizePipelineCacheAccess, "externallySynchronizePipelineCacheAccess"},
+     {Feature::FinishBeforeBlitFramebufferMultiAttachment, "finishBeforeBlitFramebufferMultiAttachment"},
++    {Feature::FinishBeforeSameTextureCopy, "finishBeforeSameTextureCopy"},
+     {Feature::FinishDoesNotCauseQueriesToBeAvailable, "finishDoesNotCauseQueriesToBeAvailable"},
+     {Feature::FlushAfterEndingTransformFeedback, "flushAfterEndingTransformFeedback"},
+     {Feature::FlushAfterStreamVertexData, "flushAfterStreamVertexData"},
+diff --git a/util/autogen/angle_features_autogen.h b/util/autogen/angle_features_autogen.h
+index 9806d53..32594e3 100644
+--- a/util/autogen/angle_features_autogen.h
++++ b/util/autogen/angle_features_autogen.h
+@@ -187,6 +187,7 @@
+     ExposeNonConformantExtensionsAndVersions,
+     ExternallySynchronizePipelineCacheAccess,
+     FinishBeforeBlitFramebufferMultiAttachment,
++    FinishBeforeSameTextureCopy,
+     FinishDoesNotCauseQueriesToBeAvailable,
+     FlushAfterEndingTransformFeedback,
+     FlushAfterStreamVertexData,

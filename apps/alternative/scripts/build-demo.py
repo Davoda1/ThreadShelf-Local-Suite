@@ -48,5 +48,5 @@ def build(output):
     print(output)
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output',type=Path,default=ROOT/'dist/ThreadShelf-Local-Alternative-1.4.5-Demo.html')
+    parser.add_argument('--output',type=Path,default=ROOT/'dist/ThreadShelf-Local-Alternative-1.4.6-Demo.html')
     build(parser.parse_args().output.resolve())

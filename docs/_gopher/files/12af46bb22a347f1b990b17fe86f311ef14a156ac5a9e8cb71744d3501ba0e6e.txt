@@ -89,4 +89,3 @@ Search highlights do not change stored content. Clearing a search removes the ac
 If you remember a precise phrase, try Exact phrase in All time first. If you remember a subject but not wording, try Text search with a few discriminating terms. Add provider/role filters only after confirming that they match the retained records. For a conceptual query across languages or paraphrases, set up Local meaning and build a current index. Keep ordinary text search available as a baseline for checking results.
 
 Related: [Models and semantic search](models.md), [Server search](server.md), [Troubleshooting](../Reference/troubleshooting.md).
-

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$Latest, [switch]$Build, [switch]$Test, [switch]$Package,
-    [switch]$ResolveOnly, [string]$NodeVersion = '26.13.0', [string]$ElectronVersion = '45.2.3'
+    [switch]$ResolveOnly, [string]$NodeVersion = '26.13.1', [string]$ElectronVersion = '45.3.0'
 )
 $ErrorActionPreference = 'Stop'
 $projectDir = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))

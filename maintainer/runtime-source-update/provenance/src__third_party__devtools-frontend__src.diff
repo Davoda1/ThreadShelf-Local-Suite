@@ -561,6 +561,222 @@ index 72c04c5..a4bc951 100644
        return true;
      }
      currentElement = currentElement.parentElementOrShadowHost();
+diff --git a/front_end/ui/lit/Directives.test.ts b/front_end/ui/lit/Directives.test.ts
+index 512f54a..e7618b0 100644
+--- a/front_end/ui/lit/Directives.test.ts
++++ b/front_end/ui/lit/Directives.test.ts
+@@ -115,19 +115,28 @@
+     sinon.assert.calledOnce(clickHandler2);
+   });
+ 
+-  it('registers and removes listeners with registerListeners', () => {
+-    const element = document.createElement('div');
+-    const clickHandler = sinon.spy();
+-    CustomDirectives.InterceptBindingDirective.registerListeners(element, {click: clickHandler});
++  it('updates event handlers on clones when re-rendered', () => {
++    const container = document.createElement('div');
++    const clickHandler1 = sinon.spy();
++    const clickHandler2 = sinon.spy();
++    const renderButton = (handler: CustomDirectives.BindingEventListener): void => {
++      render(html`<button @click=${interceptBinding(handler)}></button>`, container);
++    };
+ 
+-    const targetElement = document.createElement('div');
+-    CustomDirectives.InterceptBindingDirective.setEventListeners([element], targetElement);
+-    targetElement.click();
+-    sinon.assert.calledOnce(clickHandler);
++    renderButton(clickHandler1);
++    const templateButton = container.firstElementChild;
++    assert.instanceOf(templateButton, HTMLButtonElement);
+ 
+-    CustomDirectives.InterceptBindingDirective.registerListeners(element, undefined);
+-    CustomDirectives.InterceptBindingDirective.setEventListeners([element], targetElement);
+-    targetElement.click();
+-    sinon.assert.calledOnce(clickHandler);
++    const clonedButton = cloneNodeWithListeners(templateButton);
++    assert.instanceOf(clonedButton, HTMLButtonElement);
++
++    clonedButton.click();
++    sinon.assert.calledOnce(clickHandler1);
++    sinon.assert.notCalled(clickHandler2);
++
++    renderButton(clickHandler2);
++    clonedButton.click();
++    sinon.assert.calledOnce(clickHandler1);
++    sinon.assert.calledOnce(clickHandler2);
+   });
+ });
+diff --git a/front_end/ui/lit/Directives.ts b/front_end/ui/lit/Directives.ts
+index 2f17e0f..c07a21d 100644
+--- a/front_end/ui/lit/Directives.ts
++++ b/front_end/ui/lit/Directives.ts
+@@ -2,13 +2,15 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++import * as Platform from '../../core/platform/platform.js';
+ import * as Lit from '../../third_party/lit/lit.js';
+ 
+ /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+ export type BindingEventListener = (arg: any) => any;
+ 
+ export class InterceptBindingDirective extends Lit.Directive.Directive {
+-  static readonly #interceptedBindings = new WeakMap<Element, Map<string, BindingEventListener>>();
++  static readonly #interceptedBindings =
++      new WeakMap<Element, {bindings: Map<string, BindingEventListener>, lastAttachment?: WeakRef<Element>}>();
+   static readonly #attachedBindings = new WeakMap<Element, Map<string, Set<BindingEventListener>>>();
+ 
+   override update(part: Lit.Directive.Part, [listener]: [BindingEventListener]): unknown {
+@@ -17,14 +19,42 @@
+     }
+     let eventListeners = InterceptBindingDirective.#interceptedBindings.get(part.element);
+     if (!eventListeners) {
+-      eventListeners = new Map();
++      eventListeners = {bindings: new Map()};
+       InterceptBindingDirective.#interceptedBindings.set(part.element, eventListeners);
+     }
+-    eventListeners.set(part.name, listener);
++
++    InterceptBindingDirective.#updateAttachedListener(part.element, part.name, listener);
++    eventListeners.bindings.set(part.name, listener);
+ 
+     return this.render(listener);
+   }
+ 
++  static #updateAttachedListener(templateElement: Element, name: string, listener: BindingEventListener): void {
++    const binding = this.#interceptedBindings.get(templateElement);
++    if (!binding) {
++      return;
++    }
++    const lastAttachment = binding.lastAttachment?.deref();
++    if (!lastAttachment) {
++      return;
++    }
++    const oldListener = binding.bindings.get(name);
++    if (oldListener === listener) {
++      return;
++    }
++    const attachedBindings = this.#attachedBindings.get(lastAttachment);
++    if (!attachedBindings) {
++      return;
++    }
++    const attachedListeners = Platform.MapUtilities.getWithDefault(attachedBindings, name, () => new Set());
++    if (oldListener) {
++      lastAttachment.removeEventListener(name, oldListener);
++      attachedListeners.delete(oldListener);
++    }
++    lastAttachment.addEventListener(name, listener);
++    attachedListeners.add(listener);
++  }
++
+   /* eslint-disable-next-line @typescript-eslint/no-unsafe-function-type */
+   render(listener: Function): Function {
+     return listener;
+@@ -45,7 +75,8 @@
+     for (const templateElement of elements) {
+       const newListeners = InterceptBindingDirective.#interceptedBindings.get(templateElement);
+       if (newListeners) {
+-        for (const [name, listener] of newListeners) {
++        newListeners.lastAttachment = new WeakRef(renderedElement);
++        for (const [name, listener] of newListeners.bindings) {
+           renderedElement.addEventListener(name, listener);
+           let listenersSet = newAttachedListeners.get(name);
+           if (!listenersSet) {
+@@ -63,18 +94,4 @@
+       InterceptBindingDirective.#attachedBindings.delete(renderedElement);
+     }
+   }
+-
+-  static registerListeners(element: Element, listeners?: Record<string, EventListenerOrEventListenerObject>): void {
+-    if (!listeners) {
+-      InterceptBindingDirective.#interceptedBindings.delete(element);
+-      return;
+-    }
+-    const map = new Map<string, BindingEventListener>();
+-    for (const [name, listener] of Object.entries(listeners)) {
+-      map.set(name,
+-              typeof listener === 'function' ? listener as BindingEventListener :
+-                                               listener.handleEvent.bind(listener) as BindingEventListener);
+-    }
+-    InterceptBindingDirective.#interceptedBindings.set(element, map);
+-  }
+ }
+diff --git a/front_end/ui/lit/render.test.ts b/front_end/ui/lit/render.test.ts
+index 107e6fc..637ba33 100644
+--- a/front_end/ui/lit/render.test.ts
++++ b/front_end/ui/lit/render.test.ts
+@@ -3,11 +3,10 @@
+ // found in the LICENSE file.
+ 
+ import {assert} from 'chai';
+-import * as sinon from 'sinon';
+ 
+ import {renderElementIntoDOM} from '../../testing/DOMHelpers.js';
+ 
+-import {CustomDirectives, html, render} from './lit.js';
++import {html, render} from './lit.js';
+ 
+ describe('render', () => {
+   let container: HTMLElement;
+@@ -101,17 +100,6 @@
+     assert.strictEqual(clicked2, 1);
+   });
+ 
+-  it('updates interceptedListeners on the container using InterceptBindingDirective', () => {
+-    const stub = sinon.stub(CustomDirectives.InterceptBindingDirective, 'registerListeners');
+-
+-    const listener1 = () => {};
+-    render(html`<span>Content</span>`, container, {container: {interceptedListeners: {click: listener1}}});
+-    sinon.assert.calledOnceWithExactly(stub, container, {click: listener1});
+-
+-    render(html`<span>Content</span>`, container, {container: {interceptedListeners: undefined}});
+-    sinon.assert.calledWithExactly(stub, container, undefined);
+-  });
+-
+   it('applies options to the host when rendering into a ShadowRoot', () => {
+     const shadowRoot = container.attachShadow({mode: 'open'});
+ 
+diff --git a/front_end/ui/lit/render.ts b/front_end/ui/lit/render.ts
+index c4727fa..44c38f1 100644
+--- a/front_end/ui/lit/render.ts
++++ b/front_end/ui/lit/render.ts
+@@ -5,14 +5,11 @@
+ 
+ import * as Lit from '../../third_party/lit/lit.js';
+ 
+-import {InterceptBindingDirective} from './Directives.js';
+-
+ export interface RenderOptions extends Lit.RenderOptions {
+   container?: {
+     attributes?: Record<string, string|null|boolean|undefined|{toString(): string}>,
+     classes?: string[],
+     listeners?: Record<string, EventListenerOrEventListenerObject>,
+-    interceptedListeners?: Record<string, EventListenerOrEventListenerObject>,
+   };
+ }
+ 
+@@ -116,10 +113,6 @@
+     }
+   }
+ 
+-  if (host instanceof Element) {
+-    InterceptBindingDirective.registerListeners(host, options?.container?.interceptedListeners);
+-  }
+-
+   renderOptions.set(container, options);
+   return Lit.render(template, container, options);
+ }
+diff --git a/test/TestExpectations b/test/TestExpectations
+index badbbcc..5a04d7c 100644
+--- a/test/TestExpectations
++++ b/test/TestExpectations
+@@ -15,3 +15,6 @@
+ # crbug.com/1342718 [ mac win32 linux ] front_end/panels/explain/components/ConsoleInsight.test.ts:ConsoleInsight:shows_opt-in_teaser_when_setting_is_turned_off [ Failure Pass Skip ]
+ # crbug.com/1342718 front_end/panels/explain/components/ConsoleInsight.test.ts:ConsoleInsight:shows_opt-in_teaser_when_setting_is_turned_off [ Failure Pass ]
+ # crbug.com/1234567 [ mac ] front_end/panels/elements/ElementsPanel.test.ts [ Failure ]
++
++# Failing on branches because of a build cache problem
++crbug.com/483762280 test/e2e/inspector/drawer.test.ts:drawer:does_not_shift_elements_content_after_switching_back_from_sources_and_minimizing_drawer [ Failure Pass Skip ]
 diff --git a/test/e2e/elements/BUILD.gn b/test/e2e/elements/BUILD.gn
 index d567fea..c679ff2 100644
 --- a/test/e2e/elements/BUILD.gn

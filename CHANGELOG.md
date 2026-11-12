@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.6 — 2026-11-12
+
+- Restore Analytics compatibility with current Reader retained history, deduplication and cleanup publications. Validate coherent committed captures without modifying Reader files; compare logical analytical data so checkpoints, recompression and nonanalytical housekeeping do not create false change alerts.
+- Normalize conversations incrementally into owned SQLite captures, use exact disk-based selections and reducers, page native results and evidence, and stream complete exports. Keep the 2 GiB worker heap ceiling and individual-document safety guards; remove the archive-wide object counter and whole-dataset renderer transport.
+- Preserve public full-text evidence, Markdown/code copying, excerpt/full-text search, explicit text exports and disconnected-source reindexing. Migrate valid finished public captures without discarding settings, annotations, retained history or recoverable source copies.
+- Add detailed persistent failure context and startup errors, repair Retry when an unchanged capture lacks a report, and keep message-model and conversation-model searches independent. Retain the established layout, profile identities and unversioned OS titles.
+- Align all three GUIs at 1.4.6 with Node 26.13.1 LTS and Electron 45.3.0 stable. Reader and Alternative retain their 1.4.5 application behavior. Rebuild the complete standard release set and matching verified runtime source supplement.
+- Synchronize the embedded manual, 44 current screenshots and editable authoring sources with the official manual website. Preserve manual content version 1.4.5 for this fix release and correct the Gopher builder attribution to `davoda1` while retaining third-party notices.
+
 ## 1.4.5 — 2026-11-11
 
 - Correct Reader conversation identity matching within each collection. Reliable providers use provider plus conversation ID: identical snapshots keep one copy, an exact longer continuation supersedes its shorter prefix, and other same-ID snapshots resolve to the newest record. Distinct reliable IDs remain separate. VeniceAI uses content-based matching because its export IDs are not stable; its preservation checks and Grok’s cross-ID cleanup rules retain divergent answered branches.

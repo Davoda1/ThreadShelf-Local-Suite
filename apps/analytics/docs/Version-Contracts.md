@@ -1,13 +1,15 @@
 # Version contracts
 
-The public application version is **1.0.0**. It is independent of persisted data formats. Resetting the product release number must not relabel stored data or disable compatibility readers.
+The public application version is **1.4.6**. It is independent of persisted data formats. Resetting the product release number must not relabel stored data or disable compatibility readers.
 
 | Contract | Current identity |
 | --- | --- |
-| Application/product | `1.0.0` |
+| Application/product | `1.4.6` |
 | Root ownership marker | `threadshelf-local-analytics:1` |
 | Owned storage | Format `2`, namespace `analytics-v2` |
 | Normalized capture schema | `2` |
+| Incremental owned capture | `analytics-owned-sqlite:1` |
+| Retained body rows | `1` |
 | Adapter/content producer | `2.0.0`; supported legacy producer `1.0.0` |
 | Explorer schema | `2.0.0` |
 | Explorer algorithm | `explorer:2.0.0` |

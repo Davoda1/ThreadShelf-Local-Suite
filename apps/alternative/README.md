@@ -1,20 +1,22 @@
 # ThreadShelf Local Alternative
 
-**Version 1.4.5 · Windows x64 and GNU/Linux amd64**
+**Version 1.4.6 aligns the full suite release and refreshes the pinned runtime/toolchain. The 1.4.5 application features below remain available.
+
+Version 1.4.5 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
 The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for the exact supported ThreadShelf 1.3.0 and 1.4.1 sources.
 
-Version 1.4.5 fixes HTML preview sizing, initial placement, and clipping while scrolling. Complete HTML pages use a transparent 16:9 surface that fills the code block beneath its toolbar. Reading settings add optional wrapping and line numbers for code; line numbers appear only in Code view and never enter copied or exported source. Existing public privacy controls, isolated HTML scripts, image loading, rich-content rendering, and speech playback retain their behavior.
+Version 1.4.6 fixes HTML preview sizing, initial placement, and clipping while scrolling. Complete HTML pages use a transparent 16:9 surface that fills the code block beneath its toolbar. Reading settings add optional wrapping and line numbers for code; line numbers appear only in Code view and never enter copied or exported source. Existing public privacy controls, isolated HTML scripts, image loading, rich-content rendering, and speech playback retain their behavior.
 
 ## Install and start
 
 | Platform | Package | Start |
 | --- | --- | --- |
-| Windows x64 | `ThreadShelf-Local-Alternative-1.4.5-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
-| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.5-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
-| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.5_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.5_amd64.deb`, then use the application menu. |
+| Windows x64 | `ThreadShelf-Local-Alternative-1.4.6-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
+| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.6-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
+| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.6_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.6_amd64.deb`, then use the application menu. |
 
 The Windows executable is unsigned. Native packages contain the application runtime; ordinary use does not require Node.js or Python. Linux needs a compatible x86-64 graphical desktop and the declared Chromium/GTK dependencies. Portable Linux requires a working user-namespace sandbox; the Debian package installs Electron's sandbox helper. The desktop entry points are regular native binaries, with no symlink or script launchers.
 

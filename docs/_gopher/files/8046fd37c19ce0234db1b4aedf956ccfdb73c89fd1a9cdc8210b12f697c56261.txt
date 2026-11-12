@@ -1,6 +1,6 @@
 # Screenshot guides
 
-Fresh captures show the released 1.4.0 interface with synthetic demonstration content. Each gallery identifies how the images were made and which operations the preview does not validate. No old screenshot has been relabelled, recolored or redrawn.
+All 44 screenshots show the current public 1.4.5 interfaces with synthetic demonstration content: 18 Reader, 13 Analytics and 13 Alternative images. The galleries cover normal workflows, appearance and speech controls, plus code presentation, native HTML previews and Reader conversation cleanup. Every image is an unaltered capture of the current application interface.
 
 - [Local Reader](reader-gallery.md)
 - [Local Analytics](analytics-gallery.md)

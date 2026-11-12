@@ -50,3 +50,8 @@ test('Source text is escaped and only trusted evidence commands can be rendered 
 test('Graph styles avoid filled axis triangles and support keyboard evidence activation',async()=>{
  const css=await fs.readFile(new URL('../src/ui/style.css',import.meta.url),'utf8'),app=await fs.readFile(new URL('../src/ui/app.js',import.meta.url),'utf8');assert.match(css,/\.explorer-axis\{fill:none;stroke:/);assert.match(css,/\.explorer-controls\{display:flex;flex-wrap:wrap/);assert.match(app,/data-action="explorer-evidence"/);
 });
+
+test('native Explorer uses exact backend totals and actual page offsets while plots stay bounded',()=>{
+ const html=markup({id:'01-length-histogram',family:1,subview:'distributions',display:{kind:'histogram',x:'lower',y:'count'},columns:['population','kind','lower','count'],rows:[{rowId:'plot-row',kind:'histogram',population:'response',lower:0,count:9}],plotSampled:true,plotPopulation:9000,totalRows:9000,tablePage:{rows:[{rowId:'page-row',evidenceKey:'saved-selection',kind:'histogram',population:'response',lower:0,count:9}],offset:101,total:9000,limit:50,previousOffset:100,nextOffset:102}},{category:'response'});
+ assert.match(html,/102–102 \/ 9000/);assert.match(html,/data-offset="102"/);assert.match(html,/data-offset="100"/);assert.match(html,/Export complete table/);assert.match(html,/data-row-id="page-row"/);assert.match(html,/1 \/ 9000/);assert.doesNotMatch(html,/<td>saved-selection<\/td>/);
+});

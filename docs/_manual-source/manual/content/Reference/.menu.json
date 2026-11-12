@@ -1,0 +1,17 @@
+{
+  "title": "Reference and troubleshooting",
+  "entries": [
+    {
+      "path": "shortcuts.md",
+      "label": "Keyboard and control reference"
+    },
+    {
+      "path": "troubleshooting.md",
+      "label": "Troubleshooting and common questions"
+    },
+    {
+      "path": "development.md",
+      "label": "Developer and maintainer reference"
+    }
+  ]
+}

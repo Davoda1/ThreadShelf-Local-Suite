@@ -7,9 +7,9 @@ import {CODE_THEMES} from '../ui/themes.mjs';
 import {SUPPORTED_FILTER_KEYS} from './metrics.mjs';
 const list = v => Array.isArray(v)?v:[];
 export const escapeHtml = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function renderValue(v,t=translator('en')) {return v==null?t('unavailable'):typeof v==='object'?JSON.stringify(v):String(v);}
+export function renderValue(v,t=translator('en')) {return v==null?t('unavailable'):typeof v==='object'?JSON.stringify(v):String(v);}
 /** Drop potentially large drilldown lists before traversing their contents. Numerical cells stay exact. */
-function withoutEvidenceReferences(value) {
+export function withoutEvidenceReferences(value) {
   if(Array.isArray(value))return value.map(withoutEvidenceReferences);
   if(value&&typeof value==='object'){
     const out={};for(const [key,item] of Object.entries(value))if(!['evidenceIds','evidenceIndex','evidenceKey','rankEvidenceKey','recordIds','contributingIds','missingIds'].includes(key))out[key]=withoutEvidenceReferences(item);
@@ -18,7 +18,7 @@ function withoutEvidenceReferences(value) {
   return value;
 }
 const privateField=/^(?:prompt|promptText|promptWording|text|title|excerpt|rawPath|sourcePath|path|filename|fileName|url|fullUrl|href|query|freeTextLabel)$/i;
-function safeAppliedFilters(filters,includeLabels,disclosures) {
+export function safeAppliedFilters(filters,includeLabels,disclosures) {
   const result={...filters};
   if(!includeLabels){delete result.displayAliases;
     for(const key of ['search','query','promptText','tokenTerm','freeTextLabel'])if(Object.hasOwn(result,key)){
@@ -32,10 +32,10 @@ function safeAppliedFilters(filters,includeLabels,disclosures) {
   }
   return result;
 }
-function exportedExplorer(explorer,includeLabels,disclosures) {
+export function exportedExplorer(explorer,includeLabels,disclosures,neutralLabel) {
   if(!explorer||!Array.isArray(explorer.charts))return null;
   const labels=new Map();
-  const neutral=(value)=>{if(value==null||value==='')return value;const key=String(value);if(!labels.has(key))labels.set(key,'Label '+(labels.size+1));return labels.get(key);};
+  const neutral=neutralLabel||((value)=>{if(value==null||value==='')return value;const key=String(value);if(!labels.has(key))labels.set(key,'Label '+(labels.size+1));return labels.get(key);});
   const metadata=value=>{
     if(Array.isArray(value))return value.map(metadata);
     if(value&&typeof value==='object'){
@@ -71,6 +71,15 @@ export function csvCell(value) {
   if(typeof value!=='number'&&/^[\s\u0000-\u001f]*[=+\-@]/u.test(text))text="'"+text;
   return '"'+text.replace(/"/g,'""')+'"';
 }
+/** Shared row policy for in-memory and disk-streamed report serializers. */
+export function exportLegacyTableRow(key,row,index,{includeEvidence=false,evidenceConversation=false}={}){
+ const next={...row};
+ if(!includeEvidence||key==='conversations'&&!evidenceConversation){delete next.title;delete next.text;delete next.provenance;delete next.rawPath;
+  if(key==='conversations')next.label=`Conversation ${index+1}`;
+  if(key==='quality')next.reason=next.reason?String(next.reason).replace(/(?:[A-Za-z]:[\\/]|\/(?:home|mnt|workspace|Users)\/)[^\s]+/g,'[source location omitted]'):next.reason;
+ }
+ return next;
+}
 /** Exports default to aggregate/observed-number tables; private texts/titles require opt-in. */
 export function exportPayload(report,options={}) {
   if(!report||typeof report!=='object'||!report.application||!report.filters)throw new TypeError('A complete applied analytical report is required.');
@@ -83,12 +92,7 @@ export function exportPayload(report,options={}) {
   const tables={};
   for(const [key,values] of Object.entries(report.tables||{})) {
     tables[key]=list(values).map((row,index)=>{
-      const next={...row};
-      if(!includeEvidence || key==='conversations'&&!evidenceConversations.has(next.id)){delete next.title;delete next.text;delete next.provenance;delete next.rawPath;
-        if(key==='conversations')next.label=`Conversation ${index+1}`;
-        if(key==='quality')next.reason=next.reason?String(next.reason).replace(/(?:[A-Za-z]:[\\/]|\/(?:home|mnt|workspace|Users)\/)[^\s]+/g,'[source location omitted]'):next.reason;
-      }
-      return next;
+      return exportLegacyTableRow(key,row,index,{includeEvidence,evidenceConversation:evidenceConversations.has(row.id)});
     });
   }
   const selection={...report.selection};
@@ -171,8 +175,8 @@ truncatedEvidence|Evidence excerpt; original full-text measurements remain uncha
 `;
 const reportLocales=Object.fromEntries(['en','hu','de','fr','ja'].map(l=>[l,{}]));
 for(const line of reportLocaleRows.trim().split('\n')){const [key,...v]=line.split('|');['en','hu','de','fr','ja'].forEach((l,i)=>reportLocales[l][key]=v[i]);}
-function localizedTranslator(language){const common=translator(language),extra=reportLocales[language]||reportLocales.en;return key=>extra[key]||common(key);}
-function localizedHeading(key,t) {if(reportLocales.en[key])return t(key);const translation=t(headingKeys[key]||key);return translation===(headingKeys[key]||key)?humanize(key):translation;}
+export function localizedTranslator(language){const common=translator(language),extra=reportLocales[language]||reportLocales.en;return key=>extra[key]||common(key);}
+export function localizedHeading(key,t) {if(reportLocales.en[key])return t(key);const translation=t(headingKeys[key]||key);return translation===(headingKeys[key]||key)?humanize(key):translation;}
 const coverageHelpKeys={timestamps:['activityHelp','datePrecisionHelp'],hourOfDay:['datePrecisionHelp'],models:['modelsHelp','originalModel'],platforms:['modelsHelp','originalPlatform'],logicalMessages:['logicalBoundary'],objects:['objects','sourceNative'],text:['lengthRule','noThinking'],thinkingTrace:['traceRule','noThinking'],thinkingResponseRatio:['traceRule','noThinking','characterRatio'],attachmentSize:['attachmentBytes'],attachmentAvailability:['bytesUnavailable','coverageHelp'],durations:['recordedDurationHelp'],usage:['usageRule','nonBillable'],originalRecords:['normalizedCoverage','formatCoverage']};
 function localizedCoverage(key,value,t,language){return language==='en'?value:{...value,explanation:(coverageHelpKeys[key]||['coverageHelp']).map(t).join(' '),reliability:t(value.reliability==='Recorded'?'recorded':value.reliability==='Estimated'?'estimated':value.reliability==='Unavailable'?'unavailable':'derived')};}
 function localizedDefinition(key,value,t,language){
@@ -181,12 +185,12 @@ function localizedDefinition(key,value,t,language){
   const methods={activity:['activityHelp','membershipScope'],messages:['logicalBoundary','compositionRule'],composition:['compositionRule','traceRule','noThinking'],words:['lengthRule'],structure:['structureHelp','repeatedRule'],content:['contentHelp','lengthRule','attachmentBytes'],tools:['indicatorRule'],timing:['recordedDurationHelp'],usage:['usageRule','nonBillable'],quality:['formatCoverage','normalizedCoverage']};
   return {...value,countingUnit:(unitKeys[key]||['sourceNative']).map(t).join(' / '),eligiblePopulation:t('coverageAll'),filterScope:t('appliedFilters')+' '+t('modelFilterHelp'),timeBasis:t(value.timeBasis==='conversation'?'conversations':'timestamp')+' · '+t('datePrecisionHelp'),branchPolicy:t(value.branchPolicy==='all'?'allBranches':value.branchPolicy==='alternative'?'alternative':'selected'),derivation:(methods[key]||['coverageHelp']).map(t).join(' '),coverage:{...value.coverage,explanation:(methods[key]||['coverageHelp']).map(t).join(' ')},reliability:t(value.reliability==='Recorded'?'recorded':value.reliability==='Estimated'?'estimated':value.reliability==='Unavailable'?'unavailable':'derived')};
 }
-function htmlTable(values,t=localizedTranslator('en'),markdownFields=[]) {
+export function htmlTable(values,t=localizedTranslator('en'),markdownFields=[]) {
   if(!values.length)return '<p class="unavailable">'+escapeHtml(t('emptyPopulation'))+'</p>';
   const columns=[...new Set(values.flatMap(r=>Object.keys(r)))].filter(k=>k!=='evidenceIds');
   return '<div class="table-scroll"><table><thead><tr>'+columns.map(c=>'<th scope="col">'+escapeHtml(localizedHeading(c,t))+'</th>').join('')+'</tr></thead><tbody>'+values.map(r=>'<tr>'+columns.map(c=>'<td>'+(markdownFields.includes(c)&&typeof r[c]==='string'?'<div class="safe-markdown">'+safeMarkdownHTML(r[c])+'</div>':escapeHtml(renderValue(r[c],t)))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
 }
-function highlightedCode(code,declared) {const language=normalizeCodeLanguage(declared);return highlighter.getLanguage(language)?highlighter.highlight(code,{language,ignoreIllegals:true}).value:escapeHtml(code);}
+export function highlightedCode(code,declared) {const language=normalizeCodeLanguage(declared);return highlighter.getLanguage(language)?highlighter.highlight(code,{language,ignoreIllegals:true}).value:escapeHtml(code);}
 function reportCodeCSS(themeId) {
   const theme=CODE_THEMES.find(t=>t.id===themeId)||CODE_THEMES[0];
   const defaultLight={background:'#f6f8fa',foreground:'#243443',header:'#edf1f6',label:'#465b70',border:'#cbd7df',comment:'#617767',keyword:'#8250df',string:'#0a3069',number:'#0550ae',title:'#8250df',type:'#953800',variable:'#953800',meta:'#0550ae',operator:'#243443',attribute:'#0550ae',selector:'#116329'};
@@ -194,22 +198,24 @@ function reportCodeCSS(themeId) {
   const vars=(defaults,mode)=>Object.entries({...defaults,...theme.tokens[mode]}).map(([k,v])=>'--syntax-'+k+':'+v+';').join('');
   return '.safe-markdown{'+vars(defaultLight,'light')+'}@media(prefers-color-scheme:dark){.safe-markdown{'+vars(defaultDark,'dark')+'}}'+'.safe-markdown .code-block{border:1px solid var(--syntax-border);border-radius:6px;overflow:hidden;margin:10px 0;background:var(--syntax-background);color:var(--syntax-foreground)}.safe-markdown .code-head{background:var(--syntax-header);color:var(--syntax-label);padding:6px 12px}.safe-markdown .code-block pre{background:var(--syntax-background);color:var(--syntax-foreground);margin:0}.safe-markdown .hljs-comment,.safe-markdown .hljs-quote{color:var(--syntax-comment)}.safe-markdown .hljs-keyword,.safe-markdown .hljs-selector-tag,.safe-markdown .hljs-literal{color:var(--syntax-keyword)}.safe-markdown .hljs-string,.safe-markdown .hljs-regexp{color:var(--syntax-string)}.safe-markdown .hljs-number{color:var(--syntax-number)}.safe-markdown .hljs-title,.safe-markdown .hljs-function{color:var(--syntax-title)}.safe-markdown .hljs-type,.safe-markdown .hljs-built_in{color:var(--syntax-type)}.safe-markdown .hljs-variable,.safe-markdown .hljs-params{color:var(--syntax-variable)}.safe-markdown .hljs-meta{color:var(--syntax-meta)}.safe-markdown .hljs-attr,.safe-markdown .hljs-attribute,.safe-markdown .hljs-tag{color:var(--syntax-attribute)}.safe-markdown .hljs-operator,.safe-markdown .hljs-punctuation{color:var(--syntax-operator)}.safe-markdown .hljs-selector-id,.safe-markdown .hljs-selector-class{color:var(--syntax-selector)}.safe-markdown .hljs-addition{color:var(--syntax-addition);background:var(--syntax-addition-background)}.safe-markdown .hljs-deletion{color:var(--syntax-deletion);background:var(--syntax-deletion-background)}';
 }
-function barChart(values,title) {
+export function barChart(values,title) {
   const data=values.slice(0,16);if(!data.length)return '';
   const max=Math.max(1,...data.map(r=>Number(r.count)||0));const height=50+data.length*30;
   return '<svg class="chart" viewBox="0 0 700 '+height+'" role="img" aria-label="'+escapeHtml(title)+'"><title>'+escapeHtml(title)+'</title>'+data.map((r,i)=>{const width=420*(Number(r.count)||0)/max;return '<g><title>'+escapeHtml(r.label)+': '+escapeHtml(r.count)+'</title><text x="8" y="'+(30+i*30)+'">'+escapeHtml(String(r.label).slice(0,27))+'</text><rect x="225" y="'+(15+i*30)+'" width="'+width+'" height="20" rx="4"></rect><text x="'+(235+width)+'" y="'+(30+i*30)+'">'+escapeHtml(r.count)+'</text></g>';}).join('')+'</svg>';
 }
-export function reportHTML(report,options={}) {
-  const p=exportPayload(report,options);
+export function reportProseHTML(value,t=localizedTranslator('en')){return '<div class="safe-markdown">'+safeMarkdownHTML(String(value??''),{highlight:highlightedCode,labels:{imageOmitted:t('imageOmitted'),blockedLink:t('blockedLink'),truncated:t('markdownTruncated')}})+'</div>';}
+export function reportContractHTML(value,t=localizedTranslator('en')){return '<dl>'+Object.entries(value||{}).map(([key,detail])=>'<dt>'+escapeHtml(localizedHeading(key,t))+'</dt><dd>'+(['definition','limitations','explanation','derivation'].includes(key)&&typeof detail==='string'?reportProseHTML(detail,t):escapeHtml(renderValue(detail,t)))+'</dd>').join('')+'</dl>';}
+export function reportEvidenceHTML(e,t=localizedTranslator('en')){return '<article class="evidence"><h3>'+escapeHtml(e.title)+' · '+escapeHtml(e.category)+'</h3><dl><dt>'+escapeHtml(t('snapshot'))+'</dt><dd>'+escapeHtml(e.id)+'</dd><dt>'+escapeHtml(t('messageModel'))+'</dt><dd>'+escapeHtml(e.sourceId)+' / '+escapeHtml(e.model)+'</dd><dt>'+escapeHtml(t('provenance'))+'</dt><dd>'+escapeHtml(e.classification)+' / '+escapeHtml(e.provenance)+'</dd></dl>'+(e.textTruncated?'<p class="unavailable">'+escapeHtml(t('truncatedEvidence'))+' · '+escapeHtml(e.fullTextCharacters)+' '+escapeHtml(t('characters'))+'</p>':'')+reportProseHTML(e.text==null?t('noThinking'):e.text,t)+'</article>';}
+export function reportHTML(report,options={}) {return renderPayloadHTML(exportPayload(report,options),options);}
+export function renderPayloadHTML(p,options={}) {
   const language=Object.hasOwn(dictionaries,options.language||p.filters.language)?(options.language||p.filters.language):'en';
   const t=localizedTranslator(language);
   const favicon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#172b46"/><path fill="#70c5b5" d="M11 40h9v14h-9zm16-14h9v28h-9zm16-14h9v42h-9z"/></svg>');
   const sections=Object.entries(p.tables).map(([key,values],index)=>({key,id:'table-'+index+'-'+String(key).replace(/[^a-zA-Z0-9_-]/g,'-'),values,title:localizedHeading(key,t)}));
   const explorerSections=(p.explorer?.charts||[]).map((chart,index)=>({...chart,htmlId:'explorer-'+index,title:localizedHeading(chart.titleKey||chart.id,t)}));
-  const prose=value=>'<div class="safe-markdown">'+safeMarkdownHTML(String(value??''),{highlight:highlightedCode,labels:{imageOmitted:t('imageOmitted'),blockedLink:t('blockedLink'),truncated:t('markdownTruncated')}})+'</div>';
-  const contractHTML=value=>'<dl>'+Object.entries(value||{}).map(([key,detail])=>'<dt>'+escapeHtml(localizedHeading(key,t))+'</dt><dd>'+(['definition','limitations','explanation','derivation'].includes(key)&&typeof detail==='string'?prose(detail):escapeHtml(renderValue(detail,t)))+'</dd>').join('')+'</dl>';
+  const contractHTML=value=>reportContractHTML(value,t);
   const summaryKeys=['conversations','collectionMemberships','records','userMessages','responseMessages','thinkingSegments','characters','activeDays','toolCalls','codeBlocks'];
-  const evidence=p.evidence?'<section id="evidence"><h2>'+escapeHtml(t('evidence'))+'</h2><p>'+escapeHtml(t('includeEvidence'))+'</p>'+p.evidence.map(e=>'<article class="evidence"><h3>'+escapeHtml(e.title)+' · '+escapeHtml(e.category)+'</h3><dl><dt>'+escapeHtml(t('snapshot'))+'</dt><dd>'+escapeHtml(e.id)+'</dd><dt>'+escapeHtml(t('messageModel'))+'</dt><dd>'+escapeHtml(e.sourceId)+' / '+escapeHtml(e.model)+'</dd><dt>'+escapeHtml(t('provenance'))+'</dt><dd>'+escapeHtml(e.classification)+' / '+escapeHtml(e.provenance)+'</dd></dl>'+(e.textTruncated?'<p class="unavailable">'+escapeHtml(t('truncatedEvidence'))+' · '+escapeHtml(e.fullTextCharacters)+' '+escapeHtml(t('characters'))+'</p>':'')+prose(e.text==null?t('noThinking'):e.text)+'</article>').join('')+'</section>':'';
+  const evidence=p.evidence?'<section id="evidence"><h2>'+escapeHtml(t('evidence'))+'</h2><p>'+escapeHtml(t('includeEvidence'))+'</p>'+p.evidence.map(e=>reportEvidenceHTML(e,t)).join('')+'</section>':'';
   const document='<!doctype html><html lang="'+language+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src data:; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'"><title>ThreadShelf Local Analytics · '+escapeHtml(t('analyticalReport'))+'</title><link rel="icon" href="'+favicon+'"><style>'+`
 :root{color-scheme:light dark;--bg:#f4f7fb;--panel:#fff;--ink:#172b46;--muted:#526580;--line:#d6dfeb;--accent:#247967;--stripe:#edf3f8}
 @media(prefers-color-scheme:dark){:root{--bg:#101720;--panel:#17212e;--ink:#e0eaf4;--muted:#a0b2c7;--line:#344357;--accent:#70c5b5;--stripe:#1d2a39}}

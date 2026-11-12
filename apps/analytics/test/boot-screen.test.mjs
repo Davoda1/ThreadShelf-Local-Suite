@@ -2,9 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {parse} from 'parse5';
-import {BOOT_CSS,BOOT_MARKUP,injectBootShell} from '../src/ui/boot-screen.mjs';
+import {BOOT_CSS,BOOT_MARKUP,injectBootShell,bootFailureDetail} from '../src/ui/boot-screen.mjs';
 const {createBootLifecycle}=createRequire(import.meta.url)('../src/desktop/boot-lifecycle.cjs');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
+
+test('startup retry details preserve a bounded underlying error instead of hiding it',()=>{
+ const error=Object.assign(new Error('Specific startup failure'),{code:'STARTUP_TEST_FAILURE',body:'PRIVATE-SYNTHETIC-BODY',stack:'PRIVATE-SYNTHETIC-STACK'});
+ assert.equal(bootFailureDetail('Retry help',error),'Retry help\nSTARTUP_TEST_FAILURE: Specific startup failure');assert.equal(bootFailureDetail('Retry help'),'Retry help');assert.equal(bootFailureDetail('',null),'');assert.equal(bootFailureDetail('',new Error('x'.repeat(2000))).length,1200);assert(!bootFailureDetail('Retry help',error).includes('PRIVATE-SYNTHETIC'));
+ assert.equal(bootFailureDetail('Retry help',{code:'ERR_SQLITE_ERROR',message:'database or disk is full',body:'PRIVATE-SYNTHETIC-BODY'}),'Retry help\nERR_SQLITE_ERROR: database or disk is full');
+});
 
 test('owned settings and dataset initialization waits for a visible shell; concurrent callers share it',async()=>{
   let initializeCount=0,release;

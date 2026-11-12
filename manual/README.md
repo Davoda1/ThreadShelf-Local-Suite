@@ -7,6 +7,10 @@ The release bundle includes the same generated site under `manual/index.html`.
 
 ## Edit and build
 
+The instructions below describe the Suite source archive. In the published
+website checkout, use its `_manual-source/rebuild.py` wrapper and the accompanying
+`_manual-source/README.md` to preserve the current website screenshots and captions.
+
 Requirements: Python 3.10+ and PHP CLI 8.2+ with the standard ctype extension.
 There are no Composer, npm, CDN or network dependencies for manual generation.
 The bundled publisher is the supplied Gopher HTTP **3.0.0**, with the original
@@ -24,6 +28,14 @@ PATH. The script runs Gopher's strict source validation, writes `docs/`, then
 checks every generated local HTML link, image and fragment. Existing output is
 replaced only if it carries Gopher's own build marker; an unrelated directory
 is refused. `--check-only` does not write output.
+
+This checkout includes the current website's 44 public 1.4.5 screenshots under
+`content/Images/`, restored and checked against its original SHA-256 image map.
+`website-source/` retains the website's README, offline rebuild wrapper and image
+provenance map. A normal build refreshes `docs/_manual-source/` from the editable
+sources and regenerates its image map, so the offline site retains matching
+authoring sources without storing a second copy of the PNGs. The standalone
+website rebuild command above remains usable without an application checkout.
 
 Edit Markdown in `content/`. `.menu.json` orders chapters; `.catalog.json`
 provides titles, descriptions and tags. Update those metadata files when adding
@@ -51,17 +63,16 @@ underscore-prefixed assets when using branch-based GitHub Pages. See
 
 ## Screenshot provenance
 
-Screenshots are captured from the 1.4.0 application interfaces using synthetic
-records. The individual routes, dimensions and runtime information are recorded
-in `SCREENSHOTS.md`, `capture-reports/` and the galleries in `content/Screenshots/`.
+All 44 screenshots show the public 1.4.5 interfaces with synthetic demonstration
+records: 18 Reader, 13 Analytics and 13 Alternative images. The galleries identify
+the current capture methods, dimensions and relevant limits. Images are unaltered
+captures of the current application interface.
 
-Reader and Analytics use their compiled production renderer and explicit synthetic
-preview bridges. Alternative uses the actual native Electron window and bundled
-demo. Captures illustrate the controls and rendering; preview audio, file, server
-or model simulations do not establish successful production provider execution.
-Images are captured pixels, not mockups. Keep private application profiles,
-conversation exports, hostnames, account details and personal paths out of manual
-inputs.
+Capture details are recorded in `SCREENSHOTS.md` and the galleries in
+`content/Screenshots/`. The images illustrate actual controls and rendering, not
+successful paid-provider requests or operating-system installation. Keep private
+profiles, conversation exports, hostnames, account details and personal paths out
+of capture inputs.
 
 ## License
 

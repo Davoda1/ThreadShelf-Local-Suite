@@ -273,7 +273,7 @@ function attachmentTables(rows) {
   }
   return {types:sortedCount([...types.values()]),metadata,total,sizeKnown,imageKnown,missing};
 }
-function numericalRecapDuration(text) {
+export function numericalRecapDuration(text) {
   const label=String(text||'').trim();
   const prefix=/^(?:Thought|Thinking) for\s+(.+)$/i.exec(label);if(!prefix)return null;
   const units={ms:1,millisecond:1,milliseconds:1,s:1000,sec:1000,second:1000,seconds:1000,m:60000,min:60000,minute:60000,minutes:60000,h:3600000,hour:3600000,hours:3600000};

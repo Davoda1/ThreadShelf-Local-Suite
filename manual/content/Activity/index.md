@@ -81,4 +81,3 @@ A missing endpoint, unreachable server, invalid response or empty collection pro
 Before comparing two values, check five things: source, selected dataset/capture, time basis, branch policy and counted unit. A Local message count, Server indexed-passage count and separate Analytics filtered selection can all be correct while differing. Read the source-coverage notes before using any of them as a claim about total original account activity.
 
 Related: [Separate Local Analytics](../Analytics/index.md), [Search](../Reader/search.md), [Server mode](../Reader/server.md).
-

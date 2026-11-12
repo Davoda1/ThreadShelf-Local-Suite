@@ -80,6 +80,17 @@ class SourceUpdateTests(unittest.TestCase):
                 for pos in range(0,len(data),7919):output.write(data[pos:pos+7919])
             self.assertEqual(a.getvalue(),b.getvalue());self.assertEqual(gzip.decompress(a.getvalue()),data)
             self.assertEqual(a.getvalue()[:10],bytes.fromhex('1f8b08000000000000ff'))
+    def test_v8_profile_installs_exact_bytes_at_release_gn_fixed_name(self):
+        payload=b'exact pinned V8 optimization profile'
+        name='electron-v8-x64-1793902192-4ac6f9f542.profile'
+        source=self.root/'update';(source/'inputs').mkdir(parents=True)
+        (source/'inputs'/name).write_bytes(payload)
+        destination=self.root/'tree'
+        with mock.patch.object(up,'ROOT',source):up.install_profile({'file':name},destination)
+        for target in (name,'electron-v8-builtins.profile'):
+            self.assertEqual((destination/'src/electron/build/pgo_profiles'/target).read_bytes(),payload)
+        self.assertEqual(up.profile_targets({'file':'electron-linux-x64-1-abcd.profdata'}),('electron-linux-x64-1-abcd.profdata',))
+        with self.assertRaises(up.base.SourceError):up.profile_targets({'file':'../outside.profile'})
     def test_builder_is_deterministic_and_rejects_changed_inputs(self):
         source=self.root/'source';source.mkdir();out=self.root/'out';cache=self.root/'cache'
         for name in ['update-runtime-sources.py','assemble-base-sources.py','README.md']:(source/name).write_text(name+'\n')

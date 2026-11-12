@@ -255,3 +255,8 @@ test('Document-scoped focus/pointer hover stays visible during in-view scroll an
   sourceBox={left:650,right:670,top:-100,bottom:-80,width:20,height:20};
   listeners.get('scroll')({target:{closest:()=>null}});assert.equal(shows,4);assert.equal(hides,2);assert.equal(tooltip.hidden,true);
 });
+
+test('native capability matrix discloses the full model population after bounded top-model delivery',()=>{
+ const rows=['thinking','tools','usage','branches'].flatMap(feature=>[{model:'Most observed',feature,denominator:20,prevalence:.5},{model:'Next observed',feature,denominator:10,prevalence:0}]),chart={family:15,rows,plotModelCount:12500},before=JSON.stringify(chart),plan=buildExplorerRelationshipMatrix(chart,{topN:40});
+ assert.equal(plan.totalAxes,12500);assert.deepEqual(plan.ys,['Most observed','Next observed']);assert.equal(plan.entries.length,8);assert.equal(plan.cells.size,8);assert.equal(JSON.stringify(chart),before);assert.equal(buildExplorerRelationshipMatrix({...chart,plotModelCount:undefined}).totalAxes,2);
+});

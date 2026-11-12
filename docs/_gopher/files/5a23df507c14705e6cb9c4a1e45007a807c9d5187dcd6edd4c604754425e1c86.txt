@@ -58,4 +58,3 @@ Insights uses the existing `/api/insights` endpoint and does not require the sea
 | Local data still available when server is down | Expected independent Local archive, not a live server connection |
 
 Related: [Importing and server copies](importing.md), [Applications and sources](../Start/applications.md).
-

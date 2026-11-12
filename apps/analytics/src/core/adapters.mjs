@@ -9,6 +9,7 @@ export const ADAPTER_VERSION = '2.0.0';
 export const ANALYTICAL_SCHEMA_VERSION = 2;
 export const SUPPORTED_ADAPTER_VERSIONS = Object.freeze(['1.0.0', '2.0.0']);
 export const SUPPORTED_ANALYTICAL_SCHEMA_VERSIONS = Object.freeze([1, 2]);
+export const DEFAULT_ANALYTICAL_LIMITS = Object.freeze({nodes:40_000_000,depth:256});
 const arr = value => Array.isArray(value) ? value : [];
 const obj = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const str = value => typeof value === 'string' ? value : value == null ? '' : String(value);
@@ -111,7 +112,7 @@ function permittedSettings(value, path) {
   const fields=Object.fromEntries(['temperature','topP','top_p','topK','top_k','maxTokens','max_tokens','maxOutputTokens','seed','frequencyPenalty','frequency_penalty','presencePenalty','presence_penalty','stop','model','modelId','model_id'].filter(k=>typeof value[k]==='string'||typeof value[k]==='number'||typeof value[k]==='boolean'||Array.isArray(value[k])&&value[k].every(v=>typeof v==='string')).map(k=>[k,value[k]]));
   return Object.keys(fields).length?{fields,provenance:path,semantics:'recorded generation parameters; no universal equivalence assumed'}:undefined;
 }
-function backupMetadata(value){
+export function backupMetadata(value){
   if(!obj(value))return undefined;
   const manifest=Object.fromEntries(['backupVersion','encrypted','chunkCount','databaseVersion','createdAt'].filter(key=>['string','number','boolean'].includes(typeof value.manifest?.[key])).map(key=>[key,value.manifest[key]]));
   const members=arr(value.mediaMembers).length?value.mediaMembers:arr(value.mediaArchivePaths).map(name=>({name}));
@@ -125,13 +126,20 @@ function recapDuration(label) {
   return Number.isFinite(milliseconds)?milliseconds:null;
 }
 function validateTree(value, limits = {}) {
-  const stack = [[value,0]], visited = new Set(); let count = 0;
-  while (stack.length) {
-    const [item,depth] = stack.pop(); if (!obj(item) && !Array.isArray(item)) continue;
-    if (visited.has(item)) throw new Error('Input contains a cycle or aliased non-JSON object.'); visited.add(item);
-    if (++count > (limits.nodes ?? 4_000_000) || depth > (limits.depth ?? 256)) throw new Error('Input exceeds analytical JSON complexity limits.');
-    for (const child of Object.values(item)) if (child && typeof child === 'object') stack.push([child,depth+1]);
-  }
+  const maximumNodes=limits.nodes??DEFAULT_ANALYTICAL_LIMITS.nodes,maximumDepth=limits.depth??DEFAULT_ANALYTICAL_LIMITS.depth;
+  if(!Number.isSafeInteger(maximumNodes)||maximumNodes<1||!Number.isSafeInteger(maximumDepth)||maximumDepth<0)throw new TypeError('Invalid analytical document limits.');
+  const visited=new WeakSet();let count=0;
+  const enter=(item,depth)=>{
+    if(!obj(item)&&!Array.isArray(item))return null;
+    if(visited.has(item))throw Object.assign(new Error('Input contains a cycle or aliased non-JSON object.'),{code:'ANALYTICAL_JSON_NOT_TREE'});visited.add(item);
+    if(++count>maximumNodes)throw Object.assign(new Error(`Analytical document exceeds its object-node limit (${count} > ${maximumNodes}).`),{code:'ANALYTICAL_JSON_NODE_LIMIT',limit:{kind:'nodes',observed:count,maximum:maximumNodes,scope:'document'}});
+    if(depth>maximumDepth)throw Object.assign(new Error(`Analytical document exceeds its nesting-depth limit (${depth} > ${maximumDepth}).`),{code:'ANALYTICAL_JSON_DEPTH_LIMIT',limit:{kind:'depth',observed:depth,maximum:maximumDepth,scope:'document'}});
+    return{item,depth,index:0,keys:Array.isArray(item)?null:Object.keys(item)};
+  };
+  const first=enter(value,0);if(!first)return;const stack=[first];
+  // Depth-first frames avoid allocating another archive-sized array of child
+  // tuples for a wide JSON document. The original graph is never cloned.
+  while(stack.length){const frame=stack.at(-1),length=frame.keys?frame.keys.length:frame.item.length;if(frame.index>=length){stack.pop();continue;}const key=frame.keys?frame.keys[frame.index++]:frame.index++,child=enter(frame.item[key],frame.depth+1);if(child)stack.push(child);}
 }
 function makeConversation(raw, provider, format, context, originalId, account = '') {
   const id = nativeId(originalId ?? raw.id ?? raw.uuid ?? raw.conversation_id ?? raw.conversationId ?? raw.conversationKey ?? raw.key);
@@ -486,7 +494,7 @@ export const ADAPTER_REGISTRY = Object.freeze([
 /** Supports raw documents and retained Reader {raw,turns,...} wrappers.
  * Unsupported neighboring entries never exclude valid conversations.
  */
-export function normalizeConversations(inputs, options = {}) {
+export function prepareConversationDocument(inputs, options = {}) {
   const ctx={sourceId:options.sourceId??'source',collectionId:options.collectionId??'direct',sourceFile:options.sourceFile??'',...options};
   const result=[],diagnostics=[];
   const dispatch=(value,context)=>{
@@ -511,13 +519,22 @@ export function normalizeConversations(inputs, options = {}) {
     if(!adapter){diagnostics.push({code:'unsupported-format',path:context.rawPath??'',severity:'warning',message:'Unsupported or ambiguous conversation shape; valid neighboring records remain available.'});return;}
     try{result.push(adapter.normalize(value,context));}catch(e){diagnostics.push({code:'adapter-error',adapter:adapter.id,path:context.rawPath??'',severity:'error',message:e.message});}
   };
-  validateTree(inputs,options.limits);
+  try{validateTree(inputs,options.limits);}catch(error){if(error.limit){error.limit.scope=Array.isArray(inputs)?'input':'document';if(Number.isSafeInteger(options.documentIndex))error.limit.documentIndex=options.documentIndex;}throw error;}
   if(Array.isArray(inputs) && inputs.length && inputs.every(v=>obj(v)&&['user','ai','thinking'].some(k=>typeof v[k]==='string')))dispatch({turns:inputs,provider:options.provider??'unknown'},{...ctx,sourceTurnRoot:true});
   else if(Array.isArray(inputs))inputs.forEach((v,i)=>dispatch(v,{...ctx,rawPath:`${ctx.rawPath??''}/${ctx.sourceRecordIndex??i}`,sourceRecordIndex:undefined}));else dispatch(inputs,ctx);
-  const conversations=reconcileConversations(result,{diagnostics});
-  for(const c of conversations)diagnostics.push(...c.diagnostics.map(d=>({...d,conversationId:c.id,provider:c.provider,format:c.format})));
-  return {conversations,diagnostics,adapterVersion:ADAPTER_VERSION,schemaVersion:ANALYTICAL_SCHEMA_VERSION};
+  return {conversations:result,diagnostics,adapterVersion:ADAPTER_VERSION,schemaVersion:ANALYTICAL_SCHEMA_VERSION};
 }
+
+/** Reconcile independently validated documents once, after coherent capture. */
+export function finalizeConversationNormalization(documents){
+  const result=[],diagnostics=[];for(const document of documents){for(const conversation of document.conversations)result.push(conversation);for(const diagnostic of document.diagnostics)diagnostics.push(diagnostic);}
+  const conversations=reconcileConversations(result,{diagnostics});
+  for(const c of conversations)for(const d of c.diagnostics)diagnostics.push({...d,conversationId:c.id,provider:c.provider,format:c.format});
+  return{conversations,diagnostics,adapterVersion:ADAPTER_VERSION,schemaVersion:ANALYTICAL_SCHEMA_VERSION};
+}
+
+/** Normalize an input document with the same final identity reconciliation. */
+export function normalizeConversations(inputs,options={}){return finalizeConversationNormalization([prepareConversationDocument(inputs,options)]);}
 
 /** Reconcile separately streamed documents using the same identity rules. */
 export function reconcileConversations(result,{diagnostics=[]}={}) {
@@ -532,3 +549,5 @@ export function reconcileConversations(result,{diagnostics=[]}={}) {
   }
   return [...unique.values()];
 }
+
+export {validateTree as validateAnalyticalTree};

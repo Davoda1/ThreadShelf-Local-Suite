@@ -91,4 +91,3 @@ Use an explicit light/dark mode if you need the same appearance regardless of th
 Keyboard focus is visible, dialogs keep focus within their bounds, and many hover chart interactions have keyboard equivalents. The original values remain available through tables and text, so chart color need not carry the whole meaning. Animation and reduced-motion settings affect transitions without deleting content.
 
 Related: [Keyboard reference](../Reference/shortcuts.md), [Reading](reading.md), [Holidays](holidays.md).
-

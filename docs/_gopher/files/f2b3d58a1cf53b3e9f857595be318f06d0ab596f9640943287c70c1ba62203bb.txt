@@ -15,7 +15,8 @@ The source uses build scripts for development; the delivered Windows/Linux GUI p
 | Analytics development and packaging | `apps/analytics/` build documentation |
 | Alternative development and packaging | `apps/alternative/docs/BUILD.md` |
 | Server baseline, patch and rollback | `server-patch/README.md` |
-| Edit/rebuild this website | `manual/README.md` |
+| Rebuild the Suite archive’s bundled manual | `manual/README.md` |
+| Edit/rebuild the published manual website | Website checkout: `_manual-source/README.md` |
 
 ## Native dependency sources and runtime rebuilds
 
@@ -51,21 +52,31 @@ When redistributing desktop binaries, preserve the application source, all requi
 
 ## Rebuild the manual
 
-Install Python 3.10+ and PHP CLI 8.2+ with ctype. From the suite root:
+Both build routes require Python 3.10+ and PHP CLI 8.2+ with ctype. To rebuild the manual bundled in the Suite source archive, run from the suite root:
 
 ```sh
+python3 manual/build.py --check-only
 python3 manual/build.py
 ```
 
-On Windows, use `py -3 manual/build.py`. The script validates the authored content with the bundled Gopher HTTP 3.0.0 engine and builds `docs/`. Browsing the generated output requires neither PHP nor Python.
+This validates the authored content with the bundled Gopher HTTP 3.0.0 engine and builds `docs/`.
 
-Use `--check-only` to validate content without rebuilding, or `--php` to select a PHP executable outside PATH. Keep manual screenshots in the source image directory; never add private application profiles or raw conversation exports to the public manual inputs.
+The separate manual website checkout includes its current authoring snapshot, galleries and screenshots under `_manual-source/`. Edit Markdown and metadata in `_manual-source/manual/content/`, then run from the website root:
+
+```sh
+python3 _manual-source/rebuild.py --check-only
+python3 _manual-source/rebuild.py --output ../rebuilt-manual
+```
+
+Choose an output directory that does not already exist. The offline wrapper restores source PNGs from the published image payloads, verifies their SHA-256 checksums and retains the current authoring snapshot in the rebuilt site. Follow `_manual-source/README.md` when replacing screenshots; do not overwrite website-specific captures and captions with an older Suite archive build.
+
+On Windows, use `py -3` instead of `python3`. Both routes accept `--php PATH` when PHP is outside PATH. The generated site requires neither PHP nor Python for browsing. Keep private application profiles and raw conversation exports out of public manual inputs.
 
 ## Publish the GitHub repository and website
 
 The intended repository is [Davoda1/ThreadShelf-Local-Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). Commit the extracted source tree, then use the included maintainer guide to configure GitHub Actions, the public release and GitHub Pages. Upload the current native application packages, suite Source archive, manual and preview assets and consolidated `SHA256SUM.txt`. Preserve the matching dependency-source offers and access links described above alongside the corresponding binaries; do not relabel historical runtime sources as a new dependency version.
 
-The hosted manual is available at [davoda1.github.io/ThreadShelf-Local-Suite-Manual](https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/). A separate public [manual website repository](https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual) publishes the generated `docs/` files and required notices. Application sources and desktop releases remain in the public main suite repository. The built site uses relative navigation and supports the website subdirectory as well as offline browsing. After rebuilding the manual, synchronize the generated files with the website repository as described in the maintainer guide.
+The hosted manual is available at [davoda1.github.io/ThreadShelf-Local-Suite-Manual](https://davoda1.github.io/ThreadShelf-Local-Suite-Manual/). A separate public [manual website repository](https://github.com/Davoda1/ThreadShelf-Local-Suite-Manual) publishes the generated `docs/` files and required notices. Application sources and desktop releases remain in the public main suite repository. The built site uses relative navigation and supports the website subdirectory as well as offline browsing. For website maintenance, rebuild from that website checkout’s `_manual-source/` as described above. Review the result, then synchronize the rebuilt contents with deletion of obsolete generated files while retaining its README, authoring source, current screenshots, captions and required notices.
 
 ## Upstream and licensing
 

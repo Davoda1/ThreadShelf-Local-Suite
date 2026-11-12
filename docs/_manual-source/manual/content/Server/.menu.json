@@ -1,0 +1,17 @@
+{
+  "title": "ThreadShelf server integration",
+  "entries": [
+    {
+      "path": "01-Prerequisites.md"
+    },
+    {
+      "path": "02-Apply.md"
+    },
+    {
+      "path": "03-Verify-and-Connect.md"
+    },
+    {
+      "path": "04-Rollback-and-Troubleshooting.md"
+    }
+  ]
+}

@@ -60,6 +60,8 @@ Merging is not the same as importing a server collection again. It reorganizes t
 
 Open **Settings → Database Manager → Deduplication**, the fifth manager section. Import and server-copy batches merge and deduplicate as records are processed, within their destination collection. Existing records can be checked with **Review conversation cleanup**, which reports analysis progress and shows each survivor/removal relationship and reason before confirmation. Closing the review returns to settings; use the same control to reopen an active review. If the archive changes after review, review it again; an outdated plan cannot be applied.
 
+![Reader 1.4.5 cleanup review with synthetic candidates and separate database-size and free-space figures](../Images/reader-145-cleanup-review-light.png)
+
 Collections remain independent unless you explicitly merge them. For providers with reliable export IDs, provider plus conversation ID identifies the conversation within a collection. Different IDs are separate conversations even when titles or user prompts match. Identical same-ID snapshots keep one copy; an exact longer continuation supersedes its shorter prefix. Other snapshots with the same reliable ID resolve to the newest record. VeniceAI exports have unreliable IDs and instead require content-based matching and preservation checks; a similar title alone is not enough. VeniceAI matching and Grok’s cross-ID cleanup rules preserve divergent answered branches, substantive reasoning, attachments and other meaningful structured content.
 
 Grok/xAI single unanswered user prompts are removed automatically when they contain no substantive response, tool or reasoning content or attachments. A matching answered continuation can also supersede a Grok unanswered-ending variant. Provider identity controls this rule: a VeniceAI conversation using a Grok model remains VeniceAI. Superseded copies are deleted rather than kept as hidden conversation histories.
@@ -83,4 +85,3 @@ Use it only when you intend to reset the whole Local archive. It is not a troubl
 ## Maintenance is separate from organization
 
 Verify integrity, consolidation, compression conversion, index maintenance and backup/restore are described in [Storage and maintenance](storage.md) and [Backup and upgrades](backup.md). Their purpose is storage management, not editing the wording of conversation messages. Reader is an archive reader and organizer; this manager is not a chat-composition editor.
-

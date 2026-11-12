@@ -67,4 +67,3 @@ Settings and confirmations stay inside the application window. **Tab** and **Shi
 Appearance changes are previewed. **Save settings** commits those preferences. **Cancel** restores the saved appearance. Independent operational buttons such as Create backup, Move selected or Apply compression change do not wait for Save settings and are not undone by Cancel.
 
 Related: [Reading](reading.md), [Search](search.md), [Settings and appearance](appearance.md).
-

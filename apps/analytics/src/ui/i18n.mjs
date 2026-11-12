@@ -389,6 +389,36 @@ seriesHoverHelp|Show every displayed series at the hovered date.|Minden megjelen
 seriesNoObservations|No observations on this date|Nincs megfigyelés ezen a napon|Keine Beobachtungen an diesem Datum|Aucune observation à cette date|この日付の観測値はありません
 seriesUnavailable|Unavailable|Nem áll rendelkezésre|Nicht verfügbar|Indisponible|利用不可
 seriesObservedCount|Observed segments|Megfigyelt szegmensek|Beobachtete Segmente|Segments observés|観測済みセグメント
+about|About|Névjegy|Über|À propos|このアプリについて
+revision|Revision|Revízió|Revision|Révision|リビジョン
+statisticsRecaptureRequired|Refresh required|Frissítés szükséges|Aktualisierung erforderlich|Actualisation nécessaire|更新が必要
+readingCatalog|Reading Reader catalog…|Reader-katalógus olvasása…|Reader-Katalog wird gelesen…|Lecture du catalogue Reader…|Reader カタログを読み込み中…
+readingChanges|Reading committed changes…|Véglegesített változások olvasása…|Bestätigte Änderungen werden gelesen…|Lecture des modifications validées…|確定済みの変更を読み込み中…
+copyingContent|Copying conversation data…|Beszélgetésadatok másolása…|Gesprächsdaten werden kopiert…|Copie des données de conversation…|会話データをコピー中…
+checkingConversations|Verifying conversations…|Beszélgetések ellenőrzése…|Gespräche werden geprüft…|Vérification des conversations…|会話を検証中…
+preparingStatistics|Preparing statistics…|Statisztikák előkészítése…|Statistiken werden vorbereitet…|Préparation des statistiques…|統計を準備中…
+calculatingStatistics|Calculating statistics…|Statisztikák számítása…|Statistiken werden berechnet…|Calcul des statistiques…|統計を計算中…
+savingStatistics|Saving statistics…|Statisztikák mentése…|Statistiken werden gespeichert…|Enregistrement des statistiques…|統計を保存中…
+calculatingDisplay|Calculating the overview and charts…|Áttekintés és diagramok számítása…|Übersicht und Diagramme werden berechnet…|Calcul de la vue d’ensemble et des graphiques…|概要とグラフを計算中…
+diagnosticDetails|Technical details|Technikai részletek|Technische Details|Détails techniques|技術情報
+diagnosticSourcePath|Source path|Forrás elérési útja|Quellpfad|Chemin de la source|ソースパス
+diagnosticStage|Failed stage|Hibás szakasz|Fehlgeschlagene Phase|Étape en échec|失敗した処理段階
+diagnosticProgress|Progress at failure|Előrehaladás a hibánál|Fortschritt beim Fehler|Progression à l’échec|失敗時の進捗
+diagnosticTime|Failure time (UTC)|Hiba ideje (UTC)|Fehlerzeit (UTC)|Date de l’échec (UTC)|失敗日時 (UTC)
+diagnosticRuntime|Application runtime|Alkalmazás futtatókörnyezete|Anwendungslaufzeit|Environnement d’exécution|実行環境
+diagnosticLimit|Input complexity limit|Bemeneti összetettségi korlát|Komplexitätsgrenze der Eingabe|Limite de complexité des données|入力の複雑さの上限
+copyDiagnostic|Copy diagnostic report|Diagnosztikai jelentés másolása|Diagnosebericht kopieren|Copier le diagnostic|診断レポートをコピー
+exportCompleteTable|Export complete table|Teljes tábla exportálása|Vollständige Tabelle exportieren|Exporter le tableau complet|表全体をエクスポート
+displayedRows|Displayed rows|Megjelenített sorok|Angezeigte Zeilen|Lignes affichées|表示行
+plotDeliveryUnavailable|This plot exceeds its display budget. All exact rows remain available in the table and export.|Ez a diagram meghaladja a megjelenítési keretet. Minden pontos sor elérhető a táblában és az exportban.|Dieses Diagramm überschreitet das Anzeigebudget. Alle exakten Zeilen bleiben in Tabelle und Export verfügbar.|Ce graphique dépasse la limite d’affichage. Toutes les lignes exactes restent accessibles dans le tableau et l’export.|このグラフは表示上限を超えています。正確な全行は表とエクスポートで確認できます。
+metadataPreview|Some labels or metadata are shortened for display. Full metadata can be included in an export.|Egyes címkék vagy metaadatok rövidítve jelennek meg. A teljes metaadat exportálható.|Einige Bezeichnungen oder Metadaten werden gekürzt angezeigt. Vollständige Metadaten können exportiert werden.|Certains libellés ou métadonnées sont abrégés à l’affichage. Les métadonnées complètes peuvent être exportées.|一部のラベルやメタデータは短縮表示されています。完全なメタデータはエクスポートに含められます。
+captureFailed|Capture failed|A rögzítés sikertelen|Erfassung fehlgeschlagen|Échec de la capture|取り込みに失敗しました
+analysisFailed|Analysis failed|Az elemzés sikertelen|Analyse fehlgeschlagen|Échec de l’analyse|分析に失敗しました
+captureFailureHelp|The operation did not complete. Review the error and retry; any previous complete analysis remains available.|A művelet nem fejeződött be. Ellenőrizze a hibát és próbálja újra; a korábbi teljes elemzés elérhető marad.|Der Vorgang wurde nicht abgeschlossen. Prüfen Sie den Fehler und versuchen Sie es erneut; die vorherige vollständige Analyse bleibt verfügbar.|L’opération n’a pas abouti. Examinez l’erreur et réessayez ; l’analyse complète précédente reste disponible.|処理が完了しませんでした。エラーを確認して再試行してください。以前の完全な分析は引き続き利用できます。
+sourceEmptyHelp|This source has no captured conversations yet. Use Refresh to capture its current data.|Ehhez a forráshoz még nincs rögzített beszélgetés. A Frissítés gombbal rögzítheti az aktuális adatokat.|Für diese Quelle wurden noch keine Gespräche erfasst. Klicken Sie auf Aktualisieren, um die aktuellen Daten zu erfassen.|Aucune conversation n’a encore été capturée pour cette source. Actualisez pour capturer ses données actuelles.|このソースの会話はまだ取得されていません。更新して現在のデータを取得してください。
+retryAnalysis|Retry analysis|Elemzés újrapróbálása|Analyse erneut versuchen|Relancer l’analyse|分析を再試行
+statisticsRecaptureHelp|Refresh this source to rebuild its analytical capture. Owned text, source files and saved settings are preserved.|Frissítse ezt a forrást az elemzési pillanatkép újraépítéséhez. A tárolt szöveg, a forrásfájlok és a mentett beállítások megmaradnak.|Aktualisieren Sie diese Quelle, um die Analyseerfassung neu aufzubauen. Gespeicherter Text, Quelldateien und Einstellungen bleiben erhalten.|Actualisez cette source pour reconstruire sa capture analytique. Le texte conservé, les fichiers source et les réglages sont préservés.|このソースを更新して分析データを再構築してください。保存済みテキスト、ソースファイル、設定は保持されます。
+textRecaptureHelp|Owned message text is unavailable; refresh this source to restore text search and evidence.|A tárolt üzenetszöveg nem érhető el; frissítse ezt a forrást a szöveges keresés és a bizonyítékok visszaállításához.|Gespeicherter Nachrichtentext ist nicht verfügbar. Aktualisieren Sie diese Quelle, um Textsuche und Belege wiederherzustellen.|Le texte conservé des messages est indisponible ; actualisez cette source pour rétablir la recherche de texte et les preuves.|保存済みメッセージ本文を利用できません。このソースを更新すると、テキスト検索と根拠の本文を復元できます。
 `;
 const explorerRows = `
 explorer.compactBinHelp|Compact labels: k = 1,000; M = 1,000,000. Hover or focus a cell for its exact ranges.|Rövid jelölések: k = 1 000; M = 1 000 000. A pontos intervallumokhoz vigye az egeret a cellára, vagy helyezze rá a fókuszt.|Kompakte Beschriftung: k = 1.000; M = 1.000.000. Mauszeiger oder Fokus auf einer Zelle zeigt die genauen Bereiche.|Libellés compacts : k = 1 000 ; M = 1 000 000. Survolez une cellule ou placez-y le focus pour voir les intervalles exacts.|短縮表記：k = 1,000、M = 1,000,000。セルにマウスを置くかフォーカスすると正確な区間を表示します。

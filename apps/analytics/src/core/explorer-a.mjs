@@ -96,7 +96,7 @@ export function explorerQuantile(observations,p) {
 }
 function summaries(population) {const n=total(population);return {n,minimum:n?population.reduce((v,r)=>Math.min(v,r.value),Infinity):null,q1:explorerQuantile(population,.25),median:explorerQuantile(population,.5),q3:explorerQuantile(population,.75),maximum:n?population.reduce((v,r)=>Math.max(v,r.value),-Infinity):null,mean:ratio(sum(population,r=>r.value*weight(r)),n)};}
 function populationKind(r) {if(r.category==='thinking')return r.reasoningRepresentation==='summary-only'?'summary':r.originalTraceAvailable===false||r.reasoningRepresentation==='unavailable'?'unavailable-trace':'trace';return r.category;}
-function trustworthyLogical(r,c) {return !!r.logicalId && !/derived contiguous|derived unindented|inferred|fallback/i.test(r.logicalProvenance||'') && !(c?.coverage==='normalized'&&!r.originalObjectId&&!r.logicalProvenance);}
+export function trustworthyLogical(r,c) {return !!r.logicalId && !/derived contiguous|derived unindented|inferred|fallback/i.test(r.logicalProvenance||'') && !(c?.coverage==='normalized'&&!r.originalObjectId&&!r.logicalProvenance);}
 function scopedKey(r,lens='object'){return `${r.conversationId||''}:${lens==='logical'?r.logicalId:r.objectId||r.id}`;}
 function groupedUnits(records,lens,cmap,splitCategory=true) {
   if(lens==='segment')return records.map(r=>({key:r.id,records:[r],weight:weight(r),category:populationKind(r),anchor:r}));

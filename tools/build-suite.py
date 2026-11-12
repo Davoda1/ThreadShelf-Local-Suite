@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-NODE = '26.13.0'
+NODE = '26.13.1'
 NPM = '12.2.2'
 NPM_WRAPPER = ROOT / 'tools/npm.mjs'
 APPS = ('reader', 'analytics', 'alternative')
@@ -87,7 +87,7 @@ def main():
         package = json.loads((project / 'package.json').read_text(encoding='utf-8'))
         if package['version'] != VERSIONS[app]:
             raise SystemExit(f'{app}: update this release helper together with the application version.')
-        version = package.get('devDependencies', {}).get('electron', '45.2.3')
+        version = package.get('devDependencies', {}).get('electron', '45.3.0')
         runtime = cache / version
         runtime.mkdir(parents=True, exist_ok=True)
         if app == 'alternative':

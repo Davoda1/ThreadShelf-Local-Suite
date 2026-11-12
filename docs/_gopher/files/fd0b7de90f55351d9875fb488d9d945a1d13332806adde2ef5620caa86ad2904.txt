@@ -46,15 +46,25 @@ A code block's **Copy** button copies that block's code. The language label is u
 
 **Settings → Reading → Wrap long code lines** and **Show code line numbers** are independent, default-off display preferences. Wrapping fits long source lines to the block width. Numbers identify logical source lines, including blank lines; wrapped continuations do not become new source lines. Numbers appear only in Code view and are never added to copied text or exports. HTML, SVG, Mermaid and chart Render views have no line-number gutter. Returning to Code restores the selected presentation.
 
+![Reader 1.4.5 Code view with wrapping and display-only line numbers enabled](../Images/reader-145-code-options-dark.png)
+
 ## Markdown, mathematics and diagrams
 
 The renderer supports Markdown text, headings, lists, tables, code and mathematics with bundled rendering assets, including MathJax 4. Large tables and code use contained scroll regions. Mermaid diagrams render locally where the retained source can be interpreted. The renderer can apply bounded repairs as a reading aid.
 
 A repaired Mermaid diagram can expose a **Repaired / Original** source toggle. The diagram-level Copy control copies the displayed Mermaid source. Whole-message Copy and conversation export preserve the original source text; they do not silently replace it with the repaired diagram code. If a diagram remains unsupported or malformed, readable source is retained instead of inventing a missing diagram.
 
+## SVG source previews
+
+A code block with no language tag, or an `svg` or `xml` tag, can offer **SVG / Code** when it contains one complete, valid SVG document. Raw SVG, strict Base64 and `data:image/svg+xml;base64,` forms are supported. HTML containing an SVG, extra prose or elements, malformed content and other language tags keep their code presentation.
+
+The initial view is Code. Select **SVG** for the image and **Code** to return. Copy preserves the original source, including an original Base64 representation. SVG preview is image-only: scripts and external resources do not run or load. The optional line-number gutter is hidden while the image is rendered.
+
 ## Rich cards, charts and exact values
 
 Saved supported components can appear as cards, layout groups, allocation bars, inline entities, citations, static illustrations and charts. These are local interpretations of declarative content already present in the archive. They are not the original live ChatGPT widget service.
+
+Supported saved Grok cards, citation markers and artifacts, and ChatGPT entities, source/file citations and chart records, are interpreted from the metadata retained in the export. Unknown or incomplete records keep a readable fallback or source view. Archived tools, tasks and automation suggestions do not execute.
 
 For supported data charts:
 
@@ -91,6 +101,8 @@ Complete HTML5 documents in unlabelled, `unknown`, `html`, `htm` or `html5` code
 
 The HTML viewport uses the code block’s full interior width and a responsive 16:9 ratio, without an extra frame or surrounding margin. It stays clipped inside the reading pane during initial display, application zoom, resizing and scrolling. The loading surface is transparent against the code-block background; a failed preview shows an error with its source available. These HTML-specific dimensions do not change Code, SVG, Mermaid or chart layouts.
 
+![Reader 1.4.5 HTML preview uses the code-block interior with no line-number gutter](../Images/reader-145-html-preview-light.png)
+
 Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
 
 **Allow external resources in HTML previews** starts enabled in the reading settings. It permits guarded public HTTPS resources only; local/private destinations and unsupported protocols are blocked. Turning it off stops active previews and blocks further external requests, while embedded scripts/assets remain usable. It does not control ordinary conversation images or configured providers and cannot undo a completed request. The standalone offline demo does not execute these native previews.
@@ -110,4 +122,3 @@ Enable the optional [Text-to-Speech](text-to-speech.md) feature to add speaker b
 Markdown preserves the retained message/code text in a readable document. The JSON option serializes the open conversation object, including retained source fields where available. Despite the interface wording, it is not guaranteed to be a byte-for-byte reconstruction of the provider's original entire export file. Neither option is a complete Local backup with all collections, bookmarks and reading positions.
 
 Related: [Search](search.md), [Appearance](appearance.md), [Backup](../Data/backup.md).
-

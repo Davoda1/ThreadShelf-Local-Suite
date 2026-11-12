@@ -6,7 +6,7 @@ on:
       tag:
         description: Existing release tag to publish
         required: true
-        default: v1.4.5
+        default: v1.4.6
         type: string
       source_run:
         description: Completed package workflow run with six successful package jobs

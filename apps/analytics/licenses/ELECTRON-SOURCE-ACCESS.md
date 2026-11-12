@@ -1,20 +1,20 @@
 # Electron runtime source access and rebuilding
 
-ThreadShelf Local Suite **1.4.5** uses **Electron 45.2.3**, **Chromium
-156.0.8078.80**, and embedded **Node.js 24.22.2**. Electron's embedded Node is
-independent of the external Node.js 26.13.0 LTS build toolchain.
+ThreadShelf Local Suite **1.4.6** uses **Electron 45.3.0**, **Chromium
+156.0.8078.96**, and embedded **Node.js 24.22.2**. Electron's embedded Node is
+independent of the external Node.js 26.13.1 LTS build toolchain.
 Original Electron/Chromium notices remain beside each runtime executable.
 The suite license does not replace any bundled component's original terms.
 
 ## Matching source downloads
 
 The complete source set consists of the original **1.3.0** source collection
-**plus** the matching **1.4.5** update supplement:
+**plus** the matching **1.4.6** update supplement:
 
-- [Electron 45.2.3 source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.5/ThreadShelf-Local-Suite-1.4.5-Runtime-Source-Update.tar.gz).
+- [Electron 45.3.0 source update](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.6/ThreadShelf-Local-Suite-1.4.6-Runtime-Source-Update.tar.gz).
 - Original source ZIPs: [part 01](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-01.zip), [part 02](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-02.zip), [part 03](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-03.zip), [part 04](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-04.zip), [part 05](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-05.zip), [part 06](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-06.zip).
 - [Original metadata and offline assembler](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/ThreadShelf-Local-Suite-1.3.0-Runtime-Sources-Metadata.zip).
-- Verify the historical files with the [1.3.0 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt) and the supplement with the [1.4.5 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.5/SHA256SUM.txt).
+- Verify the historical files with the [1.3.0 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.3.0/SHA256SUM.txt) and the supplement with the [1.4.6 checksum](https://github.com/Davoda1/ThreadShelf-Local-Suite/releases/download/v1.4.6/SHA256SUM.txt).
 
 The historical ZIPs alone describe Electron 45.1.0. The supplement preserves
 all matching changed source files, full new Electron/Node archives and exact
@@ -49,12 +49,12 @@ suite source. Historical source evidence retains its original 45.1.0 scope.
 
 | Material | Pinned source |
 | --- | --- |
-| Electron 45.2.3 | [`d0a18d02058b21ff292e25d5f53f00bd120f2f61`](https://github.com/electron/electron/tree/d0a18d02058b21ff292e25d5f53f00bd120f2f61) |
-| Chromium 156.0.8078.80 | [`fb096c0011f9d50f0a264a9376420cdea9c421e3`](https://chromium.googlesource.com/chromium/src/+/fb096c0011f9d50f0a264a9376420cdea9c421e3/) |
+| Electron 45.3.0 | [`4701f41b6c6eef25332111976d5869ed31c62a6e`](https://github.com/electron/electron/tree/4701f41b6c6eef25332111976d5869ed31c62a6e) |
+| Chromium 156.0.8078.96 | [`2ad9b7f5a86846e0b264090723a6a78964bb84c4`](https://chromium.googlesource.com/chromium/src/+/2ad9b7f5a86846e0b264090723a6a78964bb84c4/) |
 | Embedded Node.js 24.22.2 | [`f7f273a9bb6445f6f7fb6349105e7532972045fb`](https://github.com/nodejs/node/tree/f7f273a9bb6445f6f7fb6349105e7532972045fb) |
 | Chromium FFmpeg fork, unchanged | [`9db86ce5b5b454dfc96c435f9f0723012980c37f`](https://chromium.googlesource.com/chromium/third_party/ffmpeg/+/9db86ce5b5b454dfc96c435f9f0723012980c37f/) |
-| Dependency pins | [Electron DEPS](https://github.com/electron/electron/blob/v45.2.3/DEPS), [Chromium DEPS](https://chromium.googlesource.com/chromium/src/+/156.0.8078.80/DEPS) |
-| Electron patches and build | [Ordered patches](https://github.com/electron/electron/tree/v45.2.3/patches), [build instructions](https://github.com/electron/electron/blob/v45.2.3/docs/development/build-instructions-gn.md) |
+| Dependency pins | [Electron DEPS](https://github.com/electron/electron/blob/v45.3.0/DEPS), [Chromium DEPS](https://chromium.googlesource.com/chromium/src/+/156.0.8078.96/DEPS) |
+| Electron patches and build | [Ordered patches](https://github.com/electron/electron/tree/v45.3.0/patches), [build instructions](https://github.com/electron/electron/blob/v45.3.0/docs/development/build-instructions-gn.md) |
 
 ## Original terms and replacing runtime components
 

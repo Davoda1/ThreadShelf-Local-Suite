@@ -324,6 +324,7 @@ def release_title(version):
         '1.4.3': ' — Grok and ChatGPT rendering improvements',
         '1.4.4': ' — Isolated HTML previews and duplicate cleanup',
         '1.4.5': ' — Faster archive merging and improved code previews',
+        '1.4.6': ' — Reliable Reader imports and bounded Analytics',
     }.get(version, '')
     return f'ThreadShelf Local Suite {version}{suffix}'
 
@@ -400,12 +401,21 @@ def release_notes(version, repository):
     base = f'https://github.com/{repository}/releases/download'
     source_update = (f'- [Runtime source update]({base}/v{version}/ThreadShelf-Local-Suite-{version}-Runtime-Source-Update.tar.gz): verified changed runtime sources and an offline updater, used with all six original [v1.3.0 runtime source parts and matching metadata](https://github.com/{repository}/releases/tag/v1.3.0). Assemble the historical base without applying its old Electron patches, then follow the update instructions.\n'
                      if tuple(map(int, version.split('.'))) >= (1, 4, 3) else '')
-    manual_scope = ('The offline manual includes the 1.4.5 cleanup, code presentation and preview controls; existing screenshots retain their original provenance.'
+    manual_scope = ('The offline manual is refreshed from the current manual website, including editable sources and corrected davoda1 attribution. Its content version remains 1.4.5 for this fix release.'
+                    if tuple(map(int, version.split('.'))) >= (1, 4, 6)
+                    else 'The offline manual includes the 1.4.5 cleanup, code presentation and preview controls; existing screenshots retain their original provenance.'
                     if tuple(map(int, version.split('.'))) >= (1, 4, 5)
                     else 'The offline manual includes the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance.'
                     if tuple(map(int, version.split('.'))) >= (1, 4, 4)
                     else 'The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.')
-    if tuple(map(int, version.split('.'))) >= (1, 4, 5):
+    if tuple(map(int, version.split('.'))) >= (1, 4, 6):
+        improvements = f'''- Restore Analytics imports from the current public Reader archive, including retained history, collection changes and cleanup/deduplication operations. Capture validates a coherent committed publication without changing Reader files.
+- Process conversations incrementally into owned SQLite captures and perform exact analysis on disk. Replace the archive-wide object counter and whole-dataset renderer transfer with per-document validation, bounded result pages and streamed exports. The analytical worker heap ceiling remains **2 GiB**; disk space, processing time and individual-document safety limits still apply.
+- Preserve the public edition's full text on owned disk storage, excerpt/full-text search semantics, safe Markdown/code evidence, historical evidence and explicit private-text exports. Migrate valid completed public captures without requiring the original Reader source or discarding settings and retained history.
+- Compare logical Reader data when detecting changes, so checkpoints, recompression and nonanalytical housekeeping do not create false stale alerts. Preserve the last complete result when a refresh fails.
+- Show phase-specific progress and detailed import/startup errors, recover missing reports on Retry, and keep model-filter searches independent. Keep the established layout, public profiles and unversioned operating-system window titles.
+- Align all three desktop applications at **{version}** and refresh the pinned Node LTS and stable Electron runtime. Reader and Alternative retain their 1.4.5 application features, including rendering, speech and isolated HTML-preview protections.'''
+    elif tuple(map(int, version.split('.'))) >= (1, 4, 5):
         improvements = f'''- Merge and deduplicate Reader imports and server copies as they are processed, with bounded worker concurrency and visible progress. Within a collection, reliable providers match by provider and conversation ID; distinct IDs remain separate even when titles or prompts match. VeniceAI uses content-aware matching because its IDs are unreliable. Identical records and supported shorter histories consolidate into the complete survivor while saved references follow it.
 - Correct Grok single-unanswered-prompt cleanup, clarify the separate option for providers that are not Grok, and improve cleanup progress, review reopening and size alignment.
 - Keep complete HTML previews inside their code block during initial display, resizing, zooming and scrolling. The preview uses the available width at a 16:9 aspect ratio without an extra HTML frame or margin, and loading stays transparent. Failed previews restore Code mode.
@@ -480,6 +490,9 @@ def assemble(artifacts, output, tag, repository, run_url, root=ROOT):
         preview_report += '\nBoth native hosts additionally require all four code-presentation preference combinations, source-only copying, logical line numbers, wrapping and absence of gutters in rendered HTML/SVG/Mermaid. Alternative also exercises production export and preference persistence across restart. Initial placement, full-width 16:9 sizing and containment while scrolling must pass for both applications. Paired spacing comparisons cover at least 32 Reader and 64 Alternative layouts per host, including code, SVG, Mermaid and charts. The Linux Reader cleanup-review lifecycle harness requires eight checks and 42 geometry observations across all five locales and both themes, covering progress, close/reopen, cancellation, size alignment and completion warnings. These source harnesses supplement the separate unchanged-package GUI and speech gates; they do not replace them.\n'
     legacy_report = ('If the original v1.4.4 Linux host capture contains native diagnostics, only its exact reviewed hash is accepted. The evidence ZIP includes the clean report, the byte-for-byte original under `raw-output/`, and a recovery receipt binding both hashes to the tagged commit. Every application, security and package-integrity gate still applies.\n'
                      if (version, commit) == LEGACY_HOST_CAPTURE[:2] else '')
+    analytics_scope = ('Analytics uses incremental owned captures and disk-based exact analysis while preserving public text evidence and search. Existing public profile and Reader archive/schema identities remain supported.'
+                       if tuple(map(int, version.split('.'))) >= (1, 4, 6)
+                       else 'Analytics functionality and the existing application storage/schema identifiers are unchanged.')
     report = f'''# ThreadShelf Local Suite {version} verification
 
 Tag: `{tag}`
@@ -505,7 +518,7 @@ The independent Checks workflow has its own status and is not asserted successfu
 - DEB payloads were extracted and exercised; system-wide DEB installation is not claimed.
 - Focused rendering checks use synthetic test harnesses and test-only browser flags. The separate packaged-GUI validators check the application builds with Chromium's sandbox enabled.
 - Windows packages are unsigned. No byte-identical rebuild of Electron/ONNX is claimed.
-- Analytics functionality and the existing application storage/schema identifiers are unchanged.
+- {analytics_scope}
 - Speech checks exercise bundled CPU engines with synthetic text. External provider accounts and real remote-service availability are not tested by these offline gates.
 
 ## Sources and checksums

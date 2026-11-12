@@ -1,18 +1,18 @@
-# ThreadShelf Local Analytics 1.4.5
+# ThreadShelf Local Analytics 1.4.6
 
 An offline Electron desktop companion for examining archived AI conversations. It reads ThreadShelf Local Reader storage and supported exported files without writing to the sources. Analytics owns the settings, captures, derived indexes, views and annotations it creates.
 
 This application is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). See the suite manual and [Analytics user guide](docs/User-Guide.md) for the complete workflows.
 
-Version 1.4.5 keeps Analytics aligned with the suite release. Its read-only analysis behavior and storage formats remain unchanged. The pinned runtime, dependencies and 7-Zip codec are unchanged from 1.4.4; the rendering improvements apply to Reader and Alternative, while conversation cleanup is a Reader feature.
+Version 1.4.6 restores current Reader import compatibility and logical change detection, and processes captures, analysis and exports incrementally on disk. Native results and evidence are paged; the worker heap ceiling remains 2 GiB. Public full text, Markdown evidence, excerpt/full-text search and explicit text exports remain available. Existing valid captures migrate without requiring their original sources; settings, annotations and history remain. Temporary disk usage can grow with the archive and active analysis. See [1.4.6 processing and compatibility](docs/Release-1.4.6.md).
 
 ## Install and start
 
 | Package | Start |
 | --- | --- |
-| `ThreadShelf-Local-Analytics-1.4.5-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
-| `ThreadShelf-Local-Analytics-1.4.5-Linux-amd64.tar.gz` | Extract, then open the real `threadshelf-local-analytics` executable at the extraction root. |
-| `threadshelf-local-analytics_1.4.5_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.4.5_amd64.deb`, then open the desktop application. |
+| `ThreadShelf-Local-Analytics-1.4.6-Windows-x64-Portable.zip` | Extract, then open `ThreadShelf Local Analytics.exe` at the archive root. |
+| `ThreadShelf-Local-Analytics-1.4.6-Linux-amd64.tar.gz` | Extract, then open the real `threadshelf-local-analytics` executable at the extraction root. |
+| `threadshelf-local-analytics_1.4.6_amd64.deb` | Run `sudo apt install ./threadshelf-local-analytics_1.4.6_amd64.deb`, then open the desktop application. |
 
 Ordinary use needs no administrator privileges, separately installed Node, archiver, AI model or network connection. Source scripts are development tools.
 
@@ -37,11 +37,11 @@ Captures contain conversation text on your computer. Default reports exclude evi
 
 Capture history is disabled by default. When enabled, choose count and byte limits in Analytics settings. The active capture and protected recovery predecessor are independent of routine history eviction. Removing a source or clearing that source's cache deletes positively owned Analytics data only.
 
-The application version is 1.4.5. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
+The application version is 1.4.6. Storage and interchange formats have independent versions; see [Version contracts](docs/Version-Contracts.md) and [Storage formats](docs/Storage-Formats.md). Existing supported captures retain their identities and full text. Never run independent legacy and current writers against the same profile concurrently.
 
 ## Build from source
 
-The release toolchain is Node **26.13.0**, Electron **45.2.3**, and an isolated managed copy of npm **12.2.2** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files. This is a local toolchain modification, not an official patched npm release, and does not change global npm. Application dependencies are locked in `package-lock.json`.
+The release toolchain is Node **26.13.1**, Electron **45.3.0**, and an isolated managed copy of npm **12.2.2** with its bundled Undici replaced by the complete official **6.29.1** package. The helper verifies pinned archive integrity and the resulting files. This is a local toolchain modification, not an official patched npm release, and does not change global npm. Application dependencies are locked in `package-lock.json`.
 
 Run the following commands from the Analytics application directory in a source checkout/archive. Packaged desktop applications do not include or require the source build helpers.
 
@@ -50,7 +50,7 @@ Run the following commands from the Analytics application directory in a source 
 ./scripts/run.sh --test
 ```
 
-On Windows, use `scripts/run.ps1 -Build` and `scripts/run.ps1 -Test`, or the matching `run.cmd` wrapper. These scripts obtain the pinned isolated Node runtime by default and use the managed npm profile. With Node 26.13.0 already selected, the direct source commands are `node scripts/npm-toolchain.mjs -- ci`, `node scripts/npm-toolchain.mjs -- run build` and `node scripts/npm-toolchain.mjs -- test`. See [Packaging policy](docs/Packaging-Policy.md) for package creation and system-runtime options.
+On Windows, use `scripts/run.ps1 -Build` and `scripts/run.ps1 -Test`, or the matching `run.cmd` wrapper. These scripts obtain the pinned isolated Node runtime by default and use the managed npm profile. With Node 26.13.1 already selected, the direct source commands are `node scripts/npm-toolchain.mjs -- ci`, `node scripts/npm-toolchain.mjs -- run build` and `node scripts/npm-toolchain.mjs -- test`. See [Packaging policy](docs/Packaging-Policy.md) for package creation and system-runtime options.
 
 Tests use synthetic fixtures. Architecture, provider support, counting definitions and security contracts are documented in `docs/`. Third-party source offers and notices are included with the source and binaries.
 

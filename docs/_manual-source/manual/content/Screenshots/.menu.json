@@ -1,0 +1,17 @@
+{
+  "title": "Screenshot guides",
+  "entries": [
+    {
+      "path": "reader-gallery.md",
+      "label": "Local Reader \u00b7 light and dark"
+    },
+    {
+      "path": "analytics-gallery.md",
+      "label": "Local Analytics \u00b7 light and dark"
+    },
+    {
+      "path": "alternative-gallery.md",
+      "label": "Local Alternative \u00b7 light and dark"
+    }
+  ]
+}

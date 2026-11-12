@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "electron_version": "45.2.3",
+  "electron_version": "45.3.0",
   "passed": true,
-  "changed_files": 482,
+  "changed_files": 945,
   "renames": 44,
-  "added_files": 31,
-  "current_regular_file_bytes": 100641508,
-  "scope": "Applied every production source delta to a fixture containing its exact upstream original preimage, then compared every result with separately fetched exact current upstream bytes. This validates the delta overlay; it does not reassemble the full historical 17.55 GB source mirror or rebuild Electron."
+  "added_files": 82,
+  "current_regular_file_bytes": 155697542,
+  "scope": "Applied every production source delta to a fixture containing its exact upstream original preimage, then compared every result with independently obtained exact current upstream bytes. Original/current regular source Git blob identities match the upstream diff prefixes. This validates the delta overlay; it does not reassemble the full historical 17.55 GB source mirror or rebuild Electron."
 }

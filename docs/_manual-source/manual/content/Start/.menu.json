@@ -1,0 +1,13 @@
+{
+  "title": "Getting started",
+  "entries": [
+    {
+      "path": "installation.md",
+      "label": "Installation and first session"
+    },
+    {
+      "path": "applications.md",
+      "label": "Applications and data sources"
+    }
+  ]
+}

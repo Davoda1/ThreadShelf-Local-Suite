@@ -14,7 +14,7 @@ index 23b5d90..31858f0 100644
     * \param params The parameters retrieved from `GetWriteBarrierType()`.
     * \param object The pointer to the object which must point to an object that
 diff --git a/include/v8-version.h b/include/v8-version.h
-index 0776c052..fafbfe3 100644
+index 0776c052..0101d12 100644
 --- a/include/v8-version.h
 +++ b/include/v8-version.h
 @@ -11,7 +11,7 @@
@@ -22,14 +22,70 @@ index 0776c052..fafbfe3 100644
  #define V8_MINOR_VERSION 6
  #define V8_BUILD_NUMBER 75
 -#define V8_PATCH_LEVEL 19
-+#define V8_PATCH_LEVEL 27
++#define V8_PATCH_LEVEL 50
  
  // Use 1 for candidates and 0 otherwise.
  // (Boolean macro values are not supported by all preprocessors.)
 diff --git a/src/ast/scopes.cc b/src/ast/scopes.cc
-index 7713cd8..725f007 100644
+index 7713cd8..67e319c 100644
 --- a/src/ast/scopes.cc
 +++ b/src/ast/scopes.cc
+@@ -118,9 +118,11 @@
+   DCHECK(!is_script_scope());
+   SetDefaults();
+   set_language_mode(outer_scope->language_mode());
+-  set_private_name_lookup_skips_outer_class(
+-      outer_scope->is_class_scope() &&
+-      outer_scope->AsClassScope()->IsParsingHeritage());
++  if (outer_scope->is_class_scope() &&
++      outer_scope->AsClassScope()->IsParsingHeritage()) {
++    set_private_name_lookup_skips_outer_class(true);
++    outer_scope->GetClosureScope()->RecordNeedsPrivateNameContextChainRecalc();
++  }
+   outer_scope_->AddInnerScope(this);
+ }
+ 
+@@ -180,6 +182,9 @@
+       params_(4, zone) {
+   DCHECK(!is_script_scope());
+   SetDefaults();
++  if (V8_UNLIKELY(private_name_lookup_skips_outer_class())) {
++    RecordNeedsPrivateNameContextChainRecalc();
++  }
+ }
+ 
+ ModuleScope::ModuleScope(DeclarationScope* script_scope,
+@@ -305,18 +310,14 @@
+     DCHECK(IsClassConstructor(function_kind()));
+     set_class_scope_has_private_brand(true);
+   }
++  if (V8_UNLIKELY(private_name_lookup_skips_outer_class())) {
++    RecordNeedsPrivateNameContextChainRecalc();
++  }
+ }
+ 
+ Scope::Scope(Zone* zone, const AstRawString* catch_variable_name,
+              MaybeAssignedFlag maybe_assigned, Handle<ScopeInfo> scope_info)
+-    : outer_scope_(nullptr),
+-      variables_(zone),
+-      scope_info_(scope_info),
+-      scope_type_(CATCH_SCOPE) {
+-  SetDefaults();
+-#ifdef DEBUG
+-  already_resolved_ = true;
+-#endif
++    : Scope(zone, CATCH_SCOPE, nullptr, scope_info) {
+   // Cache the catch variable, even though it's also available via the
+   // scope_info, as the parser expects that a catch scope always has the catch
+   // variable as first and only variable.
+@@ -326,7 +327,6 @@
+               kCreatedInitialized, maybe_assigned, &was_added);
+   DCHECK(was_added);
+   AllocateHeapSlot(variable);
+-  set_is_hoisted_in_context(scope_info->is_hoisted_in_context());
+ }
+ 
+ void DeclarationScope::SetDefaults() {
 @@ -345,6 +345,7 @@
                             is_module_scope());
    set_needs_private_name_context_chain_recalc(false);
@@ -38,7 +94,60 @@ index 7713cd8..725f007 100644
    receiver_ = nullptr;
    new_target_ = nullptr;
    function_ = nullptr;
-@@ -1575,7 +1576,8 @@
+@@ -453,9 +454,14 @@
+       eval_scope->set_start_position(position);
+       eval_scope->set_end_position(position);
+       eval_scope->set_eval_position(position);
+-
+       if (current_scope != nullptr) {
++        eval_scope->set_private_name_lookup_skips_outer_class(
++            current_scope->private_name_lookup_skips_outer_class());
++        current_scope->set_private_name_lookup_skips_outer_class(false);
+         eval_scope->AddInnerScope(current_scope);
++      } else if (parse_info != nullptr) {
++        eval_scope->set_private_name_lookup_skips_outer_class(
++            parse_info->flags().private_name_lookup_skips_outer_class());
+       }
+       current_scope = eval_scope;
+       if (innermost_scope == nullptr) innermost_scope = current_scope;
+@@ -939,6 +945,7 @@
+       scope->outer_scope_ = outer_scope();
+       if (private_name_lookup_skips_outer_class()) {
+         scope->set_private_name_lookup_skips_outer_class(true);
++        scope->GetClosureScope()->RecordNeedsPrivateNameContextChainRecalc();
+       }
+       if (scope->is_function_scope()) {
+         scope->set_is_hoisted_in_context(false);
+@@ -996,12 +1003,14 @@
+     for (; inner_scope->sibling() != top_inner_scope_;
+          inner_scope = inner_scope->sibling()) {
+       inner_scope->outer_scope_ = new_parent;
++      inner_scope->set_private_name_lookup_skips_outer_class(false);
+       if (inner_scope->inner_scope_calls_eval()) {
+         new_parent->set_inner_scope_calls_eval(true);
+       }
+       DCHECK_NE(inner_scope, new_parent);
+     }
+     inner_scope->outer_scope_ = new_parent;
++    inner_scope->set_private_name_lookup_skips_outer_class(false);
+     if (inner_scope->inner_scope_calls_eval()) {
+       new_parent->set_inner_scope_calls_eval(true);
+     }
+@@ -1453,7 +1462,12 @@
+   }
+ 
+   // Don't allocate variables of preparsed scopes.
+-  if (!was_lazily_parsed()) AllocateVariablesRecursively();
++  if (!was_lazily_parsed()) {
++    AllocateVariablesRecursively();
++    if (needs_private_name_context_chain_recalc()) {
++      RecalcPrivateNameContextChain();
++    }
++  }
+ 
+   return true;
+ }
+@@ -1575,7 +1589,8 @@
  }
  
  bool Scope::ShouldBanArguments() {
@@ -48,8 +157,19 @@ index 7713cd8..725f007 100644
  }
  
  DeclarationScope* Scope::GetReceiverScope() {
+@@ -2922,10 +2937,6 @@
+     }
+   }
+ 
+-  if (scope->needs_private_name_context_chain_recalc()) {
+-    scope->RecalcPrivateNameContextChain();
+-  }
+-
+   Tagged<WeakFixedArray> infos = script->infos();
+   std::unordered_map<int, Handle<ScopeInfo>> scope_infos_to_reuse;
+   if (infos->ulength().value() != 0) {
 diff --git a/src/ast/scopes.h b/src/ast/scopes.h
-index f85e742..fa13cc9 100644
+index f85e742..183700b 100644
 --- a/src/ast/scopes.h
 +++ b/src/ast/scopes.h
 @@ -1387,6 +1387,13 @@
@@ -75,6 +195,223 @@ index f85e742..fa13cc9 100644
  
  #if DEBUG
    bool is_being_lazily_parsed_;
+@@ -1503,6 +1512,7 @@
+     GetDeclarationScope()->RecordDeclarationScopeEvalCall();
+   }
+   RecordInnerScopeEvalCall();
++  GetClosureScope()->RecordNeedsPrivateNameContextChainRecalc();
+   // The eval contents might access "super" (if it's inside a function that
+   // binds super).
+   DeclarationScope* receiver_scope = GetReceiverScope();
+diff --git a/src/builtins/promise-any.tq b/src/builtins/promise-any.tq
+index 427d31c..6f3d91f 100644
+--- a/src/builtins/promise-any.tq
++++ b/src/builtins/promise-any.tq
+@@ -26,9 +26,7 @@
+ // together with the errors array. Since all closures for a single Promise.any
+ // call use the same context, we need to store the indices for the individual
+ // closures somewhere else (we put them into the identity hash field of the
+-// closures), and we also need to have a separate marker for when the closure
+-// was called already (we slap the native context onto the closure in that
+-// case to mark it's done). See Promise.all which uses the same approach.
++// closures).
+ transitioning macro CreatePromiseAnyRejectElementContext(
+     implicit context: Context)(capability: PromiseCapability,
+     nativeContext: NativeContext): PromiseAnyRejectElementContext {
+@@ -75,36 +73,30 @@
+     js-implicit context: Context, receiver: JSAny, target: JSFunction)(
+     value: JSAny): JSAny {
+   // 1. Let F be the active function object.
+-
+-  // 2. Let alreadyCalled be F.[[AlreadyCalled]].
+-
+-  // 3. If alreadyCalled.[[Value]] is true, return undefined.
+-
+-  // We use the function's context as the marker to remember whether this
+-  // reject element closure was already called. It points to the reject
+-  // element context (which is a FunctionContext) until it was called the
+-  // first time, in which case we make it point to the native context here
+-  // to mark this reject element closure as done.
+-  if (IsNativeContext(context)) deferred {
+-      return Undefined;
+-    }
+-
+   dcheck(
+       context.length ==
+       SmiTag(
+           PromiseAnyRejectElementContextSlots::kPromiseAnyRejectElementLength));
+   const context = %RawDownCast<PromiseAnyRejectElementContext>(context);
+ 
+-  // 4. Set alreadyCalled.[[Value]] to true.
+-  const nativeContext = LoadNativeContext(context);
+-  target.context = nativeContext;
+-
+   // 5. Let index be F.[[Index]].
+   dcheck(kPropertyArrayNoHashSentinel == 0);
+   const identityHash = LoadJSReceiverIdentityHash(target) otherwise unreachable;
+   dcheck(ChangeUint32ToWord(identityHash) < kSmiMaxValue);
+   const index = Signed(ChangeUint32ToWord(identityHash)) - 1;
+ 
++  // 8. Let remainingElementsCount be F.[[RemainingElements]].
++  let remainingElementsCount = *ContextSlot(
++      context,
++      PromiseAnyRejectElementContextSlots::
++          kPromiseAnyRejectElementRemainingSlot);
++
++  // If all promises were already rejected, the remaining count will already be
++  // 0.
++  if (remainingElementsCount == 0) deferred {
++      return Undefined;
++    }
++
+   // 6. Let errors be F.[[Errors]].
+   let errorsRef:&FixedArray = ContextSlot(
+       context,
+@@ -113,12 +105,6 @@
+ 
+   // 7. Let promiseCapability be F.[[Capability]].
+ 
+-  // 8. Let remainingElementsCount be F.[[RemainingElements]].
+-  let remainingElementsCount = *ContextSlot(
+-      context,
+-      PromiseAnyRejectElementContextSlots::
+-          kPromiseAnyRejectElementRemainingSlot);
+-
+   // 9. Set errors[index] to x.
+ 
+   // The max computation below is an optimization to avoid excessive allocations
+@@ -138,11 +124,22 @@
+           errors, 0, errors.length_intptr, newCapacity, PromiseHole);
+       *errorsRef = errors;
+     }
++
++  // 2. Let alreadyCalled be F.[[AlreadyCalled]].
++  // 3. If alreadyCalled.[[Value]] is true, return undefined.
++  // 4. Set alreadyCalled.[[Value]] to true.
++  if (errors.objects[index] != PromiseHole) deferred {
++      return Undefined;
++    }
++
++  // Make sure that we never see the PromiseHole here as a result.
++  check(value != PromiseHole);
+   errors.objects[index] = value;
+ 
+   // 10. Set remainingElementsCount.[[Value]] to
+   // remainingElementsCount.[[Value]] - 1.
+   remainingElementsCount = remainingElementsCount - 1;
++  check(remainingElementsCount >= 0);
+   *ContextSlot(
+       context,
+       PromiseAnyRejectElementContextSlots::
+diff --git a/src/codegen/arm64/assembler-arm64-inl.h b/src/codegen/arm64/assembler-arm64-inl.h
+index fc8b4c8..abd4c5e 100644
+--- a/src/codegen/arm64/assembler-arm64-inl.h
++++ b/src/codegen/arm64/assembler-arm64-inl.h
+@@ -983,7 +983,7 @@
+ }
+ 
+ Instr Assembler::ImmAddSub(int imm) {
+-  DCHECK(IsImmAddSub(imm));
++  CHECK(IsImmAddSub(imm));
+   if (is_uint12(imm)) {  // No shift required.
+     imm <<= ImmAddSub_offset;
+   } else {
+diff --git a/src/codegen/arm64/assembler-arm64.cc b/src/codegen/arm64/assembler-arm64.cc
+index e3a6685..af1c92f 100644
+--- a/src/codegen/arm64/assembler-arm64.cc
++++ b/src/codegen/arm64/assembler-arm64.cc
+@@ -4043,7 +4043,7 @@
+   DCHECK(!operand.NeedsRelocation(this));
+   if (operand.IsImmediate()) {
+     int64_t immediate = operand.ImmediateValue();
+-    DCHECK(IsImmAddSub(immediate));
++    CHECK(IsImmAddSub(immediate));
+     Instr dest_reg = (S == SetFlags) ? Rd(rd) : RdSP(rd);
+     Emit(SF(rd) | AddSubImmediateFixed | op | Flags(S) |
+          ImmAddSub(static_cast<int>(immediate)) | dest_reg | RnSP(rn));
+diff --git a/src/codegen/arm64/macro-assembler-arm64.cc b/src/codegen/arm64/macro-assembler-arm64.cc
+index a79bd6d..26a3110 100644
+--- a/src/codegen/arm64/macro-assembler-arm64.cc
++++ b/src/codegen/arm64/macro-assembler-arm64.cc
+@@ -979,11 +979,11 @@
+     // Post-index beyond unscaled addressing range.
+     DCHECK(!is_imm_unscaled);
+     LoadStore(rt, MemOperand(addr.base()), op);
+-    add(addr.base(), addr.base(), offset);
++    Add(addr.base(), addr.base(), offset);
+   } else {
+     // Pre-index beyond unscaled addressing range.
+     DCHECK(!is_imm_unscaled && addr.IsPreIndex());
+-    add(addr.base(), addr.base(), offset);
++    Add(addr.base(), addr.base(), offset);
+     LoadStore(rt, MemOperand(addr.base()), op);
+   }
+ }
+diff --git a/src/codegen/compiler.cc b/src/codegen/compiler.cc
+index 0a3599e..7a965c17 100644
+--- a/src/codegen/compiler.cc
++++ b/src/codegen/compiler.cc
+@@ -3320,7 +3320,8 @@
+     DirectHandle<SharedFunctionInfo> outer_info, DirectHandle<Context> context,
+     LanguageMode language_mode, ParseRestriction restriction,
+     int parameters_end_pos, int eval_position,
+-    ParsingWhileDebugging parsing_while_debugging) {
++    ParsingWhileDebugging parsing_while_debugging,
++    bool private_name_lookup_skips_outer_class) {
+   // The cache lookup key needs to be aware of the separation between the
+   // parameters and the body to prevent this valid invocation:
+   //   Function("", "function anonymous(\n/**/) {\n}");
+@@ -3376,6 +3377,8 @@
+         v8_flags.lazy_eval);
+     flags.set_is_eval(true);
+     flags.set_parsing_while_debugging(parsing_while_debugging);
++    flags.set_private_name_lookup_skips_outer_class(
++        private_name_lookup_skips_outer_class);
+     DCHECK(!flags.is_module());
+     flags.set_parse_restriction(restriction);
+ 
+diff --git a/src/codegen/compiler.h b/src/codegen/compiler.h
+index cfa6af0..bab8d70 100644
+--- a/src/codegen/compiler.h
++++ b/src/codegen/compiler.h
+@@ -166,7 +166,8 @@
+                       ParseRestriction restriction, int parameters_end_pos,
+                       int eval_position,
+                       ParsingWhileDebugging parsing_while_debugging =
+-                          ParsingWhileDebugging::kNo);
++                          ParsingWhileDebugging::kNo,
++                      bool private_name_lookup_skips_outer_class = false);
+ 
+   // Create a function that results from wrapping |source| in a function,
+   // with |arguments| being a list of parameters for that function.
+diff --git a/src/compiler/backend/arm64/code-generator-arm64.cc b/src/compiler/backend/arm64/code-generator-arm64.cc
+index f4efe50..a1fda89 100644
+--- a/src/compiler/backend/arm64/code-generator-arm64.cc
++++ b/src/compiler/backend/arm64/code-generator-arm64.cc
+@@ -4674,7 +4674,7 @@
+ void CodeGenerator::PopTempStackSlots() {
+   if (temp_slots_ > 0) {
+     frame_access_state()->IncreaseSPDelta(-temp_slots_);
+-    __ add(sp, sp, Operand(temp_slots_ * kSystemPointerSize));
++    __ Add(sp, sp, Operand(temp_slots_ * kSystemPointerSize));
+     temp_slots_ = 0;
+   }
+ }
+diff --git a/src/compiler/backend/code-generator.cc b/src/compiler/backend/code-generator.cc
+index 28faaf1..97678a7 100644
+--- a/src/compiler/backend/code-generator.cc
++++ b/src/compiler/backend/code-generator.cc
+@@ -1695,8 +1695,8 @@
+       default:
+         UNREACHABLE();
+     }
+-    if (literal.object().equals(info()->closure()) &&
+-        info()->function_context_specializing()) {
++    if (info()->function_context_specializing() &&
++        literal.IsObject(info()->closure())) {
+       translations_.StoreJSFrameFunction();
+     } else {
+       int literal_id = DefineDeoptimizationLiteral(literal);
 diff --git a/src/compiler/common-operator.cc b/src/compiler/common-operator.cc
 index 37ab33d..0bc7016 100644
 --- a/src/compiler/common-operator.cc
@@ -147,6 +484,33 @@ index 6499e23..3a1188f 100644
    const Operator* ObjectId(uint32_t);
  
    const Operator* RelocatableInt32Constant(int32_t value,
+diff --git a/src/compiler/js-generic-lowering.cc b/src/compiler/js-generic-lowering.cc
+index 2affa53..d32bb06 100644
+--- a/src/compiler/js-generic-lowering.cc
++++ b/src/compiler/js-generic-lowering.cc
+@@ -759,9 +759,6 @@
+   SharedFunctionInfoRef shared = p.shared();
+   TemplateObjectDescriptionRef description = p.description();
+ 
+-  DCHECK_EQ(node->op()->ControlInputCount(), 1);
+-  node->RemoveInput(NodeProperties::FirstControlIndex(node));
+-
+   static_assert(JSGetTemplateObjectNode::FeedbackVectorIndex() == 0);
+   node->InsertInput(zone(), 0, jsgraph()->ConstantNoHole(shared, broker()));
+   node->InsertInput(zone(), 1,
+diff --git a/src/compiler/js-operator.cc b/src/compiler/js-operator.cc
+index 5aec87c..75810fa 100644
+--- a/src/compiler/js-operator.cc
++++ b/src/compiler/js-operator.cc
+@@ -1614,7 +1614,7 @@
+   GetTemplateObjectParameters parameters(description, shared, feedback);
+   return zone()->New<Operator1<GetTemplateObjectParameters>>(  // --
+       IrOpcode::kJSGetTemplateObject,                          // opcode
+-      Operator::kEliminatable,                                 // properties
++      Operator::kNoDeopt | Operator::kNoThrow,                 // properties
+       "JSGetTemplateObject",                                   // name
+       1, 1, 1, 1, 1, 0,                                        // counts
+       parameters);                                             // parameter
 diff --git a/src/compiler/opcodes.h b/src/compiler/opcodes.h
 index de11918..d74406b 100644
 --- a/src/compiler/opcodes.h
@@ -425,6 +789,219 @@ index f10e020..0737d79 100644
  };
  
  }  // namespace compiler
+diff --git a/src/compiler/wasm-load-elimination.cc b/src/compiler/wasm-load-elimination.cc
+index 3ab300b..75d7f83 100644
+--- a/src/compiler/wasm-load-elimination.cc
++++ b/src/compiler/wasm-load-elimination.cc
+@@ -84,7 +84,40 @@
+ std::tuple<Node*, Node*> WasmLoadElimination::TruncateAndExtendOrType(
+     Node* value, Node* effect, Node* control, wasm::ValueType field_type,
+     bool is_signed) {
++  if (value->opcode() == IrOpcode::kDead ||
++      value->opcode() == IrOpcode::kDeadValue) {
++    return {dead(), dead()};
++  }
++
++  // The value might be untyped or have a non-Wasm type (e.g. Type::None() from
++  // DeadCodeElimination, or a JS node in case of Wasm inlined into JS). Without
++  // a concrete Wasm type we cannot verify representation compatibility.
++  if (!NodeProperties::IsTyped(value)) {
++    return {nullptr, nullptr};
++  }
++
++  Type value_type = NodeProperties::GetType(value);
++  if (!value_type.IsWasm()) {
++    return {nullptr, nullptr};
++  }
++
++  wasm::TypeInModule node_type = value_type.AsWasm();
++  if (node_type.type.is_top()) {
++    return {nullptr, nullptr};
++  }
++
++  wasm::ValueType unpacked_field_type = field_type.Unpacked();
++  if (node_type.type.is_uninhabited() ||
++      TypesUnrelated(node_type.type, unpacked_field_type, node_type.module)) {
++    // Uninhabited or unrelated types can occur as a result of unreachable code.
++    // Example: Storing a value x of type A in a struct, then casting the struct
++    // to a different struct type to then load type B from the same offset
++    // results in trying to replace the load with value x.
++    return {dead(), dead()};
++  }
++
+   if (field_type == wasm::kWasmI8 || field_type == wasm::kWasmI16) {
++    DCHECK_EQ(node_type.type, wasm::kWasmI32);
+     Node* ret = nullptr;
+     if (is_signed) {
+       int shift = 32 - 8 * field_type.value_kind_size();
+@@ -98,30 +131,10 @@
+                              jsgraph()->Int32Constant(mask));
+     }
+ 
+-    NodeProperties::SetType(ret, NodeProperties::GetType(value));
++    NodeProperties::SetType(ret, value_type);
+     return {ret, effect};
+   }
+ 
+-  // The value might be untyped in case of wasm inlined into JS if the value
+-  // comes from a JS node.
+-  if (!NodeProperties::IsTyped(value)) {
+-    return {value, effect};
+-  }
+-
+-  Type value_type = NodeProperties::GetType(value);
+-  if (!value_type.IsWasm()) {
+-    return {value, effect};
+-  }
+-
+-  wasm::TypeInModule node_type = value_type.AsWasm();
+-
+-  if (TypesUnrelated(node_type.type, field_type, node_type.module)) {
+-    // Unrelated types can occur as a result of unreachable code.
+-    // Example: Storing a value x of type A in a struct, then casting the struct
+-    // to a different struct type to then load type B from the same offset
+-    // results in trying to replace the load with value x.
+-    return {dead(), dead()};
+-  }
+   if (!wasm::IsSubtypeOf(node_type.type, field_type, node_type.module)) {
+     Type type = Type::Wasm({field_type, node_type.module}, graph()->zone());
+     Node* ret =
+@@ -233,10 +246,12 @@
+       node->Kill();
+       return Replace(dead());
+     }
+-    ReplaceWithValue(node, std::get<0>(replacement), std::get<1>(replacement),
+-                     control);
+-    node->Kill();
+-    return Replace(std::get<0>(replacement));
++    if (std::get<0>(replacement) != nullptr) {
++      ReplaceWithValue(node, std::get<0>(replacement), std::get<1>(replacement),
++                       control);
++      node->Kill();
++      return Replace(std::get<0>(replacement));
++    }
+   }
+ 
+   half_state = half_state->AddField(field_info.field_index, object, node);
+diff --git a/src/compiler/wasm-load-elimination.h b/src/compiler/wasm-load-elimination.h
+index fe40418..204af4f 100644
+--- a/src/compiler/wasm-load-elimination.h
++++ b/src/compiler/wasm-load-elimination.h
+@@ -138,7 +138,9 @@
+   AbstractState const* ComputeLoopState(Node* node,
+                                         AbstractState const* state) const;
+   // Returns the replacement value and effect for a load given an initial value
+-  // node, after optional {TypeGuard}ing and i8/i16 adaptation to i32.
++  // node, after optional {TypeGuard}ing and i8/i16 adaptation to i32. Returns
++  // {dead(), dead()} if the types prove the load is unreachable, or
++  // {nullptr, nullptr} if replacement must be skipped.
+   std::tuple<Node*, Node*> TruncateAndExtendOrType(Node* value, Node* effect,
+                                                    Node* control,
+                                                    wasm::ValueType field_type,
+diff --git a/src/d8/d8.cc b/src/d8/d8.cc
+index 8d325f4..2f75177 100644
+--- a/src/d8/d8.cc
++++ b/src/d8/d8.cc
+@@ -4768,8 +4768,10 @@
+   global_template->Set(Symbol::GetToStringTag(isolate),
+                        String::NewFromUtf8Literal(isolate, "global"));
+   global_template->Set(isolate, "onerror", v8::Null(isolate));
+-  global_template->Set(isolate, "version",
+-                       FunctionTemplate::New(isolate, Version));
++  Local<FunctionTemplate> version_func_template =
++      FunctionTemplate::New(isolate, Version);
++  version_func_template->SetAcceptAnyReceiver(false);
++  global_template->Set(isolate, "version", version_func_template);
+ 
+   global_template->Set(isolate, "print", FunctionTemplate::New(isolate, Print));
+   global_template->Set(isolate, "printErr",
+diff --git a/src/debug/debug.cc b/src/debug/debug.cc
+index def10a5..62b24a5 100644
+--- a/src/debug/debug.cc
++++ b/src/debug/debug.cc
+@@ -40,6 +40,7 @@
+ #include "src/snapshot/embedded/embedded-data.h"
+ 
+ #if V8_ENABLE_WEBASSEMBLY
++#include "src/wasm/wasm-code-manager.h"
+ #include "src/wasm/wasm-debug.h"
+ #include "src/wasm/wasm-objects-inl.h"
+ #endif  // V8_ENABLE_WEBASSEMBLY
+@@ -2973,6 +2974,60 @@
+           return;
+         }
+       }
++#if V8_ENABLE_WEBASSEMBLY
++    } else if (!it.done() && it.frame()->is_wasm()) {
++#if V8_ENABLE_DRUMBRAKE
++      if (!it.frame()->is_wasm_interpreter_entry())
++#endif  // V8_ENABLE_DRUMBRAKE
++      {
++        WasmFrame* wasm_frame = WasmFrame::cast(it.frame());
++        wasm::WasmCodeRefScope code_ref_scope;
++        // Optimized Wasm frames cannot be deoptimized on-stack at loop stack
++        // checks. Defer the pause to the next function call (or return to a
++        // debuggable caller frame) so that JavaScript executed during the
++        // pause cannot invalidate load-eliminated state in the optimized Wasm
++        // frame.
++        if (!wasm_frame->wasm_code()->is_liftoff()) {
++          if (ignore_events()) return;
++          thread_local_.scheduled_break_on_next_function_call_.Add(
++              break_reasons);
++          SetBreakOnNextFunctionCall();
++          for (it.Advance(); !it.done(); it.Advance()) {
++            if (it.frame()->is_wasm()) {
++#if V8_ENABLE_DRUMBRAKE
++              if (it.frame()->is_wasm_interpreter_entry()) continue;
++#endif  // V8_ENABLE_DRUMBRAKE
++              WasmFrame* caller_wasm = WasmFrame::cast(it.frame());
++              if (!caller_wasm->wasm_code()->is_inspectable()) continue;
++              wasm::DebugInfo* debug_info =
++                  caller_wasm->native_module()->GetDebugInfo();
++              if (debug_info->IsFrameBlackboxed(caller_wasm)) continue;
++              debug_info->PrepareStepOutTo(caller_wasm);
++              break;
++            }
++            JavaScriptFrame* js_frame = JavaScriptFrame::cast(it.frame());
++            if (js_frame->is_optimized()) {
++              Deoptimizer::DeoptimizeFunction(js_frame->function(),
++                                              LazyDeoptimizeReason::kDebugger,
++                                              js_frame->LookupCode());
++            }
++            HandleScope inner_scope(isolate_);
++            std::vector<Handle<SharedFunctionInfo>> infos;
++            js_frame->GetFunctions(&infos);
++            bool flooded = false;
++            for (; !infos.empty(); infos.pop_back()) {
++              Handle<SharedFunctionInfo> info = infos.back();
++              if (IsBlackboxed(info)) continue;
++              FloodWithOneShot(info);
++              flooded = true;
++              break;
++            }
++            if (flooded) break;
++          }
++          return;
++        }
++      }
++#endif  // V8_ENABLE_WEBASSEMBLY
+     }
+   }
+ 
+diff --git a/src/debug/debug.h b/src/debug/debug.h
+index 4a09380..1c8f80d 100644
+--- a/src/debug/debug.h
++++ b/src/debug/debug.h
+@@ -460,6 +460,9 @@
+   bool scheduled_break_on_function_call() const {
+     return !thread_local_.scheduled_break_on_next_function_call_.empty();
+   }
++  v8::debug::BreakReasons scheduled_break_on_next_function_call() const {
++    return thread_local_.scheduled_break_on_next_function_call_;
++  }
+ 
+   bool IsRestartFrameScheduled() const {
+     return thread_local_.restart_frame_id_ != StackFrameId::NO_ID;
 diff --git a/src/execution/frames.cc b/src/execution/frames.cc
 index 51055f1..12cadd2 100644
 --- a/src/execution/frames.cc
@@ -469,6 +1046,93 @@ index 51055f1..12cadd2 100644
    }
  
    // Visit pointer spill slots and locals.
+diff --git a/src/execution/isolate.cc b/src/execution/isolate.cc
+index 7ef4446..e6f2f35 100644
+--- a/src/execution/isolate.cc
++++ b/src/execution/isolate.cc
+@@ -3299,6 +3299,7 @@
+         break;
+       }
+       case StackFrame::INTERNAL: {
++        if (!catchable_by_js) break;
+         auto code = frame->GcSafeLookupCode();
+         if (code->builtin_id() ==
+             Builtin::kDeoptimizationEntry_LazyAfterFastCall) {
+@@ -4629,8 +4630,7 @@
+   stack_guard()->SetStackLimitForStackSwitching(limit);
+ 
+   // Update the central stack info.
+-  if (!thread_local_top()->is_on_central_stack_flag_ &&
+-      to->jmpbuf()->is_on_central_stack) {
++  if (to->jmpbuf()->is_on_central_stack) {
+     DCHECK(is_suspend || is_return);
+     DCHECK_EQ(expected_target_state, wasm::JumpBuffer::Inactive);
+     thread_local_top()->is_on_central_stack_flag_ = true;
+@@ -4640,8 +4640,7 @@
+ #endif
+     thread_local_top()->central_stack_limit_ =
+         reinterpret_cast<Address>(to->jmpbuf()->stack_limit);
+-  } else if (thread_local_top()->is_on_central_stack_flag_ &&
+-             !to->jmpbuf()->is_on_central_stack) {
++  } else if (thread_local_top()->is_on_central_stack_flag_) {
+     thread_local_top()->is_on_central_stack_flag_ = false;
+     if (is_resume) {
+       // Record the current central stack SP, we will switch back to it for
+@@ -5543,9 +5542,23 @@
+     // "C++ -> JS" or "C++ -> Api callback" boundary.
+     return;
+   }
+-  if (it.done() ||
+-      (ext_callback_scope &&
+-       ext_callback_scope->JSStackComparableAddress() < it.frame()->fp())) {
++  bool is_direct_api_throw = it.done();
++  if (!is_direct_api_throw && ext_callback_scope != nullptr) {
++    Address comparable_fp = it.frame()->fp();
++#if V8_ENABLE_WEBASSEMBLY
++    if (!IsOnCentralStack(comparable_fp)) {
++      // The topmost frame is on a Wasm secondary stack, whereas
++      // |ext_callback_scope| is always on the central stack. Compare against
++      // the central-stack SP saved when switching to the secondary stack.
++      comparable_fp = thread_local_top()->central_stack_sp_;
++      DCHECK_NE(comparable_fp, kNullAddress);
++      DCHECK(IsOnCentralStack(comparable_fp));
++    }
++#endif  // V8_ENABLE_WEBASSEMBLY
++    is_direct_api_throw =
++        ext_callback_scope->JSStackComparableAddress() < comparable_fp;
++  }
++  if (is_direct_api_throw) {
+     // There were no crossings of "C++ -> JS" boundary at all or they happened
+     // earlier than the last crossing of the  "C++ -> Api callback" boundary.
+     // In this case all the data about Api callback is available in the
+@@ -5656,6 +5669,9 @@
+       // These frames are not created yet.
+       UNREACHABLE();
+     case StackFrame::TURBOFAN_JS:
++#if V8_ENABLE_WEBASSEMBLY
++    case StackFrame::WASM_TO_JS:
++#endif  // V8_ENABLE_WEBASSEMBLY
+       // This must be a fast Api call.
+       CHECK(it.frame()->InFastCCall());
+       // TODO(ishell): support fast Api calls.
+@@ -5666,6 +5682,7 @@
+       return;
+ #if V8_ENABLE_WEBASSEMBLY
+     case StackFrame::WASM:
++    case StackFrame::WASM_EXIT:
+     case StackFrame::WASM_SEGMENT_START:
+       // No more info.
+       return;
+@@ -8055,6 +8072,9 @@
+   // Set security token back to default (unique) state making sure that only
+   // accesses from the same native context are allowed.
+   env->set_security_token(env->global_object());
++  // Invalidate LoadGlobalIC/StoreGlobalIC handlers to enforce access checks
++  // for the rewired global proxy from the detached context.
++  JSObject::InvalidatePrototypeValidityCell(env->global_object());
+ }
+ 
+ void Isolate::SetIsLoading(bool is_loading) {
 diff --git a/src/heap/cppgc-internal/marker.h b/src/heap/cppgc-internal/marker.h
 index 84fec07..ad96e22 100644
 --- a/src/heap/cppgc-internal/marker.h
@@ -537,6 +1201,289 @@ index 84fec07..ad96e22 100644
    }
  }
  
+diff --git a/src/heap/factory.cc b/src/heap/factory.cc
+index d2a5f28..acaf95d 100644
+--- a/src/heap/factory.cc
++++ b/src/heap/factory.cc
+@@ -4005,15 +4005,15 @@
+       New(source_text_module_map(), AllocationType::kOld));
+   DisallowGarbageCollection no_gc;
+   module->set_code(*sfi);
++  module->set_status(Module::kUnlinked);
++  module->set_module_namespace(roots.undefined_value(), SKIP_WRITE_BARRIER);
++  module->set_deferred_module_namespace(roots.undefined_value(),
++                                        SKIP_WRITE_BARRIER);
+   module->set_exports(*exports);
+   module->set_regular_exports(*regular_exports);
+   module->set_regular_imports(*regular_imports);
+   module->set_hash(isolate()->GenerateIdentityHash(Smi::kMaxValue));
+-  module->set_module_namespace(roots.undefined_value(), SKIP_WRITE_BARRIER);
+-  module->set_deferred_module_namespace(roots.undefined_value(),
+-                                        SKIP_WRITE_BARRIER);
+   module->set_requested_modules(*requested_modules);
+-  module->set_status(Module::kUnlinked);
+   module->set_exception(roots.the_hole_value(), SKIP_WRITE_BARRIER);
+   module->set_top_level_capability(roots.undefined_value(), SKIP_WRITE_BARRIER);
+   module->set_import_meta(roots.the_hole_value(), kReleaseStore,
+diff --git a/src/ic/accessor-assembler.cc b/src/ic/accessor-assembler.cc
+index c262e24..0dfd75a 100644
+--- a/src/ic/accessor-assembler.cc
++++ b/src/ic/accessor-assembler.cc
+@@ -1554,7 +1554,7 @@
+     ICMode ic_mode, ElementSupport support_elements) {
+   Label if_smi_handler(this), if_nonsmi_handler(this);
+   Label if_proto_handler(this), call_handler(this),
+-      store_transition_or_global_or_accessor(this);
++      store_transition_or_accessor(this);
+ 
+   Branch(TaggedIsSmi(handler), &if_smi_handler, &if_nonsmi_handler);
+ 
+@@ -1685,8 +1685,7 @@
+   BIND(&if_nonsmi_handler);
+   {
+     TNode<HeapObjectReference> ref_handler = CAST(handler);
+-    GotoIf(IsWeakOrCleared(ref_handler),
+-           &store_transition_or_global_or_accessor);
++    GotoIf(IsWeakOrCleared(ref_handler), &store_transition_or_accessor);
+     TNode<HeapObject> strong_handler = CAST(handler);
+     TNode<Map> handler_map = LoadMap(strong_handler);
+     Branch(IsCodeMap(handler_map), &call_handler, &if_proto_handler);
+@@ -1711,39 +1710,17 @@
+     }
+   }
+ 
+-  BIND(&store_transition_or_global_or_accessor);
++  BIND(&store_transition_or_accessor);
+   {
+     // Load value or miss if the {handler} weak cell is cleared.
+     CSA_DCHECK(this, IsWeakOrCleared(handler));
+     TNode<HeapObject> strong_handler = GetHeapObjectAssumeWeak(handler, miss);
+ 
+-    Label store_global(this), store_transition(this), store_accessor(this);
++    Label store_transition(this), store_accessor(this);
+     TNode<Map> strong_handler_map = LoadMap(strong_handler);
+-    GotoIf(IsPropertyCellMap(strong_handler_map), &store_global);
+     Branch(IsAccessorPairMap(strong_handler_map), &store_accessor,
+            &store_transition);
+ 
+-    BIND(&store_global);
+-    {
+-      if (p->IsDefineNamedOwn()) {
+-        // The global proxy has its attributes set in the global object,
+-        // which can't be handled by StoreGlobalIC_PropertyCellCase when
+-        // defining public fields. Handle it in runtime.
+-        GotoIf(IsJSGlobalProxy(CAST(p->receiver())), &if_slow);
+-      } else if (p->IsDefineKeyedOwn()) {
+-        Label proceed_defining(this);
+-        // StoreGlobalIC_PropertyCellCase doesn't support definition
+-        // of private fields, so handle them in runtime.
+-        GotoIfNot(IsSymbol(CAST(p->name())), &proceed_defining);
+-        Branch(IsAnyPrivateName(CAST(p->name())), &if_slow, &proceed_defining);
+-        BIND(&proceed_defining);
+-      }
+-
+-      TNode<PropertyCell> property_cell = CAST(strong_handler);
+-      ExitPoint direct_exit(this);
+-      StoreGlobalIC_PropertyCellCase(property_cell, p->value(), &direct_exit,
+-                                     miss);
+-    }
+     BIND(&store_accessor);
+     {
+       TNode<AccessorPair> pair = CAST(strong_handler);
+diff --git a/src/ic/handler-configuration.cc b/src/ic/handler-configuration.cc
+index 63dbf68..9b12fe2 100644
+--- a/src/ic/handler-configuration.cc
++++ b/src/ic/handler-configuration.cc
+@@ -509,11 +509,6 @@
+ }
+ 
+ // static
+-MaybeObjectHandle StoreHandler::StoreGlobal(Handle<PropertyCell> cell) {
+-  return MaybeObjectHandle::Weak(cell);
+-}
+-
+-// static
+ Handle<Object> StoreHandler::StoreProxy(Isolate* isolate,
+                                         DirectHandle<Map> receiver_map,
+                                         Handle<JSProxy> proxy,
+diff --git a/src/ic/handler-configuration.h b/src/ic/handler-configuration.h
+index 6e85b8f..5883a35 100644
+--- a/src/ic/handler-configuration.h
++++ b/src/ic/handler-configuration.h
+@@ -369,10 +369,6 @@
+                                    Handle<JSProxy> proxy,
+                                    DirectHandle<JSReceiver> receiver);
+ 
+-  // Creates a handler for storing a property to the property cell of a global
+-  // object.
+-  static MaybeObjectHandle StoreGlobal(Handle<PropertyCell> cell);
+-
+   // Creates a Smi-handler for storing a property to a global proxy object.
+   static inline DirectHandle<Smi> StoreGlobalProxy(Isolate* isolate);
+ 
+diff --git a/src/ic/ic-inl.h b/src/ic/ic-inl.h
+index e19ce57..842a941 100644
+--- a/src/ic/ic-inl.h
++++ b/src/ic/ic-inl.h
+@@ -30,8 +30,7 @@
+   Tagged<HeapObject> heap_object;
+   return (IsSmi(object) && (object.ptr() != kNullAddress)) ||
+          (object.GetHeapObjectIfWeak(&heap_object) &&
+-          (IsMap(heap_object) || IsPropertyCell(heap_object) ||
+-           IsAccessorPair(heap_object))) ||
++          (IsMap(heap_object) || IsAccessorPair(heap_object))) ||
+          (object.GetHeapObjectIfStrong(&heap_object) &&
+           (IsDataHandler(heap_object) || IsCode(heap_object)));
+ }
+diff --git a/src/ic/ic.cc b/src/ic/ic.cc
+index 681dac6..f6e7d642 100644
+--- a/src/ic/ic.cc
++++ b/src/ic/ic.cc
+@@ -1098,6 +1098,18 @@
+         TraceIC("LoadGlobalIC", lookup->name());
+         return;
+       }
++      // Own DATA properties above are accessed directly via PropertyCell on the
++      // JSGlobalObject and don't involve the JSGlobalProxy. For anything else
++      // (e.g. prototype accessors), the handler would substitute global_proxy
++      // as the receiver without performing an access check on it, and
++      // LookupIterator didn't fail an access check because JSGlobalObject
++      // belongs to the current (detached) native context while its global_proxy
++      // may have been rebound to a new cross-origin context.
++      if (Cast<JSGlobalObject>(*lookup->GetReceiver())->IsDetached()) {
++        SetCache(lookup->GetName(), LoadHandler::LoadSlow(isolate()));
++        TraceIC("LoadGlobalIC", lookup->GetName());
++        return;
++      }
+     }
+     handler = ComputeHandler(lookup);
+     CHECK(lookup->state() == LookupIterator::STRING_LOOKUP_START_OBJECT ||
+@@ -2416,6 +2428,16 @@
+         TraceIC("StoreGlobalIC", lookup->GetName());
+         return;
+       }
++      // See comment in LoadIC::UpdateCaches: own DATA properties above use
++      // PropertyCell on the JSGlobalObject directly, whereas other handlers
++      // (e.g. prototype accessors) substitute global_proxy as the receiver,
++      // which may have been rebound to a cross-origin context upon detachment.
++      if (Cast<JSGlobalObject>(*lookup->GetReceiver())->IsDetached()) {
++        set_slow_stub_reason("detached global object");
++        SetCache(lookup->GetName(), StoreHandler::StoreSlow(isolate()));
++        TraceIC("StoreGlobalIC", lookup->GetName());
++        return;
++      }
+     }
+     handler = ComputeHandler(lookup);
+   } else {
+@@ -2436,16 +2458,6 @@
+       if (IsJSGlobalObject(*store_target)) {
+         TRACE_HANDLER_STATS(isolate(), StoreIC_StoreGlobalTransitionDH);
+ 
+-        if (IsJSGlobalObject(*lookup_start_object_map())) {
+-          DCHECK(IsStoreGlobalIC());
+-#ifdef DEBUG
+-          DirectHandle<JSObject> holder = lookup->GetHolder<JSObject>();
+-          DCHECK_EQ(*lookup->GetReceiver(), *holder);
+-          DCHECK_EQ(*store_target, *holder);
+-#endif
+-          return StoreHandler::StoreGlobal(
+-              indirect_handle(lookup->transition_cell(), isolate()));
+-        }
+         if (IsDefineKeyedOwnIC()) {
+           // Private field can't be deleted from this global object and can't
+           // be overwritten, so install slow handler in order to make store IC
+@@ -2662,9 +2674,19 @@
+       }
+       if (lookup->is_dictionary_holder()) {
+         if (IsJSGlobalObject(*holder)) {
++          DCHECK(!IsStoreGlobalIC());
++          DCHECK(IsJSGlobalProxy(*receiver));
++          if (IsAnyDefineOwn()) {
++            TRACE_HANDLER_STATS(isolate(), StoreIC_SlowStub);
++            return MaybeObjectHandle(StoreHandler::StoreSlow(isolate()));
++          }
+           TRACE_HANDLER_STATS(isolate(), StoreIC_StoreGlobalDH);
+-          return MaybeObjectHandle(StoreHandler::StoreGlobal(
+-              indirect_handle(lookup->GetPropertyCell(), isolate())));
++          DirectHandle<Smi> smi_handler =
++              StoreHandler::StoreGlobalProxy(isolate());
++          Handle<Object> handler = StoreHandler::StoreThroughPrototype(
++              isolate(), lookup_start_object_map(), holder, *smi_handler,
++              MaybeObjectDirectHandle::Weak(lookup->GetPropertyCell()));
++          return MaybeObjectHandle(handler);
+         }
+         TRACE_HANDLER_STATS(isolate(), StoreIC_StoreNormalDH);
+         DCHECK(holder.is_identical_to(receiver));
+diff --git a/src/interpreter/bytecode-flags-and-tokens.h b/src/interpreter/bytecode-flags-and-tokens.h
+index 0adacdc..d9956be 100644
+--- a/src/interpreter/bytecode-flags-and-tokens.h
++++ b/src/interpreter/bytecode-flags-and-tokens.h
+@@ -97,6 +97,23 @@
+   DISALLOW_IMPLICIT_CONSTRUCTORS(StoreLookupSlotFlags);
+ };
+ 
++class ResolveEvalFlags {
++ public:
++  using LanguageModeBit = base::BitField<LanguageMode, 0, 1>;
++  using PrivateNameLookupSkipsOuterClassBit = LanguageModeBit::Next<bool, 1>;
++  static_assert(LanguageModeSize <= LanguageModeBit::kNumValues);
++
++  static int Encode(LanguageMode language_mode,
++                    bool private_name_lookup_skips_outer_class) {
++    return LanguageModeBit::encode(language_mode) |
++           PrivateNameLookupSkipsOuterClassBit::encode(
++               private_name_lookup_skips_outer_class);
++  }
++
++ private:
++  DISALLOW_IMPLICIT_CONSTRUCTORS(ResolveEvalFlags);
++};
++
+ enum class TryFinallyContinuationToken: int {
+   // Fixed value tokens for paths we know we need.
+   // Fallthrough is set to -1 to make it the fallthrough case of the jump table,
+diff --git a/src/interpreter/bytecode-generator.cc b/src/interpreter/bytecode-generator.cc
+index b6b5932..f665102 100644
+--- a/src/interpreter/bytecode-generator.cc
++++ b/src/interpreter/bytecode-generator.cc
+@@ -3691,7 +3691,10 @@
+     DCHECK_EQ(ClassBoilerplate::kFirstDynamicArgumentIndex,
+               args.register_count());
+ 
+-    VisitForAccumulatorValueOrTheHole(expr->extends());
++    {
++      ClassScope::HeritageParsingScope heritage(expr->scope());
++      VisitForAccumulatorValueOrTheHole(expr->extends());
++    }
+     builder()->StoreAccumulatorInRegister(super_class);
+ 
+     VisitFunctionLiteral(expr->constructor());
+@@ -7061,16 +7064,24 @@
+       builder()->MoveRegister(args[receiver_arg_count], runtime_call_args[1]);
+     }
+     Scope* scope_with_context = current_scope();
++    bool private_name_lookup_skips_outer_class = false;
+     if (!scope_with_context->NeedsContext()) {
++      private_name_lookup_skips_outer_class =
++          scope_with_context->private_name_lookup_skips_outer_class();
+       scope_with_context = scope_with_context->GetOuterScopeWithContext();
++    } else if (scope_with_context->is_class_scope()) {
++      private_name_lookup_skips_outer_class =
++          scope_with_context->AsClassScope()->IsParsingHeritage();
+     }
+     if (scope_with_context) {
+       eval_calls_.emplace_back(expr, scope_with_context);
+     }
++    int eval_flags = ResolveEvalFlags::Encode(
++        language_mode(), private_name_lookup_skips_outer_class);
+     builder()
+         ->MoveRegister(callee, runtime_call_args[0])
+         .MoveRegister(Register::function_closure(), runtime_call_args[2])
+-        .LoadLiteral(Smi::FromEnum(language_mode()))
++        .LoadLiteral(Smi::FromInt(eval_flags))
+         .StoreAccumulatorInRegister(runtime_call_args[3])
+         .LoadLiteral(Smi::FromInt(expr->eval_scope_info_index()))
+         .StoreAccumulatorInRegister(runtime_call_args[4])
 diff --git a/src/maglev/maglev-compiler.cc b/src/maglev/maglev-compiler.cc
 index 06dd7c5..7423622 100644
 --- a/src/maglev/maglev-compiler.cc
@@ -550,11 +1497,175 @@ index 06dd7c5..7423622 100644
    if (graph->tagged_stack_slots() + graph->untagged_stack_slots() >
        kMaxStackSlots) {
      return false;
+diff --git a/src/maglev/maglev-graph-builder.cc b/src/maglev/maglev-graph-builder.cc
+index ca199ba..05a3fa8 100644
+--- a/src/maglev/maglev-graph-builder.cc
++++ b/src/maglev/maglev-graph-builder.cc
+@@ -278,14 +278,31 @@
+   builder_->lazy_deopt_result_location_scope_ = previous_;
+ }
+ 
+-class MaglevGraphBuilder::MaglevSubGraphBuilder::LoopLabel {
++class V8_NODISCARD MaglevGraphBuilder::MaglevSubGraphBuilder::LoopLabel {
+  public:
++  LoopLabel(const LoopLabel&) = delete;
++  LoopLabel(LoopLabel&&) = delete;
++  LoopLabel& operator=(const LoopLabel&) = delete;
++  LoopLabel& operator=(LoopLabel&&) = delete;
++
++  ~LoopLabel() {
++    if (merge_state_ != nullptr) {
++      // An early abort exited the subgraph before EndLoop was reached.
++      DCHECK_NULL(sub_builder_->builder_->current_block());
++      merge_state_->MergeDeadLoop(*sub_builder_->dummy_unit_);
++    }
++  }
++
+  private:
+-  explicit LoopLabel(LoopMergePointInterpreterFrameState* merge_state,
+-                     BasicBlock* loop_header)
+-      : merge_state_(merge_state), loop_header_(loop_header) {}
++  LoopLabel(MaglevSubGraphBuilder* sub_builder,
++            LoopMergePointInterpreterFrameState* merge_state,
++            BasicBlock* loop_header)
++      : sub_builder_(sub_builder),
++        merge_state_(merge_state),
++        loop_header_(loop_header) {}
+ 
+   friend class MaglevSubGraphBuilder;
++  MaglevSubGraphBuilder* sub_builder_;
+   LoopMergePointInterpreterFrameState* merge_state_ = nullptr;
+   BasicBlock* loop_header_;
+ };
+@@ -420,7 +437,7 @@
+   builder_->ProcessMergePointPredecessors(*loop_state, loop_header_ref);
+   builder_->StartNewBlock(nullptr, loop_state, loop_header_ref);
+ 
+-  return LoopLabel{loop_state, loop_header_ref.block_ptr()};
++  return LoopLabel{this, loop_state, loop_header_ref.block_ptr()};
+ }
+ 
+ template <typename ControlNodeT, typename... Args>
+@@ -477,8 +494,12 @@
+ }
+ 
+ void MaglevGraphBuilder::MaglevSubGraphBuilder::EndLoop(LoopLabel* loop_label) {
++  // Ensure EndLoop is called only once and disarm ~LoopLabel().
++  LoopMergePointInterpreterFrameState* merge_state = loop_label->merge_state_;
++  DCHECK_NOT_NULL(merge_state);
++  loop_label->merge_state_ = nullptr;
+   if (builder_->current_block() == nullptr) {
+-    loop_label->merge_state_->MergeDeadLoop(*dummy_unit_);
++    merge_state->MergeDeadLoop(*dummy_unit_);
+     return;
+   }
+ 
+@@ -486,11 +507,11 @@
+       builder_->FinishBlockNoAbort<JumpLoop>({}, loop_label->loop_header_);
+   {
+     BorrowParentKnownNodeAspectsAndVOs borrow(this);
+-    loop_label->merge_state_->MergeLoop(
+-        builder_->graph(), builder_->is_tracing(), *dummy_unit_,
+-        variable_frame_, block, builder_->GetLatestCheckpointedFrame());
++    merge_state->MergeLoop(builder_->graph(), builder_->is_tracing(),
++                           *dummy_unit_, variable_frame_, block,
++                           builder_->GetLatestCheckpointedFrame());
+   }
+-  block->set_predecessor_id(loop_label->merge_state_->predecessor_count() - 1);
++  block->set_predecessor_id(merge_state->predecessor_count() - 1);
+ }
+ 
+ void MaglevGraphBuilder::MaglevSubGraphBuilder::Bind(Label* label) {
+@@ -6368,6 +6389,7 @@
+   while (iterator_.current_offset() < continuation.last_continuation) {
+     iterator_.Advance();
+     UpdateSourceAndBytecodePosition(iterator_.current_offset());
++    PrewalkBytecode();
+   }
+ }
+ 
+@@ -9010,19 +9032,12 @@
+ 
+ MaybeReduceResult MaglevGraphBuilder::TryReduceFunctionPrototypeApply(
+     compiler::JSFunctionRef target, CallArguments& args) {
+-  compiler::OptionalHeapObjectRef maybe_receiver;
+-  if (current_speculation_feedback().IsValid()) {
+-    const compiler::ProcessedFeedback& processed_feedback =
+-        broker()->GetFeedbackForCall(current_speculation_feedback());
+-    DCHECK_EQ(processed_feedback.kind(), compiler::ProcessedFeedback::kCall);
+-    const compiler::CallFeedback& call_feedback = processed_feedback.AsCall();
+-    if (call_feedback.call_feedback_content() ==
+-        CallFeedbackContent::kReceiver) {
+-      maybe_receiver = call_feedback.target();
+-    }
+-  }
++  // We should have taken the `BuildCallWithFeedback` path for the typical
++  // Function.prototype.apply speculation-based optimization. If we are on this
++  // code path, we must be inside an apply inside another inlining and shouldn't
++  // use the feedback receiver.
+   return TryReduceFunctionPrototypeApplyCallWithReceiver(
+-      maybe_receiver, args, current_speculation_feedback());
++      {}, args, current_speculation_feedback());
+ }
+ 
+ namespace {
+@@ -11532,7 +11547,7 @@
+ 
+ MaybeReduceResult
+ MaglevGraphBuilder::TryReduceFunctionPrototypeApplyCallWithReceiver(
+-    compiler::OptionalHeapObjectRef maybe_receiver, CallArguments& args,
++    compiler::OptionalJSFunctionRef maybe_receiver, CallArguments& args,
+     const compiler::FeedbackSource& feedback_source) {
+   if (args.mode() != CallArguments::kDefault) return {};
+ 
+diff --git a/src/maglev/maglev-graph-builder.h b/src/maglev/maglev-graph-builder.h
+index a439094..f3d9c57 100644
+--- a/src/maglev/maglev-graph-builder.h
++++ b/src/maglev/maglev-graph-builder.h
+@@ -309,7 +309,7 @@
+     using Label = Base::Label;
+     using LabelForTrackingInterpreterFrameState =
+         Base::LabelForTrackingInterpreterFrameState;
+-    class LoopLabel;
++    class V8_NODISCARD LoopLabel;
+ 
+     MaglevSubGraphBuilder(MaglevGraphBuilder* builder, int variable_count);
+     LoopLabel BeginLoop(std::initializer_list<Variable*> loop_vars);
+@@ -1072,7 +1072,7 @@
+       compiler::OptionalSharedFunctionInfoRef maybe_shared,
+       CallArguments& args);
+   MaybeReduceResult TryReduceFunctionPrototypeApplyCallWithReceiver(
+-      compiler::OptionalHeapObjectRef maybe_receiver, CallArguments& args,
++      compiler::OptionalJSFunctionRef maybe_receiver, CallArguments& args,
+       const compiler::FeedbackSource& feedback_source);
+ 
+   template <typename CallNode, typename... Args>
 diff --git a/src/maglev/maglev-graph-optimizer.cc b/src/maglev/maglev-graph-optimizer.cc
-index 8f5ec52..a78420a 100644
+index 8f5ec52..e0e6496 100644
 --- a/src/maglev/maglev-graph-optimizer.cc
 +++ b/src/maglev/maglev-graph-optimizer.cc
-@@ -688,11 +688,54 @@
+@@ -591,6 +591,20 @@
+   return ranges_->IsLessEqualConstraint(reducer_.current_block(), lhs, rhs);
+ }
+ 
++ProcessResult MaglevGraphOptimizer::OverwriteWith(Opcode opcode) {
++  TRACE(TraceColor::kDarkGreen << "Overwriting "
++                               << PrintNodeLabel(current_node()) << " with "
++                               << opcode);
++
++  current_node()->OverwriteWith(opcode);
++
++  // Since we've changed the type of the node, we need to trigger a revisit,
++  // otherwise the next processors would see a stale static type for this node
++  // and will thus wrongly treat it as a node of the old type instead of the new
++  // one.
++  return ProcessResult::kRevisit;
++}
++
+ ProcessResult MaglevGraphOptimizer::ReplaceWith(ValueNode* node) {
+   // If current node is not a value node, we shouldn't try to replace it.
+   CHECK(current_node()->Cast<ValueNode>());
+@@ -688,11 +702,54 @@
    }
  }
  
@@ -610,7 +1721,7 @@ index 8f5ec52..a78420a 100644
      return node;
    }
    if (node->Is<ReturnedValue>()) {
-@@ -710,8 +753,11 @@
+@@ -710,8 +767,11 @@
      // Check if we already have a canonical conversion.
      NodeInfo* node_info =
          known_node_aspects().GetOrCreateInfoFor(broker(), node);
@@ -624,7 +1735,7 @@ index 8f5ec52..a78420a 100644
      // If `node` is itself tagging an untagged value, convert that value
      // directly instead of untagging the tagged result.
      if (node->is_conversion()) {
-@@ -726,6 +772,15 @@
+@@ -726,6 +786,15 @@
    if (!CanEagerDeopt()) {
      return {};
    }
@@ -640,8 +1751,53 @@ index 8f5ec52..a78420a 100644
    switch (use_repr) {
      case UseRepresentation::kInt32:
        return reducer_.GetInt32(node);
+@@ -2642,7 +2711,7 @@
+     REPLACE_AND_RETURN_IF_DONE(GetUntaggedValueWithRepresentation(    \
+         node->input_node(0), UseRepresentation::k##Repr, ConvType));  \
+     if (reducer_.CheckType(node->input_node(0), ConvType)) {          \
+-      node->OverwriteWith(Opcode::k##UnsafeNode);                     \
++      return OverwriteWith(Opcode::k##UnsafeNode);                    \
+     }                                                                 \
+     return ProcessResult::kContinue;                                  \
+   }
+@@ -2694,7 +2763,7 @@
+   // }
+   // DCHECK(maybe_input.IsFail());
+   if (reducer_.CheckType(node->input_node(0), NodeType::kSmi)) {
+-    node->OverwriteWith(Opcode::kUnsafeSmiUntag);
++    return OverwriteWith(Opcode::kUnsafeSmiUntag);
+   }
+   return ProcessResult::kContinue;
+ }
+@@ -2716,7 +2785,7 @@
+     return ProcessResult::kTruncateBlock;
+   }
+   if (reducer_.CheckType(node->input_node(0), NodeType::kNumber)) {
+-    node->OverwriteWith(Opcode::kUnsafeNumberToFloat64);
++    return OverwriteWith(Opcode::kUnsafeNumberToFloat64);
+   }
+   return ProcessResult::kContinue;
+ }
+@@ -2740,7 +2809,7 @@
+   // undefined NaN since the widen was chosen, and widening those would give
+   // them back their meaning.
+   if (node->ValueInput().node()->MayBeHoleOrUndefinedNan()) {
+-    node->OverwriteWith(Opcode::kChangeFloat64ToHoleyFloat64);
++    return OverwriteWith(Opcode::kChangeFloat64ToHoleyFloat64);
+   }
+   return ProcessResult::kContinue;
+ }
+@@ -3920,7 +3989,7 @@
+     return ReplaceWith(node->input_node(0)->input_node(0));
+   }
+   if (reducer_.CheckType(node->input_node(0), NodeType::kNumber)) {
+-    node->OverwriteWith(Opcode::kTruncateUnsafeNumberAsSafeIntToInt32);
++    return OverwriteWith(Opcode::kTruncateUnsafeNumberAsSafeIntToInt32);
+   }
+   return ProcessResult::kContinue;
+ }
 diff --git a/src/maglev/maglev-graph-optimizer.h b/src/maglev/maglev-graph-optimizer.h
-index f41212a..7e98d10 100644
+index f41212a..56b77b7 100644
 --- a/src/maglev/maglev-graph-optimizer.h
 +++ b/src/maglev/maglev-graph-optimizer.h
 @@ -150,6 +150,12 @@
@@ -657,8 +1813,231 @@ index f41212a..7e98d10 100644
    // Records the untagged input of a tagging conversion as the matching
    // untagged alternative of `tagged`, so a later untagging use can reuse it.
    template <ValueRepresentation kRepresentation>
+@@ -173,6 +179,8 @@
+   template <typename FixedArrayT, typename NodeT>
+   MaybeReduceResult AbortIfInvalidFixedArrayIndex(NodeT* node);
+ 
++  ProcessResult OverwriteWith(Opcode opcode);
++
+   ProcessResult ReplaceWith(ValueNode* node);
+ 
+   template <typename NodeT, typename... Args>
+diff --git a/src/maglev/maglev-ir.h b/src/maglev/maglev-ir.h
+index c9adf31..a2badf6 100644
+--- a/src/maglev/maglev-ir.h
++++ b/src/maglev/maglev-ir.h
+@@ -5420,7 +5420,9 @@
+   static constexpr OpProperties kProperties =
+       OpProperties::Call() | OpProperties::CanAllocate() |
+       OpProperties::CanThrow() | OpProperties::LazyDeopt() |
+-      OpProperties::NotIdempotent();
++      OpProperties::NotIdempotent() |
++      // The runtime call may make prototype maps fast.
++      OpProperties::CanWrite();
+ 
+   int MaxCallStackArgs() const;
+   void SetValueLocationConstraints();
+@@ -5488,7 +5490,9 @@
+   static constexpr OpProperties kProperties =
+       OpProperties::Call() | OpProperties::CanAllocate() |
+       OpProperties::CanThrow() | OpProperties::LazyDeopt() |
+-      OpProperties::NotIdempotent();
++      OpProperties::NotIdempotent() |
++      // The runtime call may make prototype maps fast.
++      OpProperties::CanWrite();
+ 
+   int MaxCallStackArgs() const;
+   void SetValueLocationConstraints();
+diff --git a/src/maglev/maglev-known-node-aspects.h b/src/maglev/maglev-known-node-aspects.h
+index dd1ce8c..7b64d3b 100644
+--- a/src/maglev/maglev-known-node-aspects.h
++++ b/src/maglev/maglev-known-node-aspects.h
+@@ -460,12 +460,10 @@
+   }
+ 
+   const NodeInfo* TryGetInfoFor(ValueNode* node) const {
+-    node = node->Unwrap();
+     return const_cast<KnownNodeAspects*>(this)->TryGetInfoFor(node);
+   }
+ 
+   NodeInfo* TryGetInfoFor(ValueNode* node) {
+-    node = node->Unwrap();
+     auto info_it = FindInfo(node);
+     if (!IsValid(info_it)) return nullptr;
+     return &info_it->second;
+@@ -481,8 +479,8 @@
+ 
+   NodeInfo* GetOrCreateInfoFor(compiler::JSHeapBroker* broker,
+                                ValueNode* node) {
+-    node = node->Unwrap();
+-    auto info_it = FindInfo(node);
++    node = UnwrapNode(node);
++    auto info_it = node_infos_.find(node);
+     if (IsValid(info_it)) return &info_it->second;
+     auto res = &node_infos_.emplace(node, NodeInfo()).first->second;
+     res->IntersectType(node->GetStaticType(broker));
+@@ -490,7 +488,6 @@
+   }
+ 
+   ValueNode* TryGetAlternativeFor(ValueNode* node, UseRepresentation repr) {
+-    node = node->Unwrap();
+     auto info_it = FindInfo(node);
+     if (!IsValid(info_it)) return nullptr;
+     return info_it->second.alternative().get(repr);
+@@ -1018,12 +1015,58 @@
+     return it->second->UnwrapIdentities();
+   }
+ 
++  // Only unwrap conversions that preserve `NodeType` invariants across
++  // representations (e.g. `kSmi` means Smi-tagged for tagged values, but only
++  // Smi-sized for untagged values).
++  // TODO(496266449): Remove once `kTagged` is split into `kSmi` and
++  // `kTaggedPointer` representations.
++  static ValueNode* UnwrapNode(ValueNode* node) {
++    while (true) {
++      if (node->Is<Identity>() || node->Is<ReturnedValue>()) {
++        node = node->input_node(0);
++        continue;
++      }
++      if (!node->is_conversion()) break;
++      switch (node->opcode()) {
++        case Opcode::kCheckedNumberToInt32:
++        case Opcode::kCheckedNumberToFloat64:
++        case Opcode::kUnsafeNumberToFloat64:
++        case Opcode::kCheckedObjectToIndex:
++        case Opcode::kUnsafeInt32ToUint32:
++          return node;
++        // kForceHeapNumber allocates a HeapNumber even for Smi-sized inputs.
++        case Opcode::kInt32ToNumber:
++          if (node->Cast<Int32ToNumber>()->conversion_mode() ==
++              NumberConversionMode::kForceHeapNumber) {
++            return node;
++          }
++          break;
++        case Opcode::kFloat64ToTagged:
++          if (node->Cast<Float64ToTagged>()->conversion_mode() ==
++              NumberConversionMode::kForceHeapNumber) {
++            return node;
++          }
++          break;
++        case Opcode::kHoleyFloat64ToTagged:
++          if (node->Cast<HoleyFloat64ToTagged>()->conversion_mode() ==
++              NumberConversionMode::kForceHeapNumber) {
++            return node;
++          }
++          break;
++        default:
++          break;
++      }
++      node = node->input_node(0);
++    }
++    return node;
++  }
++
+   NodeInfos::iterator FindInfo(ValueNode* node) {
+-    node = node->Unwrap();
++    node = UnwrapNode(node);
+     return node_infos_.find(node);
+   }
+   NodeInfos::const_iterator FindInfo(ValueNode* node) const {
+-    node = node->Unwrap();
++    node = UnwrapNode(node);
+     return node_infos_.find(node);
+   }
+   bool IsValid(NodeInfos::iterator& it) { return it != node_infos_.end(); }
+diff --git a/src/maglev/maglev-reducer-inl.h b/src/maglev/maglev-reducer-inl.h
+index 4137133..50d7d22 100644
+--- a/src/maglev/maglev-reducer-inl.h
++++ b/src/maglev/maglev-reducer-inl.h
+@@ -836,6 +836,8 @@
+   }
+ 
+   DCHECK(value->is_tagged());
++  RETURN_IF_ABORT(BuildStoreTaggedField(object, value, desc.offset, store_mode,
++                                        PropertyKey::None(), maybe_assigned));
+   if (InlinedAllocation* inlined_value = value->TryCast<InlinedAllocation>()) {
+     // Add to the escape set.
+     auto escape_deps = graph()->allocations_escape_map().find(object);
+@@ -845,11 +847,10 @@
+     auto& elided_map = graph()->allocations_elide_map();
+     auto elided_deps = elided_map.try_emplace(inlined_value, zone()).first;
+     elided_deps->second.push_back(object);
+-    inlined_value->AddNonEscapingUses();
++    AddNonEscapingUses(inlined_value, 1);
+   }
+ 
+-  return BuildStoreTaggedField(object, value, desc.offset, store_mode,
+-                               PropertyKey::None(), maybe_assigned);
++  return ReduceResult::Done();
+ }
+ 
+ template <typename BaseT>
+diff --git a/src/objects/deoptimization-data.h b/src/objects/deoptimization-data.h
+index bd95602..b63f4e4 100644
+--- a/src/objects/deoptimization-data.h
++++ b/src/objects/deoptimization-data.h
+@@ -92,7 +92,10 @@
+     return literal;
+   }
+ 
+-  IndirectHandle<Object> object() const { return object_; }
++  bool IsObject(IndirectHandle<Object> object) const {
++    return kind_ == DeoptimizationLiteralKind::kObject &&
++           object_.equals(object);
++  }
+ 
+   bool operator==(const DeoptimizationLiteral& other) const {
+     if (kind_ != other.kind_) {
+diff --git a/src/objects/js-function.cc b/src/objects/js-function.cc
+index 585d97d..310ed57 100644
+--- a/src/objects/js-function.cc
++++ b/src/objects/js-function.cc
+@@ -991,8 +991,9 @@
+   // system.
+   // TODO(leszeks): Figure out if this CHECK is needed.
+   CHECK(IsJSReceiver(*prototype));
+-  JSFunction::SetInitialMap(isolate, function, map, prototype);
++  // Initialize slack tracking before publishing the map to concurrent readers.
+   map->StartInobjectSlackTracking();
++  JSFunction::SetInitialMap(isolate, function, map, prototype);
+ }
+ 
+ namespace {
+@@ -1183,11 +1184,12 @@
+       Map::CopyInitialMap(isolate, constructor_initial_map, instance_size,
+                           in_object_properties, unused_property_fields);
+   map->set_new_target_is_base(false);
++  // Initialize slack tracking before publishing the map to concurrent readers.
++  map->set_construction_counter(Map::kNoSlackTracking);
++  map->StartInobjectSlackTracking();
+   DirectHandle<JSReceiver> prototype(new_target->instance_prototype(), isolate);
+   JSFunction::SetInitialMap(isolate, new_target, map, prototype, constructor);
+   DCHECK(IsJSReceiver(new_target->instance_prototype()));
+-  map->set_construction_counter(Map::kNoSlackTracking);
+-  map->StartInobjectSlackTracking();
+   return true;
+ }
+ 
+diff --git a/src/objects/map-inl.h b/src/objects/map-inl.h
+index 1cbddb0..63cfe9e 100644
+--- a/src/objects/map-inl.h
++++ b/src/objects/map-inl.h
+@@ -1258,9 +1258,12 @@
+   DCHECK(IsUndefined(GetBackPointer()));
+   if (!this->IsInobjectSlackTrackingInProgress()) return;
+   int counter = construction_counter();
+-  set_construction_counter(counter - 1);
+   if (counter == kSlackTrackingCounterEnd) {
++    // The last decrement must happen under the map_updater_access mutex,
++    // together with the instance size changes.
+     MapUpdater::CompleteInobjectSlackTracking(isolate, this);
++  } else {
++    set_construction_counter(counter - 1);
+   }
+ }
+ 
 diff --git a/src/objects/map-updater.cc b/src/objects/map-updater.cc
-index d62c947..f143735 100644
+index d62c947..84999a3 100644
 --- a/src/objects/map-updater.cc
 +++ b/src/objects/map-updater.cc
 @@ -385,8 +385,9 @@
@@ -673,6 +2052,129 @@ index d62c947..f143735 100644
      if (!maybe_transition) {
        return {};
      }
+@@ -399,7 +400,9 @@
+   ElementsKind to_kind = old_map->elements_kind();
+ 
+   IntegrityLevelTransitionInfo info(old_map);
+-  if (root_map->is_extensible() != old_map->is_extensible()) {
++  if (!root_map->is_extensible() && old_map != root_map) {
++    return {};
++  } else if (root_map->is_extensible() != old_map->is_extensible()) {
+     DCHECK(!old_map->is_extensible());
+     DCHECK(root_map->is_extensible());
+     info = DetectIntegrityLevelTransitions(old_map, isolate, &no_gc, cmode);
+@@ -411,7 +414,7 @@
+     DCHECK(to_kind == DICTIONARY_ELEMENTS ||
+            to_kind == SLOW_STRING_WRAPPER_ELEMENTS ||
+            IsTypedArrayOrRabGsabTypedArrayElementsKind(to_kind) ||
+-           IsAnyHoleyNonextensibleElementsKind(to_kind));
++           IsAnyNonextensibleElementsKind(to_kind));
+     to_kind = info.integrity_level_source_map->elements_kind();
+   }
+   if (from_kind != to_kind) {
+@@ -621,6 +624,8 @@
+           direct_handle(root_map_->prototype(), isolate_),
+           root_map_->instance_type())) {
+     return Normalize("Normalize_NotEquivalent");
++  } else if (!root_map_->is_extensible() && *old_map_ != *root_map_) {
++    return Normalize("Normalize_PrivateSymbolsOnNonExtensible");
+   } else if (old_map_->is_extensible() != root_map_->is_extensible()) {
+     DCHECK(!old_map_->is_extensible());
+     DCHECK(root_map_->is_extensible());
+diff --git a/src/objects/map.cc b/src/objects/map.cc
+index a6f6a26..cdc4145 100644
+--- a/src/objects/map.cc
++++ b/src/objects/map.cc
+@@ -603,10 +603,7 @@
+   MaybeObjectDirectHandle wrapped_type = WrapFieldType(type);
+   Descriptor d = Descriptor::DataField(name, offset, attributes, constness,
+                                        representation, wrapped_type);
+-  Handle<Map> new_map = Map::CopyAddDescriptor(isolate, map, &d, flag);
+-
+-  new_map->AccountAddedPropertyField();
+-  return new_map;
++  return Map::CopyAddDescriptor(isolate, map, &d, flag);
+ }
+ 
+ MaybeHandle<Map> Map::CopyWithConstant(Isolate* isolate, DirectHandle<Map> map,
+@@ -1615,6 +1612,10 @@
+     DisallowGarbageCollection no_gc;
+     descriptors->Append(descriptor);
+     result->InitializeDescriptors(*descriptors);
++    // Account for the field before publishing the transition.
++    if (descriptor->GetDetails().location() == PropertyLocation::kField) {
++      result->AccountAddedPropertyField();
++    }
+   }
+ 
+   DCHECK(result->NumberOfOwnDescriptors() == map->NumberOfOwnDescriptors() + 1);
+@@ -2333,7 +2334,12 @@
+       DescriptorArray::CopyUpTo(isolate, descriptors, nof, 1);
+   new_descriptors->Append(descriptor);
+ 
+-  return CopyReplaceDescriptors(isolate, map, new_descriptors, flag,
++  auto InitMap = [&](DirectHandle<Map> new_map) {
++    if (descriptor->GetDetails().location() == PropertyLocation::kField) {
++      new_map->AccountAddedPropertyField();
++    }
++  };
++  return CopyReplaceDescriptors(isolate, map, new_descriptors, flag, InitMap,
+                                 descriptor->GetKey(), "CopyAddDescriptor",
+                                 SIMPLE_PROPERTY_TRANSITION);
+ }
+diff --git a/src/objects/module-inl.h b/src/objects/module-inl.h
+index fb9d42c..e709782 100644
+--- a/src/objects/module-inl.h
++++ b/src/objects/module-inl.h
+@@ -8,6 +8,7 @@
+ #include "src/objects/module.h"
+ // Include the non-inl header before the rest of the headers.
+ 
++#include "src/objects/cell-inl.h"
+ #include "src/objects/js-promise-inl.h"
+ #include "src/objects/oddball-predicates-inl.h"
+ #include "src/objects/scope-info.h"
+@@ -172,6 +173,7 @@
+ 
+ Tagged<ObjectHashTable> Module::exports() const { return exports_.load(); }
+ void Module::set_exports(Tagged<ObjectHashTable> value, WriteBarrierMode mode) {
++  CHECK(!ExportsFinalized());
+   exports_.store(this, value, mode);
+ }
+ 
+@@ -197,6 +199,16 @@
+   deferred_module_namespace_.store(this, value, mode);
+ }
+ 
++bool Module::ExportsFinalized() const {
++  bool res =
++      (!IsUndefined(module_namespace()) &&
++       IsJSModuleNamespace(Cast<Cell>(module_namespace())->value())) ||
++      (!IsUndefined(deferred_module_namespace()) &&
++       IsJSModuleNamespace(Cast<Cell>(deferred_module_namespace())->value()));
++  DCHECK_IMPLIES(res, status() >= kLinking);
++  return res;
++}
++
+ Tagged<Module> JSModuleNamespace::module() const { return module_.load(); }
+ 
+ void JSModuleNamespace::set_module(Tagged<Module> value,
+diff --git a/src/objects/module.h b/src/objects/module.h
+index 925b7d3..43118f6 100644
+--- a/src/objects/module.h
++++ b/src/objects/module.h
+@@ -110,6 +110,11 @@
+   inline void set_exception(Tagged<Object> value,
+                             WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
+ 
++  // Once a module namespace (normal or deferred) has been created in
++  // GetModuleNamespace, all star exports have been fetched and {exports} is
++  // finalized (must not be mutated or rehashed as ICs index into it).
++  inline bool ExportsFinalized() const;
++
+   inline Tagged<UnionOf<JSPromise, Undefined>> top_level_capability() const;
+   inline void set_top_level_capability(
+       Tagged<UnionOf<JSPromise, Undefined>> value,
 diff --git a/src/objects/shared-function-info-inl.h b/src/objects/shared-function-info-inl.h
 index 93de8a2..c4504c0 100644
 --- a/src/objects/shared-function-info-inl.h
@@ -736,6 +2238,40 @@ index f4949b0..b46945f 100644
  }
  
  @cppScope('SharedFunctionInfo')
+diff --git a/src/objects/source-text-module.cc b/src/objects/source-text-module.cc
+index 0c50a51..8a9cb6c 100644
+--- a/src/objects/source-text-module.cc
++++ b/src/objects/source-text-module.cc
+@@ -371,11 +371,14 @@
+ 
+     if (!unique_cell.is_null()) {
+       // Found a unique star export for this name.
+-      Handle<ObjectHashTable> exports(module->exports(), isolate);
+-      DCHECK(IsTheHole(exports->Lookup(export_name)));
+-      exports =
+-          ObjectHashTable::Put(isolate, exports, export_name, unique_cell);
+-      module->set_exports(*exports);
++      if (module->status() <= kLinking) {
++        DCHECK(!module->ExportsFinalized());
++        Handle<ObjectHashTable> exports(module->exports(), isolate);
++        DCHECK(IsTheHole(exports->Lookup(export_name)));
++        exports =
++            ObjectHashTable::Put(isolate, exports, export_name, unique_cell);
++        module->set_exports(*exports);
++      }
+       return unique_cell;
+     }
+   }
+@@ -773,8 +776,7 @@
+   DCHECK_GE(module->status(), Module::kLinking);
+ 
+   // Shortcut.
+-  if (!IsUndefined(module->module_namespace()) &&
+-      IsJSModuleNamespace(Cast<Cell>(module->module_namespace())->value())) {
++  if (module->ExportsFinalized()) {
+     return;
+   }
+ 
 diff --git a/src/objects/transitions-inl.h b/src/objects/transitions-inl.h
 index af50967..b694790 100644
 --- a/src/objects/transitions-inl.h
@@ -934,10 +2470,41 @@ index 5b552c5..1df1fa0 100644
        next_function_is_likely_called_(false),
        previous_function_was_likely_called_(false),
 diff --git a/src/parsing/parser.cc b/src/parsing/parser.cc
-index 94f1999..388e4f1 100644
+index 94f1999..c853b24 100644
 --- a/src/parsing/parser.cc
 +++ b/src/parsing/parser.cc
-@@ -1274,10 +1274,19 @@
+@@ -744,12 +744,20 @@
+   }
+ 
+   scanner_.Initialize();
++  std::optional<ClassScope::HeritageParsingScope> heritage;
++  if (V8_UNLIKELY(flags().private_name_lookup_skips_outer_class() &&
++                  original_scope_->is_class_scope())) {
++    heritage.emplace(original_scope_->AsClassScope());
++  }
+   FunctionLiteral* result =
+       DoParseProgram(isolate, info, script->eval_from_position());
+   if (flags().allow_heap_allocation()) {
+     HandleDebugMagicComments(isolate, script);
+   }
+   if (result == nullptr) return;
++  if (V8_UNLIKELY(flags().private_name_lookup_skips_outer_class())) {
++    result->scope()->RecordNeedsPrivateNameContextChainRecalc();
++  }
+   result->scope()->set_is_hoisted_in_context(
+       info->flags().is_hoisted_in_context());
+   if (flags().allow_heap_allocation()) {
+@@ -1252,6 +1260,9 @@
+     }
+ 
+     if (has_error()) return nullptr;
++    if (V8_UNLIKELY(flags().private_name_lookup_skips_outer_class())) {
++      result->scope()->RecordNeedsPrivateNameContextChainRecalc();
++    }
+     result->set_requires_instance_members_initializer(
+         flags().requires_instance_members_initializer());
+     result->set_class_scope_has_private_brand(
+@@ -1274,10 +1285,19 @@
    // this point the scanner should be rewound to the position of the class
    // token.
    DCHECK_EQ(peek_position(), initializer_pos);
@@ -959,6 +2526,1070 @@ index 94f1999..388e4f1 100644
  
    // We preparse the class members that are not fields with initializers
    // in order to collect the function literal ids.
+diff --git a/src/runtime/runtime-compiler.cc b/src/runtime/runtime-compiler.cc
+index e998c4d..f195b42 100644
+--- a/src/runtime/runtime-compiler.cc
++++ b/src/runtime/runtime-compiler.cc
+@@ -13,6 +13,7 @@
+ #include "src/execution/arguments-inl.h"
+ #include "src/execution/frames-inl.h"
+ #include "src/execution/isolate-inl.h"
++#include "src/interpreter/bytecode-flags-and-tokens.h"
+ #include "src/objects/abstract-code-inl.h"
+ #include "src/objects/js-array-buffer-inl.h"
+ #include "src/objects/objects-inl.h"
+@@ -826,7 +827,8 @@
+ static Tagged<Object> CompileGlobalEval(
+     Isolate* isolate, Handle<i::Object> source_object,
+     DirectHandle<SharedFunctionInfo> outer_info, LanguageMode language_mode,
+-    int eval_scope_info_index, int eval_position) {
++    int eval_scope_info_index, int eval_position,
++    bool private_name_lookup_skips_outer_class) {
+   DirectHandle<NativeContext> native_context = isolate->native_context();
+ 
+   // Check if native context allows code generation from
+@@ -865,7 +867,8 @@
+       isolate, compiled,
+       Compiler::GetFunctionFromEval(
+           isolate, source.ToHandleChecked(), outer_info, context, language_mode,
+-          restriction, kNoSourcePosition, eval_position),
++          restriction, kNoSourcePosition, eval_position,
++          ParsingWhileDebugging::kNo, private_name_lookup_skips_outer_class),
+       ReadOnlyRoots(isolate).exception());
+   return *compiled;
+ }
+@@ -882,13 +885,17 @@
+     return *callee;
+   }
+ 
+-  DCHECK(is_valid_language_mode(args.smi_value_at(3)));
+-  LanguageMode language_mode = static_cast<LanguageMode>(args.smi_value_at(3));
++  int eval_flags = args.smi_value_at(3);
++  LanguageMode language_mode =
++      interpreter::ResolveEvalFlags::LanguageModeBit::decode(eval_flags);
++  bool private_name_lookup_skips_outer_class = interpreter::ResolveEvalFlags::
++      PrivateNameLookupSkipsOuterClassBit::decode(eval_flags);
+   DirectHandle<SharedFunctionInfo> outer_info(args.at<JSFunction>(2)->shared(),
+                                               isolate);
+   return CompileGlobalEval(isolate, args.at<Object>(1), outer_info,
+                            language_mode, args.smi_value_at(4),
+-                           args.smi_value_at(5));
++                           args.smi_value_at(5),
++                           private_name_lookup_skips_outer_class);
+ }
+ 
+ #ifdef V8_ENABLE_SPARKPLUG_PLUS
+diff --git a/src/runtime/runtime-literals.cc b/src/runtime/runtime-literals.cc
+index 312f5dd..4a3cfca 100644
+--- a/src/runtime/runtime-literals.cc
++++ b/src/runtime/runtime-literals.cc
+@@ -856,6 +856,14 @@
+   // Object function prototype's map.
+   Tagged<Map> proto_map = js_proto->map();
+ 
++  // Check that the prototype is a plain JSObject with no elements.
++  if (proto_map->instance_type() != JS_OBJECT_TYPE) {
++    return false;
++  }
++  if (js_proto->elements() != ReadOnlyRoots(isolate).empty_fixed_array()) {
++    return false;
++  }
++
+   // Check that given function.prototype object has a default initial state:
+   // it's extensible.
+   if (!proto_map->is_extensible()) {
+@@ -868,13 +876,24 @@
+   }
+ 
+   // it has exactly one "constructor" property installed.
+-  if (js_proto->property_dictionary()->NumberOfElements() != 1) {
+-    return false;
+-  }
+-  if (js_proto->property_dictionary()
+-          ->FindEntry(isolate, isolate->factory()->constructor_string())
+-          .is_not_found()) {
+-    return false;
++  if constexpr (V8_ENABLE_SWISS_NAME_DICTIONARY_BOOL) {
++    if (js_proto->property_dictionary_swiss()->NumberOfElements() != 1) {
++      return false;
++    }
++    if (js_proto->property_dictionary_swiss()
++            ->FindEntry(isolate, isolate->factory()->constructor_string())
++            .is_not_found()) {
++      return false;
++    }
++  } else {
++    if (js_proto->property_dictionary()->NumberOfElements() != 1) {
++      return false;
++    }
++    if (js_proto->property_dictionary()
++            ->FindEntry(isolate, isolate->factory()->constructor_string())
++            .is_not_found()) {
++      return false;
++    }
+   }
+ 
+   // its prototype is the original and unmodified Object.prototype object.
+@@ -907,7 +926,7 @@
+   }
+ 
+   DirectHandle<JSFunction> acc_fun = Cast<JSFunction>(obj);
+-  if (!acc_fun->has_prototype_slot()) {
++  if (!acc_fun->has_prototype_slot() || !acc_fun->has_prototype_property()) {
+     RETURN_RESULT_OR_FAILURE(
+         isolate, SetPrototypePropertiesSlow(isolate, context, obj,
+                                             object_boilerplate_description,
+@@ -937,18 +956,21 @@
+                                             feedback_cell_array, current_slot));
+   }
+ 
+-  if (IsSpecialReceiverMap(js_proto->map())) {
+-    RETURN_RESULT_OR_FAILURE(
+-        isolate, SetPrototypePropertiesSlow(isolate, context, obj,
+-                                            object_boilerplate_description,
+-                                            feedback_cell_array, current_slot));
+-  }
+-
+-  if (!JSObject::IsExtensible(isolate, js_proto)) {
+-    RETURN_RESULT_OR_FAILURE(
+-        isolate, SetPrototypePropertiesSlow(isolate, context, obj,
+-                                            object_boilerplate_description,
+-                                            feedback_cell_array, current_slot));
++  // Use the slow path for exotic receivers, interceptors, or access checks.
++  {
++    Tagged<Map> js_proto_map = js_proto->map();
++    if (IsCustomElementsReceiverMap(js_proto_map) ||
++        IsJSTypedArrayMap(js_proto_map) ||
++        IsAlwaysSharedSpaceJSObjectMap(js_proto_map) ||
++        js_proto_map->is_access_check_needed() ||
++        js_proto_map->has_named_interceptor() ||
++        js_proto_map->has_indexed_interceptor() ||
++        !JSObject::IsExtensible(isolate, js_proto)) {
++      RETURN_RESULT_OR_FAILURE(
++          isolate, SetPrototypePropertiesSlow(
++                       isolate, context, obj, object_boilerplate_description,
++                       feedback_cell_array, current_slot));
++    }
+   }
+ 
+   bool is_default_func_prototype =
+@@ -977,13 +999,14 @@
+         DirectHandle<AccessorInfo> accessor_info =
+             isolate->factory()->lazy_closure_accessor();
+ 
+-        JSObject::SetAccessor(js_proto, name, accessor_info,
+-                              PropertyAttributes::NONE)
+-            .Check();
++        RETURN_FAILURE_ON_EXCEPTION(
++            isolate, JSObject::SetAccessor(js_proto, name, accessor_info,
++                                           PropertyAttributes::NONE));
+       } else {
+-        Object::TransitionAndWriteDataProperty(
+-            &it, value, NONE, Just(kDontThrow), StoreOrigin::kNamed)
+-            .Check();
++        MAYBE_RETURN(
++            Object::TransitionAndWriteDataProperty(
++                &it, value, NONE, Just(kDontThrow), StoreOrigin::kNamed),
++            ReadOnlyRoots(isolate).exception());
+       }
+       result = value;
+     }
+@@ -1029,7 +1052,8 @@
+           current_slot++;
+         }
+         it.UpdateProtector();
+-        Object::SetDataProperty(&it, value).Check();
++        MAYBE_RETURN(Object::SetDataProperty(&it, value),
++                     ReadOnlyRoots(isolate).exception());
+       } else {
+         value = InstantiateIfSharedFunctionInfo(
+             context, isolate, js_proto, value, feedback_cell_array,
+@@ -1042,13 +1066,15 @@
+           // doesn't invalidate protectors, so do it here for e.g. `then` or
+           // `next` added to a watched prototype.
+           it.UpdateProtector();
+-          JSObject::SetAccessor(js_proto, Cast<Name>(key), accessor_info,
+-                                PropertyAttributes::NONE)
+-              .Check();
++          RETURN_FAILURE_ON_EXCEPTION(
++              isolate,
++              JSObject::SetAccessor(js_proto, Cast<Name>(key), accessor_info,
++                                    PropertyAttributes::NONE));
+         } else {
+-          Object::TransitionAndWriteDataProperty(
+-              &it, value, NONE, Just(kDontThrow), StoreOrigin::kNamed)
+-              .Check();
++          MAYBE_RETURN(
++              Object::TransitionAndWriteDataProperty(
++                  &it, value, NONE, Just(kDontThrow), StoreOrigin::kNamed),
++              ReadOnlyRoots(isolate).exception());
+         }
+       }
+       result = value;
+diff --git a/src/runtime/runtime-wasm.cc b/src/runtime/runtime-wasm.cc
+index c7a5cfe..ef593de 100644
+--- a/src/runtime/runtime-wasm.cc
++++ b/src/runtime/runtime-wasm.cc
+@@ -1025,9 +1025,11 @@
+   if (debug_info->IsStepping(frame) && !debug_info->IsFrameBlackboxed(frame)) {
+     debug_info->ClearStepping(isolate);
+     StepAction step_action = isolate->debug()->last_step_action();
++    v8::debug::BreakReasons break_reasons =
++        isolate->debug()->scheduled_break_on_next_function_call();
+     isolate->debug()->ClearStepping();
+     isolate->debug()->OnDebugBreak(isolate->factory()->empty_fixed_array(),
+-                                   step_action);
++                                   step_action, break_reasons);
+     return true;
+   }
+ 
+diff --git a/src/wasm/wasm-debug.cc b/src/wasm/wasm-debug.cc
+index 2a45a67..1679c9c 100644
+--- a/src/wasm/wasm-debug.cc
++++ b/src/wasm/wasm-debug.cc
+@@ -490,7 +490,12 @@
+ 
+   bool IsStepping(WasmFrame* frame) {
+     Isolate* isolate = frame->isolate();
+-    if (isolate->debug()->last_step_action() == StepInto) return true;
++    if (isolate->debug()->last_step_action() == StepInto ||
++        isolate->debug()->break_on_next_function_call() ||
++        isolate->debug()->scheduled_break_on_function_call()) {
++      return true;
++    }
++    if (isolate->debug()->last_step_action() == StepNone) return false;
+     base::MutexGuard guard(&mutex_);
+     auto it = per_isolate_data_.find(isolate);
+     return it != per_isolate_data_.end() &&
+diff --git a/test/cctest/compiler/test-code-generator.cc b/test/cctest/compiler/test-code-generator.cc
+index 0045259..bf91b4c 100644
+--- a/test/cctest/compiler/test-code-generator.cc
++++ b/test/cctest/compiler/test-code-generator.cc
+@@ -1126,7 +1126,8 @@
+ class CodeGeneratorTester {
+  public:
+   explicit CodeGeneratorTester(TestEnvironment* environment,
+-                               int extra_stack_space = 0)
++                               int extra_stack_space = 0,
++                               int scratch_spill_slots = 0)
+       : zone_(environment->main_zone()),
+         info_(base::ArrayVector("test"), environment->main_zone(),
+               CodeKind::FOR_TESTING),
+@@ -1161,6 +1162,11 @@
+         i++;
+       }
+     }
++    if (scratch_spill_slots > 0) {
++      int end_slot = frame_.AllocateSpillSlot(
++          scratch_spill_slots * kSystemPointerSize, kSimd128Size);
++      first_scratch_spill_slot_ = end_slot - scratch_spill_slots + 1;
++    }
+ 
+     constexpr size_t kMaxUnoptimizedFrameHeight = 0;
+     constexpr size_t kMaxPushedArgumentCount = 0;
+@@ -1342,6 +1348,8 @@
+     return Finalize();
+   }
+ 
++  int first_scratch_spill_slot() const { return first_scratch_spill_slot_; }
++
+  private:
+   Zone* zone_;
+   OptimizedCompilationInfo info_;
+@@ -1350,6 +1358,7 @@
+   CodeGenerator* generator_;
+   // List of operands to be moved from stack parameters to spill slots.
+   std::vector<std::pair<LocationOperand, LocationOperand>> spill_slots_;
++  int first_scratch_spill_slot_ = 0;
+ };
+ 
+ // The following fuzz tests will assemble a lot of moves, wrap them in
+@@ -1639,6 +1648,54 @@
+   }
+ }
+ 
++TEST(PopTempStackSlots) {
++  if (kSystemPointerSize == 8 && !TestSimd128Moves()) return;
++
++  constexpr MachineRepresentation kTwoSlotRep =
++      kSystemPointerSize == 8 ? MachineRepresentation::kSimd128
++                              : MachineRepresentation::kFloat64;
++
++  TestEnvironment env;
++  Handle<FixedArray> state_in = env.GenerateInitialState();
++
++  // Test both a small number of temporary stack slots and a larger count whose
++  // byte size exceeds 4095 and is not a multiple of 4096.
++  for (int num_cycles : {4, 260}) {
++    const int scratch_slots = num_cycles * 4;
++    CodeGeneratorTester c(&env, 0, scratch_slots);
++    ParallelMove* moves = env.main_zone()->New<ParallelMove>(env.main_zone());
++
++    for (int i = 0; i < num_cycles; i++) {
++      int base = c.first_scratch_spill_slot() + i * 4;
++      AllocatedOperand pair_lo(LocationOperand::STACK_SLOT, kTwoSlotRep,
++                               base + 1);
++      AllocatedOperand pair_hi(LocationOperand::STACK_SLOT, kTwoSlotRep,
++                               base + 3);
++      AllocatedOperand slot_0(LocationOperand::STACK_SLOT,
++                              MachineRepresentation::kTagged, base + 0);
++      AllocatedOperand slot_1(LocationOperand::STACK_SLOT,
++                              MachineRepresentation::kTagged, base + 1);
++      AllocatedOperand slot_2(LocationOperand::STACK_SLOT,
++                              MachineRepresentation::kTagged, base + 2);
++      AllocatedOperand slot_3(LocationOperand::STACK_SLOT,
++                              MachineRepresentation::kTagged, base + 3);
++      moves->AddMove(pair_lo, pair_hi);
++      moves->AddMove(slot_2, slot_0);
++      moves->AddMove(slot_3, slot_1);
++    }
++
++    c.CheckAssembleMoves(moves);
++
++    Handle<Code> test = c.FinalizeForExecuting();
++    if (v8_flags.print_code) {
++      Print(*test);
++    }
++
++    DirectHandle<FixedArray> actual = env.Run(test, state_in);
++    env.CheckState(actual, state_in);
++  }
++}
++
+ #if V8_TARGET_ARCH_X64
+ TEST(TurboFanFrameSlotAlignment) {
+   FLAG_SCOPE(enforce_x64_16byte_alignment);
+diff --git a/test/cctest/test-api-interceptors.cc b/test/cctest/test-api-interceptors.cc
+index 452bc8d..acb34f9 100644
+--- a/test/cctest/test-api-interceptors.cc
++++ b/test/cctest/test-api-interceptors.cc
+@@ -6,6 +6,7 @@
+ 
+ #include <optional>
+ 
++#include "include/v8-fast-api-calls.h"
+ #include "include/v8-function.h"
+ #include "src/api/api-inl.h"
+ #include "src/codegen/compilation-cache.h"
+@@ -6373,6 +6374,371 @@
+                                           is_descriptor_callback_available);
+ }
+ 
++#if V8_ENABLE_WEBASSEMBLY && !defined(V8_ENABLE_CET_SHADOW_STACK)
++namespace {
++
++void InvokeArgAndMaybeThrowCallback(
++    const v8::FunctionCallbackInfo<v8::Value>& info) {
++  v8::Isolate* isolate = info.GetIsolate();
++  if (info.Length() > 0 && info[0]->IsFunction()) {
++    v8::Local<v8::Context> context = isolate->GetCurrentContext();
++    std::ignore = info[0].As<v8::Function>()->Call(context, context->Global(),
++                                                   0, nullptr);
++  }
++  if (info.Length() > 1 && info[1]->IsTrue()) {
++    isolate->ThrowError("Direct callback error.");
++  }
++}
++
++v8::Intercepted UnwindInnerStackThenThrowGetter(
++    v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info) {
++  v8::Isolate* isolate = info.GetIsolate();
++  v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
++  CompileRun(ctx, "try { globalThis.stress_throw(); } catch {}")
++      .ToLocalChecked();
++  isolate->ThrowError("After nested unwind.");
++  return v8::Intercepted::kYes;
++}
++
++void SecondaryStackFastApiCallback(v8::Local<v8::Object> receiver, int32_t mode,
++                                   v8::FastApiCallbackOptions& options) {
++  v8::Isolate* isolate = options.isolate;
++  v8::HandleScope handle_scope(isolate);
++  if (mode == 1 || mode == 3) {
++    v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
++    const char* holder_name =
++        mode == 1 ? "interceptor_obj" : "unwind_interceptor_obj";
++    v8::Local<v8::Object> obj = ctx->Global()
++                                    ->Get(ctx, v8_str(holder_name))
++                                    .ToLocalChecked()
++                                    .As<v8::Object>();
++    std::ignore = obj->Get(ctx, v8_str("prop"));
++  } else if (mode == 2) {
++    isolate->ThrowError("Fast API error.");
++  }
++}
++
++#ifdef V8_USE_SIMULATOR_WITH_GENERIC_C_CALLS
++v8::AnyCType SecondaryStackFastApiCallbackPatch(v8::AnyCType receiver,
++                                                v8::AnyCType mode,
++                                                v8::AnyCType options) {
++  v8::AnyCType ret;
++  SecondaryStackFastApiCallback(receiver.object_value, mode.int32_value,
++                                *options.options_value);
++  return ret;
++}
++#endif  // V8_USE_SIMULATOR_WITH_GENERIC_C_CALLS
++
++void SecondaryStackSlowApiCallback(
++    const v8::FunctionCallbackInfo<v8::Value>& info) {
++  v8::Isolate* isolate = info.GetIsolate();
++  v8::HandleScope handle_scope(isolate);
++  v8::Local<v8::Context> ctx = isolate->GetCurrentContext();
++  int32_t mode = info[0]->Int32Value(ctx).FromJust();
++  CHECK(mode == 1 || mode == 3);
++  const char* holder_name =
++      mode == 1 ? "interceptor_obj" : "unwind_interceptor_obj";
++  v8::Local<v8::Object> obj = ctx->Global()
++                                  ->Get(ctx, v8_str(holder_name))
++                                  .ToLocalChecked()
++                                  .As<v8::Object>();
++  std::ignore = obj->Get(ctx, v8_str("prop"));
++}
++
++void RunPreprocessExceptionOnWasmSecondaryStackTest(v8::Isolate* isolate,
++                                                    void* reserved_pages,
++                                                    size_t reserve_size) {
++  v8::HandleScope handle_scope(isolate);
++  isolate->SetExceptionPropagationCallback(PreprocessExceptionTestCallback);
++
++  v8::Local<v8::FunctionTemplate> ctor =
++      v8::FunctionTemplate::New(isolate, InvokeArgAndMaybeThrowCallback);
++  ctor->SetClassName(v8_str("MyClass"));
++
++  PreprocessExceptionTestConfig pet_config;
++  pet_config.getter_should_throw = true;
++  v8::Local<v8::FunctionTemplate> interceptor_ctor =
++      v8::FunctionTemplate::New(isolate);
++  interceptor_ctor->SetClassName(v8_str("InterceptorHolder"));
++  interceptor_ctor->InstanceTemplate()->SetHandler(
++      v8::NamedPropertyHandlerConfiguration(PETNamedGetter, nullptr, nullptr,
++                                            nullptr, nullptr,
++                                            MakeData(isolate, &pet_config)));
++
++  v8::Local<v8::FunctionTemplate> unwind_interceptor_ctor =
++      v8::FunctionTemplate::New(isolate);
++  unwind_interceptor_ctor->SetClassName(v8_str("UnwindHolder"));
++  unwind_interceptor_ctor->InstanceTemplate()->SetHandler(
++      v8::NamedPropertyHandlerConfiguration(UnwindInnerStackThenThrowGetter));
++
++#ifdef V8_USE_SIMULATOR_WITH_GENERIC_C_CALLS
++  v8::CFunction c_func = v8::CFunction::Make(
++      SecondaryStackFastApiCallback, SecondaryStackFastApiCallbackPatch);
++#else
++  v8::CFunction c_func = v8::CFunction::Make(SecondaryStackFastApiCallback);
++#endif
++  v8::Local<v8::FunctionTemplate> fast_api_tpl = v8::FunctionTemplate::New(
++      isolate, SecondaryStackSlowApiCallback, v8::Local<v8::Value>(),
++      v8::Local<v8::Signature>(), 1, v8::ConstructorBehavior::kThrow,
++      v8::SideEffectType::kHasSideEffect, &c_func);
++
++  v8::Local<v8::Context> ctx = v8::Context::New(isolate);
++  v8::Context::Scope context_scope(ctx);
++
++  v8::Local<v8::Object> global = ctx->Global();
++  global->Set(ctx, v8_str("MyClass"), ctor->GetFunction(ctx).ToLocalChecked())
++      .FromJust();
++  global
++      ->Set(ctx, v8_str("interceptor_obj"),
++            interceptor_ctor->InstanceTemplate()
++                ->NewInstance(ctx)
++                .ToLocalChecked())
++      .FromJust();
++  global
++      ->Set(ctx, v8_str("unwind_interceptor_obj"),
++            unwind_interceptor_ctor->InstanceTemplate()
++                ->NewInstance(ctx)
++                .ToLocalChecked())
++      .FromJust();
++  global
++      ->Set(ctx, v8_str("fast_api"),
++            fast_api_tpl->GetFunction(ctx).ToLocalChecked())
++      .FromJust();
++
++  CompileRun(
++      ctx,
++      "const vec = (...b) => [b.length, ...b];"
++      "const str = s => vec(...Array.from(s, c => c.charCodeAt(0)));"
++      "const bytes = new Uint8Array(["
++      "  0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,"
++      "  1, ...vec(5,"
++      "    0x60, 1, 0x6f, 0,"              // 0: (externref) -> ()
++      "    0x60, 2, 0x6f, 0x7f, 1, 0x7f,"  // 1: (externref, i32) -> i32
++      "    0x60, 1, 0x7f, 0,"              // 2: (i32) -> ()
++      "    0x60, 2, 0x6f, 0x6f, 1, 0x7f,"  // 3: (externref, externref) -> i32
++      "    0x60, 1, 0x7f, 1, 0x6f),"       // 4: (i32) -> externref
++      "  2, ...vec(3,"
++      "    ...str('m'), ...str('tag'), 4, 0, 0,"
++      "    ...str('wasm:js-string'), ...str('charCodeAt'), 0, 1,"
++      "    ...str('m'), ...str('fast_api'), 0, 2),"
++      "  3, ...vec(2, 3, 4),"
++      "  7, ...vec(2,"
++      "    ...str('probe'), 0, 2,"
++      "    ...str('call_fast'), 0, 3),"
++      "  10, ...vec(2,"
++      // probe(exn, s): charCodeAt(s, 0) + (try_table { throw exn },
++      // charCodeAt(s, 0))
++      "    ...vec(0,"
++      "      0x20, 1, 0x41, 0, 0x10, 0,"
++      "      0x02, 0x40, 0x1f, 0x40, 1, 0x02, 0,"
++      "        0x20, 0, 0x08, 0,"
++      "      0x0b, 0x0b,"
++      "      0x20, 1, 0x41, 0, 0x10, 0,"
++      "      0x6a, 0x0b),"
++      // call_fast(mode): try_table (catch tag 0) { fast_api(mode) }
++      "    ...vec(0,"
++      "      0x02, 0x6f, 0x1f, 0x40, 1, 0x00, 0, 0,"
++      "        0x20, 0, 0x10, 1,"
++      "      0x0b, 0xd0, 0x6f, 0x0b, 0x0b))"
++      "]);"
++      "const mod = new WebAssembly.Module(bytes, {builtins: ['js-string']});"
++      "const inst = new WebAssembly.Instance(mod, {"
++      "  m: {tag: WebAssembly.JSTag, fast_api: globalThis.fast_api}"
++      "});"
++      "globalThis.probe_raw = inst.exports.probe;"
++      "globalThis.promising_probe = WebAssembly.promising(inst.exports.probe);"
++      "globalThis.promising_call_fast ="
++      "    WebAssembly.promising(inst.exports.call_fast);")
++      .ToLocalChecked();
++
++  if (!i::v8_flags.liftoff_only && !i::v8_flags.disable_optimizing_compilers) {
++    CompileRun(ctx, "%WasmTierUpFunction(globalThis.probe_raw);")
++        .ToLocalChecked();
++  }
++
++  if (reserved_pages != nullptr) {
++    CHECK(
++        i::GetPlatformPageAllocator()->FreePages(reserved_pages, reserve_size));
++  }
++
++  // 1. Wasm `throw` caught locally on a JSPI secondary stack inside an API
++  // callback must NOT trigger ExceptionPropagationCallback (nor run JS getters
++  // that transition `s` into a ThinString mid-function).
++  CompileRun(ctx,
++             "globalThis.getter_ran = false;"
++             "const key = {['A'.repeat(32)]: 1};"
++             "const s = String.fromCharCode(...new Array(32).fill(65));"
++             "%SimulateNewspaceFull();"
++             "const exn = {"
++             "  get message() {"
++             "    ({})[s];"
++             "    globalThis.getter_ran = true;"
++             "    return 'wasm error';"
++             "  }"
++             "};"
++             "globalThis.probe_result = -1;"
++             "new MyClass(() => {"
++             "  promising_probe(exn, s).then(v => {"
++             "    globalThis.probe_result = v;"
++             "  });"
++             "}, false);")
++      .ToLocalChecked();
++  isolate->PerformMicrotaskCheckpoint();
++  CHECK(CompileRun(ctx, "!globalThis.getter_ran")
++            .ToLocalChecked()
++            ->BooleanValue(isolate));
++  CHECK_EQ(130, CompileRun(ctx, "globalThis.probe_result")
++                    .ToLocalChecked()
++                    ->Int32Value(ctx)
++                    .FromJust());
++
++  // 2. An exception thrown directly by the API callback on the central stack
++  // after the JSPI call returns must still be preprocessed.
++  {
++    v8::TryCatch try_catch(isolate);
++    std::ignore = CompileRun(
++        ctx,
++        "new MyClass(() => promising_probe({message: 'inner'}, 'B'.repeat(32)),"
++        "            true);");
++    CheckMessage(try_catch, ":MyClass:Constructor: Direct callback error.");
++  }
++
++  // 3. An API interceptor invoked from C++ while the topmost V8 frame is on a
++  // JSPI secondary stack must still have its direct exception preprocessed.
++  CompileRun(ctx,
++             "globalThis.caught_msg = '';"
++             "new MyClass(() => {"
++             "  promising_call_fast(1).then(e => {"
++             "    globalThis.caught_msg = e.message;"
++             "  });"
++             "}, false);")
++      .ToLocalChecked();
++  isolate->PerformMicrotaskCheckpoint();
++  {
++    v8::Local<v8::Value> msg =
++        CompileRun(ctx, "globalThis.caught_msg").ToLocalChecked();
++    v8::String::Utf8Value utf8(isolate, msg);
++    CHECK_EQ(std::string(*utf8),
++             std::string(
++                 "InterceptorHolder:prop:NamedGetter: Named getter failed."));
++  }
++
++#ifdef V8_ENABLE_TURBOFAN
++  // 4. A direct ThrowError inside a Wasm Fast API call (WASM_TO_JS frame on the
++  // JSPI secondary stack) must not crash or be misattributed to an outer API
++  // callback.
++  if (i::v8_flags.turbo_fast_api_calls) {
++    CompileRun(ctx,
++               "globalThis.caught_msg = '';"
++               "new MyClass(() => {"
++               "  promising_call_fast(2).then(e => {"
++               "    globalThis.caught_msg = e.message;"
++               "  });"
++               "}, false);")
++        .ToLocalChecked();
++    isolate->PerformMicrotaskCheckpoint();
++    v8::Local<v8::Value> msg =
++        CompileRun(ctx, "globalThis.caught_msg").ToLocalChecked();
++    v8::String::Utf8Value utf8(isolate, msg);
++    CHECK_EQ(std::string(*utf8), std::string("Fast API error."));
++  }
++#endif  // V8_ENABLE_TURBOFAN
++
++  // 5. Unwinding an inner secondary stack across a stack boundary via
++  // UnwindAndFindHandler() inside an API callback must restore
++  // thread_local_top()->central_stack_sp_ to the outer secondary stack's entry
++  // SP, so a subsequent direct throw from that API callback is still
++  // preprocessed.
++  {
++    i::FlagScope<bool> stress_switch(&i::v8_flags.stress_wasm_stack_switching,
++                                     true);
++    CompileRun(
++        ctx,
++        "const stress_bytes = new Uint8Array(["
++        "  0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,"
++        "  1, ...vec(1, 0x60, 0, 0),"
++        "  3, ...vec(1, 0),"
++        "  7, ...vec(1, ...str('stress_throw'), 0, 0),"
++        "  10, ...vec(1, ...vec(0, 0x00, 0x0b))"
++        "]);"
++        "globalThis.stress_throw ="
++        "    new WebAssembly.Instance(new WebAssembly.Module(stress_bytes))"
++        "        .exports.stress_throw;"
++        "globalThis.caught_msg = '';"
++        "new MyClass(() => {"
++        "  promising_call_fast(3).then(e => {"
++        "    globalThis.caught_msg = e.message;"
++        "  });"
++        "}, false);")
++        .ToLocalChecked();
++    isolate->PerformMicrotaskCheckpoint();
++    v8::Local<v8::Value> msg =
++        CompileRun(ctx, "globalThis.caught_msg").ToLocalChecked();
++    v8::String::Utf8Value utf8(isolate, msg);
++    CHECK_EQ(
++        std::string(*utf8),
++        std::string("UnwindHolder:prop:NamedGetter: After nested unwind."));
++  }
++
++  isolate->SetExceptionPropagationCallback(nullptr);
++}
++
++class WasmSecondaryStackExceptionThread
++    : public v8::internal::SandboxableThread {
++ public:
++  WasmSecondaryStackExceptionThread(void* reserved_pages, size_t reserve_size)
++      : SandboxableThread(
++            Options("WasmSecondaryStackExceptionThread", 16 * 1024 * 1024)),
++        reserved_pages_(reserved_pages),
++        reserve_size_(reserve_size) {}
++
++  void Run() override {
++    v8::Isolate::CreateParams create_params;
++    create_params.array_buffer_allocator = CcTest::array_buffer_allocator();
++    v8::Isolate* isolate = v8::Isolate::New(create_params);
++    {
++      v8::Isolate::Scope isolate_scope(isolate);
++      RunPreprocessExceptionOnWasmSecondaryStackTest(isolate, reserved_pages_,
++                                                     reserve_size_);
++    }
++    isolate->Dispose();
++  }
++
++ private:
++  void* reserved_pages_;
++  size_t reserve_size_;
++};
++
++}  // namespace
++
++TEST(PreprocessExceptionOnWasmSecondaryStack) {
++  if (i::v8_flags.jitless || i::v8_flags.wasm_jitless) return;
++
++  FLAG_SCOPE(experimental_report_exceptions_from_callbacks);
++  FLAG_SCOPE(allow_natives_syntax);
++  FLAG_SCOPE(wasm_unsafe_fast_api_wrapper);
++#ifdef DEBUG
++  FLAG_SCOPE(turboshaft_verify_load_elimination);
++#endif
++
++  // Test on a worker thread after freeing reserved pages above its stack,
++  // placing the JSPI secondary stack at a higher address than the central stack
++  // (reproducing crbug.com/575939904).
++  v8::PageAllocator* allocator = i::GetPlatformPageAllocator();
++  size_t page_size = allocator->AllocatePageSize();
++  size_t reserve_size = 16 * 1024 * 1024;
++  void* reserved_pages = allocator->AllocatePages(
++      nullptr, reserve_size, page_size, v8::PageAllocator::kNoAccess);
++  WasmSecondaryStackExceptionThread thread(reserved_pages, reserve_size);
++  CHECK(thread.Start());
++  thread.Join();
++
++  // Also test with the JSPI secondary stack mapped below the main thread's
++  // central stack.
++  RunPreprocessExceptionOnWasmSecondaryStackTest(CcTest::isolate(), nullptr, 0);
++}
++#endif  // V8_ENABLE_WEBASSEMBLY && !defined(V8_ENABLE_CET_SHADOW_STACK)
++
+ namespace {
+ 
+ template <typename T>
+diff --git a/test/inspector/inspector.status b/test/inspector/inspector.status
+index 4041d4a..a72ba8c 100644
+--- a/test/inspector/inspector.status
++++ b/test/inspector/inspector.status
+@@ -74,6 +74,7 @@
+   'debugger/wasm-*': [SKIP],
+   'cpu-profiler/console-profile-wasm': [SKIP],
+   'runtime/get-properties': [SKIP],
++  'regress/regress-577352626': [SKIP],
+   'regress/regress-crbug-349248170': [SKIP],
+ }],  # not has_webassembly or variant == jitless
+ 
+diff --git a/test/inspector/regress/regress-577352626-expected.txt b/test/inspector/regress/regress-577352626-expected.txt
+new file mode 100644
+index 0000000..67f324a
+--- /dev/null
++++ b/test/inspector/regress/regress-577352626-expected.txt
+@@ -0,0 +1,7 @@
++Regression test for crbug.com/577352626.
++paused in: $f
++go(1) returned: 11
++paused in: jsCaller
++jsCaller() returned: 11
++paused in: jsCallerViaWasm
++jsCallerViaWasm() returned: 11
+diff --git a/test/inspector/regress/regress-577352626.js b/test/inspector/regress/regress-577352626.js
+new file mode 100644
+index 0000000..9d48b2a
+--- /dev/null
++++ b/test/inspector/regress/regress-577352626.js
+@@ -0,0 +1,211 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --liftoff
++
++const {session, contextGroup, Protocol} =
++    InspectorTest.start('Regression test for crbug.com/577352626.');
++
++contextGroup.addScript(utils.read('test/mjsunit/wasm/wasm-module-builder.js'));
++
++contextGroup.addScript(`
++function setup() {
++  console.log('setup');
++  inspector.runNestedMessageLoop();
++}
++
++function jsCaller() {
++  return instanceA.exports.goAllInlined(1);
++}
++
++function jsCallerViaWasm() {
++  return instanceA.exports.wasmCaller(1);
++}
++
++const builderA = new WasmModuleBuilder();
++const sig = builderA.addType(kSig_i_v);
++const $setup = builderA.addImport('env', 'setup', kSig_v_v);
++const table = builderA.addTable(kWasmAnyFunc, 1, 1).exportAs('T');
++
++// Place 'collide' at untagged globals offset 20 (ByteArray offset 28), which
++// matches WasmDispatchTable::kEntriesOffset + WasmDispatchTable::kTargetBias.
++builderA.addGlobal(kWasmI64, true, false, wasmI64Const(0x41414141n));
++builderA.addGlobal(kWasmI64, true, false, wasmI64Const(0x42424242n));
++builderA.addGlobal(kWasmI32, true, false, wasmI32Const(0x43434343));
++const collide = builderA.addGlobal(kWasmI32, true, false, wasmI32Const(0));
++
++const f = builderA.addFunction('f', sig)
++  .addBody([kExprI32Const, 11])
++  .exportFunc();
++
++builderA.addActiveElementSegment(table.index, wasmI32Const(0), [f.index]);
++
++// Case 1: 'go' has a speculatively-inlined call_indirect before the loop and a
++// non-inlined call_indirect after the loop. The pause at the loop stack check
++// must be deferred to the non-inlined Liftoff callee '$f'.
++builderA.addFunction('go', kSig_i_i)
++  .addLocals(kWasmI32, 1)
++  .addBody([
++    kExprLocalGet, 0,
++    kExprIf, kWasmVoid,
++      kExprCallFunction, $setup,
++    kExprEnd,
++    // Call #1: monomorphic (A.f), speculatively inlined by Turboshaft.
++    kExprI32Const, 0,
++    kExprCallIndirect, sig, table.index,
++    kExprDrop,
++    // Loop with stack check where the pending Debugger.pause interrupt fires.
++    kExprI32Const, 5,
++    kExprLocalSet, 1,
++    kExprLoop, kWasmVoid,
++      kExprLocalGet, 1,
++      kExprI32Const, 1,
++      kExprI32Sub,
++      kExprLocalTee, 1,
++      kExprBrIf, 0,
++    kExprEnd,
++    // Store at ByteArray offset 28, invalidating only the cached target.
++    kExprI32Const, 1,
++    kExprGlobalSet, collide.index,
++    // Call #2: must not use a stale cached implicit_arg with a mutated target.
++    kExprLocalGet, 0,
++    kExprIf, kWasmI32,
++      kExprI32Const, 0,
++      kExprCallIndirect, sig, table.index,
++    kExprElse,
++      kExprI32Const, 0,
++    kExprEnd,
++  ]).exportFunc();
++
++// Case 2: 'goAllInlined' warms up both call_indirect sites so both are
++// speculatively inlined. When it makes no further calls, the pause at the loop
++// stack check must be deferred until it returns to its caller frame.
++const goAllInlined = builderA.addFunction('goAllInlined', kSig_i_i)
++  .addLocals(kWasmI32, 1)
++  .addBody([
++    kExprLocalGet, 0,
++    kExprIf, kWasmVoid,
++      kExprCallFunction, $setup,
++    kExprEnd,
++    kExprI32Const, 0,
++    kExprCallIndirect, sig, table.index,
++    kExprDrop,
++    kExprI32Const, 5,
++    kExprLocalSet, 1,
++    kExprLoop, kWasmVoid,
++      kExprLocalGet, 1,
++      kExprI32Const, 1,
++      kExprI32Sub,
++      kExprLocalTee, 1,
++      kExprBrIf, 0,
++    kExprEnd,
++    kExprI32Const, 1,
++    kExprGlobalSet, collide.index,
++    kExprI32Const, 0,
++    kExprCallIndirect, sig, table.index,
++  ]).exportFunc();
++
++builderA.addFunction('wasmCaller', kSig_i_i)
++  .addBody([
++    kExprLocalGet, 0,
++    kExprCallFunction, goAllInlined.index,
++  ]).exportFunc();
++
++const instanceA = builderA.instantiate({env: {setup}});
++
++const builderC = new WasmModuleBuilder();
++const sigC = builderC.addType(kSig_i_v);
++const g0C = builderC.addGlobal(kWasmI32, true, false, wasmI32Const(0x1337));
++builderC.addFunction('g', sigC)
++  .addBody([kExprGlobalGet, g0C.index])
++  .exportFunc();
++const instanceC = builderC.instantiate();
++
++// Collect call_indirect feedback in Liftoff and tier up 'go' synchronously.
++instanceA.exports.go(0);
++%WasmTierUpFunction(instanceA.exports.go);
++`);
++
++Protocol.Debugger.onPaused(async message => {
++  const topFrame = message.params.callFrames[0];
++  InspectorTest.log('paused in: ' + topFrame.functionName);
++  await Protocol.Runtime.evaluate({
++    expression: 'instanceA.exports.T.set(0, instanceC.exports.g)',
++  });
++  await Protocol.Debugger.resume();
++});
++
++(async () => {
++  await Protocol.Runtime.enable();
++
++  // Test 1: Pause is deferred from optimized '$go' to Liftoff callee '$f'.
++  let consolePromise = Protocol.Runtime.onceConsoleAPICalled();
++  let evalPromise = Protocol.Runtime.evaluate({
++    expression: 'instanceA.exports.go(1)',
++    returnByValue: true,
++  });
++
++  await consolePromise;
++  await Protocol.Debugger.enable();
++  Protocol.Debugger.pause();
++  await Protocol.Runtime.runIfWaitingForDebugger();
++
++  let {result: {result}} = await evalPromise;
++  InspectorTest.log('go(1) returned: ' + result.value);
++  await Protocol.Debugger.disable();
++
++  // Reset T[0] back to A.f, collect call_indirect feedback for both sites, and
++  // tier up 'goAllInlined' synchronously.
++  await Protocol.Runtime.evaluate({
++    expression: `
++      instanceA.exports.T.set(0, instanceA.exports.f);
++      instanceA.exports.goAllInlined(0);
++      %WasmTierUpFunction(instanceA.exports.goAllInlined);
++    `,
++  });
++
++  // Test 2: When both calls in '$goAllInlined' are inlined and it makes no
++  // further calls, pause is deferred until return to its JS caller ('jsCaller').
++  consolePromise = Protocol.Runtime.onceConsoleAPICalled();
++  evalPromise = Protocol.Runtime.evaluate({
++    expression: 'jsCaller()',
++    returnByValue: true,
++  });
++
++  await consolePromise;
++  await Protocol.Debugger.enable();
++  Protocol.Debugger.pause();
++  await Protocol.Runtime.runIfWaitingForDebugger();
++
++  ({result: {result}} = await evalPromise);
++  InspectorTest.log('jsCaller() returned: ' + result.value);
++  await Protocol.Debugger.disable();
++
++  // Reset T[0] back to A.f and ensure 'goAllInlined' is tiered up, leaving
++  // 'wasmCaller' in non-debugging Liftoff so flooding skips '$wasmCaller' and
++  // floods 'jsCallerViaWasm'.
++  await Protocol.Runtime.evaluate({
++    expression: `
++      instanceA.exports.T.set(0, instanceA.exports.f);
++      instanceA.exports.goAllInlined(0);
++      %WasmTierUpFunction(instanceA.exports.goAllInlined);
++    `,
++  });
++
++  // Test 3: Same as Test 2, with a non-inspectable Wasm caller in between.
++  consolePromise = Protocol.Runtime.onceConsoleAPICalled();
++  evalPromise = Protocol.Runtime.evaluate({
++    expression: 'jsCallerViaWasm()',
++    returnByValue: true,
++  });
++
++  await consolePromise;
++  await Protocol.Debugger.enable();
++  Protocol.Debugger.pause();
++  await Protocol.Runtime.runIfWaitingForDebugger();
++
++  ({result: {result}} = await evalPromise);
++  InspectorTest.log('jsCallerViaWasm() returned: ' + result.value);
++  InspectorTest.completeTest();
++})();
+diff --git a/test/mjsunit/compiler/regress-574339635.js b/test/mjsunit/compiler/regress-574339635.js
+new file mode 100644
+index 0000000..f131352
+--- /dev/null
++++ b/test/mjsunit/compiler/regress-574339635.js
+@@ -0,0 +1,37 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --turbofan --allow-natives-syntax
++
++const P = Array.prototype;
++const Obj = Object;
++let s;
++
++function foo(o, t) {
++  o[0];
++  let r = 0;
++  if (t) r = Obj`hello`;
++  const v = o.x;
++  s = r;
++  return v;
++}
++
++new WeakMap().set(P, 1);
++for (const _ in []) {}
++P[0] = 1;
++P.x = 1;
++Object.defineProperty(P, "x", {value: 1.5, enumerable: false});
++
++%PrepareFunctionForOptimization(foo);
++foo(P, false); foo(P, false); foo(P, false);
++%OptimizeFunctionOnNextCall(foo);
++assertEquals(1.5, foo(P, false));
++
++for (let i = 0; i < 400; i += 3) {
++  P["p" + i] = "x";
++  P["p" + (i + 1)] = "corrupted";
++  P["p" + (i + 2)] = 0;
++}
++
++assertEquals(1.5, foo(P, true));
+diff --git a/test/mjsunit/compiler/regress-578688670.js b/test/mjsunit/compiler/regress-578688670.js
+new file mode 100644
+index 0000000..b16f075
+--- /dev/null
++++ b/test/mjsunit/compiler/regress-578688670.js
+@@ -0,0 +1,56 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++let rejected_error;
++function CustomPromise(executor) {
++  executor(() => {}, (err) => { rejected_error = err; });
++}
++
++let captured_reject_closure;
++CustomPromise.resolve = function(thenable) {
++  return thenable;
++};
++
++const pending_thenables = [
++  { then(resolve, reject) { captured_reject_closure = reject; } },
++  { then() {} },
++  { then() {} },
++];
++
++Promise.any.call(CustomPromise, pending_thenables);
++
++// Store the reject element closure on a constant holder so that inlining
++// invoke_reject_closure into call_reject_closure constant-folds the closure
++// target and its initial FunctionContext.
++const closure_holder = { reject: captured_reject_closure };
++
++function invoke_reject_closure(closure, should_call) {
++  if (should_call) closure('err');
++}
++
++function call_reject_closure(should_call) {
++  invoke_reject_closure(closure_holder.reject, should_call);
++}
++
++// Make the call site inside invoke_reject_closure polymorphic before
++// calling captured_reject_closure so Maglev/TurboFan compile the call without
++// invoking captured_reject_closure during warmup.
++%PrepareFunctionForOptimization(invoke_reject_closure);
++invoke_reject_closure(() => {}, true);
++invoke_reject_closure((x) => x, true);
++
++%PrepareFunctionForOptimization(call_reject_closure);
++call_reject_closure(false);
++%OptimizeFunctionOnNextCall(call_reject_closure);
++call_reject_closure(false);
++
++// Repeated calls to the same reject element closure must be ignored after the
++// first call and must not decrement remainingElementsCount to 0.
++call_reject_closure(true);
++call_reject_closure(true);
++call_reject_closure(true);
++
++assertEquals(undefined, rejected_error);
 diff --git a/test/mjsunit/es6/regress-class-member-init-reparse-await-yield-arguments.js b/test/mjsunit/es6/regress-class-member-init-reparse-await-yield-arguments.js
 new file mode 100644
 index 0000000..d53e383
@@ -1047,6 +3678,520 @@ index 0000000..d53e383
 +  assertInstanceof(error, TypeError);
 +  assertMatches(/x is not a function/, error.message);
 +}
+diff --git a/test/mjsunit/es6/regress-private-name-heritage-recalc.js b/test/mjsunit/es6/regress-private-name-heritage-recalc.js
+new file mode 100644
+index 0000000..682b3aa
+--- /dev/null
++++ b/test/mjsunit/es6/regress-private-name-heritage-recalc.js
+@@ -0,0 +1,90 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Test 1: Nested class in heritage expression with lazy method compilation
++// and PreparseData.
++{
++  class B {
++    #x = "from B";
++    static {
++      class C extends (class D {
++        static m() {
++          return (() => function(o) { return o.#x; })();
++        }
++      }) {
++        #x = "from C";
++      }
++      assertEquals("from B", C.m()(new B()));
++      assertThrows(() => C.m()(new C()), TypeError);
++    }
++  }
++}
++
++// Test 2: Direct eval in heritage expression of a class that does not allocate
++// a context.
++{
++  let f;
++  class B {
++    #x = "from B";
++    [(class extends (f = (o) => eval("o.#x"), Object) {})];
++  }
++  assertEquals("from B", f(new B()));
++}
++
++// Test 3: Direct eval in nested function inside heritage expression where
++// the outer heritage function does not allocate a context.
++{
++  class B {
++    #x = "from B";
++    static test(b) {
++      let f;
++      class C extends (() => {
++        f = (o) => eval("o.#x");
++        return Object;
++      })() {
++        #x = "from C";
++      }
++      assertThrows(() => f(new C()), TypeError);
++      return f(b);
++    }
++  }
++  assertEquals("from B", B.test(new B()));
++}
++
++// Test 4: Nested class with its own private field inside a lazy heritage
++// function that does not allocate a context, using direct eval.
++{
++  class B {
++    #x = "from B";
++    static {
++      let f;
++      class C extends (f = () => class D {
++        #y = "from D";
++        static m(o) {
++          return eval("o.#x");
++        }
++      }, Object) {
++        #x = "from C";
++      }
++      assertEquals("from B", f().m(new B()));
++      assertThrows(() => f().m(new C()), TypeError);
++    }
++  }
++}
++
++// Test 5: Nested class with its own private field inside heritage expression
++// of an anonymous class that does not allocate a context, using direct eval.
++{
++  let D_cls;
++  class B {
++    #x = "from B";
++    [(class extends (D_cls = class D {
++      #y = "from D";
++      static m(o) {
++        return eval("o.#x");
++      }
++    }) {})];
++  }
++  assertEquals("from B", D_cls.m(new B()));
++}
+diff --git a/test/mjsunit/harmony/regress-private-name-heritage-catch-eval.js b/test/mjsunit/harmony/regress-private-name-heritage-catch-eval.js
+new file mode 100644
+index 0000000..5d27d38
+--- /dev/null
++++ b/test/mjsunit/harmony/regress-private-name-heritage-catch-eval.js
+@@ -0,0 +1,131 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Test private name resolution in class heritage clauses across catch scopes
++// and direct eval calls.
++
++class Outer {
++  #x = 'outer';
++
++  testCatchInHeritage() {
++    let f1, f2, evalRes;
++    class Inner extends (() => {
++      try {
++        throw null;
++      } catch (e) {
++        f1 = () => this.#x;
++        f2 = () => () => this.#x;
++        evalRes = eval('this.#x');
++      }
++      return Object;
++    })() {
++      #x = 'inner';
++    }
++    assertEquals('outer', f1());
++    assertEquals('outer', f2()());
++    assertEquals('outer', evalRes);
++  }
++
++  testDirectEvalInHeritage() {
++    let res1, res2, bodyFn;
++    class D1 extends (res1 = eval('this.#x'), Object) {
++      [(
++        assertThrows(() => eval('this.#x'), TypeError),
++        bodyFn = (o) => eval('o.#x'),
++        'prop'
++      )] = 1;
++      #x = 'D1';
++    }
++    assertEquals('outer', res1);
++    assertEquals('D1', bodyFn(new D1()));
++    assertThrows(() => bodyFn(this), TypeError);
++
++    class D2 extends (() => {
++      res2 = eval('this.#x');
++      return Object;
++    })() {
++      #x = 'D2';
++    }
++    assertEquals('outer', res2);
++  }
++
++  testNestedEvalAndLazyFunctionsInHeritage() {
++    let nested1, nested2, lazyFn1, lazyFn2, lazyArrow1, lazyArrow2;
++    class D1 extends (
++      nested1 = eval("eval('this.#x')"),
++      lazyFn1 = eval('(function() { return this.#x; })'),
++      lazyArrow1 = eval('(() => () => this.#x)()'),
++      Object
++    ) {
++      #x = 'D1';
++    }
++    assertEquals('outer', nested1);
++    assertEquals('outer', lazyFn1.call(this));
++    assertEquals('outer', lazyArrow1());
++
++    class D2 extends (() => {
++      nested2 = eval("eval('this.#x')");
++      lazyFn2 = eval('(function() { return this.#x; })');
++      lazyArrow2 = eval('(() => () => this.#x)()');
++      return Object;
++    })() {
++      #x = 'D2';
++    }
++    assertEquals('outer', nested2);
++    assertEquals('outer', lazyFn2.call(this));
++    assertEquals('outer', lazyArrow2());
++  }
++
++  testContextlessClassInHeritage() {
++    let res1, res2;
++    class D extends (
++      class {
++        static [res1 = eval('this.#x')] = 1;
++      },
++      class extends (res2 = eval('this.#x'), Object) {},
++      Object
++    ) {
++      #x = 'D';
++    }
++    assertEquals('outer', res1);
++    assertEquals('outer', res2);
++
++    let bodyFn;
++    class E {
++      #x = 'E';
++      static [class extends (bodyFn = (o) => eval('o.#x'), Object) {}] = 1;
++    }
++    assertEquals('E', bodyFn(new E()));
++    assertThrows(() => bodyFn(this), TypeError);
++  }
++
++  testArrowParamReparentInHeritage() {
++    class Middle {
++      #x = 'middle';
++      run() {
++        let res;
++        class Inner extends ((
++          a = class {
++            #y = 1;
++            static [res = this.#x] = 2;
++          }
++        ) => {
++          () => a;
++          return Object;
++        })() {
++          #x = 'inner';
++        }
++        return res;
++      }
++    }
++    assertEquals('middle', new Middle().run());
++  }
++}
++
++const outer = new Outer();
++outer.testCatchInHeritage();
++outer.testDirectEvalInHeritage();
++outer.testNestedEvalAndLazyFunctionsInHeritage();
++outer.testContextlessClassInHeritage();
++outer.testArrowParamReparentInHeritage();
+diff --git a/test/mjsunit/maglev/regress-574021176.js b/test/mjsunit/maglev/regress-574021176.js
+new file mode 100644
+index 0000000..780b5b1
+--- /dev/null
++++ b/test/mjsunit/maglev/regress-574021176.js
+@@ -0,0 +1,44 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++let g = () => class {};
++
++function* gen(o) {
++  // Context-allocated, maybe-assigned variable so the function context uses a
++  // ContextCell for `x`.
++  let x = 42;
++  () => x = 0;
++
++  // Polymorphic property load with a call continuation. The class literal
++  // pushes a `CLASS_SCOPE` context (needed for `super.x`) before evaluating
++  // `extends g()` and pops it after defining the class. When `g()` aborts in
++  // every polymorphic arm, skipping the rest of the continuation must still pop
++  // that `CLASS_SCOPE`.
++  o.f(class extends g() {
++    constructor() {
++      super.x;
++    }
++  });
++
++  // In dead code after all polymorphic arms abort, `SuspendGenerator` records
++  // `current_scope_info_` on the `ResumeGenerator` merge state.
++  yield;
++
++  // Loads `x` using the `ScopeInfo` from the resume merge state (which must be
++  // the generator's `FUNCTION_SCOPE` with cells, not the leaked `CLASS_SCOPE`).
++  return x;
++}
++
++const suspended = gen({f() {}});
++suspended.next();
++
++g = class {};
++%PrepareFunctionForOptimization(gen);
++assertThrows(() => gen({f() {}}).next(), TypeError);
++assertThrows(() => gen({a: 1, f() {}}).next(), TypeError);
++
++%OptimizeFunctionOnNextCall(gen);
++assertEquals(42, suspended.next().value);
+diff --git a/test/mjsunit/maglev/regress-577305517.js b/test/mjsunit/maglev/regress-577305517.js
+new file mode 100644
+index 0000000..3795d5c
+--- /dev/null
++++ b/test/mjsunit/maglev/regress-577305517.js
+@@ -0,0 +1,76 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++([].values()).foo = 1;
++const smi_obj = {p: 42};
++
++function nop() {}
++%NeverOptimizeFunction(nop);
++
++// Test early abort right after MaglevSubGraphBuilder::BeginLoop in
++// Array.prototype.sort.
++(function testSort() {
++  const sort = Array.prototype.sort;
++  function cmp(a, b) {
++    return a - b;
++  }
++  function inner(iter, arr, skip) {
++    if (skip) return 0;
++    let v = iter.p;
++    return sort.call(arr, cmp);
++  }
++  function test(arr, skip) {
++    let iter = arr.values();
++    nop();
++    let elem = arr[0];
++    return inner(iter, arr, skip);
++  }
++
++  %PrepareFunctionForOptimization(cmp);
++  %PrepareFunctionForOptimization(inner);
++  %PrepareFunctionForOptimization(test);
++  for (let i = 0; i < 10; ++i) {
++    inner(smi_obj, [2, 1], false);
++    test([2, 1], true);
++  }
++  %OptimizeMaglevOnNextCall(test);
++  assertEquals(0, test([2, 1], true));
++  assertEquals([1, 2], test([2, 1], false));
++})();
++
++// Test the same early abort in Array.prototype.forEach
++// (TryReduceArrayIteratingBuiltin).
++(function testForEach() {
++  const forEach = Array.prototype.forEach;
++  let sum = 0;
++  function cb(x) {
++    sum += x;
++  }
++  function inner(iter, arr, skip) {
++    if (skip) return 0;
++    let v = iter.p;
++    return forEach.call(arr, cb);
++  }
++  function test(arr, skip) {
++    let iter = arr.values();
++    nop();
++    let elem = arr[0];
++    return inner(iter, arr, skip);
++  }
++
++  %PrepareFunctionForOptimization(cb);
++  %PrepareFunctionForOptimization(inner);
++  %PrepareFunctionForOptimization(test);
++  for (let i = 0; i < 10; ++i) {
++    inner(smi_obj, [2, 1], false);
++    test([2, 1], true);
++  }
++  sum = 0;
++  %OptimizeMaglevOnNextCall(test);
++  assertEquals(0, test([2, 1], true));
++  assertEquals(undefined, test([2, 1], false));
++  assertEquals(3, sum);
++})();
+diff --git a/test/mjsunit/maglev/regress-578322433.js b/test/mjsunit/maglev/regress-578322433.js
+new file mode 100644
+index 0000000..513a436
+--- /dev/null
++++ b/test/mjsunit/maglev/regress-578322433.js
+@@ -0,0 +1,81 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --expose-gc --maglev-non-eager-inlining
++// Flags: --max-maglev-eager-inlined-bytecode-size=0
++
++function zero() {
++  return 0;
++}
++%PrepareFunctionForOptimization(zero);
++
++// CheckedNumberToInt32 must not propagate Smi range back to its tagged input.
++let v_int32 = 0;
++v_int32 = %AllocateHeapNumberWithValue(0);
++let v_smi1 = 1;
++let v_smi2 = 1;
++
++function foo_int32(x) {
++  v_int32 = x;
++  let y = x + zero();
++  v_smi1 = y;
++  v_smi2 = x;
++}
++
++function read_smi2() {
++  return v_smi2 + 1;
++}
++
++%PrepareFunctionForOptimization(foo_int32);
++%PrepareFunctionForOptimization(read_smi2);
++foo_int32(0);
++assertEquals(1, read_smi2());
++%OptimizeMaglevOnNextCall(read_smi2);
++assertEquals(1, read_smi2());
++
++// Tenure v_smi2's ContextCell before allocating a young HeapNumber(0.0) so an
++// elided write barrier also leaves an unrecorded old-to-new pointer.
++gc();
++let hn0_int32 = %AllocateHeapNumberWithValue(0);
++
++%OptimizeMaglevOnNextCall(foo_int32);
++foo_int32(hn0_int32);
++gc({type: 'minor'});
++assertEquals(1, read_smi2());
++assertEquals(0, v_smi1);
++assertEquals(0, v_smi2);
++
++// CheckedNumberToFloat64 must not propagate Smi range back to its tagged input.
++let v_f64 = 0;
++v_f64 = 1.5;
++let v_f64_smi1 = 1;
++let v_f64_smi2 = 1;
++
++function foo_f64(x) {
++  v_f64 = x;
++  let y = x + zero();
++  v_f64_smi1 = y;
++  v_f64_smi2 = x;
++}
++
++function read_f64_smi2() {
++  return v_f64_smi2 + 1;
++}
++
++%PrepareFunctionForOptimization(foo_f64);
++%PrepareFunctionForOptimization(read_f64_smi2);
++foo_f64(0);
++assertEquals(1, read_f64_smi2());
++%OptimizeMaglevOnNextCall(read_f64_smi2);
++assertEquals(1, read_f64_smi2());
++
++gc();
++let hn0_f64 = %AllocateHeapNumberWithValue(0);
++
++%OptimizeMaglevOnNextCall(foo_f64);
++foo_f64(hn0_f64);
++gc({type: 'minor'});
++assertEquals(1, read_f64_smi2());
++assertEquals(0, v_f64_smi1);
++assertEquals(0, v_f64_smi2);
+diff --git a/test/mjsunit/maglev/regress-579313083.js b/test/mjsunit/maglev/regress-579313083.js
+new file mode 100644
+index 0000000..b70e9e5
+--- /dev/null
++++ b/test/mjsunit/maglev/regress-579313083.js
+@@ -0,0 +1,56 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --maglev
++
++const sinWithApply = Math.sin;
++sinWithApply.call = Function.prototype.apply;
++
++function inner(fn, cond, breakCond) {
++  let x = true;
++  while (cond) {
++    // Inner loop resets `x`'s known type in KNA to the unfinalized outer loop
++    // Phi type (`kUnknown`) before `fn.call(x)`, while `FinishLoop` later types
++    // the outer Phi as `kBoolean` before `!x`.
++    for (let k = 0; k < 0; k++) {}
++    fn.call(x);
++    if (breakCond) break;
++    x = false;
++  }
++  return !x;
++}
++
++function outer(breakCond) {
++  return inner(Function.prototype.apply, true, breakCond);
++}
++
++%PrepareFunctionForOptimization(inner);
++%PrepareFunctionForOptimization(outer);
++
++// 1. Calling `fn.call` when it is `Function.prototype.apply` on `Math.sin`
++// records `Weak(Math.sin)` with `CallFeedbackContent::kReceiver`.
++inner(sinWithApply, true, true);
++
++// 2. Calling `fn.call` when `fn` is `Function.prototype.apply` transitions the
++// slot to `many_closures_cell` while `CallFeedbackContent::kReceiver` remains
++// set. When `outer` inlines `inner` with constant `Function.prototype.apply`,
++// reducing `fn.call(x)` reduces `Function.prototype.apply` and must not
++// speculate that `x` equals `many_closures_cell`.
++assertThrows(() => outer(false), TypeError);
++
++%OptimizeFunctionOnNextCall(outer);
++assertThrows(() => outer(false), TypeError);
++
++// Nested `Function.prototype.apply.apply(target)` records `kReceiver` with
++// `Function.prototype.apply` for the outer `apply` call; the inner `apply`
++// reduction must not reuse that feedback for `target` and deopt.
++function nestedApply(target) {
++  return Function.prototype.apply.apply(target);
++}
++
++%PrepareFunctionForOptimization(nestedApply);
++assertEquals(42, nestedApply(() => 42));
++%OptimizeFunctionOnNextCall(nestedApply);
++assertEquals(42, nestedApply(() => 42));
++assertOptimized(nestedApply);
 diff --git a/test/mjsunit/mjsunit.status b/test/mjsunit/mjsunit.status
 index af6517a..5974a6e 100644
 --- a/test/mjsunit/mjsunit.status
@@ -1059,6 +4204,818 @@ index af6517a..5974a6e 100644
    'compiler/regress-347724915': [SKIP],
    'regress/regress-crbug-418520151': [SKIP],
    'regress/regress-535000102': [SKIP],
+diff --git a/test/mjsunit/opt-proto-seq/regress-577944790.js b/test/mjsunit/opt-proto-seq/regress-577944790.js
+new file mode 100644
+index 0000000..e01a128
+--- /dev/null
++++ b/test/mjsunit/opt-proto-seq/regress-577944790.js
+@@ -0,0 +1,65 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --mock-arraybuffer-allocator
++
++// Test exception propagation when a TypedArray prototype rejects a BigInt store.
++(function testLargeTypedArrayStoreException() {
++  let ta;
++  try {
++    ta = new Int8Array(4294967296);
++  } catch (e) {
++    assertInstanceof(e, RangeError);
++    return;
++  }
++
++  assertThrows(() => {
++    function F() {}
++    F.prototype = ta;
++    F.prototype['4294967295'] = 1n;
++    F.prototype.named = 1;
++  }, TypeError);
++
++  assertEquals(undefined, ta.named);
++})();
++
++// Test exception propagation when valueOf throws during a TypedArray store.
++(function testLargeTypedArrayValueOfException() {
++  let ta;
++  try {
++    ta = new Uint8Array(4294967296);
++  } catch (e) {
++    assertInstanceof(e, RangeError);
++    return;
++  }
++
++  const badValue = {
++    valueOf() {
++      throw new URIError();
++    },
++  };
++
++  assertThrows(() => {
++    function F() {}
++    F.prototype = ta;
++    F.prototype['4294967295'] = badValue;
++    F.prototype.named = 2;
++  }, URIError);
++
++  assertEquals(undefined, ta.named);
++})();
++
++// Test exception propagation on a small BigInt64Array prototype.
++(function testBigIntTypedArrayStoreException() {
++  const ta = new BigInt64Array(4);
++
++  assertThrows(() => {
++    function F() {}
++    F.prototype = ta;
++    F.prototype['4294967295'] = 1;
++    F.prototype.named = 3;
++  }, TypeError);
++
++  assertEquals(undefined, ta.named);
++})();
+diff --git a/test/mjsunit/opt-proto-seq/regress-578083257.js b/test/mjsunit/opt-proto-seq/regress-578083257.js
+new file mode 100644
+index 0000000..30e50a3
+--- /dev/null
++++ b/test/mjsunit/opt-proto-seq/regress-578083257.js
+@@ -0,0 +1,63 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Create a dictionary-mode TypedArray that mimics a default function prototype.
++function makeDictionaryTypedArray() {
++  const ta = new Uint8Array(4);
++  ta.temp = 1;
++  delete ta.temp;
++  ta.constructor = Object;
++  Object.setPrototypeOf(ta, Object.prototype);
++  return ta;
++}
++
++// Test integer indices above kMaxElementIndex on a TypedArray prototype.
++(function testTypedArrayLargeIntegerIndices() {
++  const ta = makeDictionaryTypedArray();
++  function F() {}
++  F.prototype = ta;
++  F.prototype['4294967295'] = 1;
++  F.prototype['4294967296'] = 2;
++  F.prototype.named = 3;
++
++  assertEquals(undefined, Object.getOwnPropertyDescriptor(ta, '4294967295'));
++  assertEquals(undefined, Object.getOwnPropertyDescriptor(ta, '4294967296'));
++  assertEquals(undefined, ta['4294967295']);
++  assertEquals(undefined, ta['4294967296']);
++  assertEquals(3, ta.named);
++})();
++
++// Test canonical numeric index strings on a TypedArray prototype.
++(function testTypedArraySpecialNumericIndices() {
++  const ta = makeDictionaryTypedArray();
++  function F() {}
++  F.prototype = ta;
++  F.prototype['1.5'] = 1;
++  F.prototype['-0'] = 2;
++  F.prototype.named = 3;
++
++  assertEquals(undefined, Object.getOwnPropertyDescriptor(ta, '1.5'));
++  assertEquals(undefined, Object.getOwnPropertyDescriptor(ta, '-0'));
++  assertEquals(undefined, ta['1.5']);
++  assertEquals(undefined, ta['-0']);
++  assertEquals(3, ta.named);
++})();
++
++// Test a dictionary-mode String wrapper as a function prototype.
++(function testStringWrapperPrototype() {
++  const wrapper = new String('abc');
++  wrapper.temp = 1;
++  delete wrapper.temp;
++  wrapper.constructor = Object;
++  Object.setPrototypeOf(wrapper, Object.prototype);
++
++  function F() {}
++  F.prototype = wrapper;
++  F.prototype.first = 10;
++  F.prototype.second = 20;
++
++  assertEquals(10, wrapper.first);
++  assertEquals(20, wrapper.second);
++  assertEquals('a', wrapper[0]);
++})();
+diff --git a/test/mjsunit/regress/regress-568633429.js b/test/mjsunit/regress/regress-568633429.js
+new file mode 100644
+index 0000000..b36f575
+--- /dev/null
++++ b/test/mjsunit/regress/regress-568633429.js
+@@ -0,0 +1,25 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --turbolev --allow-natives-syntax
++
++function outer() {
++  try {
++    throw 1;
++  } catch (e) {}
++
++  function inner(arg1, arg2) {
++    for (let i = 0; i < 5; i++) {
++      Number.isNaN(Math.log10(arg2), inner);
++      arg2 = arg1;
++    }
++  }
++  inner(inner, inner);
++}
++
++%PrepareFunctionForOptimization(outer);
++outer();
++outer();
++%OptimizeFunctionOnNextCall(outer);
++outer();
+diff --git a/test/mjsunit/regress/regress-572988453.js b/test/mjsunit/regress/regress-572988453.js
+new file mode 100644
+index 0000000..f0dd7bc
+--- /dev/null
++++ b/test/mjsunit/regress/regress-572988453.js
+@@ -0,0 +1,34 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --expose-gc --stress-flush-code
++
++class Outer {
++  #a = 'outer_a';
++  #b = 'outer_b';
++
++  static make() {
++    let fn;
++    class Inner extends (() => {
++      try {
++        throw null;
++      } catch (e) {
++        fn = (function(o) {
++          return o.#a + ':' + o.#b;
++        });
++      }
++      return Object;
++    })() {
++      #a() {}
++      #b() {}
++    }
++    return {fn, Inner};
++  }
++}
++
++const {fn, Inner} = Outer.make();
++assertEquals('outer_a:outer_b', fn(new Outer()));
++for (let i = 0; i < 4; i++) gc();
++assertEquals('outer_a:outer_b', fn(new Outer()));
++assertThrows(() => fn(new Inner()), TypeError);
+diff --git a/test/mjsunit/regress/regress-573962535.js b/test/mjsunit/regress/regress-573962535.js
+new file mode 100644
+index 0000000..29db88a
+--- /dev/null
++++ b/test/mjsunit/regress/regress-573962535.js
+@@ -0,0 +1,44 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --expose-gc --no-compilation-cache --stress-flush-code
++// Flags: --stress-lazy-source-positions
++
++class B {
++  #x = 'B';
++  static makeHeritageEvalFunction() {
++    let g;
++    let h;
++    let nested;
++    let nestedEval;
++    class C extends (
++      g = eval('0, function(o) { return o.#x; }'),
++      h = eval('(() => (o) => o.#x)()'),
++      nested = eval('(() => { let ctx = 1; return (o) => { () => ctx; return o.#x; }; })()'),
++      nestedEval = eval("eval('0, function(o) { return o.#x; }')"),
++      Object
++    ) {
++      #x = 'C';
++    }
++    return {g, h, nested, nestedEval, C};
++  }
++}
++
++const {g, h, nested, nestedEval, C} = B.makeHeritageEvalFunction();
++
++// Drop the eval's top-level SharedFunctionInfo and flush bytecode before
++// lazy compilation.
++for (let i = 0; i < 4; i++) gc();
++
++assertEquals('B', g(new B()));
++assertThrows(() => g(new C()), TypeError);
++
++assertEquals('B', h(new B()));
++assertThrows(() => h(new C()), TypeError);
++
++assertEquals('B', nested(new B()));
++assertThrows(() => nested(new C()), TypeError);
++
++assertEquals('B', nestedEval(new B()));
++assertThrows(() => nestedEval(new C()), TypeError);
+diff --git a/test/mjsunit/regress/regress-574038247.js b/test/mjsunit/regress/regress-574038247.js
+new file mode 100644
+index 0000000..d35372f
+--- /dev/null
++++ b/test/mjsunit/regress/regress-574038247.js
+@@ -0,0 +1,68 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --bundle
++
++// JS_BUNDLE_MODULE:c1.mjs
++export const x = 1;
++
++// JS_BUNDLE_MODULE:c2.mjs
++export const x = 2;
++
++// JS_BUNDLE_MODULE:p.mjs
++export * from "n.mjs";
++export * from "c1.mjs";
++
++// JS_BUNDLE_MODULE:n.mjs
++export * from "p.mjs";
++
++// JS_BUNDLE_MODULE:outer.mjs
++export * from "m.mjs";
++export * from "p.mjs";
++export * from "c2.mjs";
++
++// JS_BUNDLE_MODULE:m.mjs
++const a = 1;
++export { a, a as b, a as c, a as d, a as e };
++export * from "outer.mjs";
++export * from "n.mjs";
++
++// JS_BUNDLE_MODULE:trigger.mjs
++import { x } from "outer.mjs";
++
++// JS_BUNDLE_MODULE:outer_no_ns.mjs
++export * from "m_no_ns.mjs";
++export * from "p.mjs";
++export * from "c2.mjs";
++
++// JS_BUNDLE_MODULE:m_no_ns.mjs
++export const a = 1;
++export * from "outer_no_ns.mjs";
++export * from "n.mjs";
++
++// JS_BUNDLE_MODULE:trigger_no_ns.mjs
++import { x } from "outer_no_ns.mjs";
++
++// JS_BUNDLE_MODULE:import_x_from_m_no_ns.mjs
++import { x } from "m_no_ns.mjs";
++
++// JS_BUNDLE_MODULE_ENTRYPOINT
++import * as ns from "m.mjs";
++import { a } from "m_no_ns.mjs";
++
++assertEquals(1, a);
++
++function read(o) {
++  return o.a + o.b + o.c + o.d + o.e;
++}
++
++for (let i = 0; i < 12; i++) {
++  assertEquals(5, read(ns));
++}
++
++await assertThrowsAsync(import("trigger.mjs"), SyntaxError);
++assertEquals(5, read(ns));
++
++await assertThrowsAsync(import("trigger_no_ns.mjs"), SyntaxError);
++await assertThrowsAsync(import("import_x_from_m_no_ns.mjs"), SyntaxError);
+diff --git a/test/mjsunit/regress/regress-574222006.js b/test/mjsunit/regress/regress-574222006.js
+new file mode 100644
+index 0000000..6a01234
+--- /dev/null
++++ b/test/mjsunit/regress/regress-574222006.js
+@@ -0,0 +1,28 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++const realm = Realm.create();
++Realm.eval(realm, `
++  var x = 1;
++  function store(o) { o.x = 2; }
++  const objs = [{a: 1}, {b: 1}, {c: 1}, {d: 1}, {e: 1}];
++  for (let i = 0; i < 10; i++) {
++    for (const o of objs) store(o);
++  }
++  store(globalThis);
++`);
++
++const target = Realm.global(realm);
++
++function write(o) {
++  o.x = 42;
++}
++const objs = [{a: 1}, {b: 1}, {c: 1}, {d: 1}, {e: 1}];
++for (let i = 0; i < 10; i++) {
++  for (const o of objs) write(o);
++}
++
++Realm.eval(realm, 'store(globalThis);');
++assertThrows(() => write(target), TypeError);
++assertEquals(2, Realm.eval(realm, 'x'));
+diff --git a/test/mjsunit/regress/regress-575524702.js b/test/mjsunit/regress/regress-575524702.js
+new file mode 100644
+index 0000000..a2b5244
+--- /dev/null
++++ b/test/mjsunit/regress/regress-575524702.js
+@@ -0,0 +1,61 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Case 1: StoreGlobalIC / LoadGlobalIC warmed up BEFORE cross-origin
++// Realm.navigate().
++(function TestPreNavigationWarmup() {
++  const r1 = Realm.createAllowCrossRealmAccess();
++
++  const [setLeak, getLeak, RealmTypeError] = Realm.eval(r1, `
++    Object.defineProperty(Object.prototype, "leak", {
++      get: version,
++      set: version,
++      configurable: true
++    });
++    function setLeak(v) {
++      leak = v;
++    }
++    function getLeak() {
++      return leak;
++    }
++    for (let i = 0; i < 10; i++) {
++      setLeak(i);
++      getLeak();
++    }
++    [setLeak, getLeak, TypeError];
++  `);
++
++  Realm.navigate(r1);
++
++  assertThrows(() => setLeak(1), RealmTypeError, "no access");
++  assertThrows(() => getLeak(), RealmTypeError, "no access");
++})();
++
++// Case 2: StoreGlobalIC / LoadGlobalIC warmed up AFTER cross-origin
++// Realm.navigate().
++(function TestPostNavigationWarmup() {
++  const r2 = Realm.createAllowCrossRealmAccess();
++
++  const [setLeak, getLeak, RealmTypeError] = Realm.eval(r2, `
++    Object.defineProperty(Object.prototype, "leak2", {
++      get: version,
++      set: version,
++      configurable: true
++    });
++    function setLeak(v) {
++      leak2 = v;
++    }
++    function getLeak() {
++      return leak2;
++    }
++    [setLeak, getLeak, TypeError];
++  `);
++
++  Realm.navigate(r2);
++
++  for (let i = 0; i < 10; i++) {
++    assertThrows(() => setLeak(i), RealmTypeError, "no access");
++    assertThrows(() => getLeak(), RealmTypeError, "no access");
++  }
++})();
+diff --git a/test/mjsunit/regress/regress-575525282-1.js b/test/mjsunit/regress/regress-575525282-1.js
+new file mode 100644
+index 0000000..4a1f789
+--- /dev/null
++++ b/test/mjsunit/regress/regress-575525282-1.js
+@@ -0,0 +1,70 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++// The 32-bit word that optimized code hands to script as a tagged pointer (low bit set).
++// Cage base + 0xdead0000 lies 3.48 GiB into V8's 4-GiB pointer-compression
++// cage, far above everything this page allocates there.
++const WORD = 0xdead0001;
++// Compressed address of the read-only string "name".
++const NAME = 0xe29;
++
++// 1. Map setup
++function f(flag) { if (flag) return { a: 1, b: { c: 2 } }; return 0; }
++%PrepareFunctionForOptimization(f);
++f(true);
++f(true);
++const sib = { a: 1, z: 0 };
++
++// Resulting maps:
++//-> M1 (a: smi) -> M2 (a: smi, b: HeapObject)
++//            \
++//             ---> M3 (a: smi, z: smi)
++
++// This deprecates all above maps.
++sib.a = 1.5;
++
++// 2. Object.prototype with more properties, one of them "name" and one element.
++const A = Object.prototype;
++A.name = 'TRUE';
++A[0] = 7;
++
++// 3. Object.prototype goes to dictionary mode: Object.assign from a source of
++// more than 1020 properties normalizes its target first; the first getter
++// throws, so nothing is stored.
++const big = {};
++Object.defineProperty(big, 'g0', { enumerable: true, get() { throw 1; } });
++for (let i = 0; i < 1100; i++) big['p' + i] = i;
++try { Object.assign(A, big); } catch (e) {}
++
++// 4. The function under test:
++// Every double of the array literal holds the two words NAME (low) and
++// WORD (high).
++const dv = new DataView(new ArrayBuffer(8));
++dv.setUint32(0, NAME, true); dv.setUint32(4, WORD, true);
++const h = new Function('A', 'flag',
++    'A[0]; ' + // Map check
++    'f(flag); ' + // Object literal
++    // Big double array
++    'var o = [' +
++    Array(2048).fill(String(dv.getFloat64(0, true))).join(',') +
++    ']; ' +
++    'var x = A.name; ' + // Property load from an object whose map we already
++                         // checked
++    'return [x.length, o];');
++
++// 5. Warm-up without the literal
++%PrepareFunctionForOptimization(h);
++h(A, false);
++%OptimizeMaglevOnNextCall(h);
++
++assertFalse(%HasFastProperties(A));
++
++// 6. One call with the literal.
++h(A, true);
++assertUnoptimized(h);
++
++// Creating the object literal optimized the prototype.
++assertTrue(%HasFastProperties(A));
+diff --git a/test/mjsunit/regress/regress-575525282-2.js b/test/mjsunit/regress/regress-575525282-2.js
+new file mode 100644
+index 0000000..28d7eb0
+--- /dev/null
++++ b/test/mjsunit/regress/regress-575525282-2.js
+@@ -0,0 +1,66 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --maglev
++
++// 1. Map setup
++function f(flag) {
++  if (flag) return {a: 1, b: {c: 2}};
++  return 0;
++}
++%PrepareFunctionForOptimization(f);
++f(true);
++f(true);
++const sib = { a: 1, z: 0 };
++
++// Resulting maps:
++//-> M1 (a: smi) -> M2 (a: smi, b: HeapObject)
++//            \
++//             ---> M3 (a: smi, z: smi)
++
++// This deprecates all above maps.
++sib.a = 1.5;
++
++// 2. Object.prototype with more properties, one of them "x1" and one element.
++//    Populate enough fast properties with ('x1', 'WRONG', 0) triples so that
++//    when Object.prototype later transitions back from dictionary mode to fast
++//    mode, a stale LoadDictionaryField for "x1" reads 'WRONG' in-bounds from
++//    the new PropertyArray instead of 'TRUE'.
++const A = Object.prototype;
++A.x1 = 'TRUE';
++A[0] = 7;
++for (let i = 0; i < 80; i++) {
++  A['k' + i] = (i % 3 === 0) ? 'x1' : (i % 3 === 1 ? 'WRONG' : 0);
++}
++
++// 3. Object.prototype goes to dictionary mode: Object.assign from a source of
++// more than 1020 properties normalizes its target first; the first getter
++// throws, so nothing is stored.
++const big = {};
++Object.defineProperty(big, 'g0', { enumerable: true, get() { throw 1; } });
++for (let i = 0; i < 1100; i++) big['p' + i] = i;
++try { Object.assign(A, big); } catch (e) {}
++
++// 4. The function under test:
++function h(A, flag) {
++  A[0];         // Map check
++  f(flag);      // Object literal
++  return A.x1;  // Property load from an object whose map we already checked
++}
++
++// 5. Warm-up without the literal
++%PrepareFunctionForOptimization(h);
++assertEquals('TRUE', h(A, false));
++%OptimizeMaglevOnNextCall(h);
++assertEquals('TRUE', h(A, false));
++assertMaglevved(h);
++
++assertFalse(%HasFastProperties(A));
++
++// 6. One call with the literal.
++assertEquals('TRUE', h(A, true));
++assertUnoptimized(h);
++
++// Creating the object literal optimized the prototype.
++assertTrue(%HasFastProperties(A));
+diff --git a/test/mjsunit/regress/regress-575525282-3.js b/test/mjsunit/regress/regress-575525282-3.js
+new file mode 100644
+index 0000000..fda9ead
+--- /dev/null
++++ b/test/mjsunit/regress/regress-575525282-3.js
+@@ -0,0 +1,66 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --maglev
++
++// 1. Map setup
++function f(flag) {
++  if (flag) return [{a: 1, b: 2}];
++  return 0;
++}
++%PrepareFunctionForOptimization(f);
++f(true);
++f(true);
++const sib = { a: 1, z: 0 };
++
++// Resulting maps:
++//-> M1 (a: smi) -> M2 (a: smi, b: smi)
++//            \
++//             ---> M3 (a: smi, z: smi)
++
++// This deprecates all above maps.
++sib.a = 1.5;
++
++// 2. Object.prototype with more properties, one of them "x1" and one element.
++//    Populate enough fast properties with ('x1', 'WRONG', 0) triples so that
++//    when Object.prototype later transitions back from dictionary mode to fast
++//    mode, a stale LoadDictionaryField for "x1" reads 'WRONG' in-bounds from
++//    the new PropertyArray instead of 'TRUE'.
++const A = Object.prototype;
++A.x1 = 'TRUE';
++A[0] = 7;
++for (let i = 0; i < 80; i++) {
++  A['k' + i] = (i % 3 === 0) ? 'x1' : (i % 3 === 1 ? 'WRONG' : 0);
++}
++
++// 3. Object.prototype goes to dictionary mode: Object.assign from a source of
++// more than 1020 properties normalizes its target first; the first getter
++// throws, so nothing is stored.
++const big = {};
++Object.defineProperty(big, 'g0', { enumerable: true, get() { throw 1; } });
++for (let i = 0; i < 1100; i++) big['p' + i] = i;
++try { Object.assign(A, big); } catch (e) {}
++
++// 4. The function under test:
++function h(A, flag) {
++  A[0];         // Map check
++  f(flag);      // Array literal with nested object literal
++  return A.x1;  // Property load from an object whose map we already checked
++}
++
++// 5. Warm-up without the literal
++%PrepareFunctionForOptimization(h);
++assertEquals('TRUE', h(A, false));
++%OptimizeMaglevOnNextCall(h);
++assertEquals('TRUE', h(A, false));
++assertMaglevved(h);
++
++assertFalse(%HasFastProperties(A));
++
++// 6. One call with the literal.
++assertEquals('TRUE', h(A, true));
++assertUnoptimized(h);
++
++// Creating the array literal optimized the prototype.
++assertTrue(%HasFastProperties(A));
+diff --git a/test/mjsunit/regress/regress-577242082.js b/test/mjsunit/regress/regress-577242082.js
+new file mode 100644
+index 0000000..e9e664f
+--- /dev/null
++++ b/test/mjsunit/regress/regress-577242082.js
+@@ -0,0 +1,30 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --maglev --allow-natives-syntax
++
++[1].values().extra = 1;
++
++function sink(...args) {}
++%PrepareFunctionForOptimization(sink);
++
++function helper(o, cond) {
++  if (cond) {
++    sink(o.a);
++  }
++}
++%PrepareFunctionForOptimization(helper);
++
++function g(cond) {
++  let iter = [1].values();
++  delete {}.a;
++  helper(iter, cond);
++}
++%PrepareFunctionForOptimization(g);
++
++helper({ a: 42 }, true);
++
++g(false);
++%OptimizeMaglevOnNextCall(g);
++g(false);
+diff --git a/test/mjsunit/regress/regress-577318603.js b/test/mjsunit/regress/regress-577318603.js
+new file mode 100644
+index 0000000..e89da01
+--- /dev/null
++++ b/test/mjsunit/regress/regress-577318603.js
+@@ -0,0 +1,74 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --no-js-nonextensible-applies-to-private
++
++class Base {
++  constructor(o) {
++    return o;
++  }
++}
++
++class InstallPrivateField extends Base {
++  #p = 1;
++  static setP(o, v) {
++    o.#p = v;
++  }
++  static getP(o) {
++    return o.#p;
++  }
++}
++
++// Private field added onto a non-extensible root map before Object.seal.
++{
++  const obj = new Date();
++  obj[0] = 1;
++  obj.x = 1;
++
++  Object.preventExtensions(obj);
++  Object.defineProperty(obj, 0, { enumerable: false });
++
++  new InstallPrivateField(obj);
++  Object.seal(obj);
++  InstallPrivateField.setP(obj, 1.5);
++
++  assertEquals(1.5, InstallPrivateField.getP(obj));
++  assertFalse(Object.getOwnPropertyDescriptor(obj, 'x').configurable);
++}
++
++// Object.seal on a non-extensible root map before adding a private field.
++{
++  const obj = new Date();
++  obj[0] = 1;
++  obj.x = 1;
++
++  Object.preventExtensions(obj);
++  Object.defineProperty(obj, 0, { enumerable: false });
++
++  Object.seal(obj);
++  new InstallPrivateField(obj);
++  InstallPrivateField.setP(obj, 1.5);
++
++  assertEquals(1.5, InstallPrivateField.getP(obj));
++  assertFalse(Object.getOwnPropertyDescriptor(obj, 'x').configurable);
++}
++
++// Constness generalization of a root-map property after Object.seal on a
++// non-extensible dictionary-elements root map must not drop the seal
++// transition.
++{
++  const obj = new Date();
++  obj[0] = 1;
++  obj.x = 1;
++
++  Object.preventExtensions(obj);
++  Object.defineProperty(obj, 0, { enumerable: false });
++
++  Object.seal(obj);
++  obj.x = 2;
++
++  assertEquals(2, obj.x);
++  assertTrue(Object.isSealed(obj));
++  assertFalse(Object.getOwnPropertyDescriptor(obj, 'x').configurable);
++}
+diff --git a/test/mjsunit/regress/regress-577627207.js b/test/mjsunit/regress/regress-577627207.js
+new file mode 100644
+index 0000000..0c92fe1
+--- /dev/null
++++ b/test/mjsunit/regress/regress-577627207.js
+@@ -0,0 +1,34 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax --expose-fast-api
++
++const fast_c_api = new d8.test.FastCAPI();
++let deopt = false;
++const obj = {
++  valueOf() {
++    if (deopt) {
++      %DeoptimizeFunction(foo);
++      d8.terminateNow();
++    }
++    return 1;
++  }
++};
++function foo() {
++  try {
++    fast_c_api.call_to_number(obj);
++  } catch (e) {
++  }
++}
++%PrepareFunctionForOptimization(foo);
++foo();
++foo();
++%OptimizeFunctionOnNextCall(foo);
++setTimeout(() => {
++  Promise.resolve().then(() => {
++    deopt = true;
++    foo();
++    assertUnreachable();
++  });
++}, 0);
 diff --git a/test/mjsunit/regress/wasm/regress-574223268.js b/test/mjsunit/regress/wasm/regress-574223268.js
 new file mode 100644
 index 0000000..edbbaa7
@@ -1120,6 +5077,218 @@ index 0000000..edbbaa7
 +// trigger a compacting GC while WasmTrustedInstanceData is on the stack.
 +%SimulateNewspaceFull();
 +instance.exports.call(1);
+diff --git a/test/mjsunit/regress/wasm/regress-579313193.js b/test/mjsunit/regress/wasm/regress-579313193.js
+new file mode 100644
+index 0000000..fbfe9b3
+--- /dev/null
++++ b/test/mjsunit/regress/wasm/regress-579313193.js
+@@ -0,0 +1,206 @@
++// Copyright 2026 the V8 project authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Flags: --allow-natives-syntax
++
++d8.file.execute('test/mjsunit/wasm/wasm-module-builder.js');
++
++(function TestImmutableUnrelatedPackedStructGet() {
++  const builder = new WasmModuleBuilder();
++  const superStruct = builder.addStruct([]);
++  const structF64 = builder.addStruct(
++      {fields: [makeField(kWasmF64, false)], supertype: superStruct});
++  const structI8 = builder.addStruct(
++      {fields: [makeField(kWasmI8, false)], supertype: superStruct});
++  const structI16 = builder.addStruct(
++      {fields: [makeField(kWasmI16, false)], supertype: superStruct});
++
++  builder.addFunction('makeStructF64', makeSig([kWasmF64], [kWasmExternRef]))
++      .addBody([
++        kExprLocalGet, 0,
++        kGCPrefix, kExprStructNew, structF64,
++        kGCPrefix, kExprExternConvertAny,
++      ])
++      .exportFunc();
++
++  for (const [name, targetStruct, getOp] of [
++           ['getI8S', structI8, kExprStructGetS],
++           ['getI8U', structI8, kExprStructGetU],
++           ['getI16S', structI16, kExprStructGetS],
++           ['getI16U', structI16, kExprStructGetU],
++       ]) {
++    builder.addFunction(name, makeSig([kWasmExternRef], [kWasmI32]))
++        .addBody([
++          kExprLocalGet, 0,
++          kGCPrefix, kExprAnyConvertExtern,
++          kGCPrefix, kExprRefCast, superStruct,
++          kExprLocalGet, 0,
++          kGCPrefix, kExprAnyConvertExtern,
++          kGCPrefix, kExprRefCast, structF64,
++          kGCPrefix, kExprStructGet, structF64, 0,
++          kExprDrop,
++          kGCPrefix, kExprRefCast, targetStruct,
++          kGCPrefix, getOp, targetStruct, 0,
++        ])
++        .exportFunc();
++  }
++
++  const instance = builder.instantiate();
++  const s = instance.exports.makeStructF64(1.5);
++
++  for (const fn of [
++           instance.exports.getI8S,
++           instance.exports.getI8U,
++           instance.exports.getI16S,
++           instance.exports.getI16U,
++       ]) {
++    const caller = (x) => fn(x) + 1;
++    %PrepareFunctionForOptimization(caller);
++    for (let i = 0; i < 3; i++) {
++      assertTraps(kTrapIllegalCast, () => caller(s));
++    }
++    %OptimizeFunctionOnNextCall(caller);
++    assertTraps(kTrapIllegalCast, () => caller(s));
++  }
++})();
++
++(function TestMutableUnrelatedStructSetToPackedGet() {
++  const builder = new WasmModuleBuilder();
++  const superStruct = builder.addStruct([]);
++  const structF64 = builder.addStruct(
++      {fields: [makeField(kWasmF64, true)], supertype: superStruct});
++  const structF32 = builder.addStruct(
++      {fields: [makeField(kWasmF32, true)], supertype: superStruct});
++  const structI8 = builder.addStruct(
++      {fields: [makeField(kWasmI8, true)], supertype: superStruct});
++  const structI16 = builder.addStruct(
++      {fields: [makeField(kWasmI16, true)], supertype: superStruct});
++
++  builder.addFunction('makeStructF64', makeSig([kWasmF64], [kWasmExternRef]))
++      .addBody([
++        kExprLocalGet, 0,
++        kGCPrefix, kExprStructNew, structF64,
++        kGCPrefix, kExprExternConvertAny,
++      ])
++      .exportFunc();
++
++  builder.addFunction('makeStructF32', makeSig([kWasmF32], [kWasmExternRef]))
++      .addBody([
++        kExprLocalGet, 0,
++        kGCPrefix, kExprStructNew, structF32,
++        kGCPrefix, kExprExternConvertAny,
++      ])
++      .exportFunc();
++
++  builder.addFunction('setF64GetI8S',
++                      makeSig([kWasmExternRef, kWasmF64], [kWasmI32]))
++      .addBody([
++        kExprLocalGet, 0,
++        kGCPrefix, kExprAnyConvertExtern,
++        kGCPrefix, kExprRefCast, superStruct,
++        kExprLocalGet, 0,
++        kGCPrefix, kExprAnyConvertExtern,
++        kGCPrefix, kExprRefCast, structF64,
++        kExprLocalGet, 1,
++        kGCPrefix, kExprStructSet, structF64, 0,
++        kGCPrefix, kExprRefCast, structI8,
++        kGCPrefix, kExprStructGetS, structI8, 0,
++      ])
++      .exportFunc();
++
++  builder.addFunction('setF32GetI16U',
++                      makeSig([kWasmExternRef, kWasmF32], [kWasmI32]))
++      .addBody([
++        kExprLocalGet, 0,
++        kGCPrefix, kExprAnyConvertExtern,
++        kGCPrefix, kExprRefCast, superStruct,
++        kExprLocalGet, 0,
++        kGCPrefix, kExprAnyConvertExtern,
++        kGCPrefix, kExprRefCast, structF32,
++        kExprLocalGet, 1,
++        kGCPrefix, kExprStructSet, structF32, 0,
++        kGCPrefix, kExprRefCast, structI16,
++        kGCPrefix, kExprStructGetU, structI16, 0,
++      ])
++      .exportFunc();
++
++  const instance = builder.instantiate();
++  const sF64 = instance.exports.makeStructF64(2.5);
++  const sF32 = instance.exports.makeStructF32(1.25);
++
++  const callerF64 = (x) => instance.exports.setF64GetI8S(x, 3.5) + 1;
++  %PrepareFunctionForOptimization(callerF64);
++  for (let i = 0; i < 3; i++) {
++    assertTraps(kTrapIllegalCast, () => callerF64(sF64));
++  }
++  %OptimizeFunctionOnNextCall(callerF64);
++  assertTraps(kTrapIllegalCast, () => callerF64(sF64));
++
++  const callerF32 = (x) => instance.exports.setF32GetI16U(x, 2.25) + 1;
++  %PrepareFunctionForOptimization(callerF32);
++  for (let i = 0; i < 3; i++) {
++    assertTraps(kTrapIllegalCast, () => callerF32(sF32));
++  }
++  %OptimizeFunctionOnNextCall(callerF32);
++  assertTraps(kTrapIllegalCast, () => callerF32(sF32));
++})();
++
++(function TestReachablePackedLoadElimination() {
++  const builder = new WasmModuleBuilder();
++  const structPacked = builder.addStruct([
++    makeField(kWasmI8, true),
++    makeField(kWasmI16, true),
++  ]);
++
++  builder.addFunction('makePacked', makeSig([], [kWasmExternRef]))
++      .addBody([
++        kGCPrefix, kExprStructNewDefault, structPacked,
++        kGCPrefix, kExprExternConvertAny,
++      ])
++      .exportFunc();
++
++  for (const [name, fieldIdx, getOp] of [
++           ['setGetI8S', 0, kExprStructGetS],
++           ['setGetI8U', 0, kExprStructGetU],
++           ['setGetI16S', 1, kExprStructGetS],
++           ['setGetI16U', 1, kExprStructGetU],
++       ]) {
++    builder.addFunction(name, makeSig([kWasmExternRef, kWasmI32], [kWasmI32]))
++        .addBody([
++          kExprLocalGet, 0,
++          kGCPrefix, kExprAnyConvertExtern,
++          kGCPrefix, kExprRefCast, structPacked,
++          kExprLocalGet, 1,
++          kGCPrefix, kExprStructSet, structPacked, fieldIdx,
++          kExprLocalGet, 0,
++          kGCPrefix, kExprAnyConvertExtern,
++          kGCPrefix, kExprRefCast, structPacked,
++          kGCPrefix, getOp, structPacked, fieldIdx,
++        ])
++        .exportFunc();
++  }
++
++  const instance = builder.instantiate();
++  const s = instance.exports.makePacked();
++  const {setGetI8S, setGetI8U, setGetI16S, setGetI16U} = instance.exports;
++
++  function roundtrip(ref, v) {
++    return [
++      setGetI8S(ref, v),
++      setGetI8U(ref, v),
++      setGetI16S(ref, v),
++      setGetI16U(ref, v),
++    ];
++  }
++
++  %PrepareFunctionForOptimization(roundtrip);
++  for (let i = 0; i < 3; i++) {
++    assertEquals([-1, 0xff, -1, 0xffff], roundtrip(s, -1));
++  }
++  %OptimizeFunctionOnNextCall(roundtrip);
++  assertEquals([0, 0, 0, 0], roundtrip(s, 0));
++  assertEquals([-1, 0xff, -1, 0xffff], roundtrip(s, -1));
++  assertEquals([-0x80, 0x80, 0x1280, 0x1280], roundtrip(s, 0x11280));
++  assertEquals([0x7f, 0x7f, -0x7f81, 0x807f], roundtrip(s, 0x1807f));
++})();
 diff --git a/test/mjsunit/turbolev/regress-567129324.js b/test/mjsunit/turbolev/regress-567129324.js
 new file mode 100644
 index 0000000..1abeaea

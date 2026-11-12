@@ -28,9 +28,17 @@ Supported mathematical notation renders locally with the bundled MathJax 4 asset
 
 Not every invalid diagram can be repaired. A readable source/error fallback is preferable to silently inventing a different diagram. Inspect the source if the display does not represent what you expected.
 
+## SVG source previews
+
+A code block with no language tag, or an `svg` or `xml` tag, can offer **SVG / Code** when it contains one complete, valid SVG document. Raw SVG, strict Base64 and `data:image/svg+xml;base64,` forms are supported. HTML containing an SVG, extra prose or elements, malformed content and other language tags keep their code presentation.
+
+The initial view is Code. Select **SVG** for the image and **Code** to return. Copy preserves the original source, including an original Base64 representation. SVG preview is image-only: scripts and external resources do not run or load. The optional line-number gutter is hidden while the image is rendered.
+
 ## Rich exported elements
 
 The renderer supports applicable tables, charts, cards, citations, math, diagrams and image-placeholder behavior from the suite’s conversation renderer. These features depend on metadata actually supplied by the server. A normalized export may not contain all provider-specific fields needed to reproduce the original web interface.
+
+Supported saved Grok cards, citations and artifacts, and ChatGPT source/file citations, entities and chart data, depend on the metadata supplied by the server. Unknown or incomplete records keep a readable fallback or source view; archived tools, tasks and automation suggestions do not execute.
 
 Available images load within the conversation according to **Settings → Reading & appearance → Images**: Click to load only or Load automatically. Unavailable images retain visible placeholders. Alternative does not provide Reader’s persistent image resource cache. External destination links require an explicit action. The application does not infer hidden reasoning or reconstruct missing attachments. **Show reasoning when available** displays only reasoning that exists in the retained conversation.
 
@@ -47,6 +55,8 @@ The HTML viewport fills the code block’s interior width at a responsive 16:9 r
 Render opens a temporary native sandbox. The page may run its own JavaScript, but has no Node.js or application API and cannot read the archive, settings or arbitrary local files. Permissions, popups, downloads, navigation and form submissions are restricted. Leaving the conversation or returning to Code destroys the preview and its temporary state.
 
 **Allow external resources in HTML previews** starts enabled in the reading settings. It permits guarded public HTTPS resources only; local/private destinations and unsupported protocols are blocked. Turning it off stops active previews and blocks further external requests, while embedded scripts/assets remain usable. It does not control ordinary conversation images or configured providers and cannot undo a completed request. The standalone offline demo does not execute these native previews.
+
+![Alternative 1.4.5 native HTML preview in dark mode, contained inside the code block](../Images/alternative-145-html-preview-dark.png)
 
 ## Listen to a message
 

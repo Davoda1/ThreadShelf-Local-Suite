@@ -41,3 +41,8 @@ test('keyboard navigation moves days/weeks with one eligible range and year-boun
 test('locale month and weekday labels follow each interface language',()=>{
   const january=new Date('2026-01-01T00:00:00Z');for(const locale of ['en-GB','hu-HU','de-DE','fr-FR','ja-JP']){const calendar=buildYearCalendar(report([{date:'2026-01-01',count:1}]),2026,{locale});assert.equal(calendar.months[0].label,new Intl.DateTimeFormat(locale,{month:'short',timeZone:'UTC'}).format(january));assert.equal(calendar.weekdays[0],new Intl.DateTimeFormat(locale,{weekday:'short',timeZone:'UTC'}).format(new Date('2023-01-02T00:00:00Z')));}
 });
+
+test('native calendar reads one bounded year while retaining the full-selection intensity maximum',()=>{
+ const value={...report([{date:'2026-01-01',count:999}]),calendar:{year:2024,minYear:2023,maxYear:2026,maximum:100,rows:[{date:'2024-02-29',count:25,rowId:'calendar:2024-02-29'}]}};
+ const calendar=buildYearCalendar(value,2024);assert.equal(calendar.days.length,366);assert.deepEqual(calendar.years,[2026,2025,2024,2023]);assert.equal(calendar.maximum,100);const leap=calendar.days.find(day=>day.date==='2024-02-29');assert.equal(leap.count,25);assert.equal(leap.row.rowId,'calendar:2024-02-29');assert.equal(leap.level,2);assert.equal(calendar.days.filter(day=>day.count>0).length,1);
+});

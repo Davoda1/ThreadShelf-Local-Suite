@@ -11,7 +11,7 @@ Existing upstream copyrights and license terms continue to apply.
 | --- | --- |
 | ThreadShelf adaptations and fixtures | MIT; Copyright (c) 2026 Chrystian Schutz. See `licenses/ThreadShelf-MIT.txt` and `licenses/ThreadShelf-fixtures-LICENSE.txt`. |
 | Conversation renderer, export-converter adaptations and the dedicated Fish grammar | Application MIT terms; davoda1. Provider notices are also retained in `src/core/providers/`. |
-| Electron 45.2.3 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
+| Electron 45.3.0 | MIT; Electron contributors, Copyright (c) 2013–2020 GitHub Inc. Original runtime `LICENSE` is retained beside the executable. |
 | Chromium and Electron's bundled native components | Multiple licenses; original `LICENSES.chromium.html` is retained beside the executable. |
 | Mermaid 12.2.0 | MIT; Copyright (c) 2014–2022 Knut Sveidqvist. See `licenses/Mermaid-LICENSE.txt`. The offline bundle includes DOMPurify 3.4.17 and KaTeX 0.19.1; complete incorporated-component notices and versions are in `licenses/Mermaid-BUNDLE-NOTICES.txt` and `licenses/Mermaid-BUNDLE-MANIFEST.json`. |
 | MathJax 4.1.3 and MathJax TeX font 4.1.3 | Apache-2.0; The MathJax Consortium. Unmodified upstream TeX/MathML-to-SVG and assistive MathML components, with local original-font data and application compatibility code. See `licenses/MathJax-Upstream-LICENSE.txt`, `licenses/MathJax-Original-TeX-Font-LICENSE.txt`, `scripts/mathjax-vendor-lock.json`, and `docs/MathJax-4.md`. The retained 3.2.1 source notice is historical and is not executed. |
@@ -148,10 +148,10 @@ comprehensive legal audit of Chromium or a substitute for upstream terms.
 
 ## Electron runtime source access
 
-Suite 1.4.4 uses Electron **45.2.3**, Chromium **156.0.8078.80** and
+Suite 1.4.6 uses Electron **45.3.0**, Chromium **156.0.8078.96** and
 embedded Node.js **24.22.2**. Original runtime notices remain intact.
 Matching runtime source is the historical 1.3.0 original source collection
-plus the 1.4.4 runtime source update; both are required. Historical source
+plus the 1.4.6 runtime source update; both are required. Historical source
 verification records remain specific to Electron 45.1.0. See
 [Electron source access](licenses/ELECTRON-SOURCE-ACCESS.md) for exact downloads,
 offline update instructions and upstream build/replacement guidance.

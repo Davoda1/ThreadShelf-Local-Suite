@@ -295,36 +295,36 @@
       ]
     },
     "Screenshots/alternative-gallery.md": {
-      "title": "Local Alternative 1.4.0 — screenshot guide",
-      "description": "View the real Local Alternative 1.4.0 interface with synthetic demo records, including refreshed reading, search, connection and speech settings captures.",
+      "title": "Local Alternative 1.4.5 — screenshot guide",
+      "description": "Native Alternative 1.4.5 code presentation, reading preferences and light/dark HTML previews, and current workflow images.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/analytics-gallery.md": {
-      "title": "Local Analytics 1.4.0 — screenshot guide",
-      "description": "View the real compiled Local Analytics 1.4.0 interface using synthetic demo data, with light and dark screenshots of Overview, Explorer, evidence and settings.",
+      "title": "Local Analytics 1.4.5 — screenshot guide",
+      "description": "View the real compiled Local Analytics 1.4.5 interface using synthetic demo data, with light and dark screenshots of Overview, Explorer, evidence and settings.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/index.md": {
       "title": "Screenshot guides",
-      "description": "Explore screenshots of the 1.4.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "description": "All 44 current public 1.4.5 interface captures with synthetic data: Reader, Analytics and Alternative workflows and new rendering/cleanup controls.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots": {
       "title": "Screenshot guides",
-      "description": "Explore screenshots of the 1.4.0 interfaces with synthetic demonstration content. Each gallery explains the capture method and the limits of the preview.",
+      "description": "All 44 current public 1.4.5 interface captures with synthetic data: Reader, Analytics and Alternative workflows and new rendering/cleanup controls.",
       "tags": [
         "Screenshots"
       ]
     },
     "Screenshots/reader-gallery.md": {
-      "title": "Local Reader 1.4.0 — screenshot guide",
-      "description": "View unaltered Local Reader 1.4.0 production-renderer captures with synthetic preview data, including speech settings and audio cache controls.",
+      "title": "Local Reader 1.4.5 — screenshot guide",
+      "description": "Native Reader 1.4.5 code preferences, HTML previews and conversation cleanup, and current workflow images.",
       "tags": [
         "Screenshots"
       ]

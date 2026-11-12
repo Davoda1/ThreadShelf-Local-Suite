@@ -75,4 +75,3 @@ Reader keeps the archive and cached vectors in the Reader profile. The Ollama in
 If results are unexpected, first confirm the active search method, current source, selected model and index status. Rebuilding an index cannot recover words or source metadata that were never present in the imported export.
 
 Related: [Search](search.md), [Storage](../Data/storage.md), [Privacy](../Data/privacy.md).
-

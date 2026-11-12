@@ -11,6 +11,8 @@ export function calendarRange(report={}){
   return {start,end,invalid:range.invalid===true};
 }
 export function calendarYearChoices(report={},now=Date.now()){
+  if(Array.isArray(report.calendar?.years)){const nativeYears=report.calendar.years.filter(year=>Number.isInteger(year)&&year>=1&&year<=9999);if(nativeYears.length)return [...new Set(nativeYears)].sort((a,b)=>b-a);}
+  if(Number.isInteger(report.calendar?.minYear)&&Number.isInteger(report.calendar?.maxYear)&&report.calendar.minYear>=1&&report.calendar.maxYear<=9999&&report.calendar.minYear<=report.calendar.maxYear)return Array.from({length:report.calendar.maxYear-report.calendar.minYear+1},(_,index)=>report.calendar.maxYear-index);
   const years=new Set(),{start,end}=calendarRange(report);
   const add=value=>{const year=Number(String(value||'').slice(0,4));if(Number.isInteger(year)&&year>=1&&year<=9999)years.add(year);};
   for(const row of report.tables?.timelineDaily||[])if(validDay(row.date||row.label))add(row.date||row.label);
@@ -25,8 +27,8 @@ export function calendarIntensity(count,maximum){return count>0?Math.max(1,Math.
 export function buildYearCalendar(report={},requestedYear,options={}){
   const years=calendarYearChoices(report,options.now),candidate=Number(requestedYear),year=years.includes(candidate)?candidate:years[0],yearText=String(year).padStart(4,'0');
   const start=new Date(yearText+'-01-01T00:00:00Z'),end=new Date(start);end.setUTCFullYear(year+1);
-  const dayCount=Math.round((end-start)/DAY),offset=(start.getUTCDay()+6)%7,columnCount=Math.ceil((offset+dayCount)/7),range=calendarRange(report),rows=report.tables?.timelineDaily||[],byDay=new Map();
-  let maximum=0;rows.forEach((row,rowIndex)=>{const date=row.date||row.label;if(!validDay(date))return;const count=finite(row.count)&&row.count>=0?row.count:0;maximum=Math.max(maximum,count);if(!byDay.has(date))byDay.set(date,{row,rowIndex,count});});
+  const dayCount=Math.round((end-start)/DAY),offset=(start.getUTCDay()+6)%7,columnCount=Math.ceil((offset+dayCount)/7),range=calendarRange(report),rows=report.calendar?.year===year?report.calendar.rows||[]:report.tables?.timelineDaily||[],byDay=new Map();
+  let maximum=finite(report.calendar?.maximum)?report.calendar.maximum:0;rows.forEach((row,rowIndex)=>{const date=row.date||row.label;if(!validDay(date))return;const count=finite(row.count)&&row.count>=0?row.count:0;maximum=Math.max(maximum,count);if(!byDay.has(date))byDay.set(date,{row,rowIndex,count});});
   const days=[];
   for(let index=0;index<dayCount;index++){
     const date=new Date(+start+index*DAY).toISOString().slice(0,10),entry=byDay.get(date),inRange=!range.invalid&&(!range.start||date>=range.start)&&(!range.end||date<=range.end),count=inRange?(entry?.count||0):null;

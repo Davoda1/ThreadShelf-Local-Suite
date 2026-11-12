@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "suite_version": "1.4.6",
+  "electron_version": "45.3.0",
+  "passed": true,
+  "independent_builds": 2,
+  "receipts_identical": true,
+  "receipt": {
+    "schema": "threadshelf-runtime-source-update-v1",
+    "version": "1.4.6",
+    "electron": "45.3.0",
+    "file_name": "ThreadShelf-Local-Suite-1.4.6-Runtime-Source-Update.tar.gz",
+    "bytes": 824382913,
+    "sha256": "c29e59031d5d86a18cce02d88c529a48f6af078101700109e5adb4dcaced861c",
+    "manifest_sha256": "f28fc65fb1a7c937bbfd7701783325450efe26ec53e9b0804ed30ee29499b8c5",
+    "verified": true
+  },
+  "checks": {
+    "source_update_regressions": {
+      "passed": 11,
+      "failed": 0
+    },
+    "source_delta": {
+      "changed_files": 945,
+      "gitlink_transitions": 12,
+      "passed": true
+    },
+    "ordered_patches": {
+      "passed": 352,
+      "failed": 0
+    },
+    "actual_artifact_offline_updater": "PASS",
+    "v8_fixed_profile_name": "PASS"
+  },
+  "scope": "Two actual deterministic source-supplement builds from the verified pinned inputs produced identical complete-file receipts. The actual built supplement updater passed on an explicitly sparse fixture containing every exact changed-file preimage, fully inspecting/extracting both replacement source archives and installing all three optimization profiles. Separate current upstream sparse originals passed all352 ordered patches. No complete historical mirror assembly or native Electron rebuild is claimed."
+}

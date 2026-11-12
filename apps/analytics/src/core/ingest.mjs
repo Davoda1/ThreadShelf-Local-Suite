@@ -3,21 +3,24 @@
 import fs from 'node:fs/promises';
 import { constants } from 'node:fs';
 import path from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash,randomUUID } from 'node:crypto';
 import { Reader, ZipReader } from '@zip.js/zip.js';
-import { normalizeConversations, reconcileConversations } from './adapters.mjs';
+import { normalizeConversations, prepareConversationDocument, reconcileConversations,validateAnalyticalTree,DEFAULT_ANALYTICAL_LIMITS } from './adapters.mjs';
 import { decodeJSONBytes } from './parsers/json-bytes.mjs';
 import { parseJSON } from './parsers/common.mjs';
 import { jsonEvents } from './parsers/stream-json.mjs';
 import { parseDocument, prepareExport as prepareGemini, renderChildren, plain } from './parsers/gemini.mjs';
 import { assembleVeniceBackup, isVeniceBackupManifest, isVeniceDexieChunk } from './parsers/venice-backup.mjs';
+import {DiskVeniceBackup} from './parsers/venice-backup-disk.mjs';
+import {DiskInputLedger} from './input-ledger.mjs';
+import {assertOutputOutsideSource} from './source-access.mjs';
 
 export const INGEST_LIMITS = Object.freeze({
   fileBytes: 512 * 1024 ** 2, htmlBytes: 512 * 1024 ** 2,
   streamBytes: 256 * 1024 ** 3, zipBytes: 1024 ** 4, expandedBytes: 256 * 1024 ** 3,
   recordBytes: 512 * 1024 ** 2, metadataBytes: 16 * 1024 ** 2,
   streamingThreshold: 8 * 1024 ** 2, entries: 100000, records: 2000000,
-  depth: 64, jsonDepth: 256, nodes: 4000000, pathLength: 32768,
+  depth: 64, jsonDepth: 256, nodes: DEFAULT_ANALYTICAL_LIMITS.nodes, pathLength: 32768,
 });
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const forbiddenNames = new Set(['settings.json', 'interface.json', 'appearance.json', 'layout.json', 'reading.json', 'reading-v2.json', 'reading-v2.json.bak', 'preferences', 'cookies', 'archive.sqlite', 'vectors.sqlite', 'current.json', 'previous.json', 'writer.json', 'writer-gate.json', 'cleanup-pending.json', 'initializing.json']);
@@ -27,8 +30,18 @@ const tick = () => new Promise(resolve => setImmediate(resolve));
 const identity = stat => `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}:${stat.ctimeMs}`;
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const candidate = name => /\.(?:json|html?|zip)$/i.test(name) || !path.extname(name);
-const emit = (options, data) => options.onProgress?.({ operation: 'ingest', ...data });
+const emit = (options, data) => options.onProgress?.({ operation: 'ingest', ...data,...(options.consumer?{completed:data.completed??data.current??0,total:data.total??0}:{}) });
 const profileNames = names => names.has('local-storage-v2') || names.has('archive.sqlite') || names.has('reading-v2.json') || names.has('activity-v1') || (names.has('current.json') && (names.has('objects') || names.has('snapshots') || names.has('records')));
+async function directoryProfile(directory,options,cacheKey=directory,state){
+  if(!options.consumer)return profileNames(new Set((await fs.readdir(directory)).map(name=>name.toLowerCase())));
+  state??=await fs.stat(directory);const token=identity(state),db=options.ledger?.db;
+  if(db&&!options.profileCacheReady){db.exec('CREATE TABLE directory_profiles(path TEXT PRIMARY KEY,identity TEXT NOT NULL,is_profile INTEGER NOT NULL)');options.profileCacheReady=true;}
+  const retained=db?.prepare('SELECT identity,is_profile FROM directory_profiles WHERE path=?').get(cacheKey);if(retained?.identity===token)return !!retained.is_profile;
+  const flags=new Set(),relevant=new Set(['local-storage-v2','archive.sqlite','reading-v2.json','activity-v1','current.json','objects','snapshots','records']);let found=false;
+  const opened=await fs.opendir(directory);try{for await(const entry of opened){abort(options.signal);const name=entry.name.toLowerCase();if(relevant.has(name))flags.add(name);if(profileNames(flags)){found=true;break;}}}finally{await opened.close().catch(()=>{});}
+  db?.prepare('INSERT INTO directory_profiles(path,identity,is_profile) VALUES(?,?,?) ON CONFLICT(path) DO UPDATE SET identity=excluded.identity,is_profile=excluded.is_profile').run(cacheKey,token,found?1:0);return found;
+}
+
 
 function checkedLimits(overrides) {
   const limits = { ...INGEST_LIMITS, ...overrides };
@@ -37,13 +50,7 @@ function checkedLimits(overrides) {
 }
 
 function safeTree(root, limits) {
-  const stack = [[root, 0]]; let nodes = 0;
-  while (stack.length) {
-    const [value, depth] = stack.pop();
-    if (!value || typeof value !== 'object') continue;
-    if (++nodes > limits.nodes || depth > limits.jsonDepth) throw new Error('Export JSON exceeds the complexity limit.');
-    for (const child of Object.values(value)) if (child && typeof child === 'object') stack.push([child, depth + 1]);
-  }
+  validateAnalyticalTree(root,{nodes:limits.nodes,depth:limits.jsonDepth});
 }
 
 function ancestorPaths(filename) {
@@ -62,8 +69,7 @@ async function checkPath(filename, options, { directory = false } = {}) {
     if (!stat.isDirectory() || stat.isSymbolicLink()) throw new Error('Symbolic-link or reparse-point source paths are refused.');
     const base = path.basename(ancestor).toLowerCase();
     if (forbiddenDirectories.has(base) || /^(?:threadshelf[- ]local[- ]reader|threadshelf-local-analytics)$/i.test(base)) throw new Error('Reader/profile directories require the explicit Reader-source route.');
-    const names = new Set((await fs.readdir(ancestor)).map(name => name.toLowerCase()));
-    if (profileNames(names)) throw new Error('Reader/profile directory detected; direct export scanning is refused.');
+    if (await directoryProfile(ancestor,options,ancestor,stat)) throw new Error('Reader/profile directory detected; direct export scanning is refused.');
   }
   if (!directory && forbiddenNames.has(path.basename(filename).toLowerCase())) throw new Error('Reader settings, reading state, activity cache, and database files are excluded.');
 }
@@ -80,10 +86,11 @@ async function secureOpen(filename, options) {
   try {
     if (process.platform === 'linux') {
       let parent = await fs.open(path.parse(filename).root, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW); parents.push(parent);
+      let originalParent=path.parse(filename).root;
       for (const component of path.dirname(filename).slice(path.parse(filename).root.length).split(path.sep).filter(Boolean)) {
         parent = await fs.open(`/proc/self/fd/${parent.fd}/${component}`, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW); parents.push(parent);
-        const names = new Set((await fs.readdir(`/proc/self/fd/${parent.fd}`)).map(name => name.toLowerCase()));
-        if (profileNames(names)) throw new Error('Reader/profile directory detected through anchored source path.');
+        originalParent=path.join(originalParent,component);
+        if (await directoryProfile(`/proc/self/fd/${parent.fd}`,options,originalParent,await parent.stat())) throw new Error('Reader/profile directory detected through anchored source path.');
       }
       handle = await fs.open(`/proc/self/fd/${parent.fd}/${path.basename(filename)}`, constants.O_RDONLY | constants.O_NOFOLLOW);
     } else handle = await fs.open(filename, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
@@ -120,7 +127,7 @@ async function readAll(factory, maxBytes, signal) {
 async function* scan(paths, options, diagnostics, depth = 0, seen = new Set(), budget = { entries: 0 }) {
   for (const input of paths) {
     abort(options.signal); const filename = path.resolve(input);
-    if (seen.has(filename)) continue; seen.add(filename);
+    if(options.ledger){if(!options.ledger.remember(filename))continue;}else{if (seen.has(filename)) continue; seen.add(filename);}
     if (++budget.entries > options.limits.entries) throw new Error('Selected directory tree exceeds the entry limit.');
     try {
       const stat = await fs.lstat(filename);
@@ -128,6 +135,16 @@ async function* scan(paths, options, diagnostics, depth = 0, seen = new Set(), b
       if (stat.isDirectory()) {
         await checkPath(filename, options, { directory: true });
         if (depth >= options.limits.depth) throw new Error('Directory nesting exceeds the depth limit.');
+        if(options.ledger){
+          const before=identity(stat);let excluded=false;
+          for await(const entry of options.ledger.directoryEntries(filename)){
+            if(forbiddenNames.has(entry.name.toLowerCase())||forbiddenDirectories.has(entry.name.toLowerCase())){excluded=true;continue;}
+            yield*scan([path.join(filename,entry.name)],options,diagnostics,depth+1,seen,budget);
+          }
+          if(excluded)diagnostics.push({code:'excluded-metadata',severity:'info',sourceFile:filename,message:'Excluded profile/cache/settings names without reading their content.'});
+          if(identity(await fs.lstat(filename))!==before)throw new Error('Export directory changed during scanning; retry a stable copy.');
+          continue;
+        }
         const entries = await fs.readdir(filename, { withFileTypes: true });
         if (entries.length + budget.entries > options.limits.entries) throw new Error('Selected directory tree exceeds the entry limit.');
         const allowed = entries.filter(entry => !forbiddenNames.has(entry.name.toLowerCase()) && !forbiddenDirectories.has(entry.name.toLowerCase()));
@@ -206,13 +223,14 @@ function parseHTML(raw, filename, diagnostics) {
   return parsed;
 }
 
-function normalizeDocuments(documents, filename, options, diagnostics) {
+async function normalizeDocuments(documents, filename, options, diagnostics) {
   const conversations = [];
   for (const document of documents) {
     abort(options.signal); safeTree(document, options.limits);
-    const result = normalizeConversations(document, { sourceId: options.sourceId, collectionId: options.collectionId, sourceFile: filename,...(options.sourceRecordIndex!=null?{sourceRecordIndex:options.sourceRecordIndex}:{}),...(document?.rawSourcePath?{rawPath:document.rawSourcePath}:{}) });
-    conversations.push(...result.conversations);
-    diagnostics.push(...result.diagnostics.map(item => ({ sourceFile: filename, ...item })));
+    const context={sourceId:options.sourceId,collectionId:options.collectionId,sourceFile:filename,...options.normalizationContext,...(options.sourceRecordIndex!=null?{sourceRecordIndex:options.sourceRecordIndex}:{}),...(document?.rawSourcePath?{rawPath:document.rawSourcePath}:{})};
+    const result = options.consumer ? prepareConversationDocument(document,context) : normalizeConversations(document,context);
+    if(options.consumer){for(const conversation of result.conversations){abort(options.signal);await options.consumer.onConversation(conversation);options.consumerState.count++;}await options.consumer.onDiagnostics?.(result.diagnostics.map(item=>({sourceFile:filename,...item})));}
+    else{conversations.push(...result.conversations);diagnostics.push(...result.diagnostics.map(item => ({ sourceFile: filename, ...item })));}
   }
   return conversations;
 }
@@ -227,6 +245,20 @@ async function parseSource(factory, size, filename, options, diagnostics) {
   if (html || !utf8 || size <= limits.streamingThreshold || !/^[\[{]/.test(head)) {
     const raw = await readAll(factory, html ? limits.htmlBytes : limits.fileBytes, options.signal);
     return normalizeDocuments(html ? parseHTML(raw, filename, diagnostics) : [decodeJSONBytes(raw)], filename, options, diagnostics);
+  }
+  if(options.consumer&&head.startsWith('[')&&!options.forceTwoPass){
+    const unit=await options.consumer.beginUnit({kind:'json-array',sourceFile:filename}),before=options.consumerState.count;let fallback=false,records=0,unitOpen=true;
+    try{
+      emit(options,{phase:'parsing',sourceFile:filename,completed:0,total:0,totalBytes:size});
+      for await(const event of jsonEvents(factory(),options))if(event.type==='record'){
+        abort(options.signal);if(needsWholeArray(event.value)){fallback=true;break;}
+        if(++records>limits.records)throw new Error('JSON exceeds the conversation record limit.');
+        await normalizeDocuments([[event.value]],filename,{...options,sourceRecordIndex:event.index},diagnostics);
+        if(records%100===0){emit(options,{phase:'parsing',sourceFile:filename,completed:records,total:0,totalBytes:size});await tick();}
+      }
+      if(fallback){await options.consumer.rollbackUnit(unit);unitOpen=false;options.consumerState.count=before;return parseSource(factory,size,filename,{...options,forceTwoPass:true},diagnostics);}
+      await options.consumer.commitUnit(unit);unitOpen=false;emit(options,{phase:'parsing',sourceFile:filename,completed:records,total:records,totalBytes:size});return[];
+    }catch(error){if(unitOpen)await options.consumer.rollbackUnit(unit);options.consumerState.count=before;throw error;}
   }
   const metadata = Object.create(null); let kind, wrapped = false, whole = false, records = 0, metadataBytes = 0;
   emit(options, { phase: 'validating', sourceFile: filename, totalBytes: size });
@@ -256,7 +288,7 @@ async function parseSource(factory, size, filename, options, diagnostics) {
   emit(options, { phase: 'parsing', sourceFile: filename, total: records });
   for await (const event of jsonEvents(factory(), options)) if (event.type === 'record') {
     const document = wrapped ? { ...metadata, conversations: [event.value] } : [event.value];
-    conversations.push(...normalizeDocuments([document], filename, { ...options,sourceRecordIndex:event.index }, diagnostics));
+    conversations.push(...await normalizeDocuments([document], filename, { ...options,sourceRecordIndex:event.index }, diagnostics));
     if (event.index % 100 === 0) { emit(options, { phase: 'parsing', sourceFile: filename, current: event.index + 1, total: records }); await tick(); }
   }
   return conversations;
@@ -320,6 +352,21 @@ async function parseZip(opened, filename, options, diagnostics, budget) {
       try { manifest = decodeJSONBytes(await readAll(() => zipChunks(manifestEntry, options), Math.min(options.limits.fileBytes, options.limits.metadataBytes), options.signal)); }
       catch (error) { if (chunks.length || error.name === 'AbortError') throw error; }
     }
+    if(options.consumer&&(isVeniceBackupManifest(manifest)||chunks.length)){
+      if(typeof options.workspace!=='string'||!path.isAbsolute(options.workspace))throw new Error('A private ingestion workspace is required for a Venice backup.');
+      const assembler=options.consumerState.venice??=new DiskVeniceBackup({filename:path.join(options.workspace,'venice-'+randomUUID()+'.sqlite'),signal:options.signal,limits:options.limits});
+      assembler.beginPart();let recognized=0;
+      try{
+        if(isVeniceBackupManifest(manifest))assembler.addManifest(manifest);
+        for(const entry of chunks){abort(options.signal);const value=decodeJSONBytes(await readAll(()=>zipChunks(entry,options),options.limits.fileBytes,options.signal));safeTree(value,options.limits);if(!isVeniceDexieChunk(value)){if(isVeniceBackupManifest(manifest))throw new Error('Unsupported or invalid Dexie v1 chunk.');break;}assembler.addChunk(entry.filename,value);recognized++;await tick();}
+        if(isVeniceBackupManifest(manifest)||recognized>0&&recognized===chunks.length){
+          budget.bytes+=chunks.reduce((sum,entry)=>sum+entry.uncompressedSize,0)+(isVeniceBackupManifest(manifest)?manifestEntry.uncompressedSize:0);if(budget.bytes>options.limits.expandedBytes)throw new Error('Selected Venice parts exceed the expansion safety limit.');
+          for(const entry of entries)if(!entry.directory)assembler.addMedia({name:entry.filename,sourcePart:filename,sizeBytes:entry.uncompressedSize,compressedSizeBytes:entry.compressedSize});
+          await opened.unchanged();return{backupDisk:true,conversations:[]};
+        }
+        assembler.rollbackPart();
+      }catch(error){assembler.rollbackPart();throw error;}
+    }
     const members=[];
     if(isVeniceBackupManifest(manifest)||chunks.length){
       for(const entry of chunks){try{const value=decodeJSONBytes(await readAll(()=>zipChunks(entry,options),options.limits.fileBytes,options.signal));safeTree(value,options.limits);members.push({name:entry.filename,value});}catch(error){if(isVeniceBackupManifest(manifest)||error.name==='AbortError')throw error;}}
@@ -342,13 +389,17 @@ async function parseZip(opened, filename, options, diagnostics, budget) {
         diagnostics.push({ code: 'zip-excluded-metadata', severity: 'info', sourceFile: filename, message: 'Profile/cache/settings member excluded without reading.' }); continue;
       }
       const sourceFile = `${filename}!/${entry.filename}`;
+      let memberUnit,memberCount=options.consumerState?.count;
       try {
+        memberUnit=await options.consumer?.beginUnit?.({kind:'member',sourceFile});
         const memberDiagnostics = [];
         const records = await parseSource(() => zipChunks(entry, options), entry.uncompressedSize, sourceFile, options, memberDiagnostics);
         budget.bytes += entry.uncompressedSize;
         if (budget.bytes > options.limits.expandedBytes) throw new Error('Selected ZIP exports exceed the expansion safety limit.');
         conversations.push(...records); diagnostics.push(...memberDiagnostics);
+        await options.consumer?.commitUnit?.(memberUnit);
       } catch (error) {
+        if(options.consumer){if(memberUnit!==undefined)await options.consumer.rollbackUnit(memberUnit);options.consumerState.count=memberCount;}
         if (error.name === 'AbortError') throw error;
         diagnostics.push({ code: 'zip-member-error', severity: 'error', sourceFile, message: error.message });
       }
@@ -365,53 +416,84 @@ async function parseZip(opened, filename, options, diagnostics, budget) {
  * their selected file size, not repeated streaming validation I/O. */
 export async function ingestExports(paths, options = {}) {
   if (!Array.isArray(paths) || !paths.length || !paths.every(item => typeof item === 'string' && item.length)) throw new Error('Select one or more direct export files or extracted folders.');
-  options = { ...options, limits: checkedLimits(options.limits) };
+  if(options.consumer&&['onConversation','beginUnit','commitUnit','rollbackUnit'].some(key=>typeof options.consumer[key]!=='function'))throw new TypeError('Direct import consumer requires conversation and transaction callbacks.');
+  options = { ...options, limits: checkedLimits(options.consumer?{records:Number.MAX_SAFE_INTEGER,...options.limits}:options.limits),...(options.consumer?{consumerState:{count:0}}:{}) };
+  let ledger;
+  if(options.consumer){if(typeof options.workspace!=='string'||!path.isAbsolute(options.workspace))throw new TypeError('A private absolute workspace is required for streaming import.');await assertOutputOutsideSource(options.workspace,paths);ledger=new DiskInputLedger({filename:path.join(options.workspace,'input-'+randomUUID()+'.sqlite'),signal:options.signal});options.ledger=ledger;}
   const sourceId = options.sourceId ?? `exports:${sha256(paths.map(item => path.resolve(item)).sort().join('\n'))}`;
   options.sourceId = sourceId;
-  const conversations = [], diagnostics = [], files = [], backups = [], scanned = [], budget = { bytes: 0 }; let bytes = 0;
+  const conversations = [], diagnostics = ledger?{push:(...items)=>ledger.addDiagnostics(items)}:[], files = [], backups = [], scanned = [], budget = { bytes: 0 }; let bytes = 0;
+  const fileValues=status=>ledger?ledger.files(status?{status}:{}):files.filter(file=>!status||file.status===status);
+  const putFile=async(index,report)=>{if(ledger){ledger.putFile(index,report);await options.consumer.onFile?.(report,index);}};
+  const updateParts=async(status,error)=>{if(ledger){let last=-1;for(;;){const row=ledger.db.prepare("SELECT ordinal,report FROM files WHERE status='venice-part' AND ordinal>? ORDER BY ordinal LIMIT 1").get(last);if(!row)break;const file=JSON.parse(row.report);file.status=status;if(error)file.error=error;await putFile(row.ordinal,file);last=row.ordinal;}}else for(const file of fileValues('venice-part')){file.status=status;if(error)file.error=error;}};
+  const backupSourceLabel=()=>{if(!ledger)return files.filter(file=>file.status==='venice-part').map(file=>file.sourceFile).join(';');const n=ledger.countFiles({status:'venice-part'});if(n===1)return JSON.parse(ledger.db.prepare("SELECT report FROM files WHERE status='venice-part' ORDER BY ordinal LIMIT 1").get().report).sourceFile;return `Venice backup (${n} ZIP parts; full inventory retained)`;};
+  try{
   emit(options, { phase: 'scanning' });
-  for await (const item of scan(paths, options, diagnostics)) scanned.push(item);
-  for (const [index, item] of scanned.entries()) {
+  for await (const item of scan(paths, options, diagnostics))if(ledger)ledger.addScanned(item.filename,{size:item.stat.size});else scanned.push(item);
+  const scanCount=ledger?ledger.db.prepare('SELECT COUNT(*) AS n FROM scanned').get().n:scanned.length;let scanIndex=0;
+  for (const item of ledger?ledger.scanned():scanned) {
+    const index=scanIndex++;
     abort(options.signal); const filename = item.filename, report = { sourceFile: filename, path: filename, bytes: item.stat.size, status: 'pending' };
-    files.push(report); let opened;
-    emit(options, { phase: 'reading', sourceFile: filename, current: index + 1, total: scanned.length, totalBytes: item.stat.size });
+    if(!ledger)files.push(report);let opened,fileUnit;const beforeCount=options.consumerState?.count;
+    emit(options, { phase: 'reading', sourceFile: filename, current: index + 1, total: scanCount, totalBytes: item.stat.size });
     try {
+      fileUnit=await options.consumer?.beginUnit?.({kind:'file',sourceFile:filename});
       if (/\.(?:7z|rar)$/i.test(filename)) throw new Error('Direct 7z/RAR export archives are unsupported; extract the export folder and select it. Reader compressed storage uses the Reader-source route.');
-      opened = await secureOpen(filename, options); const size = opened.initial.size;
+      opened = await secureOpen(filename, options); const size = opened.initial.size;report.bytes=size;
       const magic = Buffer.alloc(4); await opened.handle.read(magic, 0, magic.length, 0);
       const zip = /\.zip$/i.test(filename) || magic.subarray(0, 2).toString('ascii') === 'PK';
       if (!Number.isSafeInteger(size) || size > (zip ? options.limits.zipBytes : options.limits.streamBytes) || !Number.isSafeInteger(bytes + size)) throw new Error('Source exceeds the configured input size limit.');
-      // Windows can retain the same size and timestamps for an in-place write
-      // while this read handle is open. Compare content before and after parsing
-      // as well as the path/handle metadata, without retaining source bytes.
-      const initialDigest = createHash('sha256'); for await (const chunk of diskChunks(opened, options, { hash: initialDigest })) {}
-      const initialHash = initialDigest.digest('hex');
+      // Preserve public source-coherence protection even when Windows reports
+      // unchanged size and timestamps for an in-place edit. Hash bytes around
+      // parsing without retaining the input or adding another JSON parse.
+      const initialDigest=createHash('sha256');for await(const chunk of diskChunks(opened,options,{hash:initialDigest})){}const initialFingerprint=initialDigest.digest('hex');
       let result, localDiagnostics = [];
       if (zip) result = await parseZip(opened, filename, options, localDiagnostics, budget);
       else result = { conversations: await parseSource(() => diskChunks(opened, options), size, filename, options, localDiagnostics) };
       // Fingerprint the entire physical source after decoding, while still held
       // read-only. A failed stability check discards this file's parsed records.
       const digest = createHash('sha256'); for await (const chunk of diskChunks(opened, options, { hash: digest })) {}
-      const finalHash = digest.digest('hex');
-      if (finalHash !== initialHash) throw new Error('Input changed during import; no records from this file were committed.');
-      report.sha256 = finalHash; report.status = result.backup ? 'venice-part' : result.conversations.length ? 'imported' : 'unsupported';
-      report.conversations = result.conversations.length; bytes += size;
+      const count=options.consumer?options.consumerState.count-beforeCount:result.conversations.length;
+      const finalFingerprint=digest.digest('hex');if(finalFingerprint!==initialFingerprint)throw new Error('Input changed during import; no records from this file were committed.');
+      report.sha256 = finalFingerprint; report.status = result.backup||result.backupDisk ? 'venice-part' : count ? 'imported' : 'unsupported';
+      report.conversations = count;
       if (result.backup) backups.push(result.backup);
       conversations.push(...result.conversations); diagnostics.push(...localDiagnostics);
-      emit(options, { phase: report.status, sourceFile: filename, conversations: result.conversations.length });
+      await options.consumer?.commitUnit?.(fileUnit);
+      if(result.backupDisk)options.consumerState.venice.commitPart();
+      bytes += size;
+      emit(options, { phase: report.status, sourceFile: filename, conversations: count });
     } catch (error) {
+      options.consumerState?.venice?.rollbackPart();
+      if(options.consumer){if(fileUnit!==undefined)await options.consumer.rollbackUnit(fileUnit);options.consumerState.count=beforeCount;}
       if (error.name === 'AbortError') throw error;
       report.status = 'error'; report.error = error.message;
       diagnostics.push({ code: 'export-read-error', severity: 'error', sourceFile: filename, message: error.message });
       emit(options, { phase: 'error', sourceFile: filename, message: error.message });
-    } finally { await opened?.close(); }
+    } finally { await opened?.close();await putFile(index,report); }
     await tick();
+  }
+  if(options.consumerState?.venice){
+    const assembler=options.consumerState.venice;let unit;const previousCount=options.consumerState.count;
+    try{
+      assembler.validate();unit=await options.consumer.beginUnit({kind:'venice-backup'});
+      for(const media of assembler.iterateMedia())await options.consumer.onAuxiliary?.('venice-media',media.inventoryKey||media.name,media);
+      let count=0;
+      for await(const value of assembler.conversations()){
+        abort(options.signal);const context={sourceId:options.sourceId,collectionId:options.collectionId,sourceFile:backupSourceLabel(),provider:'venice',account:value.ownerId,format:'venice-v4-dexie',rawPath:`/owners/${value.ownerIndex}/conversations/${value.conversationIndex}`};
+        const prepared=prepareConversationDocument(value.conversation,context);await options.consumer.onDiagnostics?.(prepared.diagnostics);
+        for(const conversation of prepared.conversations){conversation.containerMetadata={...value.backupMetadata,sourceInventoryNamespace:'source-files'};await options.consumer.onConversation(conversation);options.consumerState.count++;count++;}
+        if(count%64===0)emit(options,{phase:'venice-normalize',current:count});
+      }
+      await options.consumer.commitUnit(unit);await updateParts('imported');emit(options,{phase:'venice-complete',completed:count,total:count,conversations:count});
+    }catch(error){if(unit!==undefined)await options.consumer.rollbackUnit(unit);options.consumerState.count=previousCount;if(error.name==='AbortError')throw error;diagnostics.push({code:'venice-backup-error',severity:'error',sourceFile:backupSourceLabel(),message:error.message});await updateParts('error',error.message);}
+    finally{assembler.close();await fs.rm(assembler.filename,{force:true});}
   }
   if (backups.length) {
     const sourceFile = backups.map(part => part.sourceFile).join(';');
     try {
       const backup = assembleVeniceBackup(backups, { signal: options.signal, limits: options.limits });
-      const records = normalizeDocuments([backup], sourceFile, options, diagnostics); conversations.push(...records);
+      const records = await normalizeDocuments([backup], sourceFile, options, diagnostics); conversations.push(...records);
       for (const file of files.filter(file => file.status === 'venice-part')) file.status = 'imported';
       emit(options, { phase: 'venice-complete', conversations: records.length });
     } catch (error) {
@@ -420,7 +502,9 @@ export async function ingestExports(paths, options = {}) {
       for (const file of files.filter(file => file.status === 'venice-part')) { file.status = 'error'; file.error = error.message; }
     }
   }
-  const reconciled = reconcileConversations(conversations, { diagnostics });
-  emit(options, { phase: 'complete', current: scanned.length, total: scanned.length, conversations: reconciled.length });
-  return { sourceId, conversations: reconciled, diagnostics, files, bytes };
+  const reconciled = options.consumer?[]:reconcileConversations(conversations, { diagnostics });
+  emit(options, { phase: 'complete', current: scanCount, total: scanCount, conversations: options.consumer?options.consumerState.count:reconciled.length });
+  if(ledger){const sampledFiles=[],sampledDiagnostics=[];for(const file of ledger.files()){if(sampledFiles.length>=100)break;sampledFiles.push(file);}for(const diagnostic of ledger.diagnostics()){await options.consumer.onDiagnostics?.([diagnostic]);if(sampledDiagnostics.length<100)sampledDiagnostics.push(diagnostic);}return{sourceId,conversations:[],conversationCount:options.consumerState.count,fileCount:ledger.countFiles(),diagnostics:sampledDiagnostics,diagnosticsAreStreamed:true,files:sampledFiles,bytes};}
+  return { sourceId, conversations: reconciled,diagnostics, files, bytes };
+  }finally{if(options.consumerState?.venice){const assembler=options.consumerState.venice;assembler.close();await fs.rm(assembler.filename,{force:true});}if(ledger){ledger.close();await fs.rm(ledger.filename,{force:true});}}
 }

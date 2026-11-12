@@ -1,6 +1,6 @@
 {
   "product": "ThreadShelf Local Alternative",
-  "version": "1.4.4",
+  "version": "1.4.6",
   "repository": "https://github.com/Davoda1/ThreadShelf-Local-Suite",
   "upstreamServer": {
     "repository": "https://github.com/ChrystianSchutz/ThreadShelf",
@@ -16,9 +16,9 @@
   },
   "demoData": "Thirteen synthetic, authored demonstration conversations.",
   "toolchain": {
-    "node": "26.13.0",
+    "node": "26.13.1",
     "npm": "12.2.2",
-    "electron": "45.2.3"
+    "electron": "45.3.0"
   },
   "speech": {
     "implementation": "ThreadShelf Local Suite speech service",

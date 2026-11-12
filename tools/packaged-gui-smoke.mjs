@@ -377,6 +377,14 @@ async function alternative() {
 }
 
 async function analytics() {
+  function descriptor(value) {
+    assert.equal(value.backendAnalysis, true);
+    assert.equal(Object.hasOwn(value, 'conversations'), false, 'Native bootstrap must not transfer a conversation corpus');
+    assert.match(value.dataset.revision, /^[a-f0-9]{64}$/);
+    assert.equal(value.dataset.conversationCount, 0); assert.equal(value.dataset.recordCount, 0);
+    assert.ok(Buffer.byteLength(JSON.stringify(value)) <= 2 * 1024 * 1024, 'Native bootstrap exceeds its descriptor budget');
+    return value;
+  }
   async function settled(page) {
     await page.waitForFunction(async () => {
       const value = await window.analytics.bootstrap();
@@ -384,13 +392,13 @@ async function analytics() {
         && !value.discoveryBusy && !value.registrationBusy && !value.job?.running
         && !document.querySelector('#analytics-boot') && document.querySelector('#app')?.inert === false;
     });
-    return page.evaluate(() => window.analytics.bootstrap());
+    return descriptor(await page.evaluate(() => window.analytics.bootstrap()));
   }
   let page = await launch();
   assert.equal(page.url(), 'analytics://app/index.html');
   assert.deepEqual(await currentApp.evaluate(() => Object.keys(process.env).filter(name => /^ANALYTICS_/i.test(name))), []);
   const initial = await settled(page);
-  assert.deepEqual(initial.sources, []); assert.deepEqual(initial.conversations, []);
+  assert.deepEqual(initial.sources, []);
   assert.equal(initial.settings.language, 'en'); assert.equal(initial.settings.history.enabled, false);
   check('Shipped native Analytics completes its production boot and empty worker-backed bootstrap through the sandboxed preload');
   await page.evaluate(() => window.analytics.updateSettings({ language: 'hu', appearance: 'light' }));
@@ -410,7 +418,7 @@ async function analytics() {
   const reopened = await settled(page);
   assert.equal(await canonical(await currentApp.evaluate(({ app }) => app.getPath('userData'))), await canonical(profile));
   assert.equal(reopened.settings.language, 'de'); assert.equal(reopened.settings.appearance, 'dark');
-  assert.deepEqual(reopened.sources, []); assert.deepEqual(reopened.conversations, []);
+  assert.deepEqual(reopened.sources, []);
   await page.waitForFunction(() => document.documentElement.lang === 'de' && document.documentElement.dataset.theme === 'dark');
   await close();
   assert.equal(await fs.lstat(lease).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; }), false);

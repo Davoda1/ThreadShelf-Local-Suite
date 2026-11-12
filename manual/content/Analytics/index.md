@@ -48,4 +48,3 @@ The chart, table and evidence belong to the same applied analytical selection. A
 - Local source captures can remain useful when their original drive is disconnected. Their freshness and capture time still matter.
 
 See the [complete Analytics screenshot gallery and provenance](../Screenshots/analytics-gallery.md) for the exact source-renderer capture method and image resolutions.
-
