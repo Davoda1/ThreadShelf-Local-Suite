@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.7 — 2026-11-14
+
+- Improve archived ChatGPT link previews, badges, inline layouts, local widgets and slider expressions, chart rings and values, saved raster attachments and timestamps. Keep original source copying, code literals, offline renderer assets and the existing image and preview policies.
+- Add an optional visual filter for intermediate JSON-only assistant responses in Reader Local/Server and Alternative. Filter only eligible returned search hits; preserve queries, indexing, ranking, totals, dates, sorting, pagination, analytics and archived data. Classify only the current result page and reuse its visibility decisions when toggling.
+- Add a Reader conversation-header control beside Close, using aligned neutral SVG buttons and each theme's existing styling. Roll up/down over 240 ms into a 40 px title/provider/date strip. Remember the last position across conversations, Local/Server switches and application restarts; honor the existing motion preference.
+- Align all three application versions and public About metadata at 1.4.7. Preserve the 1.4.6 Analytics behavior, public storage formats, profiles, runtime/dependency pins and existing GitHub tests and workflows.
+
 ## 1.4.6 — 2026-11-12
 
 - Restore Analytics compatibility with current Reader retained history, deduplication and cleanup publications. Validate coherent committed captures without modifying Reader files; compare logical analytical data so checkpoints, recompression and nonanalytical housekeeping do not create false change alerts.

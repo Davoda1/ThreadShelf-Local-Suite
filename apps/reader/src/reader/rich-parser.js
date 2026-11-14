@@ -4,15 +4,17 @@
  */
 import { marked } from 'marked';
 import { grokAt, grokFenceAt } from './grok-renderer.js';
+import { parseLocalExpression, resolveLocalExpression } from './rich-expressions.js';
+import { SAFE_HTML_TAGS } from './safe-html.js';
 
 export const RICH_LIMITS = Object.freeze({
   message: 2 * 1024 * 1024, span: 256 * 1024, depth: 24, nodes: 4096,
   values: 20000, string: 32768, iterations: 512, array: 512,
   output: 1024 * 1024, fragments: 256, operations: 1000000, milliseconds: 300,
 });
-const TAGS = new Set(['box', 'row', 'text', 'title', 'caption', 'divider', 'icon', 'grid', 'grid-item', 'Entity', 'AsyncImage', 'AsyncImageGroup', 'Chart', 'Cite', 'Link', 'svg']);
+const TAGS = new Set(['box', 'row', 'text', 'title', 'caption', 'badge', 'slider', 'divider', 'icon', 'grid', 'grid-item', 'Entity', 'AsyncImage', 'AsyncImageGroup', 'Chart', 'Cite', 'Link', 'svg']);
 const GROK_TAGS = new Set(['grok:render','grok:richcontent','grok','grok-card','grok-card-list','grok-generated-images','grok-file-card-group','xaiArtifact','xai:tool_usage_card','image-card','file-mention']);
-const INLINE = new Set(['Entity', 'Cite', 'Link', 'icon']);
+const INLINE = new Set(['Entity', 'Cite', 'Link', 'icon', 'badge']);
 const FORBIDDEN = new Set(['__proto__', 'prototype', 'constructor']);
 const ENUMS = Object.freeze({
   align: ['start', 'center', 'end', 'stretch'], justify: ['start', 'center', 'end', 'between'],
@@ -21,8 +23,9 @@ const ENUMS = Object.freeze({
   color: ['default', 'secondary', 'tertiary', 'subtle', 'success', 'info', 'warning', 'danger', 'error'],
 });
 const PROPS = Object.freeze({
-  box: ['gap', 'width', 'height', 'size', 'minWidth', 'align', 'flex', 'border', 'radius', 'padding', 'justify', 'background', 'clip', 'direction'],
-  row: ['align', 'gap', 'justify', 'wrap'], text: ['color', 'size', 'weight', 'tabularNums', 'textAlign'],
+  box: ['key', 'gap', 'width', 'height', 'size', 'minWidth', 'align', 'flex', 'border', 'radius', 'padding', 'justify', 'background', 'clip', 'direction'],
+  row: ['align', 'gap', 'justify', 'wrap', 'width', 'height'], text: ['color', 'size', 'weight', 'tabularNums', 'textAlign'],
+  badge: ['color'], slider: ['min', 'max', 'step', 'value', 'onChange', 'marks'],
   title: ['size', 'color', 'tabularNums'], caption: ['textAlign'], divider: ['color'], grid: ['columns', 'gap'],
   'grid-item': [], icon: ['name', 'color', 'size', 'inline'], Entity: ['category', 'value', 'disambig'],
   Link: ['url', 'title'], Cite: ['ref', 'refs'], Chart: ['content'],
@@ -42,6 +45,44 @@ function tick(b, kind, amount = 1) {
 }
 function depthCheck(depth) { if (depth > RICH_LIMITS.depth) fail('Rich content nesting limit exceeded'); }
 function keyCheck(key) { if (FORBIDDEN.has(key)) fail('Forbidden property'); }
+
+// Local bindings can share nested data. Never serialize that graph merely to
+// measure it: a short sequence of aliases can expand exponentially in JSON.
+// Charge each emitted value before descending, without constructing output.
+function countAttributeOutput(value, b, depth = 0, active = new WeakSet()) {
+  depthCheck(depth); tick(b);
+  if (value === null) { tick(b, 'output', 4); return; }
+  if (typeof value === 'boolean') { tick(b, 'output', value ? 4 : 5); return; }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) fail('Non-finite attribute value');
+    tick(b, 'output', String(value).length); return;
+  }
+  if (typeof value === 'string') {
+    if (value.length > RICH_LIMITS.string) fail('Literal string limit exceeded');
+    let length = 2;
+    for (let i = 0; i < value.length; i++) {
+      tick(b); const code = value.charCodeAt(i);
+      if (code === 34 || code === 92 || [8, 9, 10, 12, 13].includes(code)) length += 2;
+      else if (code < 32) length += 6;
+      else if (code >= 0xd800 && code <= 0xdbff && value.charCodeAt(i + 1) >= 0xdc00 && value.charCodeAt(i + 1) <= 0xdfff) { length += 2; i++; }
+      else if (code >= 0xd800 && code <= 0xdfff) length += 6;
+      else length++;
+    }
+    tick(b, 'output', length); return;
+  }
+  if (!(Array.isArray(value) || plainRecord(value)) || active.has(value)) fail('Invalid local attribute data');
+  const keys = Object.keys(value);
+  if (keys.length > RICH_LIMITS.array || (Array.isArray(value) && value.length > RICH_LIMITS.array)) fail('Attribute data limit exceeded');
+  active.add(value); tick(b, 'output', 2 + Math.max(0, keys.length - 1));
+  for (const key of keys) {
+    keyCheck(key);
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) fail('Accessor is not local data');
+    if (!Array.isArray(value)) { countAttributeOutput(key, b, depth + 1, active); tick(b, 'output', 1); }
+    countAttributeOutput(descriptor.value, b, depth + 1, active);
+  }
+  active.delete(value);
+}
 
 class LiteralParser {
   constructor(source, b) { this.source = source; this.pos = 0; this.b = b; }
@@ -118,31 +159,19 @@ export function parseLiteral(source, sharedBudget) {
   const result = parser.value(); parser.ws(); if (parser.pos !== s.length) fail('Expressions are not literal data');
   return result;
 }
-function binding(source) {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(source)) fail('Unsupported binding');
-  const path = source.split('.'); path.forEach(keyCheck); return { expression: 'binding', path };
-}
 function expression(source, b) {
-  const s = source.trim();
-  if (/^(?:[\[{'"-]|\d|true\b|false\b|null\b)/.test(s)) return { expression: 'literal', value: parseLiteral(s, b) };
-  return binding(s);
+  return parseLocalExpression(source, { limits: RICH_LIMITS, tick: (kind, amount) => tick(b, kind, amount), depthCheck });
 }
-function resolve(expr, env) {
-  if (expr.expression === 'literal') return expr.value;
-  let value = env;
-  for (const key of expr.path) {
-    keyCheck(key); if (!plainRecord(value) || !own(value, key)) fail('Binding is not a local own property');
-    value = value[key];
-  }
-  return value;
+function resolve(expr, env, b) {
+  return resolveLocalExpression(expr, env, { limits: RICH_LIMITS, tick: (kind, amount) => tick(b, kind, amount), depthCheck });
 }
 function condition(source, b) {
   const match = source.match(/^(.+?)\s*(===|!==|==|!=|<=|>=|<|>)\s*(.+)$/);
   if (!match) fail('Unsupported condition');
   return { left: expression(match[1], b), operator: match[2], right: expression(match[3], b) };
 }
-function compare(c, env) {
-  const a = resolve(c.left, env), b = resolve(c.right, env);
+function compare(c, env, budget) {
+  const a = resolve(c.left, env, budget), b = resolve(c.right, env, budget);
   if (!['number', 'string', 'boolean'].includes(typeof a) || typeof a !== typeof b) fail('Condition operands must share a primitive type');
   switch (c.operator) {
     case '==': case '===': return a === b;
@@ -160,16 +189,25 @@ function dimensions(value) {
   const m = value.match(/^(\d+(?:\.\d+)?)(px|%)$/);
   return !!m && Number(m[1]) <= (m[2] === '%' ? 100 : 2048);
 }
+function validBackground(value) {
+  if (typeof value !== 'string') return false;
+  if (/^(?:#[0-9a-fA-F]{6}|surface-secondary|surface-tertiary|info|success|warning|danger|error)$/.test(value)) return true;
+  const match = value.match(/^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*((?:0|1)(?:\.\d+)?|\.\d+)\s*\)$/);
+  return !!match && match.slice(1, 4).every(channel => Number(channel) <= 255) && Number(match[4]) <= 1;
+}
 function validateAttributes(tag, attrs) {
   for (const [key, value] of Object.entries(attrs)) {
-    if (!PROPS[tag].includes(key)) fail(`Unsupported ${tag} property`);
+    if (!PROPS[tag].includes(key) && !(tag === 'slider' && key === 'stateKey')) fail(`Unsupported ${tag} property`);
     if (['border', 'clip', 'tabularNums', 'inline'].includes(key)) { if (typeof value !== 'boolean') fail('Expected boolean'); }
-    else if (['gap', 'padding'].includes(key)) { if (!Number.isInteger(value) || value < 0 || value > 16) fail('Invalid spacing'); }
+    else if (['gap', 'padding'].includes(key)) { if (!(Number.isInteger(value) && value >= 0 && value <= 16) && !(typeof value === 'string' && /^(?:\d+(?:\.\d+)?)px$/.test(value) && parseFloat(value) <= 64)) fail('Invalid spacing'); }
+    else if (key === 'key') { if (!['string', 'number'].includes(typeof value) || (typeof value === 'number' && !Number.isFinite(value)) || String(value).length > 256) fail('Invalid local key'); }
+    else if (tag === 'slider' && ['min', 'max', 'step', 'value'].includes(key)) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1000000) fail('Invalid slider number'); }
+    else if (tag === 'slider' && key === 'marks') { if (!Array.isArray(value) || value.length > 32 || value.some(mark => !plainRecord(mark) || Object.keys(mark).some(key => !['value', 'label'].includes(key)) || typeof mark.value !== 'number' || !Number.isFinite(mark.value) || typeof mark.label !== 'string' || mark.label.length > 128)) fail('Invalid slider marks'); }
     else if (key === 'columns') { if (!Number.isInteger(value) || value < 1 || value > 12) fail('Invalid grid columns'); }
     else if (key === 'flex') { if (!/^(?:\d+(?:\.\d+)?)$/.test(String(value)) || Number(value) > 1024) fail('Invalid flex'); }
     else if (['width', 'height', 'minWidth', 'maxWidth'].includes(key) || (key === 'size' && tag === 'box')) { if (!dimensions(value)) fail('Invalid dimension'); }
     else if (key === 'size') { if (!['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'].includes(value)) fail('Invalid text size'); }
-    else if (key === 'background') { if (typeof value !== 'string' || !(/^(?:#[0-9a-fA-F]{6}|surface-secondary|surface-tertiary|info|success|warning|danger|error)$/.test(value))) fail('Invalid background'); }
+    else if (key === 'background') { if (!validBackground(value)) fail('Invalid background'); }
     else if (ENUMS[key]) { if (!ENUMS[key].includes(value)) fail('Invalid enum'); }
     else if (key === 'content') { if (!value || typeof value !== 'object' || Array.isArray(value)) fail('Chart content must be an object'); }
     else if (key === 'refs') { if (!Array.isArray(value) || !value.length || value.length > 64 || value.some(v => typeof v !== 'string' || !v.length || v.length > 256 || /\s/.test(v))) fail('Invalid references'); }
@@ -184,6 +222,11 @@ function validateAttributes(tag, attrs) {
   if (tag === 'Link' && !safeRichUrl(attrs.url)) fail('Link has no safe URL');
   if (tag === 'Chart' && !attrs.content) fail('Chart has no content');
   if (tag === 'Cite' && ((!attrs.ref && !attrs.refs) || (attrs.ref && attrs.refs))) fail('Citation requires exactly one reference field');
+  if (tag === 'slider') {
+    const { min, max, step, value, stateKey } = attrs;
+    if (![min, max, step, value].every(Number.isFinite) || min >= max || step <= 0 || (max - min) / step > 10000 || value < min || value > max || Math.abs((value - min) / step - Math.round((value - min) / step)) > 1e-7 || typeof stateKey !== 'string') fail('Invalid slider range or state');
+    if ((attrs.marks || []).some(mark => mark.value < min || mark.value > max)) fail('Invalid slider mark range');
+  }
   return attrs;
 }
 function richTagAt(source, position) {
@@ -466,7 +509,14 @@ class ComponentParser {
     const flush = () => { if (text) { children.push({ kind: 'markdown', text }); tick(this.b, 'nodes'); text = ''; } };
     while (this.pos < this.source.length && !this.source.startsWith(closing, this.pos)) {
       this.check(depth); const end = this.protectedEnd();
-      if (end > this.pos) { text += this.source.slice(this.pos, end); this.pos = end; continue; }
+      if (end > this.pos) {
+        const html = this.source.slice(this.pos, end).match(/^<([A-Za-z][A-Za-z0-9_-]*)(?=[\s/>])/);
+        // Keep ordinary supported HTML literal to the rich grammar. An unknown
+        // nested component instead preserves the complete enclosing source,
+        // so dropping its tags cannot masquerade as a complete rich rendering.
+        if (html && !TAGS.has(html[1]) && !SAFE_HTML_TAGS.has(html[1].toLowerCase()) && !GROK_TAGS.has(html[1])) fail('Unsupported nested component');
+        text += this.source.slice(this.pos, end); this.pos = end; continue;
+      }
       if (!escaped(this.source, this.pos) && this.source.startsWith('', this.pos)) {
         const stop=this.source.indexOf('',this.pos+1);
         if(stop>=0&&stop-this.pos<=RICH_LIMITS.span){text+=this.source.slice(this.pos,stop+1);this.pos=stop+1;continue;}
@@ -538,28 +588,35 @@ function evaluate(nodes, env, b, depth = 0) {
     if (node.kind === 'markdown') { tick(b, 'output', node.text.length); out.push(node); }
     else if (node.kind === 'static-svg') { tick(b, 'nodes', node.svgNodes); tick(b, 'output', node.source.length); out.push(node); }
     else if (node.kind === 'bound') {
-      const value = resolve(node.expr, env);
+      const value = resolve(node.expr, env, b);
       if (value !== null && !['string', 'number', 'boolean'].includes(typeof value)) fail('Text binding is not primitive');
       const text = value === null ? '' : String(value); tick(b, 'output', text.length); out.push({ kind: 'literal', text });
     } else if (node.kind === 'each') {
-      const array = resolve(node.iterable, env); if (!Array.isArray(array) || array.length > RICH_LIMITS.array) fail('Each requires a bounded literal array');
+      const array = resolve(node.iterable, env, b); if (!Array.isArray(array) || array.length > RICH_LIMITS.array) fail('Each requires a bounded literal array');
       const body = protectChildCode(node.children, b);
       array.forEach((item, index) => {
         tick(b, 'iterations');
         const local = Object.assign(Object.create(null), env); local[node.item] = item; if (node.index) local[node.index] = index;
         out.push(...evaluate(body, local, b, depth + 1));
       });
-    } else if (node.kind === 'if') { if (compare(node.test, env)) out.push(...evaluate(protectChildCode(node.children, b), env, b, depth + 1)); }
+    } else if (node.kind === 'if') { if (compare(node.test, env, b)) out.push(...evaluate(protectChildCode(node.children, b), env, b, depth + 1)); }
     else if (node.kind === 'element') {
       const attrs = Object.create(null);
       for (const [key, expr] of Object.entries(node.attrs)) {
-        attrs[key] = resolve(expr, env);
+        if (node.tag === 'slider' && key === 'onChange') {
+          const setter = expr.expression === 'binding' && expr.path.length === 1 ? expr.path[0] : null;
+          const stateKey = b.view?.setters.get(setter);
+          const valueBinding = node.attrs.value;
+          if (!stateKey || valueBinding?.expression !== 'binding' || valueBinding.path.length !== 1 || valueBinding.path[0] !== stateKey) fail('Slider requires matching local state and setter');
+          attrs.stateKey = stateKey; continue;
+        }
+        attrs[key] = resolve(expr, env, b);
         // Count expanded attributes too: a loop must not multiply a large chart
         // literal hundreds of times without consuming the shared output budget.
-        tick(b, 'output', JSON.stringify(attrs[key]).length);
+        countAttributeOutput(attrs[key], b);
       }
       validateAttributes(node.tag, attrs);
-      if (['Entity', 'Link', 'Cite', 'Chart', 'AsyncImage', 'AsyncImageGroup', 'icon', 'divider'].includes(node.tag) && node.children.some(child => child.kind !== 'markdown' || child.text.trim())) fail('Terminal component has unsupported children');
+      if (['Entity', 'Link', 'Cite', 'Chart', 'AsyncImage', 'AsyncImageGroup', 'icon', 'divider', 'slider'].includes(node.tag) && node.children.some(child => child.kind !== 'markdown' || child.text.trim())) fail('Terminal component has unsupported children');
       out.push({ kind: 'component', tag: node.tag, attrs, children: evaluate(protectChildCode(node.children, b), env, b, depth + 1), source: node.source, inline: INLINE.has(node.tag) });
     }
   }
@@ -570,6 +627,71 @@ export function parseRichSpan(source) {
   const parser = new ComponentParser(text, 0, b, markdownProtectedRanges(text));
   const ast = parser.element(); if (parser.pos !== text.length) fail('Trailing content after rich span');
   return evaluate([ast], Object.create(null), b)[0];
+}
+
+// Presentation models are registered by this parser only. Public node fields
+// are descriptive, not executable capabilities; imported objects cannot supply
+// a model or a callback by imitating a node's shape.
+const localWidgets = new WeakMap();
+function localDeclarations(parser) {
+  const declarations = [], names = new Set();
+  const reserve = name => { keyCheck(name); if (names.has(name)) fail('Duplicate local declaration'); names.add(name); };
+  while (parser.source.startsWith('{@body', parser.pos)) {
+    if (parser.ranges.some(([a, z]) => a <= parser.pos && parser.pos < z)) fail('Local declaration is protected source');
+    if (declarations.length >= 32) fail('Local declaration limit exceeded');
+    const raw = parser.brace(), state = raw.match(/^@body\s+const\s+\[\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\]\s*=\s*DIL\.useState\(([\s\S]+)\)\s*;?\s*$/);
+    if (state) {
+      reserve(state[1]); reserve(state[2]);
+      declarations.push({ kind: 'state', name: state[1], setter: state[2], value: expression(state[3], parser.b) });
+    } else {
+      const binding = raw.match(/^@body\s+const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([\s\S]*?)\s*;?\s*$/);
+      if (!binding) fail('Unsupported local declaration'); reserve(binding[1]);
+      declarations.push({ kind: 'constant', name: binding[1], value: expression(binding[2], parser.b) });
+    }
+    parser.ws();
+  }
+  return declarations;
+}
+function evaluateModel(model, overrides, b) {
+  if (!plainRecord(overrides)) fail('Local state must be plain data');
+  const env = Object.create(null), setters = new Map(), stateNames = new Set(model.declarations.filter(d => d.kind === 'state').map(d => d.name));
+  for (const name of Object.keys(overrides)) { keyCheck(name); if (!stateNames.has(name)) fail('Unknown local state'); }
+  const states = [];
+  for (const declaration of model.declarations) {
+    let value = resolve(declaration.value, env, b);
+    if (declaration.kind === 'state') {
+      if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1000000) fail('Only bounded numeric local state is supported');
+      states.push({ name: declaration.name, setter: declaration.setter, initial: value }); setters.set(declaration.setter, declaration.name);
+      if (Object.hasOwn(overrides, declaration.name)) {
+        const descriptor = Object.getOwnPropertyDescriptor(overrides, declaration.name);
+        if (!descriptor || !Object.hasOwn(descriptor, 'value') || typeof descriptor.value !== 'number' || !Number.isFinite(descriptor.value) || Math.abs(descriptor.value) > 1000000) fail('Invalid local state value');
+        value = descriptor.value;
+      }
+    }
+    env[declaration.name] = value;
+  }
+  b.view = { setters };
+  const children = evaluate([model.ast], env, b);
+  return { children, states };
+}
+function localWidgetAt(source, start, b, ranges) {
+  const parser = new ComponentParser(source, start, b, ranges), declarations = localDeclarations(parser);
+  if (!declarations.length || !richTagAt(source, parser.pos)) fail('Local declarations require a supported component');
+  if (ranges.some(([a, z]) => a <= parser.pos && parser.pos < z)) fail('Local component is protected source');
+  const ast = parser.element(), model = { declarations, ast }, evaluated = evaluateModel(model, Object.create(null), b);
+  const node = { kind: 'local-widget', source: source.slice(start, parser.pos), states: evaluated.states, children: evaluated.children, inline: false };
+  localWidgets.set(node, model); return { node, end: parser.pos };
+}
+export function parseLocalWidgetSource(source) {
+  const text = String(source), b = budget(); if (text.length > RICH_LIMITS.span) fail('Local widget source limit exceeded');
+  const ranges = markdownProtectedRanges(text);
+  if (!text.startsWith('{@body') || ranges.some(([a, z]) => a === 0 && z > 0)) fail('Not a local widget source');
+  const result = localWidgetAt(text, 0, b, ranges); if (result.end !== text.length) fail('Trailing local widget content');
+  return result.node;
+}
+export function evaluateLocalWidget(node, stateOverrides = Object.create(null)) {
+  const model = localWidgets.get(node); if (!model) fail('Unrecognized local widget model');
+  return evaluateModel(model, stateOverrides, budget()).children;
 }
 function legacyNode(payload, raw, b) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
@@ -678,7 +800,19 @@ export function prepareRichMarkdown(content) {
     if (Date.now() - b.started > RICH_LIMITS.milliseconds) break;
     const tag = !fenced && !escaped(source, pos) && richTagAt(source, pos);
     let node = fenced?.node || null, end = fenced?.end || pos;
-    if (tag) {
+    if (!fenced && !escaped(source, pos) && source.startsWith('{@body', pos)) {
+      try { const found = localWidgetAt(source, pos, b, ranges); node = found.node; end = found.end; }
+      catch {
+        // A rejected local model never grants its declaration scope to nearby
+        // components. Keep its exact declaration and body available as source.
+        const parser = new ComponentParser(source, pos, b, ranges);
+        try { while (source.startsWith('{@body', parser.pos)) { parser.brace(); parser.ws(); } const nextTag = richTagAt(source, parser.pos); end = nextTag ? failedSpanEnd(source, parser.pos, nextTag) : parser.pos; } catch { end = pos + 1; }
+        pos = Math.max(pos + 1, end); continue;
+      }
+    } else if (!fenced && !escaped(source, pos) && source.startsWith('::page-preview{', pos)) {
+      const match = source.slice(pos, pos + 256).match(/^::page-preview\{\s*page_id\s*=\s*(["'])(page_[A-Za-z0-9_-]{1,160})\1\s*\}/);
+      if (match) { end = pos + match[0].length; node = { kind: 'page-preview', pageId: match[2], source: match[0], inline: false }; }
+    } else if (tag) {
       const parser = new ComponentParser(source, pos, b, ranges);
       try { const ast = parser.element(); end = parser.pos; node = evaluate([ast], Object.create(null), b)[0]; }
       catch {
@@ -714,6 +848,13 @@ export function prepareRichMarkdown(content) {
       if (found) { node = found.node; end = found.end; }
     }
     if (node) {
+      if (node.kind === 'component' && node.tag === 'text' && !source.slice(pos, end).includes('\n')) {
+        const before = source.slice(source.lastIndexOf('\n', pos - 1) + 1, pos);
+        const lineEnd = source.indexOf('\n', end), after = source.slice(end, lineEnd < 0 ? source.length : lineEnd);
+        // A text run in a Markdown cell/heading/paragraph must stay phrasing
+        // content; only a standalone text component creates a block marker.
+        if (before.trim() || after.trim()) node.inline = true;
+      }
       if (node.kind === 'grok' || node.kind === 'native-citation' || node.kind === 'archived-widget') { try { tick(b, 'output', end - pos); } catch { break; } }
       let marker; try { marker = opaqueMarker(); while (source.includes(marker) || records.has(marker)) marker = opaqueMarker(); } catch { break; }
       b.fragments++; records.set(marker, node); output += source.slice(last, pos) + (node.inline ? marker : `\n\n${marker}\n\n`);

@@ -1,6 +1,69 @@
 /* ThreadShelf shared renderer. Copyright (c) 2026 davoda1. MIT; see vendor/licenses/Reader-MIT.txt. */
 window.TSARich=Object.create(null);
 
+/* saved-raster-assets.js */
+(function(){
+'use strict';
+
+// Display-only validation for the exact turn.assets raster attachments retained
+// by Enhanced. This never opens source pointers or modifies archived records.
+const SAVED_RASTER_LIMITS = Object.freeze({images:16, candidates:64, imageBytes:5*1024*1024, totalBytes:32*1024*1024, dimension:8192, imagePixels:32*1024*1024, totalPixels:64*1024*1024});
+const dataPattern=/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/;
+const sof=new Set([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf]);
+function savedRasterDimensions(width,height){return Number.isSafeInteger(width)&&Number.isSafeInteger(height)&&width>0&&height>0&&width<=SAVED_RASTER_LIMITS.dimension&&height<=SAVED_RASTER_LIMITS.dimension&&width*height<=SAVED_RASTER_LIMITS.imagePixels;}
+function dimensions(binary,mime){
+ const b=i=>binary.charCodeAt(i),u16=i=>b(i)*256+b(i+1),le16=i=>b(i)+b(i+1)*256,u32=i=>b(i)*16777216+b(i+1)*65536+b(i+2)*256+b(i+3),le24=i=>b(i)+b(i+1)*256+b(i+2)*65536,le32=i=>le24(i)+b(i+3)*16777216;
+ if(mime==='png')return binary.length>=33&&binary.slice(0,8)==='\x89PNG\r\n\x1a\n'&&u32(8)===13&&binary.slice(12,16)==='IHDR'?[u32(16),u32(20)]:null;
+ if(mime==='gif')return binary.length>=13&&/^GIF8[79]a$/.test(binary.slice(0,6))?[le16(6),le16(8)]:null;
+ if(mime==='jpeg'){
+  if(binary.length<4||b(0)!==255||b(1)!==216)return null;
+  for(let i=2;i<binary.length;){
+   if(b(i++)!==255)return null;while(i<binary.length&&b(i)===255)i++;
+   const marker=b(i++);if(marker===0xda||marker===0xd9)return null;
+   if(marker===1||marker>=0xd0&&marker<=0xd7)continue;
+   if(i+2>binary.length)return null;const length=u16(i);if(length<2||i+length>binary.length)return null;
+   if(sof.has(marker))return length>=8?[u16(i+5),u16(i+3)]:null;
+   i+=length;
+  }
+  return null;
+ }
+ if(mime==='webp'){
+  if(binary.length<20||binary.slice(0,4)!=='RIFF'||binary.slice(8,12)!=='WEBP'||le32(4)+8!==binary.length)return null;
+  for(let i=12;i+8<=binary.length;){
+   const type=binary.slice(i,i+4),length=le32(i+4),at=i+8;if(at+length>binary.length)return null;
+   if(type==='VP8X')return length>=10?[le24(at+4)+1,le24(at+7)+1]:null;
+   if(type==='VP8L')return length>=5&&b(at)===0x2f?[1+b(at+1)+((b(at+2)&63)<<8),1+(b(at+2)>>6)+(b(at+3)<<2)+((b(at+4)&15)<<10)]:null;
+   if(type==='VP8 ')return length>=10&&binary.slice(at+3,at+6)==='\x9d\x01\x2a'?[le16(at+6)&0x3fff,le16(at+8)&0x3fff]:null;
+   i=at+length+(length%2);
+  }
+ }
+ return null;
+}
+function raster(value){
+ if(typeof value!=='string'||value.length>Math.ceil(SAVED_RASTER_LIMITS.imageBytes/3)*4+64)return null;
+ const match=dataPattern.exec(value);if(!match)return null;const payload=match[2];if(payload.length%4)return null;
+ const bytes=payload.length/4*3-(payload.endsWith('==')?2:payload.endsWith('=')?1:0);if(bytes>SAVED_RASTER_LIMITS.imageBytes)return null;
+ let binary;try{binary=atob(payload);}catch{return null;}if(binary.length!==bytes)return null;
+ const size=dimensions(binary,match[1]);if(!size||!savedRasterDimensions(...size))return null;
+ return {bytes,width:size[0],height:size[1]};
+}
+function normalizeSavedRasterAssets(value){
+ const images=[];if(!Array.isArray(value))return {images,unavailable:false};
+ const seen=new Set();let bytes=0,pixels=0,unavailable=value.length>SAVED_RASTER_LIMITS.candidates;
+ for(const asset of value.slice(0,SAVED_RASTER_LIMITS.candidates)){
+  if(!asset||typeof asset!=='object'||Array.isArray(asset)){unavailable=true;continue;}
+  if(typeof asset.url==='string'&&seen.has(asset.url))continue;
+  if(images.length>=SAVED_RASTER_LIMITS.images){unavailable=true;continue;}
+  const meta=raster(asset.url);if(!meta||bytes+meta.bytes>SAVED_RASTER_LIMITS.totalBytes||pixels+meta.width*meta.height>SAVED_RASTER_LIMITS.totalPixels){unavailable=true;continue;}
+  seen.add(asset.url);bytes+=meta.bytes;pixels+=meta.width*meta.height;
+  images.push({url:asset.url,label:typeof asset.label==='string'?asset.label.slice(0,500):'',source:typeof asset.source==='string'?asset.source.slice(0,2048):'',width:meta.width,height:meta.height});
+ }
+ return {images,unavailable};
+}
+
+window.TSARich.Assets=Object.freeze({SAVED_RASTER_LIMITS,savedRasterDimensions,normalizeSavedRasterAssets});
+})();
+
 /* grok-renderer.js */
 (function(){
 'use strict';
@@ -579,7 +642,12 @@ const plain = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && (Objec
 function keys(value, allowed) { if (!plain(value)) fail('schema'); for (const k of Object.keys(value)) if (!allowed.includes(k)) fail('unsupported'); }
 function text(value, optional = true) { if (value === undefined && optional) return undefined; if (typeof value !== 'string' || value.length > CHART_LIMITS.string) fail('data'); return value; }
 function num(value) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > CHART_LIMITS.magnitude) fail('data'); return value; }
-function list(value, max, min = 1) { if (!Array.isArray(value) || value.length < min || value.length > max) fail('limit'); return value; }
+function list(value, max, min = 1) {
+  if (!Array.isArray(value)) fail('schema');
+  if (value.length < min) fail('data');
+  if (value.length > max) fail('limit');
+  return value;
+}
 // Inspect descriptors before reading properties: even a non-literal object passed
 // by a future caller cannot trigger a getter while validating or falling back.
 function snapshot(input) {
@@ -649,7 +717,12 @@ function exported(input, family) {
   if (!categoryKey || BAD_KEYS.has(categoryKey)) fail('data');
   if (scatter) out.xAxis.label = categoryKey;
   else out.categoryLabel = categoryKey;
-  const allSeries = list(input.series, pie ? 1 : CHART_LIMITS.series);
+  // A native circular chart may name its one value column directly, without
+  // a series array. Adapt that explicit column into the local geometry model;
+  // do not invent a label, unit, suffix, percentage or a numerical value.
+  const allSeries = pie && !own(input, 'series')
+    ? [{dataKey: text(input.valueKey, false)}]
+    : list(input.series, pie ? 1 : CHART_LIMITS.series);
   out.series = allSeries.map(s => {
     const normalized = {...seriesInfo(s, ['dataKey', 'label', 'valueFormat', 'valueSuffix', 'unit']), dataKey: text(s.dataKey, false), ...(scatter ? {points: []} : {values: []})};
     // An explicit empty suffix/unit is deliberate and must not be overwritten.
@@ -855,8 +928,11 @@ function cartesian(doc, c, t) {
   return {svg, items};
 }
 function circular(doc, c, t) {
-  const svg = chartSvg(doc, c, t, 640, 300), items = [];
-  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 320, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
+  // Circular geometry has no axes that need the wide Cartesian view box.
+  // Keep the ring readable inside a comparison card instead of scaling a
+  // mostly empty 640px canvas down with its parent.
+  const svg = chartSvg(doc, c, t, 360, 300), items = [];
+  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 180, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
   let angle = -Math.PI / 2;
   s.values.forEach((value, i) => {
     const part = total > 0 ? value / total : 0, end = angle + Math.PI * 2 * part, middle = angle + Math.PI * part;
@@ -914,10 +990,380 @@ function renderChart(input, {document: doc = globalThis.document, t, family = 'C
 window.TSARich.Charts=Object.freeze({CHART_LIMITS,chartDomain,normalizeChart,exactChartValue,renderChart});
 })();
 
+/* safe-html.js */
+(function(){
+'use strict';
+
+// Archived HTML is a small formatting language, never application markup.
+// Reconstruct validated tokens without parsing untrusted source into a live DOM.
+// The final renderer sanitizer repeats attribute/style validation defensively.
+const SAFE_HTML_TAGS = new Set([
+  'p', 'br', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
+  'ul', 'ol', 'li', 'strong', 'b', 'em', 'i', 'u', 'ins', 'del', 's',
+  'code', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+  'sup', 'sub', 'kbd', 'mark', 'span', 'div', 'small', 'abbr', 'time',
+  'details', 'summary', 'dl', 'dt', 'dd', 'samp', 'var', 'wbr',
+  'a',
+]);
+const VOID_TAGS = new Set(['br', 'hr', 'wbr']);
+const MAX_TAG_LENGTH = 8192;
+const MAX_STYLE_LENGTH = 1024;
+const COLOR_NAMES = new Set(('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen transparent currentcolor').split(' '));
+
+function escapeHtml(value) {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function escapeText(value) {
+  // Character references remain text when the reconstructed HTML is parsed.
+  // Escaped tags therefore stay literal rather than becoming HTML a second time.
+  return escapeHtml(value).replace(/&amp;((?:#[0-9]{1,7}|#x[0-9a-f]{1,6}|[a-z][a-z0-9]{1,31});)/gi, '&$1');
+}
+
+function hasControls(value, includeSpace = false) {
+  return [...value].some(char => char.codePointAt(0) <= (includeSpace ? 32 : 31) || char.codePointAt(0) === 127);
+}
+
+function boundedNumber(value, max, percent = false) {
+  if (!/^(?:\d+(?:\.\d+)?|\.\d+)%?$/.test(value)) return false;
+  if (value.endsWith('%')) return percent && Number(value.slice(0, -1)) <= 100;
+  return Number(value) <= max;
+}
+
+function safeColor(value) {
+  if (COLOR_NAMES.has(value) || /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(value)) return true;
+  const match = /^(rgb|rgba|hsl|hsla)\(([^()]*)\)$/.exec(value);
+  if (!match) return false;
+  const body = match[2].trim();
+  const comma = body.includes(',');
+  let channels, alpha;
+  if (comma) {
+    if (body.includes('/')) return false;
+    const pieces = body.split(',').map(part => part.trim());
+    if (pieces.length !== 3 && pieces.length !== 4) return false;
+    channels = pieces.slice(0, 3);
+    alpha = pieces[3];
+  } else {
+    const pieces = body.split('/').map(part => part.trim());
+    if (pieces.length > 2) return false;
+    channels = pieces[0].split(/\s+/);
+    alpha = pieces[1];
+  }
+  if (channels.length !== 3 || (alpha !== undefined && !boundedNumber(alpha, 1, true))) return false;
+  if (match[1].startsWith('rgb')) return channels.every(channel => boundedNumber(channel, 255, true));
+  const hue = channels[0].replace(/deg$/, '');
+  return boundedNumber(hue, 360) && channels.slice(1).every(channel => channel.endsWith('%') && boundedNumber(channel, 100, true));
+}
+
+/** Return canonical safe CSS, or null if ANY declaration is unsupported. */
+function sanitizeInlineStyle(raw) {
+  if (typeof raw !== 'string' || raw.length > MAX_STYLE_LENGTH) return null;
+  // Reject escapes, comments, entity tricks, variables, functions other than
+  // our numeric color grammar, and all control characters before CSS parsing.
+  if (hasControls(raw) || /[\\<>&@!]/.test(raw) || /\/\*|\*\//.test(raw)) return null;
+  const declarations = raw.split(';').map(part => part.trim()).filter(Boolean);
+  if (declarations.length > 12) return null;
+  const seen = new Set();
+  const output = [];
+  for (const declaration of declarations) {
+    const match = /^([a-z-]+)\s*:\s*(.+)$/i.exec(declaration);
+    if (!match) return null;
+    const property = match[1].toLowerCase();
+    const value = match[2].trim().toLowerCase().replace(/\s+/g, ' ');
+    if (seen.has(property)) return null;
+    seen.add(property);
+    let safe;
+    switch (property) {
+      case 'color': case 'background-color': safe = safeColor(value); break;
+      case 'font-weight': safe = /^(?:normal|bold|bolder|lighter|[1-9]00)$/.test(value); break;
+      case 'font-style': safe = /^(?:normal|italic|oblique)$/.test(value); break;
+      case 'text-decoration': case 'text-decoration-line':
+        safe = /^(?:none|underline|line-through|overline|underline line-through|line-through underline)$/.test(value); break;
+      case 'text-align': safe = /^(?:left|right|center|justify|start|end)$/.test(value); break;
+      case 'vertical-align': safe = /^(?:baseline|sub|super|middle|text-top|text-bottom|top|bottom)$/.test(value); break;
+      default: return null;
+    }
+    if (!safe) return null;
+    output.push(`${property}:${value}`);
+  }
+  return output.join(';');
+}
+
+function safeLink(value) {
+  if (!value || value.length > 4096 || hasControls(value, true) || /[\\<>]/.test(value)) return null;
+  if (/^#[A-Za-z0-9_.:-]+$/.test(value)) return value;
+  if (/^mailto:[^?\s]+(?:\?[^\s]*)?$/i.test(value)) return value;
+  if (!/^https?:\/\//i.test(value)) return null;
+  try {
+    const url = new URL(value);
+    return url.username || url.password || !url.hostname ? null : value;
+  } catch { return null; }
+}
+
+/** Validate an archived attribute. null rejects it; '' is a valid empty value. */
+function safeHtmlAttribute(tag, name, value) {
+  tag = String(tag).toLowerCase();
+  name = String(name).toLowerCase();
+  if (!SAFE_HTML_TAGS.has(tag) || typeof value !== 'string') return null;
+  if (name === 'style') return sanitizeInlineStyle(value);
+  if (name === 'title') return value.length <= 1024 && !hasControls(value) ? value : null;
+  if (name === 'lang') return /^[a-z]{2,8}(?:-[a-z0-9]{1,8}){0,4}$/i.test(value) ? value : null;
+  if (name === 'dir') return /^(?:ltr|rtl|auto)$/i.test(value) ? value.toLowerCase() : null;
+  if (tag === 'a' && name === 'href') return safeLink(value);
+  if ((tag === 'th' || tag === 'td') && (name === 'colspan' || name === 'rowspan'))
+    return /^(?:[1-9]\d?|100)$/.test(value) ? value : null;
+  if ((tag === 'th' || tag === 'td') && name === 'align')
+    return /^(?:left|right|center)$/i.test(value) ? value.toLowerCase() : null;
+  if (tag === 'th' && name === 'scope') return /^(?:row|col|rowgroup|colgroup)$/.test(value) ? value : null;
+  if ((tag === 'ol' && name === 'start') || (tag === 'li' && name === 'value'))
+    return /^-?\d{1,7}$/.test(value) && Math.abs(Number(value)) <= 1_000_000 ? String(Number(value)) : null;
+  if (tag === 'time' && name === 'datetime')
+    return /^[0-9TZW:+. -]{1,64}$/.test(value) ? value : null;
+  if (tag === 'details' && name === 'open') return value === '' || value.toLowerCase() === 'open' ? '' : null;
+  return null;
+}
+
+function renderTag(raw) {
+  if (raw.length > MAX_TAG_LENGTH) return escapeHtml(raw);
+  const match = /^<(\/?)([a-z][a-z0-9]*)([\s\S]*?)>$/i.exec(raw);
+  if (!match) return escapeHtml(raw);
+  const closing = !!match[1];
+  const tag = match[2].toLowerCase();
+  if (!SAFE_HTML_TAGS.has(tag)) return escapeHtml(raw);
+  let rest = match[3];
+  if (closing) return /^\s*$/.test(rest) && !VOID_TAGS.has(tag) ? `</${tag}>` : escapeHtml(raw);
+  if (/\/\s*$/.test(rest)) {
+    if (!VOID_TAGS.has(tag)) return escapeHtml(raw);
+    rest = rest.replace(/\/\s*$/, '');
+  }
+  const attributes = [];
+  const seen = new Set();
+  while (rest.trim()) {
+    // Require whitespace separators and a complete quoted/unquoted value.
+    const attr = /^\s+([a-z][a-z0-9-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'`=<>]+)))?/i.exec(rest);
+    if (!attr) return escapeHtml(raw);
+    const name = attr[1].toLowerCase();
+    if (seen.has(name)) return escapeHtml(raw);
+    seen.add(name);
+    const value = attr[2] ?? attr[3] ?? attr[4] ?? '';
+    const safe = safeHtmlAttribute(tag, name, value);
+    if (safe === null) return escapeHtml(raw);
+    if (name !== 'style' || safe) attributes.push(`${name}="${escapeHtml(safe)}"`);
+    rest = rest.slice(attr[0].length);
+  }
+  if (tag === 'a') attributes.push('target="_blank"', 'rel="noopener noreferrer"');
+  return `<${tag}${attributes.length ? ' ' + attributes.join(' ') : ''}>`;
+}
+
+/** Marked's html-token hook. Never use this to parse code-fence payloads. */
+function renderSafeHtml(raw) {
+  const source = String(raw ?? '');
+  const output = [];
+  let cursor = 0;
+  while (cursor < source.length) {
+    const start = source.indexOf('<', cursor);
+    if (start < 0) { output.push(escapeText(source.slice(cursor))); break; }
+    output.push(escapeText(source.slice(cursor, start)));
+    // Comments/declarations are source too; don't interpret nested tags in them.
+    if (source.startsWith('<!--', start)) {
+      const close = source.indexOf('-->', start + 4);
+      const end = close < 0 ? source.length : close + 3;
+      output.push(escapeHtml(source.slice(start, end)));
+      cursor = end;
+      continue;
+    }
+    let quote = '', end = start + 1;
+    for (; end < source.length; end += 1) {
+      const char = source[end];
+      if (quote) { if (char === quote) quote = ''; }
+      else if (char === '"' || char === "'") quote = char;
+      else if (char === '>') break;
+    }
+    if (end === source.length) { output.push(escapeHtml(source.slice(start))); break; }
+    output.push(renderTag(source.slice(start, end + 1)));
+    cursor = end + 1;
+  }
+  return output.join('');
+}
+
+window.TSARich.SafeHtml=Object.freeze({SAFE_HTML_TAGS,sanitizeInlineStyle,safeHtmlAttribute,renderSafeHtml});
+})();
+
+/* rich-expressions.js */
+(function(){
+'use strict';
+
+/** Bounded syntax for archived local presentation data. No source is executed.
+ * Calls, dynamic indexing, host objects and prototypes are outside this grammar.
+ * Array.from's one recognized spelling denotes an integer sequence, not a call.
+ */
+const forbidden = new Set(['__proto__', 'prototype', 'constructor']);
+const fail = message => { throw new SyntaxError(message); };
+const checkKey = key => { if (forbidden.has(String(key))) fail('Forbidden property'); };
+const record = value => value !== null && typeof value === 'object' && !Array.isArray(value) && [null, Object.prototype].includes(Object.getPrototypeOf(value));
+const precedence = { '===': 1, '!==': 1, '==': 1, '!=': 1, '<=': 2, '>=': 2, '<': 2, '>': 2, '+': 3, '-': 3, '*': 4, '/': 4, '%': 4 };
+
+class ExpressionParser {
+  constructor(source, hooks) { this.source = source; this.pos = 0; this.hooks = hooks; }
+  touch(depth = 0) { this.hooks.depthCheck(depth); this.hooks.tick(); }
+  ws() { while (this.pos < this.source.length && /\s/.test(this.source[this.pos])) { this.pos++; this.touch(); } }
+  token(text) { this.ws(); if (!this.source.startsWith(text, this.pos)) return false; this.pos += text.length; this.touch(); return true; }
+  expect(text) { if (!this.token(text)) fail(`Expected local expression ${text}`); }
+  identifier() {
+    this.ws(); const match = this.source.slice(this.pos).match(/^[A-Za-z_$][A-Za-z0-9_$]*/);
+    if (!match) fail('Expected local identifier');
+    this.pos += match[0].length; checkKey(match[0]); this.touch(); return match[0];
+  }
+  string() {
+    const quote = this.source[this.pos++]; let result = '';
+    while (this.pos < this.source.length) {
+      this.touch(); const c = this.source[this.pos++];
+      if (c === quote) return result;
+      if (c === '\\') {
+        const e = this.source[this.pos++];
+        if (e === 'u') {
+          const hex = this.source.slice(this.pos, this.pos + 4);
+          if (!/^[a-fA-F0-9]{4}$/.test(hex)) fail('Invalid Unicode escape');
+          result += String.fromCharCode(parseInt(hex, 16)); this.pos += 4;
+        } else {
+          const escapes = { '"': '"', "'": "'", '\\': '\\', '/': '/', n: '\n', r: '\r', t: '\t', b: '\b', f: '\f' };
+          if (!Object.hasOwn(escapes, e)) fail('Invalid literal escape');
+          result += escapes[e];
+        }
+      } else { if (c.charCodeAt(0) < 32) fail('Control character in literal'); result += c; }
+      if (result.length > this.hooks.limits.string) fail('Literal string limit exceeded');
+    }
+    fail('Unterminated local string');
+  }
+  primary(depth) {
+    this.touch(depth); this.hooks.tick('values'); this.ws(); const c = this.source[this.pos];
+    if (c === '"' || c === "'") return { expression: 'literal', value: this.string() };
+    if (c === '(') { this.pos++; const value = this.expression(depth + 1); this.expect(')'); return value; }
+    if (c === '+' || c === '-') { this.pos++; return { expression: 'unary', operator: c, value: this.primary(depth + 1) }; }
+    if (c === '[') {
+      this.pos++; const items = []; this.ws();
+      while (!this.token(']')) {
+        if (items.length >= this.hooks.limits.array) fail('Literal array limit exceeded');
+        items.push(this.expression(depth + 1));
+        if (this.token(']')) break; this.expect(',');
+      }
+      return { expression: 'array', items };
+    }
+    if (c === '{') {
+      this.pos++; const entries = [], keys = new Set(); this.ws();
+      while (!this.token('}')) {
+        this.ws(); const key = ['"', "'"].includes(this.source[this.pos]) ? this.string() : this.identifier();
+        checkKey(key); if (keys.has(key)) fail('Duplicate literal key'); keys.add(key);
+        this.expect(':'); entries.push([key, this.expression(depth + 1)]);
+        if (entries.length > this.hooks.limits.array) fail('Literal object limit exceeded');
+        if (this.token('}')) break; this.expect(',');
+      }
+      return { expression: 'object', entries };
+    }
+    const keyword = this.source.slice(this.pos).match(/^(true|false|null)(?![A-Za-z0-9_$])/);
+    if (keyword) { this.pos += keyword[0].length; return { expression: 'literal', value: keyword[0] === 'null' ? null : keyword[0] === 'true' }; }
+    const number = this.source.slice(this.pos).match(/^(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+    if (number) { this.pos += number[0].length; const value = Number(number[0]); if (!Number.isFinite(value)) fail('Non-finite number'); return { expression: 'literal', value }; }
+    const name = this.identifier();
+    if (name === 'Array' && this.token('.')) {
+      if (this.identifier() !== 'from') fail('Unsupported local operation');
+      this.expect('('); this.expect('{'); if (this.identifier() !== 'length') fail('Invalid local sequence'); this.expect(':');
+      const length = this.expression(depth + 1); this.expect('}'); this.expect(','); this.expect('(');
+      const unused = this.identifier(); this.expect(','); const index = this.identifier();
+      if (unused === index) fail('Duplicate sequence parameter');
+      this.expect(')'); this.expect('=>'); const returned = this.identifier(); if (returned !== index) fail('Unsupported sequence callback'); this.expect(')');
+      return { expression: 'range', length };
+    }
+    const path = [name];
+    while (true) {
+      if (this.token('.')) path.push(this.identifier());
+      else if (this.token('[')) {
+        this.ws(); const match = this.source.slice(this.pos).match(/^(?:0|[1-9]\d*)/);
+        if (!match || Number(match[0]) >= this.hooks.limits.array) fail('Only bounded static indexes are supported');
+        path.push(Number(match[0])); this.pos += match[0].length; this.expect(']');
+      } else break;
+      if (path.length > this.hooks.limits.depth) fail('Binding nesting limit exceeded');
+    }
+    return { expression: 'binding', path };
+  }
+  binary(depth, minimum = 1) {
+    let left = this.primary(depth);
+    while (true) {
+      this.ws(); const op = this.source.slice(this.pos).match(/^(===|!==|==|!=|<=|>=|<|>|\+|-|\*|\/|%)/)?.[0];
+      if (!op || precedence[op] < minimum) break;
+      this.pos += op.length; this.touch(depth);
+      const right = this.binary(depth + 1, precedence[op] + 1);
+      left = { expression: 'binary', operator: op, left, right };
+    }
+    return left;
+  }
+  expression(depth = 0) {
+    this.touch(depth); const test = this.binary(depth);
+    if (!this.token('?')) return test;
+    const consequent = this.expression(depth + 1); this.expect(':'); const alternate = this.expression(depth + 1);
+    return { expression: 'conditional', test, consequent, alternate };
+  }
+}
+
+function parseLocalExpression(source, hooks) {
+  const text = String(source); if (text.length > hooks.limits.span) fail('Local expression source limit exceeded');
+  const parser = new ExpressionParser(text, hooks), expression = parser.expression(); parser.ws();
+  if (parser.pos !== text.length) fail('Unsupported local expression syntax');
+  return expression;
+}
+
+function resolveLocalExpression(ast, env, hooks, depth = 0) {
+  hooks.depthCheck(depth); hooks.tick();
+  const resolve = value => resolveLocalExpression(value, env, hooks, depth + 1);
+  if (ast.expression === 'literal') return ast.value;
+  if (ast.expression === 'binding') {
+    let value = env;
+    for (const key of ast.path) {
+      checkKey(key); hooks.tick();
+      if (!(record(value) || (Array.isArray(value) && Number.isInteger(key))) || !Object.hasOwn(value, key)) fail('Binding is not a local own property');
+      const descriptor = Object.getOwnPropertyDescriptor(value, key); if (!descriptor || !Object.hasOwn(descriptor, 'value')) fail('Accessor is not local data');
+      value = descriptor.value;
+    }
+    return value;
+  }
+  if (ast.expression === 'array') return ast.items.map(resolve);
+  if (ast.expression === 'object') { const result = Object.create(null); for (const [key, value] of ast.entries) { checkKey(key); result[key] = resolve(value); } return result; }
+  if (ast.expression === 'range') {
+    const length = resolve(ast.length);
+    if (!Number.isInteger(length) || length < 0 || length > hooks.limits.array) fail('Local sequence length limit exceeded');
+    hooks.tick('values', length); return Array.from({ length }, (_, index) => index);
+  }
+  if (ast.expression === 'conditional') {
+    const test = resolve(ast.test); if (typeof test !== 'boolean') fail('Local conditional requires a boolean');
+    return resolve(test ? ast.consequent : ast.alternate);
+  }
+  if (ast.expression === 'unary') {
+    const value = resolve(ast.value); if (typeof value !== 'number' || !Number.isFinite(value)) fail('Arithmetic requires finite numbers');
+    return ast.operator === '-' ? -value : value;
+  }
+  if (ast.expression === 'binary') {
+    const a = resolve(ast.left), b = resolve(ast.right), op = ast.operator;
+    if (['+', '-', '*', '/', '%'].includes(op)) {
+      if (typeof a !== 'number' || typeof b !== 'number' || !Number.isFinite(a) || !Number.isFinite(b)) fail('Arithmetic requires finite numbers');
+      const result = op === '+' ? a + b : op === '-' ? a - b : op === '*' ? a * b : op === '/' ? a / b : a % b;
+      if (!Number.isFinite(result)) fail('Non-finite arithmetic result'); return result;
+    }
+    if (!['number', 'string', 'boolean'].includes(typeof a) || typeof a !== typeof b) fail('Condition operands must share a primitive type');
+    if (op === '===' || op === '==') return a === b;
+    if (op === '!==' || op === '!=') return a !== b;
+    if (op === '<') return a < b; if (op === '>') return a > b; if (op === '<=') return a <= b; if (op === '>=') return a >= b;
+  }
+  fail('Unsupported local expression');
+}
+
+window.TSARich.Expressions=Object.freeze({parseLocalExpression,resolveLocalExpression});
+})();
+
 /* rich-parser.js */
 (function(){
 'use strict';
-const marked=window.marked;const {grokAt,grokFenceAt}=window.TSARich.Grok;
+const marked=window.marked;const {grokAt,grokFenceAt}=window.TSARich.Grok;const {parseLocalExpression,resolveLocalExpression}=window.TSARich.Expressions;const {SAFE_HTML_TAGS}=window.TSARich.SafeHtml;
 /** Reader-owned, bounded, data-only adapters for the evidenced export vocabulary.
  * This is deliberately not JSX, HTML, Svelte, or a JavaScript interpreter.
  * All representations are transient; nothing here writes back to a message.
@@ -928,9 +1374,9 @@ const RICH_LIMITS = Object.freeze({
   values: 20000, string: 32768, iterations: 512, array: 512,
   output: 1024 * 1024, fragments: 256, operations: 1000000, milliseconds: 300,
 });
-const TAGS = new Set(['box', 'row', 'text', 'title', 'caption', 'divider', 'icon', 'grid', 'grid-item', 'Entity', 'AsyncImage', 'AsyncImageGroup', 'Chart', 'Cite', 'Link', 'svg']);
+const TAGS = new Set(['box', 'row', 'text', 'title', 'caption', 'badge', 'slider', 'divider', 'icon', 'grid', 'grid-item', 'Entity', 'AsyncImage', 'AsyncImageGroup', 'Chart', 'Cite', 'Link', 'svg']);
 const GROK_TAGS = new Set(['grok:render','grok:richcontent','grok','grok-card','grok-card-list','grok-generated-images','grok-file-card-group','xaiArtifact','xai:tool_usage_card','image-card','file-mention']);
-const INLINE = new Set(['Entity', 'Cite', 'Link', 'icon']);
+const INLINE = new Set(['Entity', 'Cite', 'Link', 'icon', 'badge']);
 const FORBIDDEN = new Set(['__proto__', 'prototype', 'constructor']);
 const ENUMS = Object.freeze({
   align: ['start', 'center', 'end', 'stretch'], justify: ['start', 'center', 'end', 'between'],
@@ -939,8 +1385,9 @@ const ENUMS = Object.freeze({
   color: ['default', 'secondary', 'tertiary', 'subtle', 'success', 'info', 'warning', 'danger', 'error'],
 });
 const PROPS = Object.freeze({
-  box: ['gap', 'width', 'height', 'size', 'minWidth', 'align', 'flex', 'border', 'radius', 'padding', 'justify', 'background', 'clip', 'direction'],
-  row: ['align', 'gap', 'justify', 'wrap'], text: ['color', 'size', 'weight', 'tabularNums', 'textAlign'],
+  box: ['key', 'gap', 'width', 'height', 'size', 'minWidth', 'align', 'flex', 'border', 'radius', 'padding', 'justify', 'background', 'clip', 'direction'],
+  row: ['align', 'gap', 'justify', 'wrap', 'width', 'height'], text: ['color', 'size', 'weight', 'tabularNums', 'textAlign'],
+  badge: ['color'], slider: ['min', 'max', 'step', 'value', 'onChange', 'marks'],
   title: ['size', 'color', 'tabularNums'], caption: ['textAlign'], divider: ['color'], grid: ['columns', 'gap'],
   'grid-item': [], icon: ['name', 'color', 'size', 'inline'], Entity: ['category', 'value', 'disambig'],
   Link: ['url', 'title'], Cite: ['ref', 'refs'], Chart: ['content'],
@@ -960,6 +1407,44 @@ function tick(b, kind, amount = 1) {
 }
 function depthCheck(depth) { if (depth > RICH_LIMITS.depth) fail('Rich content nesting limit exceeded'); }
 function keyCheck(key) { if (FORBIDDEN.has(key)) fail('Forbidden property'); }
+
+// Local bindings can share nested data. Never serialize that graph merely to
+// measure it: a short sequence of aliases can expand exponentially in JSON.
+// Charge each emitted value before descending, without constructing output.
+function countAttributeOutput(value, b, depth = 0, active = new WeakSet()) {
+  depthCheck(depth); tick(b);
+  if (value === null) { tick(b, 'output', 4); return; }
+  if (typeof value === 'boolean') { tick(b, 'output', value ? 4 : 5); return; }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) fail('Non-finite attribute value');
+    tick(b, 'output', String(value).length); return;
+  }
+  if (typeof value === 'string') {
+    if (value.length > RICH_LIMITS.string) fail('Literal string limit exceeded');
+    let length = 2;
+    for (let i = 0; i < value.length; i++) {
+      tick(b); const code = value.charCodeAt(i);
+      if (code === 34 || code === 92 || [8, 9, 10, 12, 13].includes(code)) length += 2;
+      else if (code < 32) length += 6;
+      else if (code >= 0xd800 && code <= 0xdbff && value.charCodeAt(i + 1) >= 0xdc00 && value.charCodeAt(i + 1) <= 0xdfff) { length += 2; i++; }
+      else if (code >= 0xd800 && code <= 0xdfff) length += 6;
+      else length++;
+    }
+    tick(b, 'output', length); return;
+  }
+  if (!(Array.isArray(value) || plainRecord(value)) || active.has(value)) fail('Invalid local attribute data');
+  const keys = Object.keys(value);
+  if (keys.length > RICH_LIMITS.array || (Array.isArray(value) && value.length > RICH_LIMITS.array)) fail('Attribute data limit exceeded');
+  active.add(value); tick(b, 'output', 2 + Math.max(0, keys.length - 1));
+  for (const key of keys) {
+    keyCheck(key);
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) fail('Accessor is not local data');
+    if (!Array.isArray(value)) { countAttributeOutput(key, b, depth + 1, active); tick(b, 'output', 1); }
+    countAttributeOutput(descriptor.value, b, depth + 1, active);
+  }
+  active.delete(value);
+}
 
 class LiteralParser {
   constructor(source, b) { this.source = source; this.pos = 0; this.b = b; }
@@ -1036,31 +1521,19 @@ function parseLiteral(source, sharedBudget) {
   const result = parser.value(); parser.ws(); if (parser.pos !== s.length) fail('Expressions are not literal data');
   return result;
 }
-function binding(source) {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(source)) fail('Unsupported binding');
-  const path = source.split('.'); path.forEach(keyCheck); return { expression: 'binding', path };
-}
 function expression(source, b) {
-  const s = source.trim();
-  if (/^(?:[\[{'"-]|\d|true\b|false\b|null\b)/.test(s)) return { expression: 'literal', value: parseLiteral(s, b) };
-  return binding(s);
+  return parseLocalExpression(source, { limits: RICH_LIMITS, tick: (kind, amount) => tick(b, kind, amount), depthCheck });
 }
-function resolve(expr, env) {
-  if (expr.expression === 'literal') return expr.value;
-  let value = env;
-  for (const key of expr.path) {
-    keyCheck(key); if (!plainRecord(value) || !own(value, key)) fail('Binding is not a local own property');
-    value = value[key];
-  }
-  return value;
+function resolve(expr, env, b) {
+  return resolveLocalExpression(expr, env, { limits: RICH_LIMITS, tick: (kind, amount) => tick(b, kind, amount), depthCheck });
 }
 function condition(source, b) {
   const match = source.match(/^(.+?)\s*(===|!==|==|!=|<=|>=|<|>)\s*(.+)$/);
   if (!match) fail('Unsupported condition');
   return { left: expression(match[1], b), operator: match[2], right: expression(match[3], b) };
 }
-function compare(c, env) {
-  const a = resolve(c.left, env), b = resolve(c.right, env);
+function compare(c, env, budget) {
+  const a = resolve(c.left, env, budget), b = resolve(c.right, env, budget);
   if (!['number', 'string', 'boolean'].includes(typeof a) || typeof a !== typeof b) fail('Condition operands must share a primitive type');
   switch (c.operator) {
     case '==': case '===': return a === b;
@@ -1078,16 +1551,25 @@ function dimensions(value) {
   const m = value.match(/^(\d+(?:\.\d+)?)(px|%)$/);
   return !!m && Number(m[1]) <= (m[2] === '%' ? 100 : 2048);
 }
+function validBackground(value) {
+  if (typeof value !== 'string') return false;
+  if (/^(?:#[0-9a-fA-F]{6}|surface-secondary|surface-tertiary|info|success|warning|danger|error)$/.test(value)) return true;
+  const match = value.match(/^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*((?:0|1)(?:\.\d+)?|\.\d+)\s*\)$/);
+  return !!match && match.slice(1, 4).every(channel => Number(channel) <= 255) && Number(match[4]) <= 1;
+}
 function validateAttributes(tag, attrs) {
   for (const [key, value] of Object.entries(attrs)) {
-    if (!PROPS[tag].includes(key)) fail(`Unsupported ${tag} property`);
+    if (!PROPS[tag].includes(key) && !(tag === 'slider' && key === 'stateKey')) fail(`Unsupported ${tag} property`);
     if (['border', 'clip', 'tabularNums', 'inline'].includes(key)) { if (typeof value !== 'boolean') fail('Expected boolean'); }
-    else if (['gap', 'padding'].includes(key)) { if (!Number.isInteger(value) || value < 0 || value > 16) fail('Invalid spacing'); }
+    else if (['gap', 'padding'].includes(key)) { if (!(Number.isInteger(value) && value >= 0 && value <= 16) && !(typeof value === 'string' && /^(?:\d+(?:\.\d+)?)px$/.test(value) && parseFloat(value) <= 64)) fail('Invalid spacing'); }
+    else if (key === 'key') { if (!['string', 'number'].includes(typeof value) || (typeof value === 'number' && !Number.isFinite(value)) || String(value).length > 256) fail('Invalid local key'); }
+    else if (tag === 'slider' && ['min', 'max', 'step', 'value'].includes(key)) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1000000) fail('Invalid slider number'); }
+    else if (tag === 'slider' && key === 'marks') { if (!Array.isArray(value) || value.length > 32 || value.some(mark => !plainRecord(mark) || Object.keys(mark).some(key => !['value', 'label'].includes(key)) || typeof mark.value !== 'number' || !Number.isFinite(mark.value) || typeof mark.label !== 'string' || mark.label.length > 128)) fail('Invalid slider marks'); }
     else if (key === 'columns') { if (!Number.isInteger(value) || value < 1 || value > 12) fail('Invalid grid columns'); }
     else if (key === 'flex') { if (!/^(?:\d+(?:\.\d+)?)$/.test(String(value)) || Number(value) > 1024) fail('Invalid flex'); }
     else if (['width', 'height', 'minWidth', 'maxWidth'].includes(key) || (key === 'size' && tag === 'box')) { if (!dimensions(value)) fail('Invalid dimension'); }
     else if (key === 'size') { if (!['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'].includes(value)) fail('Invalid text size'); }
-    else if (key === 'background') { if (typeof value !== 'string' || !(/^(?:#[0-9a-fA-F]{6}|surface-secondary|surface-tertiary|info|success|warning|danger|error)$/.test(value))) fail('Invalid background'); }
+    else if (key === 'background') { if (!validBackground(value)) fail('Invalid background'); }
     else if (ENUMS[key]) { if (!ENUMS[key].includes(value)) fail('Invalid enum'); }
     else if (key === 'content') { if (!value || typeof value !== 'object' || Array.isArray(value)) fail('Chart content must be an object'); }
     else if (key === 'refs') { if (!Array.isArray(value) || !value.length || value.length > 64 || value.some(v => typeof v !== 'string' || !v.length || v.length > 256 || /\s/.test(v))) fail('Invalid references'); }
@@ -1102,6 +1584,11 @@ function validateAttributes(tag, attrs) {
   if (tag === 'Link' && !safeRichUrl(attrs.url)) fail('Link has no safe URL');
   if (tag === 'Chart' && !attrs.content) fail('Chart has no content');
   if (tag === 'Cite' && ((!attrs.ref && !attrs.refs) || (attrs.ref && attrs.refs))) fail('Citation requires exactly one reference field');
+  if (tag === 'slider') {
+    const { min, max, step, value, stateKey } = attrs;
+    if (![min, max, step, value].every(Number.isFinite) || min >= max || step <= 0 || (max - min) / step > 10000 || value < min || value > max || Math.abs((value - min) / step - Math.round((value - min) / step)) > 1e-7 || typeof stateKey !== 'string') fail('Invalid slider range or state');
+    if ((attrs.marks || []).some(mark => mark.value < min || mark.value > max)) fail('Invalid slider mark range');
+  }
   return attrs;
 }
 function richTagAt(source, position) {
@@ -1384,7 +1871,14 @@ class ComponentParser {
     const flush = () => { if (text) { children.push({ kind: 'markdown', text }); tick(this.b, 'nodes'); text = ''; } };
     while (this.pos < this.source.length && !this.source.startsWith(closing, this.pos)) {
       this.check(depth); const end = this.protectedEnd();
-      if (end > this.pos) { text += this.source.slice(this.pos, end); this.pos = end; continue; }
+      if (end > this.pos) {
+        const html = this.source.slice(this.pos, end).match(/^<([A-Za-z][A-Za-z0-9_-]*)(?=[\s/>])/);
+        // Keep ordinary supported HTML literal to the rich grammar. An unknown
+        // nested component instead preserves the complete enclosing source,
+        // so dropping its tags cannot masquerade as a complete rich rendering.
+        if (html && !TAGS.has(html[1]) && !SAFE_HTML_TAGS.has(html[1].toLowerCase()) && !GROK_TAGS.has(html[1])) fail('Unsupported nested component');
+        text += this.source.slice(this.pos, end); this.pos = end; continue;
+      }
       if (!escaped(this.source, this.pos) && this.source.startsWith('', this.pos)) {
         const stop=this.source.indexOf('',this.pos+1);
         if(stop>=0&&stop-this.pos<=RICH_LIMITS.span){text+=this.source.slice(this.pos,stop+1);this.pos=stop+1;continue;}
@@ -1456,28 +1950,35 @@ function evaluate(nodes, env, b, depth = 0) {
     if (node.kind === 'markdown') { tick(b, 'output', node.text.length); out.push(node); }
     else if (node.kind === 'static-svg') { tick(b, 'nodes', node.svgNodes); tick(b, 'output', node.source.length); out.push(node); }
     else if (node.kind === 'bound') {
-      const value = resolve(node.expr, env);
+      const value = resolve(node.expr, env, b);
       if (value !== null && !['string', 'number', 'boolean'].includes(typeof value)) fail('Text binding is not primitive');
       const text = value === null ? '' : String(value); tick(b, 'output', text.length); out.push({ kind: 'literal', text });
     } else if (node.kind === 'each') {
-      const array = resolve(node.iterable, env); if (!Array.isArray(array) || array.length > RICH_LIMITS.array) fail('Each requires a bounded literal array');
+      const array = resolve(node.iterable, env, b); if (!Array.isArray(array) || array.length > RICH_LIMITS.array) fail('Each requires a bounded literal array');
       const body = protectChildCode(node.children, b);
       array.forEach((item, index) => {
         tick(b, 'iterations');
         const local = Object.assign(Object.create(null), env); local[node.item] = item; if (node.index) local[node.index] = index;
         out.push(...evaluate(body, local, b, depth + 1));
       });
-    } else if (node.kind === 'if') { if (compare(node.test, env)) out.push(...evaluate(protectChildCode(node.children, b), env, b, depth + 1)); }
+    } else if (node.kind === 'if') { if (compare(node.test, env, b)) out.push(...evaluate(protectChildCode(node.children, b), env, b, depth + 1)); }
     else if (node.kind === 'element') {
       const attrs = Object.create(null);
       for (const [key, expr] of Object.entries(node.attrs)) {
-        attrs[key] = resolve(expr, env);
+        if (node.tag === 'slider' && key === 'onChange') {
+          const setter = expr.expression === 'binding' && expr.path.length === 1 ? expr.path[0] : null;
+          const stateKey = b.view?.setters.get(setter);
+          const valueBinding = node.attrs.value;
+          if (!stateKey || valueBinding?.expression !== 'binding' || valueBinding.path.length !== 1 || valueBinding.path[0] !== stateKey) fail('Slider requires matching local state and setter');
+          attrs.stateKey = stateKey; continue;
+        }
+        attrs[key] = resolve(expr, env, b);
         // Count expanded attributes too: a loop must not multiply a large chart
         // literal hundreds of times without consuming the shared output budget.
-        tick(b, 'output', JSON.stringify(attrs[key]).length);
+        countAttributeOutput(attrs[key], b);
       }
       validateAttributes(node.tag, attrs);
-      if (['Entity', 'Link', 'Cite', 'Chart', 'AsyncImage', 'AsyncImageGroup', 'icon', 'divider'].includes(node.tag) && node.children.some(child => child.kind !== 'markdown' || child.text.trim())) fail('Terminal component has unsupported children');
+      if (['Entity', 'Link', 'Cite', 'Chart', 'AsyncImage', 'AsyncImageGroup', 'icon', 'divider', 'slider'].includes(node.tag) && node.children.some(child => child.kind !== 'markdown' || child.text.trim())) fail('Terminal component has unsupported children');
       out.push({ kind: 'component', tag: node.tag, attrs, children: evaluate(protectChildCode(node.children, b), env, b, depth + 1), source: node.source, inline: INLINE.has(node.tag) });
     }
   }
@@ -1488,6 +1989,71 @@ function parseRichSpan(source) {
   const parser = new ComponentParser(text, 0, b, markdownProtectedRanges(text));
   const ast = parser.element(); if (parser.pos !== text.length) fail('Trailing content after rich span');
   return evaluate([ast], Object.create(null), b)[0];
+}
+
+// Presentation models are registered by this parser only. Public node fields
+// are descriptive, not executable capabilities; imported objects cannot supply
+// a model or a callback by imitating a node's shape.
+const localWidgets = new WeakMap();
+function localDeclarations(parser) {
+  const declarations = [], names = new Set();
+  const reserve = name => { keyCheck(name); if (names.has(name)) fail('Duplicate local declaration'); names.add(name); };
+  while (parser.source.startsWith('{@body', parser.pos)) {
+    if (parser.ranges.some(([a, z]) => a <= parser.pos && parser.pos < z)) fail('Local declaration is protected source');
+    if (declarations.length >= 32) fail('Local declaration limit exceeded');
+    const raw = parser.brace(), state = raw.match(/^@body\s+const\s+\[\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\]\s*=\s*DIL\.useState\(([\s\S]+)\)\s*;?\s*$/);
+    if (state) {
+      reserve(state[1]); reserve(state[2]);
+      declarations.push({ kind: 'state', name: state[1], setter: state[2], value: expression(state[3], parser.b) });
+    } else {
+      const binding = raw.match(/^@body\s+const\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([\s\S]*?)\s*;?\s*$/);
+      if (!binding) fail('Unsupported local declaration'); reserve(binding[1]);
+      declarations.push({ kind: 'constant', name: binding[1], value: expression(binding[2], parser.b) });
+    }
+    parser.ws();
+  }
+  return declarations;
+}
+function evaluateModel(model, overrides, b) {
+  if (!plainRecord(overrides)) fail('Local state must be plain data');
+  const env = Object.create(null), setters = new Map(), stateNames = new Set(model.declarations.filter(d => d.kind === 'state').map(d => d.name));
+  for (const name of Object.keys(overrides)) { keyCheck(name); if (!stateNames.has(name)) fail('Unknown local state'); }
+  const states = [];
+  for (const declaration of model.declarations) {
+    let value = resolve(declaration.value, env, b);
+    if (declaration.kind === 'state') {
+      if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > 1000000) fail('Only bounded numeric local state is supported');
+      states.push({ name: declaration.name, setter: declaration.setter, initial: value }); setters.set(declaration.setter, declaration.name);
+      if (Object.hasOwn(overrides, declaration.name)) {
+        const descriptor = Object.getOwnPropertyDescriptor(overrides, declaration.name);
+        if (!descriptor || !Object.hasOwn(descriptor, 'value') || typeof descriptor.value !== 'number' || !Number.isFinite(descriptor.value) || Math.abs(descriptor.value) > 1000000) fail('Invalid local state value');
+        value = descriptor.value;
+      }
+    }
+    env[declaration.name] = value;
+  }
+  b.view = { setters };
+  const children = evaluate([model.ast], env, b);
+  return { children, states };
+}
+function localWidgetAt(source, start, b, ranges) {
+  const parser = new ComponentParser(source, start, b, ranges), declarations = localDeclarations(parser);
+  if (!declarations.length || !richTagAt(source, parser.pos)) fail('Local declarations require a supported component');
+  if (ranges.some(([a, z]) => a <= parser.pos && parser.pos < z)) fail('Local component is protected source');
+  const ast = parser.element(), model = { declarations, ast }, evaluated = evaluateModel(model, Object.create(null), b);
+  const node = { kind: 'local-widget', source: source.slice(start, parser.pos), states: evaluated.states, children: evaluated.children, inline: false };
+  localWidgets.set(node, model); return { node, end: parser.pos };
+}
+function parseLocalWidgetSource(source) {
+  const text = String(source), b = budget(); if (text.length > RICH_LIMITS.span) fail('Local widget source limit exceeded');
+  const ranges = markdownProtectedRanges(text);
+  if (!text.startsWith('{@body') || ranges.some(([a, z]) => a === 0 && z > 0)) fail('Not a local widget source');
+  const result = localWidgetAt(text, 0, b, ranges); if (result.end !== text.length) fail('Trailing local widget content');
+  return result.node;
+}
+function evaluateLocalWidget(node, stateOverrides = Object.create(null)) {
+  const model = localWidgets.get(node); if (!model) fail('Unrecognized local widget model');
+  return evaluateModel(model, stateOverrides, budget()).children;
 }
 function legacyNode(payload, raw, b) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
@@ -1596,7 +2162,19 @@ function prepareRichMarkdown(content) {
     if (Date.now() - b.started > RICH_LIMITS.milliseconds) break;
     const tag = !fenced && !escaped(source, pos) && richTagAt(source, pos);
     let node = fenced?.node || null, end = fenced?.end || pos;
-    if (tag) {
+    if (!fenced && !escaped(source, pos) && source.startsWith('{@body', pos)) {
+      try { const found = localWidgetAt(source, pos, b, ranges); node = found.node; end = found.end; }
+      catch {
+        // A rejected local model never grants its declaration scope to nearby
+        // components. Keep its exact declaration and body available as source.
+        const parser = new ComponentParser(source, pos, b, ranges);
+        try { while (source.startsWith('{@body', parser.pos)) { parser.brace(); parser.ws(); } const nextTag = richTagAt(source, parser.pos); end = nextTag ? failedSpanEnd(source, parser.pos, nextTag) : parser.pos; } catch { end = pos + 1; }
+        pos = Math.max(pos + 1, end); continue;
+      }
+    } else if (!fenced && !escaped(source, pos) && source.startsWith('::page-preview{', pos)) {
+      const match = source.slice(pos, pos + 256).match(/^::page-preview\{\s*page_id\s*=\s*(["'])(page_[A-Za-z0-9_-]{1,160})\1\s*\}/);
+      if (match) { end = pos + match[0].length; node = { kind: 'page-preview', pageId: match[2], source: match[0], inline: false }; }
+    } else if (tag) {
       const parser = new ComponentParser(source, pos, b, ranges);
       try { const ast = parser.element(); end = parser.pos; node = evaluate([ast], Object.create(null), b)[0]; }
       catch {
@@ -1632,6 +2210,13 @@ function prepareRichMarkdown(content) {
       if (found) { node = found.node; end = found.end; }
     }
     if (node) {
+      if (node.kind === 'component' && node.tag === 'text' && !source.slice(pos, end).includes('\n')) {
+        const before = source.slice(source.lastIndexOf('\n', pos - 1) + 1, pos);
+        const lineEnd = source.indexOf('\n', end), after = source.slice(end, lineEnd < 0 ? source.length : lineEnd);
+        // A text run in a Markdown cell/heading/paragraph must stay phrasing
+        // content; only a standalone text component creates a block marker.
+        if (before.trim() || after.trim()) node.inline = true;
+      }
       if (node.kind === 'grok' || node.kind === 'native-citation' || node.kind === 'archived-widget') { try { tick(b, 'output', end - pos); } catch { break; } }
       let marker; try { marker = opaqueMarker(); while (source.includes(marker) || records.has(marker)) marker = opaqueMarker(); } catch { break; }
       b.fragments++; records.set(marker, node); output += source.slice(last, pos) + (node.inline ? marker : `\n\n${marker}\n\n`);
@@ -1641,13 +2226,13 @@ function prepareRichMarkdown(content) {
   return { content: output + source.slice(last), records, stats: b };
 }
 
-window.TSARich.Parser=Object.freeze({RICH_LIMITS,parseLiteral,safeRichUrl,markdownProtectedRanges,parseRichSpan,prepareRichMarkdown});
+window.TSARich.Parser=Object.freeze({RICH_LIMITS,parseLiteral,safeRichUrl,markdownProtectedRanges,parseRichSpan,parseLocalWidgetSource,evaluateLocalWidget,prepareRichMarkdown});
 })();
 
 /* rich-context.js */
 (function(){
 'use strict';
-const {createGrokContextResolver}=window.TSARich.Grok;
+const {createGrokContextResolver}=window.TSARich.Grok;const marked=window.marked;
 // Transient, message-scoped citation bindings. Never changes archived turns/raw.
 // Bind only explicit saved identities; never infer references from array order.
 const plain = value => value !== null && typeof value === 'object' &&
@@ -1710,9 +2295,75 @@ function referencesFor(message) {
   } catch { return empty; }
   return Object.keys(references).length ? Object.freeze({references: Object.freeze(references)}) : empty;
 }
+// Page links are presentation metadata, scoped to this original message. A
+// saved link label is not asserted to be the Page's exact title or contents.
+// Markdown's lexer keeps links in code fences/inline code out of this map.
+function pageLinksFor(message, turn) {
+  const pages = Object.create(null), conflicts = new Set();
+  let count = 0;
+  function add(urlValue, titleValue, titleSource) {
+    if (++count > 1024) throw new RangeError('Page metadata budget');
+    const url = safeUrl(urlValue);
+    if (!url) return;
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'chatgpt.com' || parsed.port) return;
+    const match = /^\/(?:space|s)\/(page_[A-Za-z0-9_-]{1,128})\/?$/.exec(parsed.pathname);
+    if (!match || conflicts.has(match[1])) return;
+    const id = match[1], title = bounded(titleValue, 2048) ? titleValue : undefined;
+    const previous = pages[id];
+    if (previous && previous.url !== url) { delete pages[id]; conflicts.add(id); return; }
+    if (previous?.titleSource === 'saved-metadata' || previous?.title && titleSource === 'saved-link') return;
+    pages[id] = Object.freeze({url, ...(title ? {title, titleSource} : {})});
+  }
+  try {
+    const metadata = own(message, 'metadata'), records = own(metadata, 'content_references');
+    if (Array.isArray(records) && records.length <= 1024) for (const record of records) {
+      const type = own(record, 'type');
+      if (['link_title', 'webpage', 'webpage_extended'].includes(type)) add(own(record, 'url'), own(record, 'title'), 'saved-metadata');
+      if (type === 'grouped_webpages') {
+        const items = own(record, 'items');
+        if (Array.isArray(items) && items.length <= 256) for (const item of items) add(own(item, 'url'), own(item, 'title'), 'saved-metadata');
+      }
+    }
+    const parts = own(own(message, 'content'), 'parts');
+    const sources = [];
+    if (Array.isArray(parts) && parts.length <= 256) for (let i = 0; i < parts.length; i++) {
+      const descriptor = Object.getOwnPropertyDescriptor(parts, String(i));
+      if (descriptor && 'value' in descriptor && typeof descriptor.value === 'string') sources.push(descriptor.value);
+    }
+    // Server-only adapters can retain the complete text without the original
+    // message object. Resolve only a link literally saved in that same turn.
+    if (!sources.length) for (const key of ['ai', 'human']) {
+      const source = own(turn, key); if (typeof source === 'string') sources.push(source);
+    }
+    let length = 0, tokens = 0;
+    for (const source of sources) {
+      length += source.length; if (length > 2 * 1024 * 1024) return Object.freeze(Object.create(null));
+      if (!source.includes('page_')) continue;
+      marked.walkTokens(marked.lexer(source, {gfm: true}), token => {
+        if (++tokens > 20000) throw new RangeError('Page token budget');
+        if (token.type === 'link') add(token.href, token.text, 'saved-link');
+      });
+    }
+  } catch { return Object.freeze(Object.create(null)); }
+  return Object.freeze(pages);
+}
+function mappingFor(thread) {
+  const raw = own(thread, 'raw');
+  const direct = own(raw, 'mapping');
+  if (plain(direct)) return direct;
+  // The read-only Enhanced adapter preserves its original under
+  // raw.thread.raw. This is a fixed wrapper path, not a recursive object scan.
+  const wrapped = own(own(own(raw, 'thread'), 'raw'), 'mapping');
+  return plain(wrapped) ? wrapped : undefined;
+}
 function createChatGPTContextResolver(thread) {
-  const mapping = own(own(thread, 'raw'), 'mapping');
-  if (!plain(mapping)) return () => empty;
+  const mapping = mappingFor(thread);
+  const withPages = (context, message, turn) => {
+    const pages = pageLinksFor(message, turn);
+    return Object.keys(pages).length ? Object.freeze({...context, pages}) : context;
+  };
+  if (!plain(mapping)) return turn => withPages(empty, undefined, turn);
   const ids = Object.keys(mapping);
   if (ids.length > 20000) return () => empty;
   const messages = new Map(), duplicates = new Set(), cache = new WeakMap();
@@ -1724,7 +2375,7 @@ function createChatGPTContextResolver(thread) {
   }
   return turn => {
     const messageId = own(turn, 'source_message_id'), nodeId = own(turn, 'source_node_id');
-    if (!bounded(messageId, 256)) return empty;
+    if (!bounded(messageId, 256)) return withPages(empty, undefined, turn);
     let message;
     if (bounded(nodeId, 256)) {
       message = own(own(mapping, nodeId), 'message');
@@ -1734,7 +2385,7 @@ function createChatGPTContextResolver(thread) {
       message = messages.get(messageId);
     }
     if (!plain(message)) return empty;
-    if (!cache.has(message)) cache.set(message, referencesFor(message));
+    if (!cache.has(message)) cache.set(message, withPages(referencesFor(message), message, turn));
     return cache.get(message);
   };
 }
@@ -1753,15 +2404,28 @@ window.TSARich.Context=Object.freeze({createRichContextResolver});
 /* rich-renderer.js */
 (function(){
 'use strict';
-const {renderChart}=window.TSARich.Charts;const {renderGrokNode}=window.TSARich.Grok;const {safeRichUrl,markdownProtectedRanges,prepareRichMarkdown}=window.TSARich.Parser;
+const {renderChart}=window.TSARich.Charts;const {renderGrokNode}=window.TSARich.Grok;const {safeRichUrl,markdownProtectedRanges,prepareRichMarkdown,evaluateLocalWidget,parseLocalWidgetSource}=window.TSARich.Parser;const {dismissChartInteractions}=window.TSARich.Interactions;
 
 const SVG = 'http://www.w3.org/2000/svg';
 // App-owned, simple line icons. Exported names never become markup or URLs.
 const ICONS = Object.freeze({
   'arrow-right': ['M4 12h16', 'm13 5 7 7-7 7'],
+  'arrow-down': ['M12 4v16', 'm5 13 7 7 7-7'],
+  'trending-up': ['m3 17 6-6 4 4 8-10', 'M15 5h6v6'],
+  'trending-down': ['m3 7 6 6 4-4 8 10', 'M15 19h6v-6'],
+  swords: ['m3 3 5 1 11 11-4 4L4 8z', 'm14 17 3-3', 'm17 20 3-3', 'm19 19 2 2', 'm21 3-5 1-5 5', 'm9 11-4 4 4 4 4-4', 'm7 14 3 3', 'm4 17 3 3', 'm5 19-2 2'],
   'arrow-down-up': ['M7 3v18', 'm3 17 4 4 4-4', 'M17 21V3', 'm13 7 4-4 4 4'],
   'check-circle': ['M22 11v1a10 10 0 1 1-5.9-9.1', 'm8 11 3 3L22 3'],
+  'check-circle-2': ['M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0', 'm7 12 3 3 7-7'],
   'alert-circle': ['M12 8v5', 'M12 16h.01', 'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0'],
+  'alert-triangle': ['M12 3 2 21h20z', 'M12 9v5', 'M12 17h.01'],
+  copy: ['M8 8h13v13H8z', 'M16 8V3H3v13h5'],
+  'hard-drive': ['M5 3h14l3 12v6H2v-6z', 'M2 15h20', 'M6 18h.01', 'M10 18h.01'],
+  'file-archive': ['M14 2H4v20h16V8z', 'M14 2v6h6', 'M9 3v2m2 0v2M9 7v2m2 0v2', 'M9 14h3v4H9z'],
+  'folder-search': ['M20 9V5h-9L9 3H3v17h7', 'M21 15a5 5 0 1 1-10 0 5 5 0 1 1 10 0', 'm20 19 3 3'],
+  'rotate-ccw': ['M3 10a9 9 0 1 1 1 8', 'M3 3v7h7'],
+  minus: ['M5 12h14'],
+  plus: ['M5 12h14', 'M12 5v14'],
   download: ['M12 3v12', 'm7 10 5 5 5-5', 'M4 17v4h16v-4'],
   'file-text': ['M14 2H5v20h14V7z', 'M14 2v6h5', 'M8 12h8', 'M8 16h8'],
   'file-code': ['M14 2H5v20h14V7z', 'M14 2v6h5', 'm10 12-3 3 3 3', 'm14 12 3 3-3 3'],
@@ -1791,7 +2455,10 @@ function randomMarker() {
 }
 function iconNode(name, options) {
   const { document } = options;
-  if (!Object.hasOwn(ICONS, name)) return el(document, 'span', 'rich-icon-fallback', '◇');
+  if (!Object.hasOwn(ICONS, name)) {
+    const fallback = el(document, 'span', 'rich-icon-fallback', '◇');
+    fallback.title = `${options.t('Unknown icon')}: ${name}`; return fallback;
+  }
   const svg = document.createElementNS(SVG, 'svg'); svg.setAttribute('viewBox', '0 0 24 24');
   svg.classList.add('rich-icon'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
   for (const d of ICONS[name]) {
@@ -1806,8 +2473,8 @@ function applyProperties(element, tag, a) {
   if (a.clip) element.classList.add('rich-clip');
   if (a.tabularNums) element.classList.add('rich-tabular');
   if (a.inline) element.classList.add('rich-inline');
-  if (a.gap !== undefined) element.style.gap = `${a.gap * .25}rem`;
-  if (a.padding !== undefined) element.style.padding = `${a.padding * .25}rem`;
+  if (a.gap !== undefined) element.style.gap = typeof a.gap === 'number' ? `${a.gap * .25}rem` : a.gap;
+  if (a.padding !== undefined) element.style.padding = typeof a.padding === 'number' ? `${a.padding * .25}rem` : a.padding;
   for (const key of ['width', 'height', 'minWidth', 'maxWidth']) if (a[key] !== undefined) element.style[key] = key === 'minWidth' ? `min(${a[key]}, 100%)` : a[key];
   if (tag === 'box' && a.size) { element.style.width = a.size; element.style.height = a.size; }
   if (a.flex !== undefined) { element.style.flex = `${Number(a.flex)} 1 0px`; element.classList.add('rich-flex-item'); }
@@ -1821,7 +2488,7 @@ function applyProperties(element, tag, a) {
   if (a.color) element.classList.add(`rich-color-${a.color}`);
   if (a.size && tag !== 'box') element.classList.add(`rich-size-${a.size}`);
   if (a.background) {
-    if (a.background[0] === '#') { element.style.backgroundColor = a.background; element.classList.add('rich-explicit-color'); }
+    if (a.background[0] === '#' || a.background.startsWith('rgba(')) { element.style.backgroundColor = a.background; element.classList.add('rich-explicit-color'); }
     else element.classList.add(`rich-${a.background}`);
   }
   if (a.columns) element.style.setProperty('--rich-columns', String(a.columns));
@@ -1842,6 +2509,11 @@ function markProgressFill(element, node) {
   // Recognize the bounded, empty percentage-fill pattern from saved layouts.
   // Card surfaces are otherwise left untouched, including explicit swatches.
   const a = node.attrs, meaningful = node.children.filter(c => c.kind !== 'markdown' || c.text.trim());
+  // Small explicit-height rows of empty weighted boxes are layout segments,
+  // not cards. Keep every segment in one row even at the minimum window size.
+  if (node.tag === 'row' && /^\d+(?:\.\d+)?px$/.test(a.height || '') && parseFloat(a.height) > 0 && parseFloat(a.height) <= 32 && meaningful.length > 1 && meaningful.every(child => child.tag === 'box' && Number(child.attrs?.flex) > 0 && !child.children.some(c => c.kind !== 'markdown' || c.text.trim()))) {
+    element.classList.add('rich-segment-track');
+  }
   // A saved allocation bar uses positive flex weights instead of percentages.
   // Keep its children out of the responsive card minimum-width rule, which
   // otherwise enlarges a small segment and changes the represented ratio.
@@ -1988,6 +2660,26 @@ function unavailableImageNode(tag, attrs, options) {
   // The export stores a query, not the selected image or its URL. Keep its
   // declared slot beside the accompanying prose, including full-width images;
   // never execute the query or substitute an unrelated photograph.
+  if (tag === 'AsyncImageGroup') {
+    // This is one honest group placeholder. Search-query count does not tell
+    // us how many images ChatGPT selected, so never manufacture image tiles.
+    area.classList.add('rich-image-group-unavailable');
+    if (attrs.layout) area.dataset.imageLayout = attrs.layout;
+    const slot = el(document, 'div', 'rich-image-group-slot');
+    if (attrs.aspectRatio) slot.style.aspectRatio = attrs.aspectRatio.replace(':', ' / ');
+    slot.append(iconNode('panels-top-left', options), el(document, 'strong', '', t('Archived image group')));
+    slot.append(el(document, 'span', '', t('Selected image assets were not included in the archive.')));
+    if (attrs.layout) slot.append(el(document, 'span', 'rich-image-group-layout', t('Carousel layout')));
+    area.append(slot);
+    if (description) {
+      const details = el(document, 'details', 'rich-image-group-queries');
+      details.append(el(document, 'summary', '', t('Saved image queries')));
+      const list = el(document, 'ul');
+      for (const query of queries) list.append(el(document, 'li', '', query));
+      details.append(list); area.append(details);
+    }
+    return area;
+  }
   if (tag === 'AsyncImage') {
     const design = imagePlaceholderDesign(attrs, options.imageAncestors);
     const wide = design === 'soft-horizon';
@@ -2102,10 +2794,121 @@ function renderChildren(element, children, options) {
   replaceMarkers(template.content, records, options);
   // Layout containers may hold inline Markdown paragraphs as flex/grid items;
   // unwrap only a sole paragraph for text-like elements, preserving GFM blocks.
-  if (['text', 'title', 'caption'].includes(element.dataset.richTag) && template.content.childElementCount === 1 && template.content.firstElementChild?.tagName === 'P') {
+  if (['text', 'title', 'caption', 'badge'].includes(element.dataset.richTag) && template.content.childElementCount === 1 && template.content.firstElementChild?.tagName === 'P') {
     template.content.firstElementChild.replaceWith(...template.content.firstElementChild.childNodes);
   }
   element.append(template.content);
+}
+function pagePreviewNode(node, options) {
+  const { document, t, context = {} } = options;
+  const pages = context.pages;
+  const record = pages instanceof Map ? pages.get(node.pageId)
+    : pages && Object.hasOwn(pages, node.pageId) ? pages[node.pageId] : null;
+  const url = record && safeRichUrl(record.url);
+  const card = el(document, url ? 'a' : 'aside', 'rich-page-preview');
+  if (url) { card.href = url; card.target = '_blank'; card.rel = 'noopener noreferrer'; }
+  const heading = el(document, 'span', 'rich-page-heading');
+  heading.append(iconNode('file-text', options), el(document, 'strong', '', record?.title || t('Page')));
+  card.append(heading, el(document, 'span', 'rich-page-status', url ? t('Saved Page link · content is not available offline') : t('Page content and link are unavailable in this archive.')));
+  card.title = node.pageId;
+  return card;
+}
+function sliderNode(attrs, options) {
+  const { document, t } = options;
+  const field = el(document, 'div', 'rich-slider');
+  const input = el(document, 'input', 'rich-local-slider');
+  input.type = 'range'; input.min = String(attrs.min); input.max = String(attrs.max);
+  input.step = String(attrs.step); input.value = String(attrs.value);
+  // The value attribute survives renderRichHtml's serialization; the property
+  // is kept synchronized again during local updates.
+  input.setAttribute('value', String(attrs.value)); input.dataset.richState = attrs.stateKey;
+  input.setAttribute('aria-label', t('Archived slider'));
+  input.setAttribute('aria-valuetext', String(attrs.marks?.find(mark => mark.value === attrs.value)?.label ?? attrs.value));
+  field.append(input);
+  if (attrs.marks?.length) {
+    const marks = el(document, 'div', 'rich-slider-marks'); marks.setAttribute('aria-hidden', 'true');
+    for (const mark of attrs.marks) {
+      const item = el(document, 'span', 'rich-slider-mark', String(mark.label));
+      item.style.left = `${100 * (mark.value - attrs.min) / (attrs.max - attrs.min)}%`;
+      if (mark.value === attrs.value) item.classList.add('is-selected');
+      marks.append(item);
+    }
+    field.append(marks);
+  }
+  return field;
+}
+function localWidgetNode(node, options) {
+  const wrapper = el(options.document, 'section', 'rich-local-widget');
+  // The source is inert data. It is reparsed by the bounded parser only when
+  // an app-created slider is changed; no callback from the archive is run.
+  wrapper.dataset.richWidgetSource = node.source;
+  for (const child of node.children) wrapper.append(renderRichNode(child, options));
+  return wrapper;
+}
+const widgetRoots = new WeakMap();
+const widgetStates = new WeakMap();
+function updateWidgetTree(current, next) {
+  if (current.nodeType !== next.nodeType || current.nodeName !== next.nodeName || current.nodeType === 1 && current.classList.contains('rich-chart')) { current.replaceWith(next); return; }
+  if (current.nodeType === 3) { if (current.nodeValue !== next.nodeValue) current.nodeValue = next.nodeValue; return; }
+  if (current.nodeType !== 1) { current.replaceWith(next); return; }
+  const wasOpen = current.tagName === 'DETAILS' && current.open;
+  for (const attr of [...current.attributes]) if (!next.hasAttribute(attr.name)) current.removeAttribute(attr.name);
+  for (const attr of [...next.attributes]) if (current.getAttribute(attr.name) !== attr.value) current.setAttribute(attr.name, attr.value);
+  if (current.matches('input.rich-local-slider')) current.value = next.value;
+  const previous = [...current.childNodes], upcoming = [...next.childNodes];
+  for (let i = 0; i < Math.max(previous.length, upcoming.length); i++) {
+    if (!upcoming[i]) previous[i].remove();
+    else if (!previous[i]) current.append(upcoming[i]);
+    else updateWidgetTree(previous[i], upcoming[i]);
+  }
+  if (wasOpen) current.open = true;
+}
+/** A delegated, presentation-only controller. No storage or network is used. */
+function mountLocalWidgetInteractions(root, { renderMarkdown, t = key => key, context = {} } = {}) {
+  if (widgetRoots.has(root)) return widgetRoots.get(root);
+  function change(event) {
+    const input = event.target.closest?.('input.rich-local-slider[data-rich-state]');
+    const wrapper = input?.closest('.rich-local-widget[data-rich-widget-source]');
+    if (!wrapper || !root.contains(wrapper)) return;
+    try {
+      let state = widgetStates.get(wrapper);
+      if (!state) {
+        const node = parseLocalWidgetSource(wrapper.dataset.richWidgetSource);
+        state = { node, values: Object.fromEntries(node.states.map(item => [item.name, item.initial])) };
+        widgetStates.set(wrapper, state);
+      }
+      const key = input.dataset.richState, value = Number(input.value);
+      if (!Object.hasOwn(state.values, key) || !Number.isFinite(value)) return;
+      const values = { ...state.values, [key]: value };
+      const children = evaluateLocalWidget(state.node, values);
+      const options = { document: wrapper.ownerDocument, renderMarkdown, t, context: typeof context === 'function' ? context(wrapper) : context, referenceBudget: { remaining: 2000000 }, compatBudget: { remaining: 256 }, grokBudget: { remaining: 2000000 } };
+      const next = localWidgetNode({ ...state.node, children }, options);
+      // Initial content went through HTML serialization and reparsing. Merge
+      // app-created adjacent text nodes and discard empty marker splits before
+      // matching children, so a harmless empty node cannot replace the slider.
+      next.normalize(); wrapper.normalize();
+      const positions = [];
+      for (let parent = wrapper.parentElement; parent; parent = parent.parentElement) if (parent.scrollTop || parent.scrollLeft) positions.push([parent, parent.scrollTop, parent.scrollLeft]);
+      const opened = [...wrapper.querySelectorAll('.rich-chart details')].map(detail => detail.open);
+      dismissChartInteractions(wrapper);
+      updateWidgetTree(wrapper, next);
+      [...wrapper.querySelectorAll('.rich-chart details')].forEach((detail, index) => { detail.open = opened[index] || false; });
+      for (const [parent, top, left] of positions) { parent.scrollTop = top; parent.scrollLeft = left; }
+      state.values = values;
+    } catch {
+      // Retain the last complete rendering and original source if a malformed
+      // model, budget limit or invalid state prevents the proposed update.
+      const previous = widgetStates.get(wrapper)?.values;
+      if (previous && Object.hasOwn(previous, input.dataset.richState)) input.value = String(previous[input.dataset.richState]);
+      if (!wrapper.querySelector('.rich-widget-status')) {
+        const status = el(wrapper.ownerDocument, 'p', 'rich-widget-status', t('This saved widget cannot be updated. Its original content is retained.'));
+        status.setAttribute('role', 'status'); wrapper.append(status, originalDetails({ source: wrapper.dataset.richWidgetSource }, { document: wrapper.ownerDocument, t }));
+      }
+    }
+  }
+  root.addEventListener('input', change);
+  const dispose = () => { root.removeEventListener('input', change); widgetRoots.delete(root); };
+  widgetRoots.set(root, dispose); return dispose;
 }
 function renderRichNode(node, options) {
   const { document, t } = options;
@@ -2114,6 +2917,8 @@ function renderRichNode(node, options) {
   if (node.kind === 'literal') return document.createTextNode(node.text);
   if (node.kind === 'native-citation') return nativeCitationNode(node, options);
   if (node.kind === 'archived-widget') return archivedWidgetNode(node, options);
+  if (node.kind === 'page-preview') return pagePreviewNode(node, options);
+  if (node.kind === 'local-widget') return localWidgetNode(node, options);
   if (node.kind === 'static-svg') return staticSvgNode(node, options);
   if (node.kind === 'passive') {
     const figure = el(document, 'aside', 'rich-passive');
@@ -2126,6 +2931,7 @@ function renderRichNode(node, options) {
     return figure;
   }
   const { tag, attrs: a } = node;
+  if (tag === 'slider') return sliderNode(a, options);
   if (tag === 'Chart') return renderChart(a.content, { document, t, family: node.family || 'Chart' });
   if (tag === 'Entity') {
     const entity = el(document, 'span', 'rich-entity', a.value);
@@ -2140,11 +2946,13 @@ function renderRichNode(node, options) {
     return unavailableImageNode(tag, a, options);
   }
   if (tag === 'icon') {
-    const span = el(document, 'span', 'rich-icon-wrap'); span.setAttribute('aria-hidden', 'true');
+    const span = el(document, 'span', 'rich-icon-wrap');
+    span.setAttribute('role', 'img'); span.setAttribute('aria-label', a.name || t('Unknown icon'));
     applyProperties(span, tag, a); span.append(iconNode(a.name || '', options)); return span;
   }
-  const htmlTag = tag === 'divider' ? 'hr' : 'div';
+  const htmlTag = tag === 'divider' ? 'hr' : tag === 'badge' || (node.inline && tag === 'text') ? 'span' : 'div';
   const element = el(document, htmlTag, `rich-component rich-${tag}`); element.dataset.richTag = tag;
+  if (node.inline && tag === 'text') element.classList.add('rich-inline-text');
   if (tag === 'title') { element.setAttribute('role', 'heading'); element.setAttribute('aria-level', '4'); }
   applyProperties(element, tag, a);
   if (tag !== 'divider') renderChildren(element, node.children, { ...options, imageAncestors: [...(options.imageAncestors || []), node] });
@@ -2161,7 +2969,7 @@ function renderRichHtml(html, records, { renderMarkdown, document = globalThis.d
   return template.innerHTML;
 }
 
-window.TSARich.Renderer=Object.freeze({createMissingImagePlaceholder,renderRichNode,renderRichHtml});
+window.TSARich.Renderer=Object.freeze({createMissingImagePlaceholder,mountLocalWidgetInteractions,renderRichNode,renderRichHtml});
 })();
 
 /* math.js */

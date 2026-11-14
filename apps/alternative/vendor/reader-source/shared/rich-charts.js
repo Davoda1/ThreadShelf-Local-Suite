@@ -14,7 +14,12 @@ const plain = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && (Objec
 function keys(value, allowed) { if (!plain(value)) fail('schema'); for (const k of Object.keys(value)) if (!allowed.includes(k)) fail('unsupported'); }
 function text(value, optional = true) { if (value === undefined && optional) return undefined; if (typeof value !== 'string' || value.length > CHART_LIMITS.string) fail('data'); return value; }
 function num(value) { if (typeof value !== 'number' || !Number.isFinite(value) || Math.abs(value) > CHART_LIMITS.magnitude) fail('data'); return value; }
-function list(value, max, min = 1) { if (!Array.isArray(value) || value.length < min || value.length > max) fail('limit'); return value; }
+function list(value, max, min = 1) {
+  if (!Array.isArray(value)) fail('schema');
+  if (value.length < min) fail('data');
+  if (value.length > max) fail('limit');
+  return value;
+}
 // Inspect descriptors before reading properties: even a non-literal object passed
 // by a future caller cannot trigger a getter while validating or falling back.
 function snapshot(input) {
@@ -84,7 +89,12 @@ function exported(input, family) {
   if (!categoryKey || BAD_KEYS.has(categoryKey)) fail('data');
   if (scatter) out.xAxis.label = categoryKey;
   else out.categoryLabel = categoryKey;
-  const allSeries = list(input.series, pie ? 1 : CHART_LIMITS.series);
+  // A native circular chart may name its one value column directly, without
+  // a series array. Adapt that explicit column into the local geometry model;
+  // do not invent a label, unit, suffix, percentage or a numerical value.
+  const allSeries = pie && !own(input, 'series')
+    ? [{dataKey: text(input.valueKey, false)}]
+    : list(input.series, pie ? 1 : CHART_LIMITS.series);
   out.series = allSeries.map(s => {
     const normalized = {...seriesInfo(s, ['dataKey', 'label', 'valueFormat', 'valueSuffix', 'unit']), dataKey: text(s.dataKey, false), ...(scatter ? {points: []} : {values: []})};
     // An explicit empty suffix/unit is deliberate and must not be overwritten.
@@ -290,8 +300,11 @@ function cartesian(doc, c, t) {
   return {svg, items};
 }
 function circular(doc, c, t) {
-  const svg = chartSvg(doc, c, t, 640, 300), items = [];
-  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 320, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
+  // Circular geometry has no axes that need the wide Cartesian view box.
+  // Keep the ring readable inside a comparison card instead of scaling a
+  // mostly empty 640px canvas down with its parent.
+  const svg = chartSvg(doc, c, t, 360, 300), items = [];
+  const s = c.series[0], total = s.values.reduce((a, b) => a + b, 0), cx = 180, cy = 150, r = 120, inner = c.type === 'doughnut' || c.circularPresentation === 'ring' ? 68 : 0;
   let angle = -Math.PI / 2;
   s.values.forEach((value, i) => {
     const part = total > 0 ? value / total : 0, end = angle + Math.PI * 2 * part, middle = angle + Math.PI * part;

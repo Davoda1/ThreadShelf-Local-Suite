@@ -1,4 +1,5 @@
 import {createGrokContextResolver} from './grok-renderer.js';
+import {marked} from 'marked';
 // Transient, message-scoped citation bindings. Never changes archived turns/raw.
 // Bind only explicit saved identities; never infer references from array order.
 const plain = value => value !== null && typeof value === 'object' &&
@@ -61,9 +62,75 @@ function referencesFor(message) {
   } catch { return empty; }
   return Object.keys(references).length ? Object.freeze({references: Object.freeze(references)}) : empty;
 }
+// Page links are presentation metadata, scoped to this original message. A
+// saved link label is not asserted to be the Page's exact title or contents.
+// Markdown's lexer keeps links in code fences/inline code out of this map.
+function pageLinksFor(message, turn) {
+  const pages = Object.create(null), conflicts = new Set();
+  let count = 0;
+  function add(urlValue, titleValue, titleSource) {
+    if (++count > 1024) throw new RangeError('Page metadata budget');
+    const url = safeUrl(urlValue);
+    if (!url) return;
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'chatgpt.com' || parsed.port) return;
+    const match = /^\/(?:space|s)\/(page_[A-Za-z0-9_-]{1,128})\/?$/.exec(parsed.pathname);
+    if (!match || conflicts.has(match[1])) return;
+    const id = match[1], title = bounded(titleValue, 2048) ? titleValue : undefined;
+    const previous = pages[id];
+    if (previous && previous.url !== url) { delete pages[id]; conflicts.add(id); return; }
+    if (previous?.titleSource === 'saved-metadata' || previous?.title && titleSource === 'saved-link') return;
+    pages[id] = Object.freeze({url, ...(title ? {title, titleSource} : {})});
+  }
+  try {
+    const metadata = own(message, 'metadata'), records = own(metadata, 'content_references');
+    if (Array.isArray(records) && records.length <= 1024) for (const record of records) {
+      const type = own(record, 'type');
+      if (['link_title', 'webpage', 'webpage_extended'].includes(type)) add(own(record, 'url'), own(record, 'title'), 'saved-metadata');
+      if (type === 'grouped_webpages') {
+        const items = own(record, 'items');
+        if (Array.isArray(items) && items.length <= 256) for (const item of items) add(own(item, 'url'), own(item, 'title'), 'saved-metadata');
+      }
+    }
+    const parts = own(own(message, 'content'), 'parts');
+    const sources = [];
+    if (Array.isArray(parts) && parts.length <= 256) for (let i = 0; i < parts.length; i++) {
+      const descriptor = Object.getOwnPropertyDescriptor(parts, String(i));
+      if (descriptor && 'value' in descriptor && typeof descriptor.value === 'string') sources.push(descriptor.value);
+    }
+    // Server-only adapters can retain the complete text without the original
+    // message object. Resolve only a link literally saved in that same turn.
+    if (!sources.length) for (const key of ['ai', 'human']) {
+      const source = own(turn, key); if (typeof source === 'string') sources.push(source);
+    }
+    let length = 0, tokens = 0;
+    for (const source of sources) {
+      length += source.length; if (length > 2 * 1024 * 1024) return Object.freeze(Object.create(null));
+      if (!source.includes('page_')) continue;
+      marked.walkTokens(marked.lexer(source, {gfm: true}), token => {
+        if (++tokens > 20000) throw new RangeError('Page token budget');
+        if (token.type === 'link') add(token.href, token.text, 'saved-link');
+      });
+    }
+  } catch { return Object.freeze(Object.create(null)); }
+  return Object.freeze(pages);
+}
+function mappingFor(thread) {
+  const raw = own(thread, 'raw');
+  const direct = own(raw, 'mapping');
+  if (plain(direct)) return direct;
+  // The read-only Enhanced adapter preserves its original under
+  // raw.thread.raw. This is a fixed wrapper path, not a recursive object scan.
+  const wrapped = own(own(own(raw, 'thread'), 'raw'), 'mapping');
+  return plain(wrapped) ? wrapped : undefined;
+}
 function createChatGPTContextResolver(thread) {
-  const mapping = own(own(thread, 'raw'), 'mapping');
-  if (!plain(mapping)) return () => empty;
+  const mapping = mappingFor(thread);
+  const withPages = (context, message, turn) => {
+    const pages = pageLinksFor(message, turn);
+    return Object.keys(pages).length ? Object.freeze({...context, pages}) : context;
+  };
+  if (!plain(mapping)) return turn => withPages(empty, undefined, turn);
   const ids = Object.keys(mapping);
   if (ids.length > 20000) return () => empty;
   const messages = new Map(), duplicates = new Set(), cache = new WeakMap();
@@ -75,7 +142,7 @@ function createChatGPTContextResolver(thread) {
   }
   return turn => {
     const messageId = own(turn, 'source_message_id'), nodeId = own(turn, 'source_node_id');
-    if (!bounded(messageId, 256)) return empty;
+    if (!bounded(messageId, 256)) return withPages(empty, undefined, turn);
     let message;
     if (bounded(nodeId, 256)) {
       message = own(own(mapping, nodeId), 'message');
@@ -85,7 +152,7 @@ function createChatGPTContextResolver(thread) {
       message = messages.get(messageId);
     }
     if (!plain(message)) return empty;
-    if (!cache.has(message)) cache.set(message, referencesFor(message));
+    if (!cache.has(message)) cache.set(message, withPages(referencesFor(message), message, turn));
     return cache.get(message);
   };
 }

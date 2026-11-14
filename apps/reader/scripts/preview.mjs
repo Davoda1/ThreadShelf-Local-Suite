@@ -20,6 +20,8 @@ const managerReadingBundle=await build({absWorkingDir:root,entryPoints:['src/cor
 const managerReadingScript=managerReadingBundle.outputFiles[0].text;
 const analyticsBundle=await build({absWorkingDir:root,entryPoints:['scripts/preview-activity.mjs'],bundle:true,format:'iife',globalName:'PreviewAnalytics',target:'chrome120',minify:true,write:false,legalComments:'inline',logLevel:'silent'});
 const analyticsScript=analyticsBundle.outputFiles[0].text;
+const searchVisibilityBundle=await build({absWorkingDir:root,entryPoints:['scripts/preview-search-visibility.mjs'],bundle:true,format:'iife',globalName:'PreviewSearchVisibility',target:'chrome120',minify:true,write:false,legalComments:'inline',logLevel:'silent'});
+const searchVisibilityScript=searchVisibilityBundle.outputFiles[0].text;
 const holidayBundle=await build({absWorkingDir:root,entryPoints:['scripts/preview-holiday.mjs'],bundle:true,format:'iife',globalName:'PreviewHoliday',target:'chrome120',minify:true,write:false,legalComments:'inline',logLevel:'silent'});
 const holidayScript=holidayBundle.outputFiles[0].text;
 const css=built.outputFiles.filter(f=>f.path.endsWith('.css')).map(f=>f.text).join('\n');
@@ -78,13 +80,14 @@ for (const [i,c] of conversations.entries()) {
  // A few normalized server-style records omit original creation metadata.
  if(i>=8&&i<12)delete c.createdAt;
 }
-function previewService(data,version,releaseRevision,identity,readingManager,analytics,resourceFactory,ttsFactory){
- const state={settings:{remoteImages:'auto',analyticsStyledBars:false,searchPreferences:{local:{mode:'keyword',provider:'',role:'',period:'all'},server:{mode:'keyword',provider:'',role:''}},waveVideoBackground:false,waveVideoWelcome:false,holidayVideoWelcome:false,promptExpandStyle:'outlined-right',mode:'local',searchPanelExpanded:false,sourceSwitchWidth:'equal',language:'en',theme:'system',uiPalette:'default',codeTheme:'default',fontSize:'normal',highContrast:false,compact:true,animations:true,listMode:'pages',pageSize:25,sort:'updated',directoryMode:'last',customDirectory:'',lastDirectory:'',serverUrl:'http://localhost:3000/',serverAddresses:['http://localhost:3000/'],localCollection:'all',serverCollection:'all',searchMode:'keyword',ollamaUrl:'http://127.0.0.1:11434',ollamaModel:''},reading:{positions:{},bookmarks:[],recent:[]}};
+function previewService(data,version,releaseRevision,identity,readingManager,analytics,resourceFactory,ttsFactory,searchVisibilityFactory){
+ const state={settings:{hideIntermediateJson:false,threadHeaderCollapsed:false,remoteImages:'auto',analyticsStyledBars:false,searchPreferences:{local:{mode:'keyword',provider:'',role:'',period:'all'},server:{mode:'keyword',provider:'',role:''}},waveVideoBackground:false,waveVideoWelcome:false,holidayVideoWelcome:false,promptExpandStyle:'outlined-right',mode:'local',searchPanelExpanded:false,sourceSwitchWidth:'equal',language:'en',theme:'system',uiPalette:'default',codeTheme:'default',fontSize:'normal',highContrast:false,compact:true,animations:true,listMode:'pages',pageSize:25,sort:'updated',directoryMode:'last',customDirectory:'',lastDirectory:'',serverUrl:'http://localhost:3000/',serverAddresses:['http://localhost:3000/'],localCollection:'all',serverCollection:'all',searchMode:'keyword',ollamaUrl:'http://127.0.0.1:11434',ollamaModel:''},reading:{positions:{},bookmarks:[],recent:[]}};
  state.storageProfile='7z';
  state.deduplication={deleteOtherPromptOnlyAutomatically:false};
  const progressListeners=new Set();let conversion=null,textPrepared=false;
  const inPeriod=(c,a)=>{if(a.mode==='server'||!a.period||a.period==='all')return true;const end=new Date(),start=new Date(end),created=new Date(c.createdAt);if(a.period==='week')start.setDate(start.getDate()-7);else{const months={month:1,'3months':3,'6months':6,year:12,'2years':24,'5years':60}[a.period];if(!months)return true;const day=start.getDate();start.setDate(1);start.setMonth(start.getMonth()-months);start.setDate(Math.min(day,new Date(start.getFullYear(),start.getMonth()+1,0).getDate()));}return created>=start&&created<=end;};
  const clone=v=>structuredClone(v);
+ const searchVisibility=searchVisibilityFactory(data);
  const resources=resourceFactory(data);
  const tts=ttsFactory();
  const localize=(en,hu,de,fr,ja)=>({en,hu,de,fr,ja}[state.settings.language]||en);
@@ -176,6 +179,7 @@ function previewService(data,version,releaseRevision,identity,readingManager,ana
     case 'manager.backup':case 'manager.restore.pick':case 'manager.restore':throw unavailable();
     case 'files':{let files=data.filter(c=>(!a.q||inPeriod(c,a))&&(!a.collection||a.collection==='all'||c.collection===a.collection)&&(!a.provider||c.provider===a.provider)&&(!a.q||[c.title,c.sourceFile,...c.turns.map(turn=>turn.user??turn.thinking??turn.ai??'')].join(' ').toLowerCase().includes(a.q.toLowerCase())));if(a.sort==='title')files.sort((a,b)=>a.title.localeCompare(b.title));if(a.sort==='length')files.sort((a,b)=>b.turnCount-a.turnCount);const page=a.page||1,pageSize=a.pageSize||25;return {files:files.slice((page-1)*pageSize,page*pageSize).map(summary),total:files.length,page,pageSize}};
     case 'thread':{const c=data.find(c=>c.id===(a.id||a.conversationId)||c.conversationKey===a.conversationKey);if(!c)throw Error('Synthetic conversation not found.');return clone(c)};
+    case 'search.visibility':return searchVisibility(a);
     case 'search':{
       if(['semantic','hybrid','ollama'].includes(a.searchMode))throw unavailable();
       const q=String(a.q||'').toLowerCase().trim(),terms=q.split(/\s+/).filter(Boolean),results=[];
@@ -199,7 +203,7 @@ function previewService(data,version,releaseRevision,identity,readingManager,ana
 }
 const safeScript=s=>s.replace(/<\/script/gi,'<\\/script').replace(/<!--/g,'<\\!--');
 const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const prelude=`${identityScript}\n${managerReadingScript}\n${analyticsScript}\n${holidayScript}\nwindow.__THREADSHELF_HOLIDAY=PreviewHoliday.previewHolidayStatus();\nwindow.__READER_ASSETS=${JSON.stringify(assets)};window.__THREADSHELF_WAVES=${JSON.stringify(waves)};(${previewService.toString()})(${JSON.stringify(conversations)},${JSON.stringify(version)},${RELEASE_REVISION},PreviewReadingIdentity,PreviewManagerReading,PreviewAnalytics,(${createPreviewResources.toString()}),(${createTtsPreview.toString()}));`;
+const prelude=`${identityScript}\n${managerReadingScript}\n${analyticsScript}\n${searchVisibilityScript}\n${holidayScript}\nwindow.__THREADSHELF_HOLIDAY=PreviewHoliday.previewHolidayStatus();\nwindow.__READER_ASSETS=${JSON.stringify(assets)};window.__THREADSHELF_WAVES=${JSON.stringify(waves)};(${previewService.toString()})(${JSON.stringify(conversations)},${JSON.stringify(version)},${RELEASE_REVISION},PreviewReadingIdentity,PreviewManagerReading,PreviewAnalytics,(${createPreviewResources.toString()}),(${createTtsPreview.toString()}),PreviewSearchVisibility.createPreviewSearchVisibility);`;
 const decoration=`(() => {
  const banner=document.getElementById('previewLabel'),license=document.getElementById('previewLicense');
  document.getElementById('previewLicenseOpen').onclick=()=>license.showModal();document.getElementById('previewLicenseClose').onclick=()=>license.close();

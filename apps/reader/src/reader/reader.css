@@ -496,6 +496,10 @@
   display:block;flex:none;width:auto;height:auto;max-width:100%;max-height:min(32rem,70vh);
   object-fit:contain;margin:0;border-radius:6px;
 }
+.reader-view .reader-saved-assets{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;min-width:0;max-width:100%;margin:1rem 0}
+.reader-view .reader-saved-assets-label{margin:0;font-size:.85em;color:var(--text-secondary)}
+.reader-view .reader-saved-asset{margin:0;min-width:0;width:100%;max-width:100%}
+.reader-view .reader-saved-asset figcaption{overflow-wrap:anywhere;color:var(--text-secondary);font-size:.85em}
 .reader-view .message-content :is(td,th) .reader-markdown-image{
   width:144px;max-width:100%;
 }

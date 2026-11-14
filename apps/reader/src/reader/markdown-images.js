@@ -1,4 +1,5 @@
 import { createMissingImagePlaceholder } from './rich-renderer.js';
+import { savedRasterDimensions } from './saved-raster-assets.js';
 
 const RASTER_DATA = /^data:image\/(?:png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/i;
 const isDataSource = value => /^data:/i.test(value);
@@ -199,7 +200,10 @@ function controllerFor(wrapper) {
   };
   const settle = () => {
     if (state.disposed || state.status !== 'loading' || !state.activeSource || image.getAttribute('src') !== state.activeSource || !image.complete) return;
-    state.status = image.naturalWidth > 0 ? 'loaded' : 'failed';
+    const savedSize = !wrapper.dataset.savedRasterWidth || savedRasterDimensions(image.naturalWidth, image.naturalHeight)
+      && image.naturalWidth === Number(wrapper.dataset.savedRasterWidth) && image.naturalHeight === Number(wrapper.dataset.savedRasterHeight);
+    state.status = image.naturalWidth > 0 && savedSize ? 'loaded' : 'failed';
+    if (!savedSize) image.removeAttribute('src');
     paint();
   };
   const cancel = () => {

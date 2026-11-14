@@ -119,7 +119,7 @@ async function invoke(action,args){
     if(output.canceled||!output.filePath)return {cancelled:true};
     const {csv}=await request('activity.csv',args);await fsp.writeFile(output.filePath,csv,'utf8');return {saved:true,path:output.filePath};
   }
-  const allowed=new Set(['bootstrap','settings.save','collections','files','thread','search','import.paths','operation.cancel','server.collections','server.import','reading.save','semantic.setup','semantic.index','search.status','search.prepare','ollama.models','ollama.test','ollama.start','ollama.pull','ollama.delete','storage.convert','manager.status','manager.dedup.settings','manager.dedup.preview','manager.dedup.apply','manager.files','manager.preview','manager.mutate','manager.maintenance','activity.query','activity.rebuild','activity.csv','activity.cancel','server.insights','server.insights.cancel']);
+  const allowed=new Set(['bootstrap','settings.save','collections','files','thread','search','search.visibility','import.paths','operation.cancel','server.collections','server.import','reading.save','semantic.setup','semantic.index','search.status','search.prepare','ollama.models','ollama.test','ollama.start','ollama.pull','ollama.delete','storage.convert','manager.status','manager.dedup.settings','manager.dedup.preview','manager.dedup.apply','manager.files','manager.preview','manager.mutate','manager.maintenance','activity.query','activity.rebuild','activity.csv','activity.cancel','server.insights','server.insights.cancel']);
   if(!allowed.has(action))throw new Error('Unknown application action.');
   return request(action,args);
 }

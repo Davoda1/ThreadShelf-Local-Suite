@@ -10,12 +10,15 @@ import re
 root = Path(__file__).resolve().parents[1]
 source = root / 'reader-source' / 'shared'
 modules = [
+    ('saved-raster-assets', 'Assets', ''),
     ('grok-renderer', 'Grok', ''),
     ('rich-chart-interactions', 'Interactions', ''),
     ('rich-charts', 'Charts', 'const {mountChartInteractions}=window.TSARich.Interactions;'),
-    ('rich-parser', 'Parser', 'const marked=window.marked;const {grokAt,grokFenceAt}=window.TSARich.Grok;'),
-    ('rich-context', 'Context', 'const {createGrokContextResolver}=window.TSARich.Grok;'),
-    ('rich-renderer', 'Renderer', 'const {renderChart}=window.TSARich.Charts;const {renderGrokNode}=window.TSARich.Grok;const {safeRichUrl,markdownProtectedRanges,prepareRichMarkdown}=window.TSARich.Parser;'),
+    ('safe-html', 'SafeHtml', ''),
+    ('rich-expressions', 'Expressions', ''),
+    ('rich-parser', 'Parser', 'const marked=window.marked;const {grokAt,grokFenceAt}=window.TSARich.Grok;const {parseLocalExpression,resolveLocalExpression}=window.TSARich.Expressions;const {SAFE_HTML_TAGS}=window.TSARich.SafeHtml;'),
+    ('rich-context', 'Context', 'const {createGrokContextResolver}=window.TSARich.Grok;const marked=window.marked;'),
+    ('rich-renderer', 'Renderer', 'const {renderChart}=window.TSARich.Charts;const {renderGrokNode}=window.TSARich.Grok;const {safeRichUrl,markdownProtectedRanges,prepareRichMarkdown,evaluateLocalWidget,parseLocalWidgetSource}=window.TSARich.Parser;const {dismissChartInteractions}=window.TSARich.Interactions;'),
     ('math', 'Math', 'const tr=k=>k;'),
     ('mermaid-repair', 'Repair', ''),
 ]

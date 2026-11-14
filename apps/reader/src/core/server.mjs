@@ -127,7 +127,7 @@ export class ThreadShelfClient {
       const m=hit.metadata||{};const ident={collection:m.collection||(collection!=='all'?collection:''),sourceFile:m.sourceFile,conversationKey:m.conversationKey??''};
       if(!ident.collection||typeof ident.sourceFile!=='string')return null;
       const id=remoteId(this.url,ident);const summary=byId.get(id)||ident;
-      return {...summary,conversationId:id,id,passageId:hit.id===undefined?undefined:`${id}:${String(hit.id)}`,sourceIdentity:serverIdentity(this.url,ident),turnIndex:validIndex(m.turnIndex),role:m.role==='ai'?'assistant':m.role,text:String(hit.document??''),score:Number.isFinite(hit.distance)?undefined:hit.score,title:summary.title||m.title||ident.conversationKey,provider:summary.provider||m.provider,sourceFile:ident.sourceFile,conversationKey:ident.conversationKey,collection:ident.collection,distance:hit.distance};
+      return {...summary,conversationId:id,id,passageId:hit.id===undefined?undefined:`${id}:${String(hit.id)}`,sourceIdentity:serverIdentity(this.url,ident),turnIndex:validIndex(m.turnIndex),sourceTurnPosition:validIndex(m.turnIndex)??null,role:m.role==='ai'?'assistant':m.role,text:String(hit.document??''),score:Number.isFinite(hit.distance)?undefined:hit.score,title:summary.title||m.title||ident.conversationKey,provider:summary.provider||m.provider,sourceFile:ident.sourceFile,conversationKey:ident.conversationKey,collection:ident.collection,distance:hit.distance};
     }).filter(h=>h&&(!provider||provider==='all'||h.provider===provider)&&(!requestedRole||(h.role==='assistant'?'ai':h.role)===requestedRole)&&(collection==='all'||h.collection===collection));
     return {results,total:results.length,notice,searchInfo:{...searchInfo,serverReturnedPassages:bounded.length,returnedPassages:results.length},capabilities:SERVER_SEARCH_CAPABILITIES};
   }
@@ -155,7 +155,7 @@ function normalizeHit(client,hit,collection,byId){
   const m=hit.metadata||{},ident={collection:m.collection||(collection!=='all'?collection:''),sourceFile:m.sourceFile,conversationKey:m.conversationKey??''};
   if(!ident.collection||typeof ident.sourceFile!=='string')throw new Error('ThreadShelf returned a search hit without its source identity.');
   const id=remoteId(client.url,ident),summary=byId.get(id)||ident,text=String(hit.document??'');
-  return {...summary,conversationId:id,id,passageId:`${id}:${String(hit.id??`${m.turnIndex}:${m.role}`)}`,sourceIdentity:serverIdentity(client.url,ident),turnIndex:validIndex(m.turnIndex),role:m.role==='ai'?'assistant':m.role,text:excerpt(text,0),score:hit.score,distance:hit.distance,title:summary.title||m.title||ident.conversationKey,provider:summary.provider||m.provider,...ident};
+  return {...summary,conversationId:id,id,passageId:`${id}:${String(hit.id??`${m.turnIndex}:${m.role}`)}`,sourceIdentity:serverIdentity(client.url,ident),turnIndex:validIndex(m.turnIndex),sourceTurnPosition:validIndex(m.turnIndex)??null,role:m.role==='ai'?'assistant':m.role,text:excerpt(text,0),score:hit.score,distance:hit.distance,title:summary.title||m.title||ident.conversationKey,provider:summary.provider||m.provider,...ident};
 }
 
 export class ServerSearchPager {

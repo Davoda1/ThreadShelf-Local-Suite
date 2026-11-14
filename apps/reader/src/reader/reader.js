@@ -1,5 +1,5 @@
 import { WaveBackground } from './wave-background.js';
-import { turnToMessage, isHiddenThoughtsMessage } from './messages.js';
+import { turnToMessage, isHiddenThoughtsMessage, visibleMessages } from './messages.js';
 export { turnToMessage } from './messages.js';
 import { highlighter as hljs } from './highlight.js';
 import { ConversationRenderer } from './renderer.js';
@@ -80,7 +80,7 @@ export class ReaderView {
     this.waveBackground = new WaveBackground(container);
     this.waveBackground.setHolidayStatus(holidayStatus);
     this.position = new ReadingPosition(this.content, {
-      remember: () => {}, position: identity => this.savedPositions.get(identity[0]),
+      remember: () => {}, position: identity => this.visiblePosition(this.savedPositions.get(identity[0])),
       savePosition: (identity, value) => {
         this.savedPositions.set(identity[0], value);
         return this.onPosition({ ...value }, identity[0]);
@@ -116,7 +116,7 @@ export class ReaderView {
     this.imageContext = Object.freeze({...imageContext});
     const richContextFor = createRichContextResolver(thread);
     this.currentMessages = (thread.turns || []).map((turn, index) => ({...turnToMessage(turn, index), richContext: richContextFor(turn)}));
-    const visibleMessages = this.currentMessages.filter(message => !isHiddenThoughtsMessage(message));
+    const shownMessages = this.visibleMessages();
     this.bookmarks = bookmarks;
     this.currentQuery = query.trim();
     if (position) this.savedPositions.set(this.key, position);
@@ -125,8 +125,8 @@ export class ReaderView {
     this.renderer.beginConversation(this.key);
     this.renderer.setImageResolver(this.resolveImage, this.imageContext);
     this.renderer.setSearchQuery(this.currentQuery);
-    this.renderer.renderMessages(this.currentMessages);
-    this.waveBackground.setConversation(visibleMessages.length > 0);
+    this.renderer.renderMessages(this.visibleMessages());
+    this.waveBackground.setConversation(shownMessages.length > 0);
     this.addBookmarks(); this.buildNavigator();
     const targeted = targetTurn !== undefined && targetTurn !== null;
     this.position.attach([this.key], { explicit: targeted });
@@ -135,7 +135,7 @@ export class ReaderView {
       const target = typeof targetTurn === 'object' ? targetTurn : {turnIndex: targetTurn};
       this.scrollToTurn(target.turnIndex, true, target.role === 'ai' ? 'assistant' : target.role);
     } else if (this.currentQuery && this.currentSearchMarks.length && !position) this.jumpSearch();
-    return { messages: visibleMessages.length, prompts: visibleMessages.filter(m => m.role === 'user').length };
+    return { messages: shownMessages.length, prompts: shownMessages.filter(m => m.role === 'user').length };
   }
   setImageResolver(resolveImage) {
     this.resolveImage = typeof resolveImage === 'function' ? resolveImage : null;
@@ -163,8 +163,10 @@ export class ReaderView {
     this.byId('navigatorTrigger').title = tr('Conversation navigator');
     this.byId('navigatorPanel').setAttribute('aria-label', tr('Prompts and responses'));
     this.container.querySelector('.navigator-heading').textContent = tr('Conversation outline');
-    if (this.currentMessages.length && (old.language !== this.settings.language || old.codeWrap !== this.settings.codeWrap || old.codeLineNumbers !== this.settings.codeLineNumbers)) {
-      this.renderer.renderMessages(this.currentMessages); this.addBookmarks(); this.buildNavigator(); this.refreshSearchMarks(); this.position.refreshNodes();
+    if (this.currentMessages.length && (old.language !== this.settings.language || old.codeWrap !== this.settings.codeWrap || old.codeLineNumbers !== this.settings.codeLineNumbers || old.hideIntermediateJson !== this.settings.hideIntermediateJson)) {
+      const anchor = this.position.capture();
+      this.renderer.renderMessages(this.visibleMessages()); this.addBookmarks(); this.buildNavigator(); this.refreshSearchMarks(); this.position.refreshNodes();
+      if (anchor) this.position.restore(this.visiblePosition(anchor));
     } else if (this.currentMessages.length && (old.theme !== this.settings.theme || old.highContrast !== this.settings.highContrast || previousVisualTheme !== this.visualTheme)) this.renderer.rerenderMermaidDiagrams();
   }
   setActive(active) { this.waveBackground.setActive(active); }
@@ -189,9 +191,26 @@ export class ReaderView {
     this.announce('');
   }
   getPosition() { this.position.flush(); return this.position.capture(); }
-  resume(value) { return this.position.restore(value || this.savedPositions.get(this.key)); }
+  visibleMessages() { return visibleMessages(this.currentMessages, this.settings?.hideIntermediateJson === true); }
+  visibleTarget(turnIndex, role) {
+    const sourceIndex = this.currentMessages.findIndex(message => Number(message.turn_index) === Number(turnIndex) && (!role || message.role === role));
+    if (sourceIndex < 0) return null;
+    const visible = new Set(this.visibleMessages());
+    if (visible.has(this.currentMessages[sourceIndex])) return this.currentMessages[sourceIndex];
+    return this.currentMessages.slice(sourceIndex + 1).find(message => visible.has(message))
+      || this.currentMessages.slice(0, sourceIndex).reverse().find(message => visible.has(message)) || null;
+  }
+  visiblePosition(value) {
+    if (!value) return value;
+    const target = this.visibleTarget(value.turnIndex, value.role);
+    return target && (target.turn_index !== value.turnIndex || target.role !== value.role)
+      ? {...value, turnIndex: target.turn_index, role: target.role, offset: 0, expanded: false} : value;
+  }
+  resume(value) { return this.position.restore(this.visiblePosition(value || this.savedPositions.get(this.key))); }
   start() { this.position.beginning(); this.position.dirty = true; this.position.flush(); }
   scrollToTurn(turnIndex, focus = false, expectedRole) {
+    const target = this.visibleTarget(turnIndex, expectedRole);
+    if (target) { turnIndex = target.turn_index; expectedRole = target.role; }
     const element = [...this.content.querySelectorAll('.message[data-turn-index]')].find(node =>
       Number(node.dataset.turnIndex) === Number(turnIndex) && (!expectedRole || node.dataset.role === expectedRole));
     if (!element) { this.announce(tr('That turn is no longer available.')); return false; }
@@ -204,7 +223,7 @@ export class ReaderView {
   find(query, direction = 1) {
     const next = String(query || '').trim();
     if (next !== this.currentQuery) {
-      this.currentQuery = next; this.renderer.setSearchQuery(next); this.renderer.renderMessages(this.currentMessages);
+      this.currentQuery = next; this.renderer.setSearchQuery(next); this.renderer.renderMessages(this.visibleMessages());
       this.addBookmarks(); this.syncNavigatorTargets(); this.refreshSearchMarks(); this.position.refreshNodes();
     } else if (this.currentSearchMarks?.length) {
       this.currentSearchIndex = (this.currentSearchIndex + direction + this.currentSearchMarks.length) % this.currentSearchMarks.length;
@@ -378,7 +397,7 @@ export class ReaderView {
     const list = this.byId('navigatorEntries');
     const fragment = document.createDocumentFragment();
     const railFragment = document.createDocumentFragment();
-    for (const message of this.currentMessages) {
+    for (const message of this.visibleMessages()) {
       if (isHiddenThoughtsMessage(message)) continue;
       if ((message.role !== 'user' && message.role !== 'assistant') || !String(message.content ?? '').trim()) continue;
       if (message.role === 'user') {

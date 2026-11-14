@@ -325,6 +325,7 @@ def release_title(version):
         '1.4.4': ' — Isolated HTML previews and duplicate cleanup',
         '1.4.5': ' — Faster archive merging and improved code previews',
         '1.4.6': ' — Reliable Reader imports and bounded Analytics',
+        '1.4.7': ' — Reading controls and rendering',
     }.get(version, '')
     return f'ThreadShelf Local Suite {version}{suffix}'
 
@@ -408,7 +409,12 @@ def release_notes(version, repository):
                     else 'The offline manual includes the 1.4.4 controls and safety boundaries; existing screenshots retain their original provenance.'
                     if tuple(map(int, version.split('.'))) >= (1, 4, 4)
                     else 'The offline manual and screenshots retain their original 1.4.0 provenance; current rendering behavior is documented in the application READMEs and support notes.')
-    if tuple(map(int, version.split('.'))) >= (1, 4, 6):
+    if tuple(map(int, version.split('.'))) >= (1, 4, 7):
+        improvements = f'''- Improve archived ChatGPT link previews, badges, inline layouts, supported local widgets and slider expressions, chart rings and values, saved raster attachments and timestamps. Keep source copying, literal code, offline rendering and existing image and preview protections.
+- Add optional visual hiding of intermediate JSON-only assistant responses in Reader Local/Server and Alternative. Omit eligible search hits only after the ordinary query returns; preserve indexing, ranking, totals, dates, sorting, pagination, analytics and archived data. Work is limited to the current result page and toggling reuses its visibility decisions.
+- Add a themed Reader header with neutral, aligned SVG controls beside Close. Roll up/down over 240 ms to a 40 px title/provider/date strip and remember the last position across conversations, Local/Server switches and restarts. Respect the existing motion preference.
+- Align all three application versions and About metadata at **{version}**. Retain the 1.4.6 Analytics behavior, public profiles and storage formats, pinned runtimes/dependencies, and existing tests and GitHub workflows.'''
+    elif tuple(map(int, version.split('.'))) >= (1, 4, 6):
         improvements = f'''- Restore Analytics imports from the current public Reader archive, including retained history, collection changes and cleanup/deduplication operations. Capture validates a coherent committed publication without changing Reader files.
 - Process conversations incrementally into owned SQLite captures and perform exact analysis on disk. Replace the archive-wide object counter and whole-dataset renderer transfer with per-document validation, bounded result pages and streamed exports. The analytical worker heap ceiling remains **2 GiB**; disk space, processing time and individual-document safety limits still apply.
 - Preserve the public edition's full text on owned disk storage, excerpt/full-text search semantics, safe Markdown/code evidence, historical evidence and explicit private-text exports. Migrate valid completed public captures without requiring the original Reader source or discarding settings and retained history.

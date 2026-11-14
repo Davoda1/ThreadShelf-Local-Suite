@@ -239,3 +239,11 @@
 .message-content .tsa-code-block .code-line-number{position:absolute;inset-block:0;inset-inline-start:0;width:calc(var(--code-line-digits,1) * 1ch + .75em + 1px);box-sizing:border-box;padding-inline-end:.75em;border-inline-end:1px solid var(--border-color);text-align:end;color:var(--text-secondary);white-space:pre;overflow-wrap:normal;word-break:normal;user-select:none;-webkit-user-select:none;pointer-events:none}
 .message-content .tsa-code-block .code-line-number::before{content:attr(data-line-number)}
 .message-content .tsa-code-block .code-block-note{display:block;color:var(--text-secondary);font-size:.85em;white-space:normal;user-select:none;-webkit-user-select:none}
+
+/* Preserve display-math spacing with MathJax 4. */
+.message-content mjx-container[jax="SVG"][display="true"]{margin:1em 0;padding:0}
+
+.tsa-saved-assets{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;min-width:0;max-width:100%;margin:1rem 0}
+.tsa-saved-assets-label{margin:0;font-size:.85em;color:var(--muted)}
+.tsa-saved-asset{margin:0;min-width:0;max-width:100%;width:100%}
+.tsa-saved-asset figcaption{overflow-wrap:anywhere;color:var(--muted);font-size:.85em}

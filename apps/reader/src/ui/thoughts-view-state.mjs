@@ -68,3 +68,56 @@ export function createThoughtsViewCache(loadThread, { concurrency = 4, maxEntrie
     },
   };
 }
+
+// Decisions belong to the returned search rows, not to a library-wide view.
+// Both flags are independent of the preference so toggling never reads sources
+// or repeats a query. Weak keys let discarded pages release their metadata.
+export function createSearchPageVisibility(loadDecisions) {
+  const decisions = new WeakMap(), pending = new WeakMap();
+  const hasSource = item => item && (Object.hasOwn(item, 'sourceTurnPosition') || item.turnIndex != null || item.turn_index != null);
+  const unknown = Object.freeze({classified:false, emptyHidden:false, intermediateHidden:false});
+  return {
+    async prepare(items, context = {}) {
+      const fresh = items.filter(item => hasSource(item) && !decisions.has(item) && !pending.has(item));
+      for (let offset = 0; offset < fresh.length; offset += 500) {
+        const batch = fresh.slice(offset, offset + 500);
+        const task = Promise.resolve().then(() => loadDecisions(batch, context)).then(result => {
+          const values = result?.decisions;
+          for (let index = 0; index < batch.length; index++) {
+            const value = values?.[index];
+            decisions.set(batch[index], value?.classified === true ? {
+              classified:true, emptyHidden:value.emptyHidden === true, intermediateHidden:value.intermediateHidden === true,
+              ...(Number.isSafeInteger(value.turnIndex) && value.turnIndex >= 0 ? {turnIndex:value.turnIndex} : {}),
+            } : unknown);
+          }
+        }, () => { for (const item of batch) decisions.set(item, unknown); }).finally(() => {
+          for (const item of batch) pending.delete(item);
+        });
+        for (const item of batch) pending.set(item, task);
+        await task;
+      }
+      await Promise.all(items.map(item => pending.get(item)).filter(Boolean));
+    },
+    entry(item, enabled = false) {
+      const decision = decisions.get(item);
+      if (decision?.classified && (decision.emptyHidden || enabled && decision.intermediateHidden)) return null;
+      // Unavailable/ambiguous originals remain visible. An excerpt alone cannot
+      // establish whether the complete original message is JSON-only.
+      return decision?.classified && decision.turnIndex !== undefined ? {...item,turnIndex:decision.turnIndex} : item;
+    },
+  };
+}
+
+// A cold remote result may be opened before its page decision arrives. Resolve
+// its positional namespace against the thread that was just opened, never by
+// treating the position as a retained source index.
+export function openedSearchTarget(item, thread) {
+  if (!item) return undefined;
+  if (!Object.hasOwn(item, 'sourceTurnPosition')) return item.turnIndex != null ? {turnIndex:item.turnIndex,role:item.role} : undefined;
+  const position = item.sourceTurnPosition;
+  if (!Number.isSafeInteger(position) || position < 0 || !thread?.turns?.[position]) return undefined;
+  const message = turnToMessage(thread.turns[position], position);
+  const role = item.role === 'ai' ? 'assistant' : item.role;
+  if (role && role !== message.role) return undefined;
+  return {turnIndex:message.turn_index,role:message.role};
+}

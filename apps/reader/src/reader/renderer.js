@@ -1,5 +1,5 @@
 import { PROMPT_EXPAND_STYLES } from '../core/reader-appearance.mjs';
-import { isHiddenThoughtsMessage } from './messages.js';
+import { isHiddenThoughtsMessage, timestampMillis } from './messages.js';
 import { formatJsonResponse } from './json-response.js';
 import { createFileCitationExtension } from './file-citations.js';
 import './safe-html.css';
@@ -15,8 +15,9 @@ export { normalizeCodeLanguage } from './highlight.js';
 import { tr } from './locale.js';
 import { Marked, Renderer } from 'marked';
 import { prepareRichMarkdown } from './rich-parser.js';
-import { renderRichHtml } from './rich-renderer.js';
+import { renderRichHtml, mountLocalWidgetInteractions } from './rich-renderer.js';
 import { wrapMarkdownImage, mountMarkdownImages, unlinkMarkdownImages, destroyMarkdownImages } from './markdown-images.js';
+import { normalizeSavedRasterAssets } from './saved-raster-assets.js';
 import { buildMermaidRepairCandidates } from './mermaid-repair.js';
 import {
   clearPendingMath,
@@ -572,6 +573,7 @@ export class ConversationRenderer {
     this.contentContainer = container;
     this.htmlPreviews = new HtmlPreviewClient(container);
     this.disposeChartInteractions = mountChartInteractions(container);
+    this.disposeWidgetInteractions = mountLocalWidgetInteractions(container, { renderMarkdown: text => this.processMessageContent(text) });
     this.currentQuery = '';
     this.codePresentation = { codeWrap: false, codeLineNumbers: false };
     this.conversationKey = '';
@@ -609,6 +611,7 @@ export class ConversationRenderer {
     this.htmlPreviews.destroy();
     destroyMarkdownImages(this.contentContainer);
     this.disposeChartInteractions();
+    this.disposeWidgetInteractions();
     this.renderGeneration++;
     this.messageResizeObserver?.disconnect();
     this.contentContainer.removeEventListener('click', this.clickHandler);
@@ -687,10 +690,13 @@ export class ConversationRenderer {
 
     clearPendingMath();
     const fragment = document.createDocumentFragment();
+    let viewOrdinal = 0;
     for (const message of messages) {
       if (isHiddenThoughtsMessage(message)) continue;
-      if (!message.content?.trim()) continue;
-      fragment.appendChild(this.createMessageElement(message));
+      if (!message.content?.trim() && !message.assets?.length && !message.unavailableAssets) continue;
+      const element = this.createMessageElement(message);
+      element.dataset.viewOrdinal = String(++viewOrdinal);
+      fragment.appendChild(element);
     }
 
     this.contentContainer.replaceChildren(fragment);
@@ -1051,10 +1057,8 @@ export class ConversationRenderer {
 
     const timeSpan = document.createElement('span');
     timeSpan.className = 'message-time';
-    if (message.created_at) {
-      const date = new Date(message.created_at);
-      if (!Number.isNaN(date.getTime())) timeSpan.textContent = date.toLocaleString();
-    }
+    const createdTime = timestampMillis(message.created_at);
+    if (createdTime !== null) timeSpan.textContent = new Date(createdTime).toLocaleString();
     headerDiv.appendChild(timeSpan);
 
     const copyButton = document.createElement('button');
@@ -1070,6 +1074,29 @@ export class ConversationRenderer {
     let content = this.processMessageContent(message.content, message.richContext || {}, message.role);
     if (this.currentQuery) content = highlightTextInHtml(content, this.currentQuery);
     contentDiv.innerHTML = content;
+    const savedAssets = normalizeSavedRasterAssets(message.assets);
+    if (savedAssets.images.length || savedAssets.unavailable || message.unavailableAssets) {
+      const gallery = document.createElement('div');
+      gallery.className = 'reader-saved-assets';
+      gallery.setAttribute('role', 'group'); gallery.setAttribute('aria-label', tr('Saved images'));
+      const heading = document.createElement('p'); heading.className = 'reader-saved-assets-label';
+      heading.textContent = tr(savedAssets.images.length ? 'Images retained with this message' : 'Saved image attachment');
+      gallery.append(heading);
+      for (const asset of savedAssets.images) {
+        const figure = document.createElement('figure'); figure.className = 'reader-saved-asset';
+        const image = document.createElement('img'); image.setAttribute('src', asset.url); image.alt = asset.label || tr('Saved image');
+        const wrapper = wrapMarkdownImage(image, tr);
+        wrapper.dataset.savedRasterWidth = String(asset.width); wrapper.dataset.savedRasterHeight = String(asset.height);
+        figure.append(wrapper);
+        if (asset.label) { const caption = document.createElement('figcaption'); caption.textContent = asset.label; figure.append(caption); }
+        gallery.append(figure);
+      }
+      if (savedAssets.unavailable || message.unavailableAssets) {
+        const image = document.createElement('img'); image.alt = tr('Saved image unavailable');
+        gallery.append(wrapMarkdownImage(image, tr));
+      }
+      contentDiv.append(gallery);
+    }
     mountMarkdownImages(contentDiv, { mode: this.remoteImagesMode, resolveImage: this.imageResolver,
       context: { ...this.imageContext, messageId: message.message_id || message.id || null } });
 

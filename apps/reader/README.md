@@ -1,12 +1,12 @@
 # ThreadShelf Local Reader
 
-**Public edition 1.4.6 · Windows x64 and GNU/Linux amd64**
+**Public edition 1.4.7 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop archive and reader for exported AI conversations, with optional read access to a ThreadShelf server. Original exported messages remain available while the reading interface adds Markdown, code highlighting, mathematics, diagrams, supported rich content, saved reading and local search.
 
 Part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite). The original [ThreadShelf project](https://github.com/ChrystianSchutz/ThreadShelf) provides the optional server. See the suite's illustrated Gopher manual for the full user guide.
 
-Version 1.4.6 aligns the full suite release and refreshes the pinned runtime/toolchain. The 1.4.5 application features below remain available.
+Version 1.4.7 improves archived ChatGPT rendering, adds visual hiding of intermediate JSON-only responses, and introduces a collapsible conversation header. Existing storage, runtime and dependency versions remain compatible.
 
 Version 1.4.5 corrects provider-aware merging and duplicate cleanup, adds bounded parallel import processing and visible cleanup progress, fixes HTML preview placement and scrolling, and adds optional code wrapping and line numbers. Existing data formats and profile paths remain compatible. Reader includes per-message Text-to-Speech with bundled Pocket TTS and Kokoro CPU voices, optional remote providers, streaming playback, encrypted saved keys, and independent audio-cache controls. Speech starts disabled. Open **Settings → Text-to-Speech**, choose a provider under **Providers & voices**, optionally use **Audio test**, and press **Save**. Use a message’s speaker button to play, pause, seek, replay or stop. Read [Text-to-Speech](tts/README.md) for storage, credential and provider details.
 
@@ -16,9 +16,9 @@ The reader uses bundled MathJax 4.1.3 with compatibility settings that preserve 
 
 ## Install
 
-- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.6-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
-- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.6-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
-- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.6_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.6_amd64.deb`. Launch it from the application menu.
+- **Windows:** Extract `ThreadShelf-Local-Reader-1.4.7-Windows-x64-Portable.zip` and run `ThreadShelf Local Reader.exe` at the extraction root. Keep all accompanying files together.
+- **Linux portable:** Extract `ThreadShelf-Local-Reader-1.4.7-Linux-amd64.tar.gz` and run the root `threadshelf-local-reader` native executable. Preserve its adjacent runtime files and executable permissions.
+- **Debian/Ubuntu:** Install `threadshelf-local-reader_1.4.7_amd64.deb` using your package manager or `sudo apt install ./threadshelf-local-reader_1.4.7_amd64.deb`. Launch it from the application menu.
 
 The distributions include their Electron runtime. Users do not need Node.js, npm, Python or a GPU for the bundled voices. Windows executables are unsigned. Linux requires the desktop libraries listed by the DEB; use the DEB where distribution sandbox policies prevent the portable application from starting. Do not disable the sandbox for ordinary use.
 
@@ -47,6 +47,10 @@ Complete cursor-paged server search needs the suite's [ThreadShelf server patch]
 The standalone Local Analytics application can capture supported Reader archive data through Analytics' read-only adapter. Reader's integrated **Activity** and server **Insights** views are separate features.
 
 ## Reading and appearance
+
+The collapse button beside the conversation Close control rolls the header into a 40 px title/provider/date strip. It follows the selected theme and existing motion preference. The last expanded or collapsed position is saved automatically across conversations, Local/Server switches and application restarts.
+
+Reading settings can hide eligible intermediate JSON-only assistant responses visually. Search results pointing to those hidden bubbles are omitted from the displayed page; the search query, indexing, totals, ordering, pagination, archive and analytics stay unchanged. Toggling reuses the loaded page without scanning the library.
 
 **Settings → Reading → Wrap long code lines** and **Show code line numbers** start disabled. Wrapping changes only the display; line numbers appear only with visible Code and are excluded from selected/copied/exported source. HTML, SVG, Mermaid and chart renderings have no line-number gutter.
 

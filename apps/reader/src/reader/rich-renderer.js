@@ -1,14 +1,28 @@
 import { renderChart } from './rich-charts.js';
 import { renderGrokNode } from './grok-renderer.js';
-import { safeRichUrl, markdownProtectedRanges, prepareRichMarkdown } from './rich-parser.js';
+import { safeRichUrl, markdownProtectedRanges, prepareRichMarkdown, evaluateLocalWidget, parseLocalWidgetSource } from './rich-parser.js';
+import { dismissChartInteractions } from './rich-chart-interactions.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 // App-owned, simple line icons. Exported names never become markup or URLs.
 const ICONS = Object.freeze({
   'arrow-right': ['M4 12h16', 'm13 5 7 7-7 7'],
+  'arrow-down': ['M12 4v16', 'm5 13 7 7 7-7'],
+  'trending-up': ['m3 17 6-6 4 4 8-10', 'M15 5h6v6'],
+  'trending-down': ['m3 7 6 6 4-4 8 10', 'M15 19h6v-6'],
+  swords: ['m3 3 5 1 11 11-4 4L4 8z', 'm14 17 3-3', 'm17 20 3-3', 'm19 19 2 2', 'm21 3-5 1-5 5', 'm9 11-4 4 4 4 4-4', 'm7 14 3 3', 'm4 17 3 3', 'm5 19-2 2'],
   'arrow-down-up': ['M7 3v18', 'm3 17 4 4 4-4', 'M17 21V3', 'm13 7 4-4 4 4'],
   'check-circle': ['M22 11v1a10 10 0 1 1-5.9-9.1', 'm8 11 3 3L22 3'],
+  'check-circle-2': ['M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0', 'm7 12 3 3 7-7'],
   'alert-circle': ['M12 8v5', 'M12 16h.01', 'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0'],
+  'alert-triangle': ['M12 3 2 21h20z', 'M12 9v5', 'M12 17h.01'],
+  copy: ['M8 8h13v13H8z', 'M16 8V3H3v13h5'],
+  'hard-drive': ['M5 3h14l3 12v6H2v-6z', 'M2 15h20', 'M6 18h.01', 'M10 18h.01'],
+  'file-archive': ['M14 2H4v20h16V8z', 'M14 2v6h6', 'M9 3v2m2 0v2M9 7v2m2 0v2', 'M9 14h3v4H9z'],
+  'folder-search': ['M20 9V5h-9L9 3H3v17h7', 'M21 15a5 5 0 1 1-10 0 5 5 0 1 1 10 0', 'm20 19 3 3'],
+  'rotate-ccw': ['M3 10a9 9 0 1 1 1 8', 'M3 3v7h7'],
+  minus: ['M5 12h14'],
+  plus: ['M5 12h14', 'M12 5v14'],
   download: ['M12 3v12', 'm7 10 5 5 5-5', 'M4 17v4h16v-4'],
   'file-text': ['M14 2H5v20h14V7z', 'M14 2v6h5', 'M8 12h8', 'M8 16h8'],
   'file-code': ['M14 2H5v20h14V7z', 'M14 2v6h5', 'm10 12-3 3 3 3', 'm14 12 3 3-3 3'],
@@ -38,7 +52,10 @@ function randomMarker() {
 }
 function iconNode(name, options) {
   const { document } = options;
-  if (!Object.hasOwn(ICONS, name)) return el(document, 'span', 'rich-icon-fallback', '◇');
+  if (!Object.hasOwn(ICONS, name)) {
+    const fallback = el(document, 'span', 'rich-icon-fallback', '◇');
+    fallback.title = `${options.t('Unknown icon')}: ${name}`; return fallback;
+  }
   const svg = document.createElementNS(SVG, 'svg'); svg.setAttribute('viewBox', '0 0 24 24');
   svg.classList.add('rich-icon'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
   for (const d of ICONS[name]) {
@@ -53,8 +70,8 @@ function applyProperties(element, tag, a) {
   if (a.clip) element.classList.add('rich-clip');
   if (a.tabularNums) element.classList.add('rich-tabular');
   if (a.inline) element.classList.add('rich-inline');
-  if (a.gap !== undefined) element.style.gap = `${a.gap * .25}rem`;
-  if (a.padding !== undefined) element.style.padding = `${a.padding * .25}rem`;
+  if (a.gap !== undefined) element.style.gap = typeof a.gap === 'number' ? `${a.gap * .25}rem` : a.gap;
+  if (a.padding !== undefined) element.style.padding = typeof a.padding === 'number' ? `${a.padding * .25}rem` : a.padding;
   for (const key of ['width', 'height', 'minWidth', 'maxWidth']) if (a[key] !== undefined) element.style[key] = key === 'minWidth' ? `min(${a[key]}, 100%)` : a[key];
   if (tag === 'box' && a.size) { element.style.width = a.size; element.style.height = a.size; }
   if (a.flex !== undefined) { element.style.flex = `${Number(a.flex)} 1 0px`; element.classList.add('rich-flex-item'); }
@@ -68,7 +85,7 @@ function applyProperties(element, tag, a) {
   if (a.color) element.classList.add(`rich-color-${a.color}`);
   if (a.size && tag !== 'box') element.classList.add(`rich-size-${a.size}`);
   if (a.background) {
-    if (a.background[0] === '#') { element.style.backgroundColor = a.background; element.classList.add('rich-explicit-color'); }
+    if (a.background[0] === '#' || a.background.startsWith('rgba(')) { element.style.backgroundColor = a.background; element.classList.add('rich-explicit-color'); }
     else element.classList.add(`rich-${a.background}`);
   }
   if (a.columns) element.style.setProperty('--rich-columns', String(a.columns));
@@ -89,6 +106,11 @@ function markProgressFill(element, node) {
   // Recognize the bounded, empty percentage-fill pattern from saved layouts.
   // Card surfaces are otherwise left untouched, including explicit swatches.
   const a = node.attrs, meaningful = node.children.filter(c => c.kind !== 'markdown' || c.text.trim());
+  // Small explicit-height rows of empty weighted boxes are layout segments,
+  // not cards. Keep every segment in one row even at the minimum window size.
+  if (node.tag === 'row' && /^\d+(?:\.\d+)?px$/.test(a.height || '') && parseFloat(a.height) > 0 && parseFloat(a.height) <= 32 && meaningful.length > 1 && meaningful.every(child => child.tag === 'box' && Number(child.attrs?.flex) > 0 && !child.children.some(c => c.kind !== 'markdown' || c.text.trim()))) {
+    element.classList.add('rich-segment-track');
+  }
   // A saved allocation bar uses positive flex weights instead of percentages.
   // Keep its children out of the responsive card minimum-width rule, which
   // otherwise enlarges a small segment and changes the represented ratio.
@@ -235,6 +257,26 @@ function unavailableImageNode(tag, attrs, options) {
   // The export stores a query, not the selected image or its URL. Keep its
   // declared slot beside the accompanying prose, including full-width images;
   // never execute the query or substitute an unrelated photograph.
+  if (tag === 'AsyncImageGroup') {
+    // This is one honest group placeholder. Search-query count does not tell
+    // us how many images ChatGPT selected, so never manufacture image tiles.
+    area.classList.add('rich-image-group-unavailable');
+    if (attrs.layout) area.dataset.imageLayout = attrs.layout;
+    const slot = el(document, 'div', 'rich-image-group-slot');
+    if (attrs.aspectRatio) slot.style.aspectRatio = attrs.aspectRatio.replace(':', ' / ');
+    slot.append(iconNode('panels-top-left', options), el(document, 'strong', '', t('Archived image group')));
+    slot.append(el(document, 'span', '', t('Selected image assets were not included in the archive.')));
+    if (attrs.layout) slot.append(el(document, 'span', 'rich-image-group-layout', t('Carousel layout')));
+    area.append(slot);
+    if (description) {
+      const details = el(document, 'details', 'rich-image-group-queries');
+      details.append(el(document, 'summary', '', t('Saved image queries')));
+      const list = el(document, 'ul');
+      for (const query of queries) list.append(el(document, 'li', '', query));
+      details.append(list); area.append(details);
+    }
+    return area;
+  }
   if (tag === 'AsyncImage') {
     const design = imagePlaceholderDesign(attrs, options.imageAncestors);
     const wide = design === 'soft-horizon';
@@ -349,10 +391,121 @@ function renderChildren(element, children, options) {
   replaceMarkers(template.content, records, options);
   // Layout containers may hold inline Markdown paragraphs as flex/grid items;
   // unwrap only a sole paragraph for text-like elements, preserving GFM blocks.
-  if (['text', 'title', 'caption'].includes(element.dataset.richTag) && template.content.childElementCount === 1 && template.content.firstElementChild?.tagName === 'P') {
+  if (['text', 'title', 'caption', 'badge'].includes(element.dataset.richTag) && template.content.childElementCount === 1 && template.content.firstElementChild?.tagName === 'P') {
     template.content.firstElementChild.replaceWith(...template.content.firstElementChild.childNodes);
   }
   element.append(template.content);
+}
+function pagePreviewNode(node, options) {
+  const { document, t, context = {} } = options;
+  const pages = context.pages;
+  const record = pages instanceof Map ? pages.get(node.pageId)
+    : pages && Object.hasOwn(pages, node.pageId) ? pages[node.pageId] : null;
+  const url = record && safeRichUrl(record.url);
+  const card = el(document, url ? 'a' : 'aside', 'rich-page-preview');
+  if (url) { card.href = url; card.target = '_blank'; card.rel = 'noopener noreferrer'; }
+  const heading = el(document, 'span', 'rich-page-heading');
+  heading.append(iconNode('file-text', options), el(document, 'strong', '', record?.title || t('Page')));
+  card.append(heading, el(document, 'span', 'rich-page-status', url ? t('Saved Page link · content is not available offline') : t('Page content and link are unavailable in this archive.')));
+  card.title = node.pageId;
+  return card;
+}
+function sliderNode(attrs, options) {
+  const { document, t } = options;
+  const field = el(document, 'div', 'rich-slider');
+  const input = el(document, 'input', 'rich-local-slider');
+  input.type = 'range'; input.min = String(attrs.min); input.max = String(attrs.max);
+  input.step = String(attrs.step); input.value = String(attrs.value);
+  // The value attribute survives renderRichHtml's serialization; the property
+  // is kept synchronized again during local updates.
+  input.setAttribute('value', String(attrs.value)); input.dataset.richState = attrs.stateKey;
+  input.setAttribute('aria-label', t('Archived slider'));
+  input.setAttribute('aria-valuetext', String(attrs.marks?.find(mark => mark.value === attrs.value)?.label ?? attrs.value));
+  field.append(input);
+  if (attrs.marks?.length) {
+    const marks = el(document, 'div', 'rich-slider-marks'); marks.setAttribute('aria-hidden', 'true');
+    for (const mark of attrs.marks) {
+      const item = el(document, 'span', 'rich-slider-mark', String(mark.label));
+      item.style.left = `${100 * (mark.value - attrs.min) / (attrs.max - attrs.min)}%`;
+      if (mark.value === attrs.value) item.classList.add('is-selected');
+      marks.append(item);
+    }
+    field.append(marks);
+  }
+  return field;
+}
+function localWidgetNode(node, options) {
+  const wrapper = el(options.document, 'section', 'rich-local-widget');
+  // The source is inert data. It is reparsed by the bounded parser only when
+  // an app-created slider is changed; no callback from the archive is run.
+  wrapper.dataset.richWidgetSource = node.source;
+  for (const child of node.children) wrapper.append(renderRichNode(child, options));
+  return wrapper;
+}
+const widgetRoots = new WeakMap();
+const widgetStates = new WeakMap();
+function updateWidgetTree(current, next) {
+  if (current.nodeType !== next.nodeType || current.nodeName !== next.nodeName || current.nodeType === 1 && current.classList.contains('rich-chart')) { current.replaceWith(next); return; }
+  if (current.nodeType === 3) { if (current.nodeValue !== next.nodeValue) current.nodeValue = next.nodeValue; return; }
+  if (current.nodeType !== 1) { current.replaceWith(next); return; }
+  const wasOpen = current.tagName === 'DETAILS' && current.open;
+  for (const attr of [...current.attributes]) if (!next.hasAttribute(attr.name)) current.removeAttribute(attr.name);
+  for (const attr of [...next.attributes]) if (current.getAttribute(attr.name) !== attr.value) current.setAttribute(attr.name, attr.value);
+  if (current.matches('input.rich-local-slider')) current.value = next.value;
+  const previous = [...current.childNodes], upcoming = [...next.childNodes];
+  for (let i = 0; i < Math.max(previous.length, upcoming.length); i++) {
+    if (!upcoming[i]) previous[i].remove();
+    else if (!previous[i]) current.append(upcoming[i]);
+    else updateWidgetTree(previous[i], upcoming[i]);
+  }
+  if (wasOpen) current.open = true;
+}
+/** A delegated, presentation-only controller. No storage or network is used. */
+export function mountLocalWidgetInteractions(root, { renderMarkdown, t = key => key, context = {} } = {}) {
+  if (widgetRoots.has(root)) return widgetRoots.get(root);
+  function change(event) {
+    const input = event.target.closest?.('input.rich-local-slider[data-rich-state]');
+    const wrapper = input?.closest('.rich-local-widget[data-rich-widget-source]');
+    if (!wrapper || !root.contains(wrapper)) return;
+    try {
+      let state = widgetStates.get(wrapper);
+      if (!state) {
+        const node = parseLocalWidgetSource(wrapper.dataset.richWidgetSource);
+        state = { node, values: Object.fromEntries(node.states.map(item => [item.name, item.initial])) };
+        widgetStates.set(wrapper, state);
+      }
+      const key = input.dataset.richState, value = Number(input.value);
+      if (!Object.hasOwn(state.values, key) || !Number.isFinite(value)) return;
+      const values = { ...state.values, [key]: value };
+      const children = evaluateLocalWidget(state.node, values);
+      const options = { document: wrapper.ownerDocument, renderMarkdown, t, context: typeof context === 'function' ? context(wrapper) : context, referenceBudget: { remaining: 2000000 }, compatBudget: { remaining: 256 }, grokBudget: { remaining: 2000000 } };
+      const next = localWidgetNode({ ...state.node, children }, options);
+      // Initial content went through HTML serialization and reparsing. Merge
+      // app-created adjacent text nodes and discard empty marker splits before
+      // matching children, so a harmless empty node cannot replace the slider.
+      next.normalize(); wrapper.normalize();
+      const positions = [];
+      for (let parent = wrapper.parentElement; parent; parent = parent.parentElement) if (parent.scrollTop || parent.scrollLeft) positions.push([parent, parent.scrollTop, parent.scrollLeft]);
+      const opened = [...wrapper.querySelectorAll('.rich-chart details')].map(detail => detail.open);
+      dismissChartInteractions(wrapper);
+      updateWidgetTree(wrapper, next);
+      [...wrapper.querySelectorAll('.rich-chart details')].forEach((detail, index) => { detail.open = opened[index] || false; });
+      for (const [parent, top, left] of positions) { parent.scrollTop = top; parent.scrollLeft = left; }
+      state.values = values;
+    } catch {
+      // Retain the last complete rendering and original source if a malformed
+      // model, budget limit or invalid state prevents the proposed update.
+      const previous = widgetStates.get(wrapper)?.values;
+      if (previous && Object.hasOwn(previous, input.dataset.richState)) input.value = String(previous[input.dataset.richState]);
+      if (!wrapper.querySelector('.rich-widget-status')) {
+        const status = el(wrapper.ownerDocument, 'p', 'rich-widget-status', t('This saved widget cannot be updated. Its original content is retained.'));
+        status.setAttribute('role', 'status'); wrapper.append(status, originalDetails({ source: wrapper.dataset.richWidgetSource }, { document: wrapper.ownerDocument, t }));
+      }
+    }
+  }
+  root.addEventListener('input', change);
+  const dispose = () => { root.removeEventListener('input', change); widgetRoots.delete(root); };
+  widgetRoots.set(root, dispose); return dispose;
 }
 export function renderRichNode(node, options) {
   const { document, t } = options;
@@ -361,6 +514,8 @@ export function renderRichNode(node, options) {
   if (node.kind === 'literal') return document.createTextNode(node.text);
   if (node.kind === 'native-citation') return nativeCitationNode(node, options);
   if (node.kind === 'archived-widget') return archivedWidgetNode(node, options);
+  if (node.kind === 'page-preview') return pagePreviewNode(node, options);
+  if (node.kind === 'local-widget') return localWidgetNode(node, options);
   if (node.kind === 'static-svg') return staticSvgNode(node, options);
   if (node.kind === 'passive') {
     const figure = el(document, 'aside', 'rich-passive');
@@ -373,6 +528,7 @@ export function renderRichNode(node, options) {
     return figure;
   }
   const { tag, attrs: a } = node;
+  if (tag === 'slider') return sliderNode(a, options);
   if (tag === 'Chart') return renderChart(a.content, { document, t, family: node.family || 'Chart' });
   if (tag === 'Entity') {
     const entity = el(document, 'span', 'rich-entity', a.value);
@@ -387,11 +543,13 @@ export function renderRichNode(node, options) {
     return unavailableImageNode(tag, a, options);
   }
   if (tag === 'icon') {
-    const span = el(document, 'span', 'rich-icon-wrap'); span.setAttribute('aria-hidden', 'true');
+    const span = el(document, 'span', 'rich-icon-wrap');
+    span.setAttribute('role', 'img'); span.setAttribute('aria-label', a.name || t('Unknown icon'));
     applyProperties(span, tag, a); span.append(iconNode(a.name || '', options)); return span;
   }
-  const htmlTag = tag === 'divider' ? 'hr' : 'div';
+  const htmlTag = tag === 'divider' ? 'hr' : tag === 'badge' || (node.inline && tag === 'text') ? 'span' : 'div';
   const element = el(document, htmlTag, `rich-component rich-${tag}`); element.dataset.richTag = tag;
+  if (node.inline && tag === 'text') element.classList.add('rich-inline-text');
   if (tag === 'title') { element.setAttribute('role', 'heading'); element.setAttribute('aria-level', '4'); }
   applyProperties(element, tag, a);
   if (tag !== 'divider') renderChildren(element, node.children, { ...options, imageAncestors: [...(options.imageAncestors || []), node] });

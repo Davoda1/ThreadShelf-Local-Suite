@@ -6,6 +6,7 @@ import { RESOURCE_ACTIONS, validateResourceRequest } from './resource-requests.m
 import { ResourceContexts } from './resource-contexts.mjs';
 import { ArchiveStore } from './archive.mjs';
 import { SearchService } from './search.mjs';
+import { SearchVisibility } from './search-visibility.mjs';
 import { CompressedStorage } from './storage.mjs';
 import { importPaths } from './importers.mjs';
 import { orderedPrefetch } from './import-pipeline.mjs';
@@ -16,6 +17,7 @@ import { JsonState, DEFAULTS, INTERFACE_DEFAULTS, APPEARANCE_DEFAULTS, LAYOUT_DE
 import { EXTENDED_DEFAULTS, EXTENDED_PREFERENCES_FILE, extendedPreferenceDefaults, validateExtendedPreferences, mergeExtendedPreferences } from './extended-preferences.mjs';
 import { REMOTE_IMAGE_DEFAULTS, REMOTE_IMAGES_FILE, validateRemoteImageSettings } from './remote-images.mjs';
 import { localIdFor, localReadingKey, reconcileLocalReading, replaceLocalReading, localReadingOnly } from './manager-reading.mjs';
+import { READING_DISPLAY_DEFAULTS, READING_DISPLAY_SETTINGS_FILE, validateReadingDisplaySettings } from './reading-display-settings.mjs';
 import { CODE_PRESENTATION_DEFAULTS, CODE_PRESENTATION_SETTINGS_FILE, validateCodePresentationSettings } from './code-presentation-settings.mjs';
 import { HTML_PREVIEW_DEFAULTS, HTML_PREVIEW_SETTINGS_FILE, validateHtmlPreviewSettings } from './html-preview-settings.mjs';
 import { DEDUPLICATION_DEFAULTS, DEDUPLICATION_SETTINGS_FILE, validateDeduplicationSettings, validateDeduplicationPreferenceChange } from './deduplication-settings.mjs';
@@ -30,6 +32,7 @@ export class ApplicationService {
     this.lastDurableRevision=0; this.sinceCheckpoint=0; this.pendingRestore=null;
     this.pendingClearPurge=false;
     this.activity=null;this.activityControllers=new Set();this.activityTasks=new Set();this.insightsControllers=new Set();
+    this.searchVisibility=new SearchVisibility();
   }
   async init() {
     this.settings=await new JsonState(this.dataDir,'settings.json',DEFAULTS,v=>({...DEFAULTS,...validateCoreSettings(v)})).init();
@@ -40,6 +43,7 @@ export class ApplicationService {
     // Keep all 3.2 preference files byte-compatible with its strict readers.
     this.readerAppearanceSettings=await new JsonState(this.dataDir,'reader-appearance.json',READER_APPEARANCE_DEFAULTS,validateReaderAppearanceSettings).init();
     this.remoteImageSettings=await new JsonState(this.dataDir,REMOTE_IMAGES_FILE,REMOTE_IMAGE_DEFAULTS,validateRemoteImageSettings).init();
+    this.readingDisplaySettings=await new JsonState(this.dataDir,READING_DISPLAY_SETTINGS_FILE,READING_DISPLAY_DEFAULTS,validateReadingDisplaySettings).init();
     this.codePresentationSettings=await new JsonState(this.dataDir,CODE_PRESENTATION_SETTINGS_FILE,CODE_PRESENTATION_DEFAULTS,validateCodePresentationSettings).init();
     this.htmlPreviewSettings=await new JsonState(this.dataDir,HTML_PREVIEW_SETTINGS_FILE,HTML_PREVIEW_DEFAULTS,validateHtmlPreviewSettings).init();
     this.resourceSettings=await new JsonState(this.dataDir,RESOURCE_CACHE_PREFERENCES_FILE,RESOURCE_CACHE_DEFAULTS,validateResourceCacheSettings).init();
@@ -270,8 +274,8 @@ export class ApplicationService {
     for(const controller of this.insightsControllers)controller.abort();
     this.shutdownTask=(async()=>{
       await Promise.allSettled([...this.inFlight]);await this.mutationQueue;
-      this.serverSearch.clear();this.resourceContexts.clear();await this.resourceCache?.close();
-      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.htmlPreviewSettings.queue,this.codePresentationSettings.queue,this.resourceSettings.queue,this.deduplicationSettings.queue,this.reading.queue]);
+      this.serverSearch.clear();this.searchVisibility.clear();this.resourceContexts.clear();await this.resourceCache?.close();
+      await Promise.allSettled([this.settings.queue,this.interfaceSettings.queue,this.appearanceSettings.queue,this.layoutSettings.queue,this.readerAppearanceSettings.queue,this.extendedSettings.queue,this.remoteImageSettings.queue,this.htmlPreviewSettings.queue,this.codePresentationSettings.queue,this.readingDisplaySettings.queue,this.resourceSettings.queue,this.deduplicationSettings.queue,this.reading.queue]);
       // Direct ArchiveStore callers (test/embedding integrations) also receive a
       // durable close. Normal GUI mutations have already been committed.
       try{
@@ -291,7 +295,7 @@ export class ApplicationService {
     switch(action) {
       case 'bootstrap': {
         const searchStatus=await this.localStatus();
-        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.6',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.htmlPreviewSettings.notice,this.codePresentationSettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
+        return {settings:{...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot(),...this.readingDisplaySettings.snapshot()},reading:this.reading.snapshot(),dataDir:this.dataDir,version:'1.4.7',resources:await this.resourceStatus(),searchStatus,notice:[this.settings.notice,this.interfaceSettings.notice,this.appearanceSettings.notice,this.layoutSettings.notice,this.readerAppearanceSettings.notice,this.extendedSettings.notice,this.remoteImageSettings.notice,this.htmlPreviewSettings.notice,this.codePresentationSettings.notice,this.readingDisplaySettings.notice,this.reading.notice,this.storageError].filter(Boolean).join(' ')};
       }
       case 'settings.save': {
         const values=validateSettings(args.values),core=validateCoreSettings(values);
@@ -301,6 +305,7 @@ export class ApplicationService {
         const readerAppearance=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(READER_APPEARANCE_DEFAULTS,key)));
         const extended=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(EXTENDED_DEFAULTS,key)));
         const remoteImages=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(REMOTE_IMAGE_DEFAULTS,key)));
+        const readingDisplay=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(READING_DISPLAY_DEFAULTS,key)));
         const codePresentation=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(CODE_PRESENTATION_DEFAULTS,key)));
         const htmlPreview=Object.fromEntries(Object.entries(values).filter(([key])=>Object.hasOwn(HTML_PREVIEW_DEFAULTS,key)));
         if(Object.keys(extended).length)await this.extendedSettings.update(s=>mergeExtendedPreferences(s,extended));
@@ -310,9 +315,10 @@ export class ApplicationService {
         if(Object.keys(layout).length)await this.layoutSettings.update(s=>({...s,...layout}));
         if(Object.keys(readerAppearance).length)await this.readerAppearanceSettings.update(s=>({...s,...readerAppearance}));
         if(Object.keys(remoteImages).length)await this.remoteImageSettings.update(s=>({...s,...remoteImages}));
+        if(Object.keys(readingDisplay).length)await this.readingDisplaySettings.update(s=>({...s,...readingDisplay}));
         if(Object.keys(codePresentation).length)await this.codePresentationSettings.update(s=>({...s,...codePresentation}));
         if(Object.keys(htmlPreview).length)await this.htmlPreviewSettings.update(s=>({...s,...htmlPreview}));
-        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot()};
+        return {...this.settings.snapshot(),...this.interfaceSettings.snapshot(),...this.appearanceSettings.snapshot(),...this.layoutSettings.snapshot(),...this.readerAppearanceSettings.snapshot(),...this.extendedSettings.snapshot(),...this.remoteImageSettings.snapshot(),...this.htmlPreviewSettings.snapshot(),...this.codePresentationSettings.snapshot(),...this.readingDisplaySettings.snapshot()};
       }
       case 'collections':
         if(args.mode==='server')return {collections:await this.client(args).collections()};
@@ -333,6 +339,18 @@ export class ApplicationService {
         else {await this.ensureLocal();thread=this.store.thread({id:args.id||args.conversationId});}
         this.resourceContexts.register(thread,args,this.settings.value.serverUrl);
         return thread;
+      }
+      case 'search.visibility': {
+        if (!Array.isArray(args.hits) || args.hits.length > 500) throw new Error('Search visibility requires at most 500 current-page results.');
+        if (!['local','server'].includes(args.mode || 'local')) throw new Error('Choose Local or ThreadShelf Server mode.');
+        const controller=new AbortController();controller.mode=args.mode||'local';this.searchControllers.add(controller);
+        const signal=AbortSignal.any([controller.signal,this.lifetime.signal]);let task;
+        try {
+          if (args.mode === 'server') return await this.searchVisibility.resolve(args,{client:this.client(args,signal),signal});
+          await this.ensureLocal();signal.throwIfAborted();
+          if(this.operation?.name.startsWith('manager.')||this.operation?.name==='storage.convert')throw new Error('The Local database is being managed. Try the search after the operation finishes.');
+          task=this.searchVisibility.resolve(args,{store:this.store,signal});this.localSearches.add(task);return await task;
+        } finally {this.searchControllers.delete(controller);if(task)this.localSearches.delete(task);}
       }
       case 'search': {
         if(typeof args.q!=='string'||args.q.length>8192)throw new Error('Search text must contain at most 8192 characters.');

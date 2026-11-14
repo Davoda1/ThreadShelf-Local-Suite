@@ -1,22 +1,20 @@
 # ThreadShelf Local Alternative
 
-**Version 1.4.6 aligns the full suite release and refreshes the pinned runtime/toolchain. The 1.4.5 application features below remain available.
-
-Version 1.4.5 · Windows x64 and GNU/Linux amd64**
+**Version 1.4.7 · Windows x64 and GNU/Linux amd64**
 
 An independent desktop reading workspace for a ThreadShelf server. Alternative combines a conversation shelf, text and semantic search, saved searches, pins, a prompt outline, and focused reading. It is part of [ThreadShelf Local Suite](https://github.com/Davoda1/ThreadShelf-Local-Suite).
 
 The server is the separate upstream [ChrystianSchutz/ThreadShelf](https://github.com/ChrystianSchutz/ThreadShelf) project. Install that project independently. The suite's `server-patch/` directory supplies the optional, version-checked search integration for the exact supported ThreadShelf 1.3.0 and 1.4.1 sources.
 
-Version 1.4.6 fixes HTML preview sizing, initial placement, and clipping while scrolling. Complete HTML pages use a transparent 16:9 surface that fills the code block beneath its toolbar. Reading settings add optional wrapping and line numbers for code; line numbers appear only in Code view and never enter copied or exported source. Existing public privacy controls, isolated HTML scripts, image loading, rich-content rendering, and speech playback retain their behavior.
+Version 1.4.7 improves archived ChatGPT rendering and adds visual hiding of eligible intermediate JSON-only responses. Existing HTML preview sizing, initial placement, and clipping remain supported. Complete HTML pages use a transparent 16:9 surface that fills the code block beneath its toolbar. Reading settings add optional wrapping and line numbers for code; line numbers appear only in Code view and never enter copied or exported source. Existing public privacy controls, isolated HTML scripts, image loading, rich-content rendering, and speech playback retain their behavior.
 
 ## Install and start
 
 | Platform | Package | Start |
 | --- | --- | --- |
-| Windows x64 | `ThreadShelf-Local-Alternative-1.4.6-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
-| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.6-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
-| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.6_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.6_amd64.deb`, then use the application menu. |
+| Windows x64 | `ThreadShelf-Local-Alternative-1.4.7-Windows-x64-Portable.zip` | Extract the complete ZIP and run `ThreadShelf Local Alternative.exe` at the extraction root. Keep the runtime files together. |
+| Linux amd64 | `ThreadShelf-Local-Alternative-1.4.7-Linux-amd64.tar.gz` | Extract with executable permissions preserved, then run the real `threadshelf-local-alternative` executable at the extraction root. |
+| Debian/Ubuntu amd64 | `threadshelf-local-alternative_1.4.7_amd64.deb` | Install using your package manager or `sudo apt install ./threadshelf-local-alternative_1.4.7_amd64.deb`, then use the application menu. |
 
 The Windows executable is unsigned. Native packages contain the application runtime; ordinary use does not require Node.js or Python. Linux needs a compatible x86-64 graphical desktop and the declared Chromium/GTK dependencies. Portable Linux requires a working user-namespace sandbox; the Debian package installs Electron's sandbox helper. The desktop entry points are regular native binaries, with no symlink or script launchers.
 
@@ -34,6 +32,8 @@ The search extension is detected automatically. It provides complete cursor-page
 To explore without a server, select **Explore demo**. Fourteen synthetic conversations include three conversational guides, rich-rendering showcases, and an archived Grok/ChatGPT compatibility example. The demo semantic mode is a labelled approximation and makes no server requests.
 
 ## Read and organize
+
+**Reading & appearance** can hide eligible intermediate JSON-only assistant responses visually. Search results pointing to hidden bubbles are omitted only from the returned page. Queries, indexing, totals, dates, ordering and pagination keep their existing behavior; toggling reuses the loaded page.
 
 - **Library**, **Pins**, and **Recent** provide separate views. Pins retain references to source conversations, not offline copies.
 - **Saved searches** retain the server, collection, query, and search options. The **+** control beside the search modes saves the current search.

@@ -4,6 +4,7 @@
 // extension. All archive identity fields are preserved: one JSON source file
 // can contain many conversations and can appear in more than one collection.
 const { createHash } = require('node:crypto');
+const {classifyMessages,normalizeSearchTurns,searchDecision}=require('../renderer/message-visibility.js');
 const MAX_BYTES = 128 * 1024 * 1024;
 const SNAPSHOT_TTL = 15 * 60 * 1000;
 const READ_ENDPOINTS = new Set(['api/health', 'api/collections', 'api/files',
@@ -74,14 +75,14 @@ function normalizeMessages(turns) {
       if (typeof turn[key] === 'string') {
         found = true;
         result.push({ id: `${turnIndex}:${role}`, turnIndex, role, content: turn[key], text: turn[key],
-          model: text(turn.model), date: text(turn.createdAt) });
+          model: text(turn.model), date: text(turn.createdAt), ...(Array.isArray(turn.assets) ? {assets:turn.assets} : {}) });
       }
     }
     if (!found && (typeof turn.content === 'string' || typeof turn.text === 'string'))
       result.push({ id: `${turnIndex}:${turn.role || 'unknown'}`, turnIndex,
         role: turn.role === 'ai' ? 'assistant' : text(turn.role) || 'unknown',
         content: turn.content ?? turn.text, text: turn.content ?? turn.text,
-        model: text(turn.model), date: text(turn.createdAt) });
+        model: text(turn.model), date: text(turn.createdAt), ...(Array.isArray(turn.assets) ? {assets:turn.assets} : {}) });
   });
   return result;
 }
@@ -94,9 +95,10 @@ class ServerClient {
     this.fetch = fetchImpl; this.timeoutMs = timeoutMs; this.maxResponseBytes = maxResponseBytes;
     this.cacheTtlMs = cacheTtlMs; this.signal = signal; this.now = now;
     this.requests = new Set(); this.fileCache = new Map(); this.sessions = new Map(); this.capabilityCache = null;
+    this.visibilityCache=new Map();this.visibilityPending=new Map();this.visibilityQueue=[];this.visibilityActive=0;this.visibilityEpoch=0;this.visibilityController=null;
   }
   cancel() { for (const controller of this.requests) controller.abort(); }
-  clearCache() { this.fileCache.clear(); this.sessions.clear(); this.capabilityCache = null; }
+  clearCache() { this.fileCache.clear(); this.sessions.clear(); this.capabilityCache = null; this.cancelVisibility();this.visibilityCache.clear(); }
   dispose() { this.cancel(); this.clearCache(); }
   idFor(value) { const ref = identity(value); return 'server:' + createHash('sha256')
     .update(JSON.stringify([this.baseUrl, ref.collection, ref.sourceFile, ref.conversationKey])).digest('hex'); }
@@ -240,11 +242,54 @@ class ServerClient {
     return { ...body, source: 'server-insights', units: { activity: 'passages', roles: 'passages', topModels: 'passages', providers: 'conversations-and-turns' },
       longestThreads: body.longestThreads.map(row => this._summary(row, collection)) };
   }
+  _rememberVisibility(ref,turns) {
+    const key=this.idFor(ref),classification=classifyMessages(normalizeSearchTurns(turns));
+    this.visibilityCache.delete(key);this.visibilityCache.set(key,{time:this.now(),classification});
+    while(this.visibilityCache.size>256)this.visibilityCache.delete(this.visibilityCache.keys().next().value);
+    return classification;
+  }
+  cancelVisibility() {
+    this.visibilityEpoch++;this.visibilityController?.abort();this.visibilityController=null;
+    this.visibilityPending.clear();while(this.visibilityQueue.length)this.visibilityQueue.shift().resolve(null);
+    return true;
+  }
+  _resolveVisibility(ref) {
+    const key=this.idFor(ref),cached=this.visibilityCache.get(key);
+    if(cached&&this.now()-cached.time<this.cacheTtlMs)return Promise.resolve(cached.classification);
+    if(this.visibilityPending.has(key))return this.visibilityPending.get(key);
+    let resolve;const promise=new Promise(done=>{resolve=done;});
+    this.visibilityPending.set(key,promise);this.visibilityQueue.push({key,ref,resolve,promise,epoch:this.visibilityEpoch,signal:this.visibilityController?.signal});this._pumpVisibility();return promise;
+  }
+  _pumpVisibility() {
+    while(this.visibilityActive<4&&this.visibilityQueue.length){
+      const job=this.visibilityQueue.shift();if(job.epoch!==this.visibilityEpoch){job.resolve(null);continue;}
+      this.visibilityActive++;
+      this._get('api/thread',job.ref,job.signal).then(body=>{
+        if(job.epoch!==this.visibilityEpoch||!Array.isArray(body.turns)||body.sourceFile!==undefined&&body.sourceFile!==job.ref.sourceFile||body.conversationKey!==undefined&&body.conversationKey!==job.ref.conversationKey){job.resolve(null);return;}
+        job.resolve(this._rememberVisibility(job.ref,body.turns));
+      }).catch(()=>job.resolve(null)).finally(()=>{if(this.visibilityPending.get(job.key)===job.promise)this.visibilityPending.delete(job.key);this.visibilityActive--;this._pumpVisibility();});
+    }
+  }
+  async searchVisibility({hits=[]}={}) {
+    if(!Array.isArray(hits)||hits.length>50)throw invalid('Visibility checks are limited to one returned search page.','hits');
+    this.cancelVisibility();this.visibilityController=new AbortController();
+    const unknown=()=>({emptyHidden:false,intermediateHidden:false,classified:false});
+    const decisions=await Promise.all(hits.map(async hit=>{
+      if(!isObject(hit))return unknown();
+      const role=hit.role==='ai'?'assistant':hit.role;
+      if(role&&!['assistant','thinking','reasoning','analysis'].includes(role))return unknown();
+      const position=Object.hasOwn(hit,'sourceTurnPosition')?hit.sourceTurnPosition:hit.turnIndex;
+      if(!Number.isSafeInteger(position)||position<0)return unknown();
+      try{return searchDecision(hit,await this._resolveVisibility(identity(hit)));}catch{return unknown();}
+    }));
+    return {decisions};
+  }
   async thread(value = {}) {
     const ref = identity(value), body = await this._get('api/thread', ref, value.signal);
     if (!Array.isArray(body.turns)) throw protocolError('ThreadShelf returned an invalid conversation.');
     if (body.sourceFile !== undefined && body.sourceFile !== ref.sourceFile || body.conversationKey !== undefined && body.conversationKey !== ref.conversationKey)
       throw protocolError('ThreadShelf returned a different conversation identity. Refresh the archive and try again.');
+    this._rememberVisibility(ref,body.turns);
     return { ...value, ...body, ...ref, id: this.idFor(ref), title: text(body.title) || text(value.title) || ref.conversationKey || ref.sourceFile.split(/[\\/]/).pop(),
       provider: text(body.provider) || text(value.provider), turnCount: body.turns.length, messages: normalizeMessages(body.turns), serverUrl: this.baseUrl };
   }
@@ -257,7 +302,7 @@ class ServerClient {
     const id = this.idFor(ref), m = hit.metadata, summary = byId.get(id) || this._summary({ ...m, ...ref });
     const index = typeof m.turnIndex === 'string' && /^\d+$/.test(m.turnIndex) ? Number(m.turnIndex) : m.turnIndex;
     return { ...summary, ...ref, id, conversationId: id, passageId: `${id}:${String(hit.id ?? `${index}:${m.role}`)}`,
-      turnIndex: count(index) ? index : undefined, role: m.role === 'ai' ? 'assistant' : text(m.role),
+      turnIndex: count(index) ? index : undefined, sourceTurnPosition: count(index) ? index : null, role: m.role === 'ai' ? 'assistant' : text(m.role),
       excerpt: excerpt(hit.document, query), text: hit.document, date: text(m.createdAt) || summary.date,
       provider: summary.provider || text(m.provider), model: text(m.model),
       ...(Number.isFinite(hit.distance) ? { distance: hit.distance } : {}),

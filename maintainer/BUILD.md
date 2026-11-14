@@ -1,6 +1,6 @@
 # Build the public desktop releases
 
-The current tree builds **1.4.6 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Analytics adds coherent current-Reader capture, incremental owned SQLite storage, exact disk-based analysis and bounded native pages while preserving public text evidence, search and compatible completed captures. Reader and Alternative retain their 1.4.5 application features. Node and Electron pins are refreshed below; the managed npm security profile remains separately verified. The server patch is unchanged. The embedded illustrated manual is synchronized with the current manual website and retains content version 1.4.5. No GitHub release is implied by building this tree.
+The current tree builds **1.4.7 packages** for Reader, Analytics and Alternative. The version map is `tools/release-versions.json`. Reader and Alternative include the approved ChatGPT rendering improvements and a visual-only option to hide intermediate JSON responses. Reader also has an animated conversation-header collapse control with a saved position. Search queries, indexes, counts, sorting, pagination and analytics retain their existing behavior. Analytics retains its 1.4.6 application functionality. The pinned Node 26.13.1 / Electron 45.3.0 toolchain and server patch are unchanged. The embedded illustrated manual retains content version 1.4.5. No GitHub release is implied by building this tree.
 
 ## Pinned toolchain
 

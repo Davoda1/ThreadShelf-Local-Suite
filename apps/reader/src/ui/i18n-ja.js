@@ -1,6 +1,8 @@
 // Complete Japanese application chrome. Conversation and code content remain unchanged.
 // Theme and product names intentionally retain their established names.
 export const japanese = Object.freeze({
+hideIntermediateJson:"途中のJSONのみのAI応答を非表示",
+hideIntermediateJsonHelp:"次のユーザーメッセージまでに別のAI応答がある場合、JSONのみのメッセージ全体を非表示にします。最後のJSON応答、明示的なコード例、保存データは変更しません。",
 codeWrap:"長いコード行を折り返す",
 codeWrapHelp:"ブロックの幅に合わせてコードを表示上だけ折り返します。コピーやエクスポートされるコードは変わりません。",
 codeLineNumbers:"コードの行番号を表示",

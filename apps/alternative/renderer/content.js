@@ -1,4 +1,4 @@
-/* ThreadShelf Local Alternative 1.4.6 — isolated archive rendering. */
+/* ThreadShelf Local Alternative 1.4.7 — isolated archive rendering. */
 (function () {
   'use strict';
   const rich = window.TSARich;
@@ -28,6 +28,17 @@
       return payload.length % 4 === 0 ? value : null;
     }
     return safeUrl(value, true);
+  }
+  function imageSlot(value, label, saved) {
+    const url = safeImageSource(value);
+    const host = url && !/^data:/i.test(url) ? new URL(url).hostname : 'embedded image';
+    const dimensions = saved ? ` data-saved-raster-width="${saved.width}" data-saved-raster-height="${saved.height}"` : '';
+    return `<span class="tsa-image-slot" role="group" aria-label="${escape(label)}" data-image-state="${url ? 'deferred' : 'missing'}"${dimensions}><span class="tsa-image-icon" aria-hidden="true">▧</span><span class="tsa-image-label">${escape(label)}</span>${url ? `<button type="button" data-load-image="${escape(url)}" data-image-alt="${escape(label)}" aria-label="Load image · ${escape(label)}" title="Load this image here from ${escape(host)}">Load image · ${escape(host)}</button>` : '<span class="tsa-image-note">Image not available in this export</span>'}</span>`;
+  }
+  function savedAssetHtml(message) {
+    const saved = rich?.Assets?.normalizeSavedRasterAssets(message.assets) || {images: [], unavailable: false};
+    if (!saved.images.length && !saved.unavailable && !message.unavailableAssets) return '';
+    return `<div class="tsa-saved-assets" role="group" aria-label="Saved images"><p class="tsa-saved-assets-label">${saved.images.length ? 'Images retained with this message' : 'Saved image attachment'}</p>${saved.images.map(asset => `<figure class="tsa-saved-asset">${imageSlot(asset.url, asset.label || 'Saved image', asset)}${asset.label ? `<figcaption>${escape(asset.label)}</figcaption>` : ''}</figure>`).join('')}${saved.unavailable || message.unavailableAssets ? imageSlot('', 'Saved image unavailable') : ''}</div>`;
   }
   // A linked image is never an external-browser action. Split only the image
   // out of its link and retain neighboring linked text and inline formatting.
@@ -86,6 +97,8 @@
   }
   function normalize(thread = {}) {
     let entries = Array.isArray(thread) ? thread : thread.turns || thread.messages;
+    const raw = thread.raw || thread;
+    const sequenceKnown = Array.isArray(entries) || !!(raw.current_node && raw.mapping?.[raw.current_node]);
     if (!Array.isArray(entries)) entries = rawMessages(thread);
     const resolveContext = rich?.Context?.createRichContextResolver(thread.raw ? thread : {...thread, raw:thread}) || (() => ({}));
     const result = [];
@@ -93,16 +106,16 @@
       const entry = typeof entries[index] === 'object' && entries[index] !== null ? entries[index] : {content: entries[index]};
       const fields = ['user', 'thinking', 'ai'].filter(key => entry[key] !== undefined && entry[key] !== null);
       const items = fields.length ? fields.map(key => ({role: key === 'user' ? 'user' : key === 'thinking' ? 'reasoning' : ['tool','system'].includes(entry.source_role) ? entry.source_role : 'assistant', content: entry[key]})) : [{role: entry.role || entry.author?.role || entry.source_role || 'assistant', content: entry.content ?? entry.text ?? ''}];
-      for (const item of items) {
+      for (const [itemIndex, item] of items.entries()) {
         let role = String(item.role).toLowerCase();
         if (['thinking', 'analysis', 'reasoning'].includes(role) || (role === 'assistant' && (entry.channel || entry.metadata?.channel) === 'analysis')) role = 'reasoning';
         if (!Object.hasOwn(labels, role)) role = 'assistant';
         const content = textValue(item.content);
-        if (!content.trim() && !entry.model) continue;
-        let createdAt = entry.createdAt ?? entry.created_at ?? entry.create_time ?? '';
-        if (typeof createdAt === 'number' && createdAt > 0 && createdAt < 1e12) createdAt = createdAt * 1000;
+        const assets = itemIndex === items.length - 1 && Array.isArray(entry.assets) ? entry.assets : [];
+        if (!content.trim() && !entry.model && !assets.length) continue;
+        const createdAt = entry.createdAt ?? entry.created_at ?? entry.create_time ?? '';
         const turnIndex = Number.isSafeInteger(Number(entry.turnIndex ?? entry.turn_index)) ? Number(entry.turnIndex ?? entry.turn_index) : index;
-        result.push({id: `message-${result.length}`, role, content, model: String(entry.model || entry.metadata?.model_slug || ''), createdAt, turnIndex, richContext: resolveContext(entry)});
+        result.push({id: `message-${result.length}`, role, content, originalJsonOnly:sequenceKnown && window.TSAVisibility?.originalJsonOnly(entry, content) === true, ...(assets.length ? {assets} : {}), model: String(entry.model || entry.metadata?.model_slug || ''), createdAt, turnIndex, sourceTurnPosition:index, richContext: resolveContext(entry)});
       }
     }
     return result;
@@ -141,10 +154,8 @@
       return url ? `<a href="${escape(url)}" rel="noopener noreferrer" target="_blank"${token.title ? ` title="${escape(token.title)}"` : ''}>${label}</a>` : `<span class="tsa-unavailable-link" title="This saved link cannot be opened here">${label}</span>`;
     };
     renderer.image = token => {
-      const url = safeImageSource(token.href);
       const label = token.text || token.title || 'Archived image';
-      const host = url && !/^data:/i.test(url) ? new URL(url).hostname : 'embedded image';
-      return `<span class="tsa-image-slot" role="group" aria-label="${escape(label)}" data-image-state="${url ? 'deferred' : 'missing'}"><span class="tsa-image-icon" aria-hidden="true">▧</span><span class="tsa-image-label">${escape(label)}</span>${url ? `<button type="button" data-load-image="${escape(url)}" data-image-alt="${escape(label)}" aria-label="Load image · ${escape(label)}" title="Load this image here from ${escape(host)}">Load image · ${escape(host)}</button>` : '<span class="tsa-image-note">Image not available in this export</span>'}</span>`;
+      return imageSlot(token.href, label);
     };
   }
   function sanitize(html) {
@@ -277,20 +288,21 @@
   function summary(value, length=90) { const text=value.replace(/[#*_`>]/g,'').replace(/\s+/g,' ').trim(); return text.length>length ? text.slice(0,length-1)+'…' : text; }
   function renderThread(thread,options={}) {
     sources.clear(); rich?.Math?.clearPendingMath();
-    const messages=normalize(thread).filter(message=>!window.TSAVisibility?.isHiddenThoughtsMessage(message)); const run=++sequence;
+    const normalized=normalize(thread); const messages=window.TSAVisibility?.visibleMessages(normalized,options.hideIntermediateJson===true) || normalized; const run=++sequence;
     const providerLabel=({chatgpt:'ChatGPT',openai:'ChatGPT',claude:'Claude',anthropic:'Claude'})[String(thread?.provider||'').toLowerCase()]||'Assistant';
-    const metrics={messages:messages.length,user:0,assistant:0,reasoning:0,tool:0,system:0,words:0,characters:0,readingMinutes:0};
+    const metricMessages=window.TSAVisibility?.visibleMessages(normalized,false)||normalized;
+    const metrics={messages:metricMessages.length,user:0,assistant:0,reasoning:0,tool:0,system:0,words:0,characters:0,readingMinutes:0};
+    for(const message of metricMessages){metrics[message.role]++;metrics.words+=words(message.content);metrics.characters+=message.content.length;}
     const outline=[];
     const html=messages.map((message,index)=>{
-      metrics[message.role]++;metrics.words+=words(message.content);metrics.characters+=message.content.length;
       if(message.role==='user')outline.push({id:message.id,label:summary(message.content)||`Prompt ${outline.length+1}`,index,role:message.role});
       const key=`${run}-${index}`;sources.set(key,message.content);
-      const date=new Date(message.createdAt); const time=message.createdAt && Number.isFinite(date.getTime()) ? `<time datetime="${escape(date.toISOString())}" title="${escape(date.toLocaleString())}">${escape(date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}))}</time>` : '';
+      const createdTime=window.TSAVisibility.timestampMillis(message.createdAt),date=createdTime===null?null:new Date(createdTime); const time=date ? `<time datetime="${escape(date.toISOString())}" title="${escape(date.toLocaleString())}">${escape(date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}))}</time>` : '';
       const label=message.role==='assistant'?providerLabel:labels[message.role];
       const header=`<div class="tsa-message-meta"><span class="tsa-role">${label}</span>${message.model ? `<span class="tsa-model">${escape(message.model)}</span>` : ''}${time}<button type="button" class="tsa-copy-message" data-copy-message aria-label="Copy ${label.toLowerCase()} message">Copy</button></div>`;
-      const body=`<div class="message-content">${highlight(markdown(message.content,message.richContext,message.role),options.query)}</div>`;
+      const body=`<div class="message-content">${highlight(markdown(message.content,message.richContext,message.role),options.query)}${savedAssetHtml(message)}</div>`;
       const fold=['reasoning','tool','system'].includes(message.role);
-      return `<article id="${message.id}" class="tsa-message message tsa-${message.role}" data-role="${message.role}" data-message-index="${index}" data-source-key="${key}" tabindex="-1">${header}${fold ? `<details class="tsa-message-details"${message.role==='reasoning'&&options.showReasoning?' open':''}><summary>${message.role==='reasoning'?'Reasoning notes':'Saved '+labels[message.role].toLowerCase()+' message'}<span>${words(message.content).toLocaleString()} words</span></summary>${body}</details>`:body}</article>`;
+      return `<article id="${message.id}" class="tsa-message message tsa-${message.role}" data-role="${message.role}" data-turn-index="${message.turnIndex}" data-message-index="${index}" data-source-key="${key}" tabindex="-1">${header}${fold ? `<details class="tsa-message-details"${message.role==='reasoning'&&options.showReasoning?' open':''}><summary>${message.role==='reasoning'?'Reasoning notes':'Saved '+labels[message.role].toLowerCase()+' message'}<span>${words(message.content).toLocaleString()} words</span></summary>${body}</details>`:body}</article>`;
     }).join('');
     metrics.readingMinutes=metrics.words?Math.max(1,Math.ceil(metrics.words/220)):0;
     return {html:html||'<p class="tsa-empty-thread">This conversation has no readable messages.</p>',outline,metrics,messages};
@@ -597,7 +609,10 @@
     };
     const settle=()=>{
       if(disposed||state!=='loading'||image.getAttribute('src')!==source||!image.complete)return;
-      state=image.naturalWidth>0&&image.naturalHeight>0?'loaded':'failed';
+      const savedSize=!wrapper.dataset.savedRasterWidth || rich?.Assets?.savedRasterDimensions(image.naturalWidth,image.naturalHeight)
+        && image.naturalWidth===Number(wrapper.dataset.savedRasterWidth) && image.naturalHeight===Number(wrapper.dataset.savedRasterHeight);
+      state=image.naturalWidth>0&&image.naturalHeight>0&&savedSize?'loaded':'failed';
+      if(!savedSize)image.removeAttribute('src');
       // The decoded aspect ratio sizes the display; original pixel dimensions
       // are not a display ceiling. CSS recalculates on reader/window resizing.
       if(state==='loaded')image.style.setProperty('--tsa-image-ratio',String(image.naturalWidth/image.naturalHeight));
@@ -662,6 +677,7 @@
     const queueDiagrams=()=>{diagramQueue=diagramQueue.catch(()=>{}).then(()=>diagrams(container,alive));return diagramQueue;};
     const localSources=new Map();container.querySelectorAll('[data-source-key]').forEach(element=>{const key=element.dataset.sourceKey;if(sources.has(key))localSources.set(key,sources.get(key));});
     const disposeCharts=rich?.Interactions?.mountChartInteractions(container);
+    const disposeWidgets=rich?.Renderer?.mountLocalWidgetInteractions(container,{renderMarkdown:basicMarkdown});
     unlinkImages(container);
     container.querySelectorAll('.tsa-code-block').forEach(block=>{
       codePresentationOptions.set(block,{codeWrap:options.codeWrap===true,codeLineNumbers:options.codeLineNumbers===true});
@@ -703,7 +719,7 @@
       diagramQueue=diagramQueue.catch(()=>{}).then(async()=>{themeQueued=false;if(alive())await diagrams(container,alive);});
     });
     themeObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-    const dispose=()=>{disposed=true;htmlPreviews?.destroy();mountedHtml.forEach(preview=>preview.destroy());controller.abort();themeObserver.disconnect();disposeCharts?.();mountedImages.forEach(image=>image.destroy());mountedSvg.forEach(svg=>svg.destroy());localSources.clear();};
+    const dispose=()=>{disposed=true;htmlPreviews?.destroy();mountedHtml.forEach(preview=>preview.destroy());controller.abort();themeObserver.disconnect();disposeCharts?.();disposeWidgets?.();mountedImages.forEach(image=>image.destroy());mountedSvg.forEach(svg=>svg.destroy());localSources.clear();};
     dispose.ready=Promise.allSettled([mathReady,firstDiagrams]);
     dispose.configureImages=configureImages;dispose.closeHtmlPreviews=()=>htmlPreviews?.closeAll();
     return dispose;

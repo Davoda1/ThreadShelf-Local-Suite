@@ -29,7 +29,7 @@ function applyWindowAppearance(theme){
 }
 const entry=path.join(__dirname,'renderer','index.html');
 const trustedURL=pathToFileURL(entry).href;
-const methods=new Set(['collections','capabilities','health','stats','browse','search','thread']);
+const methods=new Set(['collections','capabilities','health','stats','browse','search','thread','searchVisibility','cancelVisibility']);
 function trustedSender(event){return !!win&&isTrustedMainFrame(event,win.webContents,trustedURL);}
 function handle(action,fn){ipcMain.handle('alternative:'+action,async(event,...args)=>{
   try{

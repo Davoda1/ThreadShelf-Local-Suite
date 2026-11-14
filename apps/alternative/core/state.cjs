@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const DEFAULTS = Object.freeze({version:1,serverUrl:'http://localhost:3000',theme:'system',fontSize:16,lineWidth:'comfortable',showReasoning:false,codeWrap:false,codeLineNumbers:false,imageMode:'click',htmlPreviewExternal:true,pins:[],savedSearches:[],recent:[],positions:{},collection:''});
+const DEFAULTS = Object.freeze({version:1,serverUrl:'http://localhost:3000',theme:'system',fontSize:16,lineWidth:'comfortable',showReasoning:false,hideIntermediateJson:false,codeWrap:false,codeLineNumbers:false,imageMode:'click',htmlPreviewExternal:true,pins:[],savedSearches:[],recent:[],positions:{},collection:''});
 function cleanState(value) {
   if(!value || typeof value!=='object' || Array.isArray(value)) return structuredClone(DEFAULTS);
   const out=structuredClone(DEFAULTS);
@@ -9,6 +9,7 @@ function cleanState(value) {
   if(['system','light','dark'].includes(value.theme)) out.theme=value.theme;
   if(Number.isFinite(value.fontSize)) out.fontSize=Math.max(13,Math.min(24,value.fontSize));
   if(['comfortable','wide','compact'].includes(value.lineWidth)) out.lineWidth=value.lineWidth;
+  out.hideIntermediateJson=value.hideIntermediateJson===true;
   out.showReasoning=value.showReasoning===true;
   out.codeWrap=value.codeWrap===true;
   out.codeLineNumbers=value.codeLineNumbers===true;
