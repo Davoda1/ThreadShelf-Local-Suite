@@ -2,8 +2,10 @@
 """Create one offline HTML file from the exact application renderer."""
 from pathlib import Path
 import argparse
+import json
 import re
 ROOT=Path(__file__).resolve().parent.parent
+VERSION=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))['version']
 def local_file(value):
     path=(ROOT/'renderer'/value).resolve()
     if not path.is_relative_to(ROOT):
@@ -48,5 +50,5 @@ def build(output):
     print(output)
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output',type=Path,default=ROOT/'dist/ThreadShelf-Local-Alternative-1.4.6-Demo.html')
+    parser.add_argument('--output',type=Path,default=ROOT/f'dist/ThreadShelf-Local-Alternative-{VERSION}-Demo.html')
     build(parser.parse_args().output.resolve())

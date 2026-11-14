@@ -256,7 +256,9 @@ async function binary(platform) {
   await extractZip(archive, runtime);
   await fsp.rm(path.join(runtime, 'resources/default_app.asar'), { force: true });
   const app = path.join(runtime, 'resources/app'); await fsp.mkdir(app, { recursive: true });
-  for (const p of ['package.json', 'tts', 'src/core', 'src/desktop', 'src/reader/rich-parser.js', 'src/reader/grok-renderer.js', 'src/reader/html-preview-validation.mjs', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Deduplication.md', 'docs/HTML-Previews.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/grok-rendering-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
+  // Core and desktop modules share Reader helpers and their relative imports.
+  // Retain the directory so package staging includes that dependency closure.
+  for (const p of ['package.json', 'tts', 'src/core', 'src/desktop', 'src/reader', 'dist', 'build', 'vendor', 'README.md', 'ARCHITECTURE.md', 'docs/Toolchain.md', 'docs/Code-Highlighting.md', 'docs/Activity.md', 'docs/Search.md', 'docs/Themes.md', 'docs/Holidays.md', 'docs/Storage.md', 'docs/Images-and-Cache.md', 'docs/DATABASE-MANAGER.md', 'docs/Deduplication.md', 'docs/HTML-Previews.md', 'docs/Packaging-Policy.md', 'docs/Rich-Rendering.md', 'docs/rich-parser-support.md', 'docs/grok-rendering-support.md', 'docs/rich-chart-support.md', 'server-support', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses']) await copy(p, app);
   run(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'), [path.join(root, 'scripts/stage-tts-assets.py'), '--assets', ttsAssets, '--platform', platform, '--destination', path.join(runtime, 'resources/tts-assets')]);
   await fsp.cp(modules, path.join(app, 'node_modules'), { recursive: true, dereference: true });
   await removeTransformersPrebuiltBundles(path.join(app, 'node_modules'));
